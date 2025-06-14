@@ -1,4 +1,4 @@
-import GridShape from "@/components/common/GridShape";
+import GridShape from "@/components/old-comp/common/GridShape";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -40,7 +40,7 @@ export default function NotFound() {
       </div>
       {/* <!-- Footer --> */}
       <p className="absolute text-sm text-center text-gray-500 -translate-x-1/2 bottom-6 left-1/2 dark:text-gray-400">
-        &copy; {new Date().getFullYear()} - TailAdmin
+        &copy; {new Date().getFullYear()} - DDF
       </p>
     </div>
   );

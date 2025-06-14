@@ -12,6 +12,6 @@ export function logoutAndRedirect() {
   if ('caches' in window) {
     caches.keys().then(names => names.forEach(name => caches.delete(name)));
   }
-  window.location.replace('/auth/cover-login');
+  window.location.replace('/signin');
 
 }

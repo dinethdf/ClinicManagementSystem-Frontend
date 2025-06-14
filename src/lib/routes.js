@@ -3,7 +3,7 @@ export const LOGIN = '/login';
 export const ROOT = '/';
 
 export const PUBLIC_ROUTES = [
-    '/auth',
+    '/signin',
     // '/auth/cover-login',
     // '/auth/cover-register',
     '/register',
