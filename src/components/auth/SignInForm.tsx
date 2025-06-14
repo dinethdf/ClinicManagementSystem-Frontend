@@ -5,12 +5,44 @@ import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-export default function SignInForm() {
+import { loginUser } from '@/utils/logIn/authService';
+import { logoutAndRedirect } from '@/utils/signOut/logoutAndRedirect';
+
+export default function SignInForm(prop : any) {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  return (
+
+  // const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  //   prop.handleLoginSubmit("dineth@dd.com", "dd")
+  // };
+
+      const [errorMessage, setErrorMessage] = useState<any>();
+    
+    useEffect(() => {
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reason') === 'session-expired') {
+          logoutAndRedirect()
+        }
+    }, []);
+
+  
+    const handleLoginSubmit = async (email: string, password: string) => {
+          const result : any = await loginUser(email, password);
+console.log("run")
+      if (result.success) {
+        window.location.href = '/';
+      } else {
+        setErrorMessage(result.message);
+        console.log(result.message);
+      }
+    };
+
+
+
+return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
       <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
         <Link
@@ -128,7 +160,9 @@ export default function SignInForm() {
                   </Link>
                 </div>
                 <div>
-                  <Button className="w-full" size="sm">
+
+                <Button className="w-full" size="sm" onClick={handleLoginSubmit}
+                  >
                     Sign in
                   </Button>
                 </div>
