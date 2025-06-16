@@ -12,12 +12,8 @@ import ToggleSwitch from "@/components/form/form-elements/ToggleSwitch";
 import { Metadata } from "next";
 import React from "react";
 import CommenDetailsForm from "@/components/register/commenDetails";
+import ContactDetails from "@/components/register/ContactDetails";
 
-export const metadata: Metadata = {
-  title: "Next.js Form Elements | TailAdmin - Next.js Dashboard Template",
-  description:
-    "This is Next.js Form Elements page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
-};
 
 
 const PatientRegister: React.FC = () => {
@@ -30,7 +26,7 @@ const PatientRegister: React.FC = () => {
             <CommenDetailsForm /> {/* This one is WIDER on large screens */}
         </div>
         <div className="col-span-1 space-y-6">
-            <InputGroup />
+            <ContactDetails />
         </div>
         <div className="col-span-1 space-y-6">
             <InputGroup />
