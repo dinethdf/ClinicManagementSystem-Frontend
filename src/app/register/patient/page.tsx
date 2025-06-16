@@ -11,7 +11,7 @@ import TextAreaInput from "@/components/form/form-elements/TextAreaInput";
 import ToggleSwitch from "@/components/form/form-elements/ToggleSwitch";
 import { Metadata } from "next";
 import React from "react";
-import CommenDetailsForm from "@/components/register/commenDetails";
+import CommenDetailsForm from "@/components/register/CommenDetails";
 import ContactDetails from "@/components/register/ContactDetails";
 
 
