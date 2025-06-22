@@ -13,23 +13,29 @@ import { Metadata } from "next";
 import React from "react";
 import CommenDetailsForm from "@/components/register/CommenDetails";
 import ContactDetails from "@/components/register/ContactDetails";
+import PatientRegistrationForm from "@/components/register/PatientRegistrationForm";
 
 const PatientRegister: React.FC = () => {
   return (
     <div>
       <PageBreadcrumb pageTitle="From Elements" />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <div className="col-span-1 lg:col-span-1 space-y-6">
-          <CommenDetailsForm /> {/* This one is WIDER on large screens */}
+        <PatientRegistrationForm />
+
+        
+    {/*    <div className="col-span-1 lg:col-span-1 space-y-6">
+          <CommenDetailsForm /> 
         </div>
         <div className="col-span-1 space-y-6">
           <ContactDetails />
-        </div>
-        <div className="col-span-1 space-y-6">
-          <InputGroup />
+           <InputGroup />
         </div>
 
-        {/* <div className="space-y-6">
+        <div className="col-span-1 space-y-6">
+          <InputGroup />
+        </div> 
+
+         <div className="space-y-6">
           <DefaultInputs />
           <SelectInputs />
           <TextAreaInput />

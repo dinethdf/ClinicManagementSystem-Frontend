@@ -5,7 +5,7 @@ export const PUBLIC_ROUTES = [
   "/signin",
   // '/auth/cover-login',
   // '/auth/cover-register',
-  "/register",
+   "sys/register",
 ];
 
 export const PROTECTED_SUB_ROUTES = ["/"];
