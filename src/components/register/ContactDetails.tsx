@@ -10,14 +10,13 @@ const ContactDetails = () => {
   const countries = [
     { code: "LKA", label: "+94" },
     { code: "US", label: "+1" },
-    { code: "CA", label: "+1" },
     { code: "AU", label: "+61" },
   ];
   const handlePhoneNumberChange = (phoneNumber: string) => {
     console.log("Updated phone number:", phoneNumber);
   };
 
-    return (
+  return (
     <ComponentCard title="Input Group">
       <div className="space-y-6">
         <div>
@@ -44,7 +43,7 @@ const ContactDetails = () => {
         </div>
       </div>
     </ComponentCard>
-    );
+  );
 };
 
 export default ContactDetails;

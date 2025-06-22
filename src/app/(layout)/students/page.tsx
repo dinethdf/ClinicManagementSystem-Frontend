@@ -1,16 +1,9 @@
-'use client'
-
-import React from 'react'
-
-
-import { Tab, Tabs } from '@/components/custom/tabs/tab'
-
-
+import { Tab, Tabs } from "@/components/custom/tabs/tab";
 
 const PatientAdmission = () => {
+  console.log("PatientAdmission component rendered");
   return (
-    <React.Fragment>
-    
+    <>
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 xl:col-span-8 2xl:col-span-9">
           <div className="card">
@@ -20,30 +13,30 @@ const PatientAdmission = () => {
                 otherClass="nav-item [&.active]:bg-primary-500 [&.active]:text-primary-50"
                 activeTabClass="bg-primary-500 text-primary-50"
                 inactiveTabClass="text-gray-500 hover:text-primary-500"
-                contentProps="mt-4">
+                contentProps="mt-4"
+              >
                 <Tab label="Personal Details">
                   <div>dasdasd</div>
                 </Tab>
                 <Tab label="Guardian Details">
-              <div>fgedgert</div>
+                  <div>fgedgert</div>
                 </Tab>
                 <Tab label="Educational Background">
                   <div>dasdasdasd</div>
                 </Tab>
                 <Tab label="Documents">
-                <div>asdasdasd</div>
+                  <div>asdasdasd</div>
                 </Tab>
                 <Tab label="Application Overview">
-                <div>sdfsdfsdf</div>
+                  <div>sdfsdfsdf</div>
                 </Tab>
               </Tabs>
             </div>
           </div>
         </div>
-       
       </div>
-    </React.Fragment>
-  )
-}
+    </>
+  );
+};
 
-export default PatientAdmission
+export default PatientAdmission;

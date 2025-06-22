@@ -14,22 +14,19 @@ import React from "react";
 import CommenDetailsForm from "@/components/register/CommenDetails";
 import ContactDetails from "@/components/register/ContactDetails";
 
-
-
 const PatientRegister: React.FC = () => {
   return (
-     <div>
+    <div>
       <PageBreadcrumb pageTitle="From Elements" />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-
         <div className="col-span-1 lg:col-span-1 space-y-6">
-            <CommenDetailsForm /> {/* This one is WIDER on large screens */}
+          <CommenDetailsForm /> {/* This one is WIDER on large screens */}
         </div>
         <div className="col-span-1 space-y-6">
-            <ContactDetails />
+          <ContactDetails />
         </div>
         <div className="col-span-1 space-y-6">
-            <InputGroup />
+          <InputGroup />
         </div>
 
         {/* <div className="space-y-6">

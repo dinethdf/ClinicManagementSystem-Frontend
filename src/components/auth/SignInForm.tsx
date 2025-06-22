@@ -7,32 +7,31 @@ import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 
-import { loginUser } from '@/utils/logIn/authService';
+import { loginUser } from "@/utils/logIn/authService";
 
-
-export default function SignInForm(prop : any) {
-
+export default function SignInForm(prop: any) {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [errorMessage, setErrorMessage] = useState<any>(null);
-  const [formData, setFormData] = useState<{ email: string; password: string }>({email: '', password: ''});
-    
-  
-    const handleLoginSubmit = async (email: string, password: string) => {
-      const result : any = await loginUser(email, password); 
-      if (result.success) {
-        window.location.href = '/';
-      } else {
-        setErrorMessage(result.message.message);
-      }
-    };
+  const [formData, setFormData] = useState<{ email: string; password: string }>(
+    { email: "", password: "" },
+  );
 
-    const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.preventDefault();
-      handleLoginSubmit(formData.email, formData.password);
+  const handleLoginSubmit = async (email: string, password: string) => {
+    const result: any = await loginUser(email, password);
+    if (result.success) {
+      window.location.href = "/";
+    } else {
+      setErrorMessage(result.message.message);
     }
+  };
 
-return (
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    handleLoginSubmit(formData.email, formData.password);
+  };
+
+  return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
       <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
         <Link
@@ -107,17 +106,29 @@ return (
               </div>
             </div>
             <form>
-
-              {errorMessage ? <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                <span className="font-medium">{errorMessage} ! </span>
-              </div> : ""}
+              {errorMessage ? (
+                <div
+                  className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+                  role="alert"
+                >
+                  <span className="font-medium">{errorMessage} ! </span>
+                </div>
+              ) : (
+                ""
+              )}
 
               <div className="space-y-6">
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" type="email" onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                  <Input
+                    placeholder="info@gmail.com"
+                    type="email"
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                  />
                 </div>
                 <div>
                   <Label>
@@ -127,7 +138,9 @@ return (
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -155,22 +168,19 @@ return (
                     Forgot password?
                   </Link>
                 </div>
-                <button>
-                  dasdasdasd
+                <button>dasdasdasd</button>
+
+                <button
+                  className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition w-full
+                       px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 "
+                  onClick={handleSubmit}
+                >
+                  fgfdgd
                 </button>
-               
-                  <button
-                     className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition w-full
-                       px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 "    
-                      onClick={handleSubmit}
-                  >fgfdgd
-                 </button>
-                  {/* <Button className="w-full" size="sm" onClick={handleLoginSubmit("sdfs", "dasddasd")}
+                {/* <Button className="w-full" size="sm" onClick={handleLoginSubmit("sdfs", "dasddasd")}
                     >
                       Sign in
                     </Button> */}
-
-                
               </div>
             </form>
 

@@ -1,16 +1,16 @@
-import axios from 'axios';
+import axios from "axios";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
-  timeout:1000
+  timeout: 1000,
 });
 
 // Attach tokens to requests
 axiosInstance.interceptors.request.use((config) => {
-  const accessToken = getCookie('accessToken');
+  const accessToken = getCookie("accessToken");
   if (accessToken) {
-    config.headers['Authorization'] = `Bearer ${accessToken}`;
+    config.headers["Authorization"] = `Bearer ${accessToken}`;
   }
   return config;
 });
@@ -26,14 +26,18 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = getCookie('refreshToken');
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/refresh`, { refreshToken });
+        const refreshToken = getCookie("refreshToken");
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/refresh`,
+          { refreshToken },
+        );
 
         // Update access token
-        setCookie('accessToken', response.data.accessToken, 0.01);  // 15 minutes
+        setCookie("accessToken", response.data.accessToken, 0.01); // 15 minutes
 
         // Retry request with new token
-        originalRequest.headers['Authorization'] = `Bearer ${response.data.accessToken}`;
+        originalRequest.headers["Authorization"] =
+          `Bearer ${response.data.accessToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         // If refresh fails, log out
@@ -42,7 +46,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

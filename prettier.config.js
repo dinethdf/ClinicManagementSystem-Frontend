@@ -1,3 +1,2 @@
-module.exports = {
-    plugins: ['prettier-plugin-tailwindcss'],
-}
+// .prettierrc.js
+export const plugins = ["prettier-plugin-tailwindcss"];
