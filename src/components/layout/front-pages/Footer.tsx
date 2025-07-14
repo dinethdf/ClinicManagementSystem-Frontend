@@ -10,6 +10,11 @@ import IconButton from '@mui/material/IconButton'
 // Third-party Imports
 import classnames from 'classnames'
 
+import frontCommonStyles from '@views/front-pages/styles.module.css'
+
+// Styles Imports
+import styles from './styles.module.css'
+
 // Type Imports
 import type { Mode } from '@core/types'
 
@@ -24,9 +29,7 @@ import { useImageVariant } from '@core/hooks/useImageVariant'
 // Util Imports
 import { frontLayoutClasses } from '@layouts/utils/layoutClasses'
 
-// Styles Imports
-import styles from './styles.module.css'
-import frontCommonStyles from '@views/front-pages/styles.module.css'
+
 
 const Footer = ({ mode }: { mode: Mode }) => {
   // Vars

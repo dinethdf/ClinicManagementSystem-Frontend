@@ -39,7 +39,7 @@ const themeConfig: Config = {
   templateName: 'CureGuard',
   homePageUrl: '/dashboards/crm',
   settingsCookieName: 'CureGuard-private-clinic',
-  mode: 'system', // 'system', 'light', 'dark'
+  mode: 'light', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'
   semiDark: false, // true, false
   layout: 'vertical', // 'vertical', 'collapsed', 'horizontal'

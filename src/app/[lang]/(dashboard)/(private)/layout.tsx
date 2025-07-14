@@ -8,15 +8,18 @@ import type { Locale } from '@configs/i18n'
 // Layout Imports
 import LayoutWrapper from '@layouts/LayoutWrapper'
 import VerticalLayout from '@layouts/VerticalLayout'
-import HorizontalLayout from '@layouts/HorizontalLayout'
+
+// import HorizontalLayout from '@layouts/HorizontalLayout'
 
 // Component Imports
 import Providers from '@components/Providers'
 import Navigation from '@components/layout/vertical/Navigation'
-import Header from '@components/layout/horizontal/Header'
+
+// import Header from '@components/layout/horizontal/Header'
 import Navbar from '@components/layout/vertical/Navbar'
 import VerticalFooter from '@components/layout/vertical/Footer'
-import HorizontalFooter from '@components/layout/horizontal/Footer'
+
+// import HorizontalFooter from '@components/layout/horizontal/Footer'
 import Customizer from '@core/components/customizer'
 import ScrollToTop from '@core/components/scroll-to-top'
 import AuthGuard from '@/hocs/AuthGuard'
@@ -54,9 +57,11 @@ const Layout = async (props: ChildrenType & { params: Promise<{ lang: Locale }> 
             </VerticalLayout>
           }
           horizontalLayout={
-            <HorizontalLayout header={<Header dictionary={dictionary} />} footer={<HorizontalFooter />}>
-              {children}
-            </HorizontalLayout>
+            <div className='flex flex-col flex-auto'>Horizontal Layout </div>
+           
+            // <HorizontalLayout header={<Header dictionary={dictionary} />} footer={<HorizontalFooter />}>
+            //   {children}
+            // </HorizontalLayout>
           }
         />
         <ScrollToTop className='mui-fixed'>
