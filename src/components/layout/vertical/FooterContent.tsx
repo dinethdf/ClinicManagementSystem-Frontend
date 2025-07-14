@@ -22,10 +22,10 @@ const FooterContent = () => {
     >
       <p>
         <span className='text-textSecondary'>{`© ${new Date().getFullYear()}, Made with `}</span>
-        <span>{`❤️`}</span>
+        
         <span className='text-textSecondary'>{` by `}</span>
-        <Link href='https://pixinvent.com' target='_blank' className='text-primary uppercase'>
-          Pixinvent
+        <Link href='#' target='_blank' className='text-primary uppercase'>
+          DDF
         </Link>
       </p>
       {!isBreakpointReached && (
