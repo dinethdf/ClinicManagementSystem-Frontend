@@ -8,7 +8,6 @@
 // Data Imports
 import { db as eCommerceData } from '@/fake-db/apps/ecommerce'
 import { db as academyData } from '@/fake-db/apps/academy'
-import { db as vehicleData } from '@/fake-db/apps/logistics'
 import { db as invoiceData } from '@/fake-db/apps/invoice'
 import { db as userData } from '@/fake-db/apps/userList'
 import { db as permissionData } from '@/fake-db/apps/permissions'
@@ -23,10 +22,6 @@ export const getEcommerceData = async () => {
 
 export const getAcademyData = async () => {
   return academyData
-}
-
-export const getLogisticsData = async () => {
-  return vehicleData
 }
 
 export const getInvoiceData = async () => {

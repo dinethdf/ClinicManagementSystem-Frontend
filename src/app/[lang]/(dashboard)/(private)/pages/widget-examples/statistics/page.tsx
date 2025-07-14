@@ -21,7 +21,6 @@ import BarChartRevenueGrowth from '@views/pages/widget-examples/statistics/BarCh
 import DonutChartGeneratedLeads from '@views/pages/widget-examples/statistics/DonutChartGeneratedLeads'
 import HorizontalStatisticsCard from '@views/pages/widget-examples/statistics/HorizontalStatisticsCard'
 import CustomerStatisticsCard from '@views/pages/widget-examples/statistics/CustomerStatisticsCard'
-import LogisticsStatisticsCard from '@views/apps/logistics/dashboard/LogisticsStatisticsCard'
 import UserListCards from '@views/pages/widget-examples/statistics/UserListCards'
 
 // Data Imports
@@ -74,9 +73,6 @@ const Statistics = async () => {
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
         <LineChartImpression />
-      </Grid>
-      <Grid size={{ xs: 12 }}>
-        <LogisticsStatisticsCard data={statsData?.statsHorizontalWithBorder} />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <UserListCards />
