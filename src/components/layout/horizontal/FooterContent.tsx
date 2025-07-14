@@ -25,26 +25,20 @@ const FooterContent = () => {
         <span>{`❤️`}</span>
         <span className='text-textSecondary'>{` by `}</span>
         <Link href='https://pixinvent.com/' target='_blank' className='text-primary uppercase'>
-          Pixinvent
+          CureGuard
         </Link>
       </p>
       {!isBreakpointReached && (
         <div className='flex items-center gap-4'>
-          <Link href='https://themeforest.net/licenses/standard' target='_blank' className='text-primary'>
-            License
+
+          <Link href='/front-pages/about-us' className='text-textSecondary hover:text-primary'>
+            About Us
           </Link>
-          <Link href='https://themeforest.net/user/pixinvent/portfolio' target='_blank' className='text-primary'>
-            More Themes
+          <Link href='/front-pages/contact-us' className='text-textSecondary hover:text-primary'>
+            Contact Us
           </Link>
-          <Link
-            href='https://demos.pixinvent.com/vuexy-nextjs-admin-template/documentation'
-            target='_blank'
-            className='text-primary'
-          >
-            Documentation
-          </Link>
-          <Link href='https://pixinvent.ticksy.com' target='_blank' className='text-primary'>
-            Support
+          <Link href='/front-pages/terms-and-conditions' className='text-textSecondary> hover:text-primary'>
+            Terms & Conditions
           </Link>
         </div>
       )}
