@@ -28,7 +28,7 @@ import themeConfig from '@configs/themeConfig'
 import { useSettings } from '@core/hooks/useSettings'
 
 // Core Theme Imports
-import defaultCoreTheme from '@core/theme'
+import defaultCoreTheme from '@/@core/theme'
 
 type Props = ChildrenType & {
   direction: Direction

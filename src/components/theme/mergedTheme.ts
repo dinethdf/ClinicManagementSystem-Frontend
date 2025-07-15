@@ -15,7 +15,7 @@ import type { Settings } from '@core/contexts/settingsContext'
 import type { SystemMode } from '@core/types'
 
 // Core Theme Imports
-import coreTheme from '@core/theme'
+import coreTheme from '@/@core/theme'
 
 const mergedTheme = (settings: Settings, mode: SystemMode, direction: Theme['direction']) => {
   // Vars
