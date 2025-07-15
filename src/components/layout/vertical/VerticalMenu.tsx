@@ -126,14 +126,6 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
             <MenuItem href={`/${locale}/apps/ecommerce/referrals`}>{dictionary['navigation'].referrals}</MenuItem>
             <MenuItem href={`/${locale}/apps/ecommerce/settings`}>{dictionary['navigation'].settings}</MenuItem>
           </SubMenu>
-          <MenuItem
-            href={`/${locale}/apps/email`}
-            icon={<i className='tabler-mail' />}
-            exactMatch={false}
-            activeUrl='/apps/email'
-          >
-            {dictionary['navigation'].email}
-          </MenuItem>
           <MenuItem href={`/${locale}/apps/chat`} icon={<i className='tabler-message-circle-2' />}>
             {dictionary['navigation'].chat}
           </MenuItem>
