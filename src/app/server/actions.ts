@@ -1,14 +1,7 @@
-/**
- * ! The server actions below are used to fetch the static data from the fake-db. If you're using an ORM
- * ! (Object-Relational Mapping) or a database, you can swap the code below with your own database queries.
- */
-
 'use server'
 
 // Data Imports
 import { db as eCommerceData } from '@/fake-db/apps/ecommerce'
-import { db as academyData } from '@/fake-db/apps/academy'
-import { db as vehicleData } from '@/fake-db/apps/logistics'
 import { db as invoiceData } from '@/fake-db/apps/invoice'
 import { db as userData } from '@/fake-db/apps/userList'
 import { db as permissionData } from '@/fake-db/apps/permissions'
@@ -19,14 +12,6 @@ import { db as statisticsData } from '@/fake-db/pages/widgetExamples'
 
 export const getEcommerceData = async () => {
   return eCommerceData
-}
-
-export const getAcademyData = async () => {
-  return academyData
-}
-
-export const getLogisticsData = async () => {
-  return vehicleData
 }
 
 export const getInvoiceData = async () => {
