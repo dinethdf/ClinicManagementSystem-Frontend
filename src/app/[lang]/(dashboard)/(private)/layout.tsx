@@ -2,7 +2,7 @@
 import Button from '@mui/material/Button'
 
 // Type Imports
-import type { ChildrenType } from '@core/types'
+import type { ChildrenType } from '@/@core/typesDef'
 import type { Locale } from '@configs/i18n'
 
 // Layout Imports

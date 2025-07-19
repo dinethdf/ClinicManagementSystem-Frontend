@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { ThemeColor } from '@core/types'
+import type { ThemeColor } from '@/@core/typesDef'
 import type { OrderType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports

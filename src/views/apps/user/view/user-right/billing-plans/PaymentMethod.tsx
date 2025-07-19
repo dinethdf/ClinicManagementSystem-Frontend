@@ -13,7 +13,7 @@ import Chip from '@mui/material/Chip'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { ThemeColor } from '@core/types'
+import type { ThemeColor } from '@/@core/typesDef'
 
 // Component Imports
 import BillingCard from '@components/dialogs/billing-card'

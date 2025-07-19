@@ -9,7 +9,7 @@ import classnames from 'classnames'
 import type { CSSObject } from '@emotion/styled'
 
 // Type Imports
-import type { BreakpointType } from '../../types'
+import type { BreakpointType } from '../../../@core/types'
 
 // Context Imports
 import type { VerticalNavState } from '../../contexts/verticalNavContext'

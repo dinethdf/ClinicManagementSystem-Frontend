@@ -14,7 +14,7 @@ import LinearProgress from '@mui/material/LinearProgress'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { ThemeColor } from '@core/types'
+import type { ThemeColor } from '@/@core/typesDef'
 import type { PricingPlanType } from '@/types/pages/pricingTypes'
 
 // Component Imports

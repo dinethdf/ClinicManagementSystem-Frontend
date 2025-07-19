@@ -19,7 +19,7 @@ import type {
   RootStylesType,
   RenderExpandIconParams,
   RenderExpandedMenuItemIcon
-} from '../../types'
+} from '../../../@core/types'
 
 // Hook Imports
 import useVerticalNav from '../../hooks/useVerticalNav'

@@ -10,7 +10,7 @@ import type { CSSObject } from '@emotion/styled'
 
 // Type Imports
 import type { MenuSectionStyles } from './Menu'
-import type { ChildrenType, RootStylesType } from '../../types'
+import type { ChildrenType, RootStylesType } from '../../../@core/types'
 
 // Hook Imports
 import useVerticalNav from '../../hooks/useVerticalNav'

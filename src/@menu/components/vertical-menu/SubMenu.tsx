@@ -38,7 +38,7 @@ import type { CSSObject } from '@emotion/styled'
 // Type Imports
 import type { OpenSubmenu } from './Menu'
 import type { MenuItemProps } from './MenuItem'
-import type { ChildrenType, RootStylesType, SubMenuItemElement } from '../../types'
+import type { ChildrenType, RootStylesType, SubMenuItemElement } from '../../../@core/types'
 
 // Component Imports
 import SubMenuContent from './SubMenuContent'

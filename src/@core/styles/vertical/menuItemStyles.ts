@@ -2,7 +2,7 @@
 import type { Theme } from '@mui/material/styles'
 
 // Type Imports
-import type { MenuItemStyles } from '@menu/types'
+import type { MenuItemStyles } from '@/@core/types'
 import type { VerticalNavState } from '@menu/contexts/verticalNavContext'
 
 // Util Imports

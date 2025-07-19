@@ -7,7 +7,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
 import type { VerticalMenuContextProps } from './Menu'
-import type { ChildrenType, RootStylesType } from '../../types'
+import type { ChildrenType, RootStylesType } from '../../../@core/types'
 
 // Styled Component Imports
 import StyledSubMenuContent from '../../styles/StyledSubMenuContent'

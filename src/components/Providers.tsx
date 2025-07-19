@@ -1,5 +1,5 @@
 // Type Imports
-import type { ChildrenType, Direction } from '@core/types'
+import type { ChildrenType, Direction } from '@/@core/typesDef'
 
 // Context Imports
 import { NextAuthProvider } from '@/contexts/nextAuthProvider'

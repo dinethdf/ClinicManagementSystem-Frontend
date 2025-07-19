@@ -11,7 +11,7 @@ import type {
   MenuSectionProps as VerticalMenuSectionProps
 } from '@/@menu/components/vertical-menu'
 
-import type { MenuItemExactMatchUrlProps } from '@menu/types'
+import type { MenuItemExactMatchUrlProps } from '@/@core/types'
 
 // Vertical Menu Data
 export type VerticalMenuItemDataType = Omit<

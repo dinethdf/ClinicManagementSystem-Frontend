@@ -13,7 +13,7 @@ import { useUpdateEffect } from 'react-use'
 import type { CSSObject } from '@emotion/styled'
 
 // Type Imports
-import type { ChildrenType, MenuItemElement, MenuItemExactMatchUrlProps, RootStylesType } from '../../types'
+import type { ChildrenType, MenuItemElement, MenuItemExactMatchUrlProps, RootStylesType } from '../../../@core/types'
 
 // Component Imports
 import MenuButton from './MenuButton'

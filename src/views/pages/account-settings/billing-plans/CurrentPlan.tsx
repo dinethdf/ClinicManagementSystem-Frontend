@@ -13,7 +13,7 @@ import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
 import type { PricingPlanType } from '@/types/pages/pricingTypes'
-import type { ThemeColor } from '@core/types'
+import type { ThemeColor } from '@/@core/typesDef'
 
 // Component Imports
 import ConfirmationDialog from '@components/dialogs/confirmation-dialog'

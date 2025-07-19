@@ -2,7 +2,7 @@
 import styled from '@emotion/styled'
 
 // Type Imports
-import type { RootStylesType } from '../../types'
+import type { RootStylesType } from '../../../@core/types'
 import type { VerticalMenuContextProps } from '../../components/vertical-menu/Menu'
 
 type StyledVerticalNavExpandIconProps = {

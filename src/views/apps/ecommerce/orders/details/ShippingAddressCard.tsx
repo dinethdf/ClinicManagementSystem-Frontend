@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import type { TypographyProps } from '@mui/material/Typography'
 
 // Type Imports
-import type { ThemeColor } from '@core/types'
+import type { ThemeColor } from '@/@core/typesDef'
 
 // Component Imports
 import AddAddress from '@components/dialogs/add-edit-address'

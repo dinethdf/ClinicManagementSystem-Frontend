@@ -7,7 +7,7 @@ import classnames from 'classnames'
 import { css } from '@emotion/react'
 
 // Type Imports
-import type { ChildrenType, MenuButtonProps } from '../../types'
+import type { ChildrenType, MenuButtonProps } from '../../../@core/types'
 
 // Component Imports
 import { RouterLink } from '../RouterLink'

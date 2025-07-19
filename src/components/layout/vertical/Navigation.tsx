@@ -12,7 +12,7 @@ import { styled, useColorScheme, useTheme } from '@mui/material/styles'
 
 // Type Imports
 import type { getDictionary } from '@/utils/getDictionary'
-import type { Mode } from '@core/types'
+import type { Mode } from '@/@core/typesDef'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports

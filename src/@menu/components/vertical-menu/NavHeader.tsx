@@ -2,7 +2,7 @@
 import styled from '@emotion/styled'
 
 // Type Imports
-import type { ChildrenType } from '../../types'
+import type { ChildrenType } from '../../../@core/types'
 import type { VerticalNavContextProps } from '../../contexts/verticalNavContext'
 
 // Hook Imports

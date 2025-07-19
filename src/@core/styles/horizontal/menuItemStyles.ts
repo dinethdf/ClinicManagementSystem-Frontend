@@ -2,7 +2,7 @@
 import type { Theme } from '@mui/material/styles'
 
 // Type Imports
-import type { MenuItemStyles } from '@menu/types'
+import type { MenuItemStyles } from '@/@core/types'
 
 // Util Imports
 import { menuClasses } from '@menu/utils/menuClasses'

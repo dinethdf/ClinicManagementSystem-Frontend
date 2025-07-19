@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid2'
 
 // Type Imports
-import type { ThemeColor } from '@core/types'
+import type { ThemeColor } from '@/@core/typesDef'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
