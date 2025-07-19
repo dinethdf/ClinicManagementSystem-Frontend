@@ -16,7 +16,7 @@ import type { Mode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import VerticalNav, { NavHeader, NavCollapseIcons } from '@menu/vertical-menu'
+import VerticalNav, { NavHeader, NavCollapseIcons } from '@/@menu/components/vertical-menu'
 import VerticalMenu from './VerticalMenu'
 import Logo from '@components/layout/shared/Logo'
 

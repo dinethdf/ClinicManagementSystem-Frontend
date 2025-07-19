@@ -17,7 +17,7 @@ import type {
 } from '@/types/menuTypes'
 
 // Component Imports
-import { SubMenu as VerticalSubMenu, MenuItem as VerticalMenuItem, MenuSection } from '@menu/vertical-menu'
+import { SubMenu as VerticalSubMenu, MenuItem as VerticalMenuItem, MenuSection } from '@/@menu/components/vertical-menu'
 import CustomChip from '@core/components/mui/Chip'
 
 // Util Imports

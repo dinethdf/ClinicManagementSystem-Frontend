@@ -3,7 +3,7 @@ import type { Theme } from '@mui/material/styles'
 
 // Type Imports
 import type { VerticalNavState } from '@menu/contexts/verticalNavContext'
-import type { MenuProps } from '@menu/vertical-menu'
+import type { MenuProps } from '@/@menu/components/vertical-menu'
 
 // Util Imports
 import { menuClasses } from '@menu/utils/menuClasses'
