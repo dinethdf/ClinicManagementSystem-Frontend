@@ -16,12 +16,12 @@ import type { Mode } from '@/@core/typesDef'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import VerticalNav, { NavHeader, NavCollapseIcons } from '@/@menu/components/vertical-menu'
+import VerticalNav, { NavHeader, NavCollapseIcons } from '@/@core/components/vertical-menu'
 import VerticalMenu from './VerticalMenu'
 import Logo from '@components/layout/shared/Logo'
 
 // Hook Imports
-import useVerticalNav from '@menu/hooks/useVerticalNav'
+import useVerticalNav from '@/@core/hooks/useVerticalNav'
 import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports

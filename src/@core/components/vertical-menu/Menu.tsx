@@ -25,7 +25,7 @@ import type {
 import useVerticalNav from '../../hooks/useVerticalNav'
 
 // Util Imports
-import { menuClasses } from '../../utils/menuClasses'
+// import { menuClasses } from '../../utils/menuClasses'
 
 // Styled Component Imports
 import StyledVerticalMenu from '../../styles/vertical/StyledVerticalMenu'
@@ -35,6 +35,7 @@ import styles from '../../styles/styles.module.css'
 
 // Default Config Imports
 import { verticalSubMenuToggleDuration } from '../../defaultConfigs'
+import { menuClasses } from '../../utils/menuClasses';
 
 export type MenuSectionStyles = {
   root?: CSSObject

@@ -9,7 +9,7 @@ import type {
   SubMenuProps as VerticalSubMenuProps,
   MenuItemProps as VerticalMenuItemProps,
   MenuSectionProps as VerticalMenuSectionProps
-} from '@/@menu/components/vertical-menu'
+} from '@/@core/components/vertical-menu'
 
 import type { MenuItemExactMatchUrlProps } from '@/@core/types'
 

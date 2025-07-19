@@ -3,10 +3,10 @@ import type { Theme } from '@mui/material/styles'
 
 // Type Imports
 import type { MenuItemStyles } from '@/@core/types'
-import type { VerticalNavState } from '@menu/contexts/verticalNavContext'
+import type { VerticalNavState } from '@/@core/contexts/verticalNavContext'
 
 // Util Imports
-import { menuClasses } from '@menu/utils/menuClasses'
+import { menuClasses } from '@/@core/utils/menuClasses'
 
 const menuItemStyles = (verticalNavOptions: VerticalNavState, theme: Theme): MenuItemStyles => {
   // Vars

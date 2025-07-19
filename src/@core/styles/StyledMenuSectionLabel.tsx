@@ -2,7 +2,7 @@
 import styled from '@emotion/styled'
 
 // Type Imports
-import type { RootStylesType } from '../../@core/types'
+import type { RootStylesType } from '../types'
 
 type StyledMenuSectionLabelProps = RootStylesType & {
   isCollapsed?: boolean

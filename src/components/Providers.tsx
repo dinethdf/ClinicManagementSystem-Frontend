@@ -3,7 +3,7 @@ import type { ChildrenType, Direction } from '@/@core/typesDef'
 
 // Context Imports
 import { NextAuthProvider } from '@/contexts/nextAuthProvider'
-import { VerticalNavProvider } from '@menu/contexts/verticalNavContext'
+import { VerticalNavProvider } from '@/@core/contexts/verticalNavContext'
 import { SettingsProvider } from '@core/contexts/settingsContext'
 import ThemeProvider from '@components/theme'
 import ReduxProvider from '@/redux-store/ReduxProvider'

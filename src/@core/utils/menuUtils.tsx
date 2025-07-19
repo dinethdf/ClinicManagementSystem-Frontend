@@ -6,7 +6,7 @@ import type { ReactElement, ReactNode } from 'react'
 import type { CSSObject } from '@emotion/styled'
 
 // Type Imports
-import type { ChildrenType, RenderExpandedMenuItemIcon } from '../../@core/types'
+import type { ChildrenType, RenderExpandedMenuItemIcon } from '../types'
 
 // Util Imports
 import { menuClasses } from './menuClasses'

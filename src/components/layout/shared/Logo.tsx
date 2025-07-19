@@ -8,7 +8,7 @@ import type { CSSProperties } from 'react'
 import styled from '@emotion/styled'
 
 // Type Imports
-import type { VerticalNavContextProps } from '@menu/contexts/verticalNavContext'
+import type { VerticalNavContextProps } from '@/@core/contexts/verticalNavContext'
 
 // Component Imports
 import CompanyLogo from '@core/svg/Logo'
@@ -17,7 +17,7 @@ import CompanyLogo from '@core/svg/Logo'
 import themeConfig from '@configs/themeConfig'
 
 // Hook Imports
-import useVerticalNav from '@menu/hooks/useVerticalNav'
+import useVerticalNav from '@/@core/hooks/useVerticalNav'
 import { useSettings } from '@core/hooks/useSettings'
 
 type LogoTextProps = {
