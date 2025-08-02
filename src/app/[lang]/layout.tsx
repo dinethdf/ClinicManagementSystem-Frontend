@@ -6,7 +6,7 @@ import InitColorSchemeScript from '@mui/material/InitColorSchemeScript'
 import 'react-perfect-scrollbar/dist/css/styles.css'
 
 
-import type { ChildrenType } from '@core/types'
+import type { ChildrenType } from '@/@core/typesDef'
 import type { Locale } from '@configs/i18n'
 
 

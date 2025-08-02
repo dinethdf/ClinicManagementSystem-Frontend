@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { useColorScheme } from '@mui/material'
 
 // Type imports
-import type { Mode } from '@core/types'
+import type { Mode } from '@/@core/typesDef'
 
 // Hook Imports
 import { useSettings } from './useSettings'

@@ -13,7 +13,7 @@ import { styled, useTheme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Type Imports
-import type { Mode } from '@core/types'
+import type { Mode } from '@/@core/typesDef'
 import type { CustomInputVerticalData } from '@core/components/custom-inputs/types'
 
 // Component Imports

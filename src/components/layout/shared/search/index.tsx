@@ -23,7 +23,7 @@ import DefaultSuggestions from './DefaultSuggestions'
 import NoResult from './NoResult'
 
 // Hook Imports
-import useVerticalNav from '@menu/hooks/useVerticalNav'
+import useVerticalNav from '@/@core/hooks/useVerticalNav'
 import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports

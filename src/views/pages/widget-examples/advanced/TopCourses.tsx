@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 
 // Type Imports
-import type { ThemeColor } from '@core/types'
+import type { ThemeColor } from '@/@core/typesDef'
 
 // Components Imports
 import CustomAvatar from '@core/components/mui/Avatar'

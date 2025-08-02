@@ -2,7 +2,7 @@
 import type { Theme } from '@mui/material/styles'
 
 //Type Imports
-import type { Skin } from '@core/types'
+import type { Skin } from '@/@core/typesDef'
 
 const dialog = (skin: Skin): Theme['components'] => ({
   MuiDialog: {

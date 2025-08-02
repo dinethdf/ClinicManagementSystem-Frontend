@@ -3,7 +3,7 @@ import type { headers } from 'next/headers'
 
 // Type Imports
 import type { Locale } from '@configs/i18n'
-import type { ChildrenType } from '@core/types'
+import type { ChildrenType } from '@/@core/typesDef'
 
 // Component Imports
 import LangRedirect from '@components/LangRedirect'

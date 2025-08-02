@@ -12,7 +12,7 @@ import type { ApexOptions } from 'apexcharts'
 import classnames from 'classnames'
 
 // Types Imports
-import type { ThemeColor } from '@core/types'
+import type { ThemeColor } from '@/@core/typesDef'
 
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
