@@ -144,6 +144,13 @@ const Login = ({ mode }: { mode: SystemMode }) => {
       }
     }
 
+        // const res = await signIn('credentials', {
+    //   email: data.email,
+    //   password: data.password,
+    //   redirect: false
+    // })
+
+
     // if (res && res.ok && res.error === null) {
     //   // Vars
     //   const redirectURL = searchParams.get('redirectTo') ?? '/'
