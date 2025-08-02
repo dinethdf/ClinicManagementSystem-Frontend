@@ -27,7 +27,6 @@ const loginUser = async (email: string, password: string): Promise<LoginResult> 
     });
     const { accessToken, refreshToken } = response.data;
 
-    document.cookie = 'next-auth.session-token=; Max-Age=0; path=/;'; // for remove Next Auth Cookie
     setSiteCookie('accessToken', accessToken, 7);  
     setSiteCookie('refreshToken', refreshToken, 7); 
 
@@ -43,7 +42,6 @@ export function logoutAndRedirect() {
    
   document.cookie = 'accessToken=; Max-Age=0; path=/;';
   document.cookie = 'refreshToken=; Max-Age=0; path=/;';
-  document.cookie = 'next-auth.session-token=; Max-Age=0; path=/;'; // for remove Next Auth Cookie
  
   localStorage.clear();
   sessionStorage.clear();
