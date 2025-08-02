@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // Next Imports
 import Link from 'next/link'
@@ -20,7 +20,7 @@ import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 
 // Third-party Imports
-import { signIn } from 'next-auth/react'
+// import { signIn } from 'next-auth/react'
 import { Controller, useForm } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { email, object, minLength, string, pipe, nonEmpty } from 'valibot'
@@ -45,6 +45,7 @@ import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
+import { loginUser, logoutAndRedirect } from '@/libs/authentication'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -81,7 +82,7 @@ const schema = object({
   password: pipe(
     string(),
     nonEmpty('This field is required'),
-    minLength(5, 'Password must be at least 5 characters long')
+    minLength(1, 'Password must be at least 1 characters long')
   )
 })
 
@@ -130,25 +131,50 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
-    const res = await signIn('credentials', {
-      email: data.email,
-      password: data.password,
-      redirect: false
-    })
 
-    if (res && res.ok && res.error === null) {
-      // Vars
+    const res = await loginUser(data.email, data.password)
+
+    if (res && res.success == true && res.data && res.data.status == 200) {
       const redirectURL = searchParams.get('redirectTo') ?? '/'
-
       router.replace(getLocalizedUrl(redirectURL, locale as Locale))
     } else {
-      if (res?.error) {
-        const error = JSON.parse(res.error)
-
-        setErrorState(error)
+      if (res && res.success == false) {
+        // const error = JSON.parse(res.error)
+         setErrorState({ message: ['Email or Password is invalid'] })
       }
     }
+
+        // const res = await signIn('credentials', {
+    //   email: data.email,
+    //   password: data.password,
+    //   redirect: false
+    // })
+
+
+    // if (res && res.ok && res.error === null) {
+    //   // Vars
+    //   const redirectURL = searchParams.get('redirectTo') ?? '/'
+
+    //   router.replace(getLocalizedUrl(redirectURL, locale as Locale))
+    // } else {
+    //   if (res?.error) {
+    //     const error = JSON.parse(res.error)
+
+    //     setErrorState(error)
+    //   }
+    // }  // NextAuth Validation
   }
+
+  const unAuthState = searchParams.get('unAuth') ?? ''
+   useEffect(() => {
+      if(unAuthState == "1"){
+          try {
+              logoutAndRedirect();
+          } catch (error) {
+                console.error(error)
+            }       
+        }
+    }, [])
 
   return (
     <div className='flex bs-full justify-center'>
@@ -269,7 +295,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
               className='self-center text-textPrimary'
               startIcon={<img src='/images/logos/google.png' alt='Google' width={22} />}
               sx={{ '& .MuiButton-startIcon': { marginInlineEnd: 3 } }}
-              onClick={() => signIn('google')}
+              // onClick={() => signIn('google')}
             >
               Sign in with Google
             </Button>
