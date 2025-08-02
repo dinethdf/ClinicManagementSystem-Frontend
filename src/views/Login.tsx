@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // Next Imports
 import Link from 'next/link'
@@ -45,7 +45,7 @@ import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
-import { loginUser } from '@/libs/authentication'
+import { loginUser, logoutAndRedirect } from '@/libs/authentication'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -131,14 +131,19 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
-    // const res = await signIn('credentials', {
-    //   email: data.email,
-    //   password: data.password,
-    //   redirect: false
-    // })
 
     const res = await loginUser(data.email, data.password)
-    console.log(res)
+
+    if (res && res.success == true && res.data && res.data.status == 200) {
+      const redirectURL = searchParams.get('redirectTo') ?? '/'
+      router.replace(getLocalizedUrl(redirectURL, locale as Locale))
+    } else {
+      if (res && res.success == false) {
+        // const error = JSON.parse(res.error)
+         setErrorState({ message: ['Email or Password is invalid'] })
+      }
+    }
+
     // if (res && res.ok && res.error === null) {
     //   // Vars
     //   const redirectURL = searchParams.get('redirectTo') ?? '/'
@@ -150,8 +155,19 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
     //     setErrorState(error)
     //   }
-    // }
+    // }  // NextAuth Validation
   }
+
+  const unAuthState = searchParams.get('unAuth') ?? ''
+   useEffect(() => {
+      if(unAuthState == "1"){
+          try {
+              logoutAndRedirect();
+          } catch (error) {
+                console.error(error)
+            }       
+        }
+    }, [])
 
   return (
     <div className='flex bs-full justify-center'>

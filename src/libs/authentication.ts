@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
 
 interface LoginResponse {
   accessToken: string;
@@ -12,27 +11,25 @@ interface LoginResult {
   data?: any;
 }
 
-const setSiteCookie = (cookieName: string, value: string, days: number) => {
+export const setSiteCookie = (cookieName: string, value: string, days: number) => {
   const date = new Date();
   date.setTime(date.getTime() + days * 1000 * 60 * 60 * 24);
   const expires = `expires=${date.toUTCString()}`;
-  document.cookie = `${cookieName}=${value}; ${expires}; path=/; SameSite=Strict;`;
+  document.cookie = `${cookieName}=${value}; path=/; SameSite=Strict;`;
 };
 
 const loginUser = async (email: string, password: string): Promise<LoginResult> => {
   try { 
-    
-    const response = await axios.post<LoginResponse>(`${process.env.BACK_END_API_URL}/userSignIn`, {
+    const response = await axios.post<LoginResponse>(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/userSignIn`, {
       username : email,
       password: password,
       loginType: "USER"
     });
-    console.log(response)
     const { accessToken, refreshToken } = response.data;
 
-    
-    setSiteCookie('accessToken', accessToken, 7);  // 7 days expiration
-    setSiteCookie('refreshToken', refreshToken, 7);  // 7 days expiration
+    document.cookie = 'next-auth.session-token=; Max-Age=0; path=/;'; // for remove Next Auth Cookie
+    setSiteCookie('accessToken', accessToken, 7);  
+    setSiteCookie('refreshToken', refreshToken, 7); 
 
     return { success: true, message: 'Login successful', data: response };
   } catch (error:any) {
@@ -46,7 +43,7 @@ export function logoutAndRedirect() {
    
   document.cookie = 'accessToken=; Max-Age=0; path=/;';
   document.cookie = 'refreshToken=; Max-Age=0; path=/;';
-
+  document.cookie = 'next-auth.session-token=; Max-Age=0; path=/;'; // for remove Next Auth Cookie
  
   localStorage.clear();
   sessionStorage.clear();
@@ -54,15 +51,18 @@ export function logoutAndRedirect() {
   if ('caches' in window) {
     caches.keys().then(names => names.forEach(name => caches.delete(name)));
   }
-  window.location.replace('/signin');
+  
+  // window.location.replace('/en/login');
 
 }
+
+
 
 // Basic token validation (already existing)
 export async function validateToken(authToken: string) {
   try {
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/validate-token`,
+      `${process.env.NEXT_PUBLIC_BACK_END_API_URL}/validate-token`,
       {},
       {
         headers: {
@@ -72,9 +72,13 @@ export async function validateToken(authToken: string) {
       }
     );
 
-    return response.data; 
+    if(response.data.valid){
+        return response.data; 
+    }else{
+      return {valid: false }
+    }
   } catch (error) {
-    console.error('Token validation failed:', error);
+    console.error('Token validation failed:');
     return { valid: false };
   }
 }

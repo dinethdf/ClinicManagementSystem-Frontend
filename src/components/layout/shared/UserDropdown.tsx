@@ -32,6 +32,7 @@ import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
+import { logoutAndRedirect } from '@/libs/authentication'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -44,6 +45,8 @@ const BadgeContentSpan = styled('span')({
 })
 
 const UserDropdown = () => {
+
+
   // States
   const [open, setOpen] = useState(false)
 
@@ -75,7 +78,11 @@ const UserDropdown = () => {
   const handleUserLogout = async () => {
     try {
       // Sign out from the app
-      await signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })
+      // await signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })
+      logoutAndRedirect();
+      //  <AuthRedirect lang={locale} />
+       router.push("/login")
+
     } catch (error) {
       console.error(error)
 
@@ -95,8 +102,8 @@ const UserDropdown = () => {
       >
         <Avatar
           ref={anchorRef}
-          alt={session?.user?.name || ''}
-          src={session?.user?.image || ''}
+          alt={session?.user?.name || 'Dineth dd'}
+          src={session?.user?.image || '/images/avatars/1.png'}
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
         />
@@ -120,12 +127,12 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
-                    <Avatar alt={session?.user?.name || ''} src={session?.user?.image || ''} />
+                    <Avatar alt={session?.user?.name || 'DD'} src={session?.user?.image || '/images/avatars/1.png'} />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
-                        {session?.user?.name || ''}
+                        {session?.user?.name || 'Dineth Dilshan'}
                       </Typography>
-                      <Typography variant='caption'>{session?.user?.email || ''}</Typography>
+                      <Typography variant='caption'>{session?.user?.email || 'dineth@gmail.com'}</Typography>
                     </div>
                   </div>
                   <Divider className='mlb-1' />
