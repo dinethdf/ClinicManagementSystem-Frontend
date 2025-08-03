@@ -45,7 +45,8 @@ import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
-import { loginUser, logoutAndRedirect } from '@/libs/authentication'
+
+import { logoutAndRedirect, setLoginCookie } from '@/libs/authentication'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -132,14 +133,31 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
 
-    const res = await loginUser(data.email, data.password)
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login-next`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+         },
+        body: JSON.stringify({ email: data.email, password: data.password })
+        })
 
-    if (res && res.success == true && res.data && res.data.status == 200) {
+        const result = await res.json();  
+
+
+      
+
+    // const res = await loginUser(data.email, data.password) // move to Server side
+
+    if (result && result?.success == true && result?.data?.accessToken && result?.data?.refreshToken) {
+    
+      await setLoginCookie(result.data.accessToken, result.data.refreshToken);
+
       const redirectURL = searchParams.get('redirectTo') ?? '/'
       
       router.replace(getLocalizedUrl(redirectURL, locale as Locale))
+
     } else {
-      if (res && res.success == false) {
+      if (result && result?.success == false) {
         // const error = JSON.parse(res.error)
          setErrorState({ message: ['Email or Password is invalid'] })
       }
