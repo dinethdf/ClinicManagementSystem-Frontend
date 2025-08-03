@@ -7,18 +7,19 @@ import { redirect, usePathname } from 'next/navigation'
 import type { Locale } from '@configs/i18n'
 
 // Config Imports
-import themeConfig from '@configs/themeConfig'
+// import themeConfig from '@configs/themeConfig'
 
 // Util Imports
-import { getLocalizedUrl } from '@/utils/i18n'
+// import { getLocalizedUrl } from '@/utils/i18n'
 
 const AuthRedirect = ({ lang }: { lang: Locale }) => {
   const pathname = usePathname()
 
   // ℹ️ Bring me `lang`
   const redirectUrl = `/${lang}/login?redirectTo=${pathname}&unAuth=1`
-  const login = `/${lang}/login`
-  const homePage = getLocalizedUrl(themeConfig.homePageUrl, lang)
+
+  // const login = `/${lang}/login`
+  // const homePage = getLocalizedUrl(themeConfig.homePageUrl, lang)
 
   return redirect( redirectUrl)
 }

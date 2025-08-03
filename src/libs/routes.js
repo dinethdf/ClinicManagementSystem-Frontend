@@ -4,8 +4,10 @@ export const ROOT = '/';
 
 export const PUBLIC_ROUTES = [
     '/signin',
+    
     // '/auth/cover-login',
     // '/auth/cover-register',
+    
     '/register',
 ]
 

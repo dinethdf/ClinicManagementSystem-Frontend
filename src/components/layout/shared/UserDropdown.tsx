@@ -22,7 +22,8 @@ import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 
 // Third-party Imports
-import { signOut, useSession } from 'next-auth/react'
+// import { signOut, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 
 // Type Imports
 import type { Locale } from '@configs/i18n'
@@ -74,13 +75,15 @@ const UserDropdown = () => {
 
     setOpen(false)
   }
-
+ 
   const handleUserLogout = async () => {
     try {
+
       // Sign out from the app
       // await signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })
-      logoutAndRedirect();
-      //  <AuthRedirect lang={locale} />
+    await  logoutAndRedirect();
+      
+    //  <AuthRedirect lang={locale} />
        router.push("/login")
 
     } catch (error) {

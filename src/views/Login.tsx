@@ -136,6 +136,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
     if (res && res.success == true && res.data && res.data.status == 200) {
       const redirectURL = searchParams.get('redirectTo') ?? '/'
+      
       router.replace(getLocalizedUrl(redirectURL, locale as Locale))
     } else {
       if (res && res.success == false) {
@@ -166,7 +167,8 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   }
 
   const unAuthState = searchParams.get('unAuth') ?? ''
-   useEffect(() => {
+  
+  useEffect(() => {
       if(unAuthState == "1"){
           try {
               logoutAndRedirect();
@@ -293,8 +295,10 @@ const Login = ({ mode }: { mode: SystemMode }) => {
             <Button
               color='secondary'
               className='self-center text-textPrimary'
+          
               startIcon={<img src='/images/logos/google.png' alt='Google' width={22} />}
               sx={{ '& .MuiButton-startIcon': { marginInlineEnd: 3 } }}
+              
               // onClick={() => signIn('google')}
             >
               Sign in with Google
