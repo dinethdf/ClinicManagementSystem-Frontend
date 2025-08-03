@@ -1,6 +1,7 @@
-// Third-party Imports
-import { getServerSession } from 'next-auth'
 import { cookies } from 'next/headers'
+
+// Third-party Imports
+// import { getServerSession } from 'next-auth'
 
 // Type Imports
 import type { Locale } from '@configs/i18n'
@@ -8,6 +9,7 @@ import type { ChildrenType } from '@/@core/typesDef'
 
 // Component Imports
 import AuthRedirect from '@/components/AuthRedirect'
+
 import { validateToken } from '@/libs/authentication'
 
 export default async function AuthGuard({ children, locale }: ChildrenType & { locale: Locale }) {

@@ -9,9 +9,11 @@ const axiosInstance = axios.create({
 // Attach tokens to requests
 axiosInstance.interceptors.request.use((config) => {
   const accessToken = getCookie('accessToken');
+  
   if (accessToken) {
     config.headers['Authorization'] = `Bearer ${accessToken}`;
   }
+ 
   return config;
 });
 
@@ -34,6 +36,7 @@ axiosInstance.interceptors.response.use(
 
         // Retry request with new token
         originalRequest.headers['Authorization'] = `Bearer ${response.data.accessToken}`;
+       
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         // If refresh fails, log out
