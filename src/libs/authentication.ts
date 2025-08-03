@@ -30,13 +30,8 @@ const loginUser = async (email: string, password: string): Promise<LoginResult> 
       password: password,
       loginType: "USER"
     });
-   
-    const { accessToken, refreshToken } = response.data;
 
-    setSiteCookie('accessToken', accessToken, 7);  
-    setSiteCookie('refreshToken', refreshToken, 7); 
-
-    return { success: true, message: 'Login successful', data: response };
+    return { success: true, message: 'Login successful', data: response.data };
  
   } catch (error:any) {
   
@@ -46,6 +41,14 @@ const loginUser = async (email: string, password: string): Promise<LoginResult> 
 };
 
 export { loginUser };
+
+
+export const setLoginCookie = (access: string, refresh: string) => {
+
+ setSiteCookie('accessToken', access, 7);  
+ setSiteCookie('refreshToken', refresh, 7); 
+
+};
 
 
 export function logoutAndRedirect() {

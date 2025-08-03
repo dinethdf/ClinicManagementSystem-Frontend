@@ -90,6 +90,46 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
           <MenuItem href={`/${locale}/dashboards/ecommerce`}>{dictionary['navigation'].eCommerce}</MenuItem>
         </SubMenu>
         <MenuSection label={dictionary['navigation'].appsPages}>
+
+          {/* Hospital Management */}
+
+          <SubMenu label={dictionary['navigation'].hospital} icon={<i className='tabler-shopping-cart' />}>
+            <MenuItem href={`/${locale}/apps/ecommerce/dashboard`}>{dictionary['navigation'].dashboard}</MenuItem>
+            <SubMenu label={dictionary['navigation'].products}>
+              <MenuItem href={`/${locale}/apps/ecommerce/products/list`}>{dictionary['navigation'].list}</MenuItem>
+              <MenuItem href={`/${locale}/apps/ecommerce/products/add`}>{dictionary['navigation'].add}</MenuItem>
+              <MenuItem href={`/${locale}/apps/ecommerce/products/category`}>
+                {dictionary['navigation'].category}
+              </MenuItem>
+            </SubMenu>
+            <SubMenu label={dictionary['navigation'].orders}>
+              <MenuItem href={`/${locale}/apps/ecommerce/orders/list`}>{dictionary['navigation'].list}</MenuItem>
+              <MenuItem
+                href={`/${locale}/apps/ecommerce/orders/details/5434`}
+                exactMatch={false}
+                activeUrl='/apps/ecommerce/orders/details'
+              >
+                {dictionary['navigation'].details}
+              </MenuItem>
+            </SubMenu>
+            <SubMenu label={dictionary['navigation'].customers}>
+              <MenuItem href={`/${locale}/apps/ecommerce/customers/list`}>{dictionary['navigation'].list}</MenuItem>
+              <MenuItem
+                href={`/${locale}/apps/ecommerce/customers/details/879861`}
+                exactMatch={false}
+                activeUrl='/apps/ecommerce/customers/details'
+              >
+                {dictionary['navigation'].details}
+              </MenuItem>
+            </SubMenu>
+            <MenuItem href={`/${locale}/apps/ecommerce/manage-reviews`}>
+              {dictionary['navigation'].manageReviews}
+            </MenuItem>
+            <MenuItem href={`/${locale}/apps/ecommerce/referrals`}>{dictionary['navigation'].referrals}</MenuItem>
+            <MenuItem href={`/${locale}/apps/ecommerce/settings`}>{dictionary['navigation'].settings}</MenuItem>
+          </SubMenu>
+
+
           <SubMenu label={dictionary['navigation'].eCommerce} icon={<i className='tabler-shopping-cart' />}>
             <MenuItem href={`/${locale}/apps/ecommerce/dashboard`}>{dictionary['navigation'].dashboard}</MenuItem>
             <SubMenu label={dictionary['navigation'].products}>

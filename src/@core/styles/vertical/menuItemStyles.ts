@@ -121,6 +121,7 @@ const menuItemStyles = (verticalNavOptions: VerticalNavState, theme: Theme): Men
       marginInlineEnd: theme.spacing(2)
     },
     label: ({ level }) => ({
+       fontSize: '0.85rem',
       ...((!isPopoutWhenCollapsed || popoutExpanded || (popoutCollapsed && level === 0)) && {
         transition: `opacity ${transitionDuration}ms ease-in-out`,
         ...(collapsedNotHovered && {
