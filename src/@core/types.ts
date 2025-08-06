@@ -8,6 +8,8 @@ export type ChildrenType = {
   children: ReactNode
 }
 
+export type Mode = 'system' | 'light' | 'dark'
+
 // Breakpoints
 export type BreakpointType = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'always'
 
