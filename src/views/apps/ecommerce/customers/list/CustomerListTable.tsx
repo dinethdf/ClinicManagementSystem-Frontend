@@ -262,7 +262,11 @@ const CustomerListTable = ({ customerData }: { customerData?: Customer[] }) => {
 
   return (
     <>
+          <Typography variant="h3" gutterBottom>
+        Clinic Users List
+      </Typography>
       <Card>
+        
         <CardContent className='flex justify-between flex-wrap max-sm:flex-col sm:items-center gap-4'>
           <DebouncedInput
             value={globalFilter ?? ''}
