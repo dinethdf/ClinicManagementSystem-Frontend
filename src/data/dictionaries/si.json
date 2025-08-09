@@ -17,8 +17,16 @@
     "dashboard": "Tableau de bord",
     "products": "Produits",
 
-    "hospital":"Hospital Management",
+    "clinic":"Clinic Management",
 
+    "patientRegistration":"Patient Register",
+    "patientlist":"Patient List",
+    "patientAdd": "Patient Add",    
+
+    "userRegistration":"Users Register",
+    "userlist":"Users List",
+    "userAdd": "Users Add",
+    
     
     "list": "Liste",
     "add": "Ajouter",

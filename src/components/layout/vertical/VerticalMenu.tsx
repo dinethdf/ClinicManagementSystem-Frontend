@@ -93,8 +93,27 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
 
           {/* Hospital Management */}
 
-          <SubMenu label={dictionary['navigation'].hospital} icon={<i className='tabler-shopping-cart' />}>
-            <MenuItem href={`/${locale}/apps/ecommerce/dashboard`}>{dictionary['navigation'].dashboard}</MenuItem>
+         
+
+          <SubMenu label={dictionary['navigation'].clinic} icon={<i className='tabler-shopping-cart' />}>
+            <MenuItem href={`/${locale}/clinic`}>{dictionary['navigation'].dashboard}</MenuItem>
+      
+          <SubMenu label={dictionary['navigation'].patientRegistration}>
+              <MenuItem href={`/${locale}/clinic/user/list`}>{dictionary['navigation'].patientlist}</MenuItem>
+              <MenuItem href={`/${locale}/clinic/user/register`}>{dictionary['navigation'].patientAdd}</MenuItem>
+              <MenuItem href={`/${locale}/clinic/user/view/879861`}>{"view Patient Temp"}</MenuItem>
+              {/* <MenuItem href={`/${locale}/apps/clinic/users/role`}>
+                {dictionary['navigation'].category}
+              </MenuItem> */}
+          </SubMenu>               
+            <SubMenu label={dictionary['navigation'].userRegistration}>
+              <MenuItem href={`/${locale}/clinic/user/list`}>{dictionary['navigation'].userlist}</MenuItem>
+              <MenuItem href={`/${locale}/clinic/user/register`}>{dictionary['navigation'].userAdd}</MenuItem>
+              <MenuItem href={`/${locale}/clinic/user/view/879861`}>{"view User Temp"}</MenuItem>
+              {/* <MenuItem href={`/${locale}/apps/clinic/users/role`}>
+                {dictionary['navigation'].category}
+              </MenuItem> */}
+            </SubMenu>
             <SubMenu label={dictionary['navigation'].products}>
               <MenuItem href={`/${locale}/apps/ecommerce/products/list`}>{dictionary['navigation'].list}</MenuItem>
               <MenuItem href={`/${locale}/apps/ecommerce/products/add`}>{dictionary['navigation'].add}</MenuItem>
