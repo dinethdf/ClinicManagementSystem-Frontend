@@ -263,7 +263,7 @@ const CustomerListTable = ({ customerData }: { customerData?: Customer[] }) => {
   return (
     <>
           <Typography variant="h3" gutterBottom>
-        Patient List
+        Clinic Users List
       </Typography>
       <Card>
         
