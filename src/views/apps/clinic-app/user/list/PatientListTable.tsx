@@ -143,6 +143,10 @@ const PatientListTable = ({ customerData }: { customerData?: Customer[] }) => {
   // Hooks
   const { lang: locale } = useParams()
 
+    useEffect(() => {
+    setData(data)
+    }, []) // Need to remove Just COde Fix
+
   const columns = useMemo<ColumnDef<ECommerceOrderTypeWithAction, any>[]>(
     () => [
       {
