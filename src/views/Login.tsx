@@ -132,43 +132,36 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
-
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login-next`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-         },
-        body: JSON.stringify({ email: data.email, password: data.password })
-        })
+      },
+      body: JSON.stringify({ email: data.email, password: data.password })
+    })
 
-        const result = await res.json();  
-
-
-      
+    const result = await res.json()
 
     // const res = await loginUser(data.email, data.password) // move to Server side
 
     if (result && result?.success == true && result?.data?.accessToken && result?.data?.refreshToken) {
-    
-      await setLoginCookie(result.data.accessToken, result.data.refreshToken);
+      await setLoginCookie(result.data.accessToken, result.data.refreshToken)
 
       const redirectURL = searchParams.get('redirectTo') ?? '/'
-      
-      router.replace(getLocalizedUrl(redirectURL, locale as Locale))
 
+      router.replace(getLocalizedUrl(redirectURL, locale as Locale))
     } else {
       if (result && result?.success == false) {
         // const error = JSON.parse(res.error)
-         setErrorState({ message: ['Email or Password is invalid'] })
+        setErrorState({ message: ['Email or Password is invalid'] })
       }
     }
 
-        // const res = await signIn('credentials', {
+    // const res = await signIn('credentials', {
     //   email: data.email,
     //   password: data.password,
     //   redirect: false
     // })
-
 
     // if (res && res.ok && res.error === null) {
     //   // Vars
@@ -185,16 +178,16 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   }
 
   const unAuthState = searchParams.get('unAuth') ?? ''
-  
+
   useEffect(() => {
-      if(unAuthState == "1"){
-          try {
-              logoutAndRedirect();
-          } catch (error) {
-                console.error(error)
-            }       
-        }
-    }, [])
+    if (unAuthState == '1') {
+      try {
+        logoutAndRedirect()
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }, [])
 
   return (
     <div className='flex bs-full justify-center'>
@@ -313,10 +306,9 @@ const Login = ({ mode }: { mode: SystemMode }) => {
             <Button
               color='secondary'
               className='self-center text-textPrimary'
-          
               startIcon={<img src='/images/logos/google.png' alt='Google' width={22} />}
               sx={{ '& .MuiButton-startIcon': { marginInlineEnd: 3 } }}
-              
+
               // onClick={() => signIn('google')}
             >
               Sign in with Google

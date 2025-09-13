@@ -2,7 +2,8 @@
 
 // React Imports
 import { useState } from 'react'
-import type { ChangeEvent } from 'react'
+
+// import type { ChangeEvent } from 'react'
 
 // MUI Imports
 import Grid from '@mui/material/Grid2'
@@ -11,15 +12,25 @@ import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
-import Chip from '@mui/material/Chip'
-import type { SelectChangeEvent } from '@mui/material/Select'
+
+// import type { SelectChangeEvent } from '@mui/material/Select'
+
+import { CardHeader, Divider, InputAdornment } from '@mui/material'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
 
+
+
+// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
+
 type Data = {
   firstName: string
   lastName: string
+  fullName: string
   email: string
   organization: string
   phoneNumber: number | string
@@ -27,7 +38,7 @@ type Data = {
   state: string
   zipCode: string
   country: string
-  language: string
+  ethnicity: string
   timezone: string
   currency: string
 }
@@ -36,6 +47,7 @@ type Data = {
 const initialData: Data = {
   firstName: 'John',
   lastName: 'Doe',
+  fullName: 'Jone Doe',
   email: 'john.doe@example.com',
   organization: 'Pixinvent',
   phoneNumber: '+1 (917) 543-9876',
@@ -43,54 +55,61 @@ const initialData: Data = {
   state: 'New York',
   zipCode: '634880',
   country: 'usa',
-  language: 'english',
+  ethnicity: 'Sinhala',
   timezone: 'gmt-12',
   currency: 'usd'
 }
 
-const languageData = ['English', 'Arabic', 'French', 'German', 'Portuguese']
+// const languageData = ['English', 'Arabic', 'French', 'German', 'Portuguese']
 
 const AccountDetails = () => {
   // States
   const [formData, setFormData] = useState<Data>(initialData)
-  const [fileInput, setFileInput] = useState<string>('')
-  const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
-  const [language, setLanguage] = useState<string[]>(['English'])
 
-  const handleDelete = (value: string) => {
-    setLanguage(current => current.filter(item => item !== value))
-  }
+  // const [fileInput, setFileInput] = useState<string>('')
+  // const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
+  // const [language, setLanguage] = useState<string[]>(['English'])
 
-  const handleChange = (event: SelectChangeEvent<string[]>) => {
-    setLanguage(event.target.value as string[])
-  }
+  // const handleDelete = (value: string) => {
+  //   setLanguage(current => current.filter(item => item !== value))
+  // }
+
+  // const handleChange = (event: SelectChangeEvent<string[]>) => {
+  //   setLanguage(event.target.value as string[])
+  // }
 
   const handleFormChange = (field: keyof Data, value: Data[keyof Data]) => {
     setFormData({ ...formData, [field]: value })
   }
 
-  const handleFileInputChange = (file: ChangeEvent) => {
-    const reader = new FileReader()
-    const { files } = file.target as HTMLInputElement
+  // const handleFileInputChange = (file: ChangeEvent) => {
+  //   const reader = new FileReader()
+  //   const { files } = file.target as HTMLInputElement
 
-    if (files && files.length !== 0) {
-      reader.onload = () => setImgSrc(reader.result as string)
-      reader.readAsDataURL(files[0])
+  //   if (files && files.length !== 0) {
+  //     reader.onload = () => setImgSrc(reader.result as string)
+  //     reader.readAsDataURL(files[0])
 
-      if (reader.result !== null) {
-        setFileInput(reader.result as string)
-      }
-    }
+  //     if (reader.result !== null) {
+  //       setFileInput(reader.result as string)
+  //     }
+  //   }
+  // }
+
+  const handelFormSubmit = (e: { preventDefault: () => void }) => {
+    e.preventDefault()
+    console.log(formData)
+    setFormData(initialData)
   }
 
-  const handleFileInputReset = () => {
-    setFileInput('')
-    setImgSrc('/images/avatars/1.png')
-  }
+  // const handleFileInputReset = () => {
+  //   setFileInput('')
+  //   setImgSrc('/images/avatars/1.png')
+  // }
 
   return (
     <Card>
-      <CardContent className='mbe-4'>
+      {/* <CardContent className='mbe-4'>
         <div className='flex max-sm:flex-col items-center gap-6'>
           <img height={100} width={100} className='rounded' src={imgSrc} alt='Profile' />
           <div className='flex flex-grow flex-col gap-4'>
@@ -113,10 +132,18 @@ const AccountDetails = () => {
             <Typography>Allowed JPG, GIF or PNG. Max size of 800K</Typography>
           </div>
         </div>
-      </CardContent>
+      </CardContent> */}
+      <CardHeader title='Patient Details' />
+      <Divider />
       <CardContent>
-        <form onSubmit={e => e.preventDefault()}>
+        <form onSubmit={handelFormSubmit}>
           <Grid container spacing={6}>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant='body2' className='font-medium'>
+                1. Personal Info
+              </Typography>
+            </Grid>
+
             <Grid size={{ xs: 12, sm: 6 }}>
               <CustomTextField
                 fullWidth
@@ -135,6 +162,81 @@ const AccountDetails = () => {
                 onChange={e => handleFormChange('lastName', e.target.value)}
               />
             </Grid>
+            <Grid size={{ xs: 12, sm: 12 }}>
+              <CustomTextField
+                fullWidth
+                label='Full Name'
+                value={formData.fullName}
+                placeholder='Doe'
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <i className='tabler-user' />
+                      </InputAdornment>
+                    )
+                  }
+                }}
+                onChange={e => handleFormChange('fullName', e.target.value)}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 3 }}>
+              <CustomTextField
+                select
+                fullWidth
+                label='Ethnicity'
+                value={formData.ethnicity}
+                slotProps={{
+                  select: {
+                    multiple: false,
+                    onChange: e => setFormData({ ...formData, ethnicity: e.target.value as string })
+                  }
+                }}
+              >
+                <MenuItem value='Sinhala'>Sinhala</MenuItem>
+                <MenuItem value='Tamil'>Tamil</MenuItem>
+                <MenuItem value='Muslims'>Muslims</MenuItem>
+                <MenuItem value='Burghers'>Burghers</MenuItem>
+                <MenuItem value='Malays'>Malays</MenuItem>
+                <MenuItem value='Veddas'>Veddas</MenuItem>
+              </CustomTextField>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 3 }}>
+              <CustomDatePicker
+                openTo='year'
+                label='Date of Birth'
+                views={['year', 'month', 'day']}
+                value={null}
+                onChange={newValue => console.log(newValue)}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <CustomTextField
+                fullWidth
+                label='NIC Number'
+                value={''}
+                placeholder='****V/****'
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <i className='tabler-user' />
+                      </InputAdornment>
+                    )
+                  }
+                }}
+                onChange={e => handleFormChange('fullName', e.target.value)}
+              />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Divider />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant='body2' className='font-medium'>
+                2. Personal Info
+              </Typography>
+            </Grid>
+
             <Grid size={{ xs: 12, sm: 6 }}>
               <CustomTextField
                 fullWidth
@@ -142,15 +244,6 @@ const AccountDetails = () => {
                 value={formData.email}
                 placeholder='john.doe@gmail.com'
                 onChange={e => handleFormChange('email', e.target.value)}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField
-                fullWidth
-                label='Organization'
-                value={formData.organization}
-                placeholder='Pixinvent'
-                onChange={e => handleFormChange('organization', e.target.value)}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -184,13 +277,14 @@ const AccountDetails = () => {
               <CustomTextField
                 fullWidth
                 type='number'
-                label='Zip Code'
+                label='Zip Codea'
                 value={formData.zipCode}
                 placeholder='123456'
                 onChange={e => handleFormChange('zipCode', e.target.value)}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+
+            {/* <Grid size={{ xs: 12, sm: 6 }}>
               <CustomTextField
                 select
                 fullWidth
@@ -203,8 +297,8 @@ const AccountDetails = () => {
                 <MenuItem value='australia'>Australia</MenuItem>
                 <MenuItem value='germany'>Germany</MenuItem>
               </CustomTextField>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            </Grid> */}
+            {/* <Grid size={{ xs: 12, sm: 6 }}>
               <CustomTextField
                 select
                 fullWidth
@@ -237,8 +331,8 @@ const AccountDetails = () => {
                   </MenuItem>
                 ))}
               </CustomTextField>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            </Grid> */}
+            {/* <Grid size={{ xs: 12, sm: 6 }}>
               <CustomTextField
                 select
                 fullWidth
@@ -267,7 +361,7 @@ const AccountDetails = () => {
                 <MenuItem value='gmt-04'>(GMT-04:00) Atlantic Time (Canada)</MenuItem>
                 <MenuItem value='gmt-04-clp'>(GMT-04:00) Caracas, La Paz</MenuItem>
               </CustomTextField>
-            </Grid>
+            </Grid> */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <CustomTextField
                 select

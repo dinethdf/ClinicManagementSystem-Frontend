@@ -13,11 +13,11 @@ import AuthRedirect from '@/components/AuthRedirect'
 import { validateToken } from '@/libs/authentication'
 
 export default async function AuthGuard({ children, locale }: ChildrenType & { locale: Locale }) {
-const cookieStore = await cookies()
-const token: string | undefined = cookieStore.get('accessToken')?.value
-const userVerification = token ? await validateToken(token) : false
+  const cookieStore = await cookies()
+  const token: string | undefined = cookieStore.get('accessToken')?.value
+  const userVerification = token ? await validateToken(token) : false
 
-// const session = await getServerSession()
+  // const session = await getServerSession()
 
   return <>{userVerification?.valid ? children : <AuthRedirect lang={locale} />}</>
 }

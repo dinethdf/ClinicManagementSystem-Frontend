@@ -48,16 +48,14 @@ const Header = ({ mode }: { mode: Mode }) => {
     disableHysteresis: true
   })
 
-  console.log(mode); //test run Remove this
+  console.log(mode) //test run Remove this
 
   return (
     <header className={classnames(frontLayoutClasses.header, styles.header)}>
       <div className={classnames(frontLayoutClasses.navbar, styles.navbar, { [styles.headerScrolled]: trigger })}>
         <div className={classnames(frontLayoutClasses.navbarContent, styles.navbarContent)}>
-
           <div className='flex items-center gap-2 sm:gap-4'>
             <ModeDropdown />
-           
           </div>
         </div>
       </div>

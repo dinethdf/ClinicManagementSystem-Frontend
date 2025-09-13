@@ -46,8 +46,6 @@ const BadgeContentSpan = styled('span')({
 })
 
 const UserDropdown = () => {
-
-
   // States
   const [open, setOpen] = useState(false)
 
@@ -75,17 +73,15 @@ const UserDropdown = () => {
 
     setOpen(false)
   }
- 
+
   const handleUserLogout = async () => {
     try {
-
       // Sign out from the app
       // await signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })
-    await  logoutAndRedirect();
-      
-    //  <AuthRedirect lang={locale} />
-       router.push("/login")
+      await logoutAndRedirect()
 
+      //  <AuthRedirect lang={locale} />
+      router.push('/login')
     } catch (error) {
       console.error(error)
 
