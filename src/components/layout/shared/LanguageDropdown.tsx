@@ -45,7 +45,7 @@ const languageData: LanguageDataType[] = [
   {
     langCode: 'si',
     langName: 'Sinhala'
-  },
+  }
 ]
 
 const LanguageDropdown = () => {

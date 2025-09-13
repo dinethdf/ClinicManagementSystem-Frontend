@@ -107,13 +107,7 @@ const ReferEarn = ({ open, setOpen }: ReferEarnProps) => {
         <div className='flex flex-col gap-6'>
           <Typography variant='h5'>Invite your friends</Typography>
           <div className='flex items-end is-full flex-wrap sm:flex-nowrap gap-4'>
-            <CustomTextField
-              fullWidth
-              size='small'
-              id='refer-email'
-              placeholder='johnDoe@email.com'
-              label=''
-            />
+            <CustomTextField fullWidth size='small' id='refer-email' placeholder='johnDoe@email.com' label='' />
             <Button variant='contained' className='max-sm:is-full'>
               Send
             </Button>

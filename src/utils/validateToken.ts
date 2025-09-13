@@ -1,6 +1,5 @@
 // import axios from 'axios';
 
-
 // // Basic token validation (already existing)
 // export async function validateToken(authToken: string) {
 //   try {
@@ -15,10 +14,9 @@
 //       }
 //     );
 
-//     return response.data; 
+//     return response.data;
 //   } catch (error) {
 //     console.error('Token validation failed:', error);
 //     return { valid: false };
 //   }
 // }
-

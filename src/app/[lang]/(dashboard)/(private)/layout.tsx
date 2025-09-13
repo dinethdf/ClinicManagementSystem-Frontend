@@ -58,7 +58,7 @@ const Layout = async (props: ChildrenType & { params: Promise<{ lang: Locale }> 
           }
           horizontalLayout={
             <div className='flex flex-col flex-auto'>Horizontal Layout </div>
-           
+
             // <HorizontalLayout header={<Header dictionary={dictionary} />} footer={<HorizontalFooter />}>
             //   {children}
             // </HorizontalLayout>

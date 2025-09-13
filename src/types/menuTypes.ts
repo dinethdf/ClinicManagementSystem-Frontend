@@ -36,4 +36,3 @@ export type VerticalSectionDataType = Omit<VerticalMenuSectionProps, 'children'>
   children: VerticalMenuDataType[]
 }
 export type VerticalMenuDataType = VerticalMenuItemDataType | VerticalSubMenuDataType | VerticalSectionDataType
-

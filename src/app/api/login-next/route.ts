@@ -1,7 +1,6 @@
 // Next Imports
 import { NextResponse } from 'next/server'
 
-
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //   This File need To check Again
@@ -11,14 +10,13 @@ import { NextResponse } from 'next/server'
 import { loginUser } from '@/libs/authentication'
 
 export async function POST(req: Request) {
-  
   // Vars
   const { email, password } = await req.json()
   const res = await loginUser(email, password)
 
-    return NextResponse.json(res, { status: 200 });
-  
-    // } else {
+  return NextResponse.json(res, { status: 200 })
+
+  // } else {
   //   // We return 401 status code and error message if user is not found
   //   return NextResponse.json(
   //     {
