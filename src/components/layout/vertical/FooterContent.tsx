@@ -22,7 +22,7 @@ const FooterContent = () => {
     >
       <p>
         <span className='text-textSecondary'>{`© ${new Date().getFullYear()}, Made with `}</span>
-        
+
         <span className='text-textSecondary'>{` by `}</span>
         <Link href='#' target='_blank' className='text-primary uppercase'>
           DDF

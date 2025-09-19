@@ -15,7 +15,6 @@ import type { VerticalMenuContextProps } from '@core/components/vertical-menu/Me
 import { Menu, SubMenu, MenuItem, MenuSection } from '@/@core/components/vertical-menu'
 import CustomChip from '@core/components/mui/Chip'
 
-
 // Hook Imports
 import useVerticalNav from '@/@core/hooks/useVerticalNav'
 
@@ -90,30 +89,51 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
           <MenuItem href={`/${locale}/dashboards/ecommerce`}>{dictionary['navigation'].eCommerce}</MenuItem>
         </SubMenu>
         <MenuSection label={dictionary['navigation'].appsPages}>
-
           {/* Hospital Management */}
-
-         
 
           <SubMenu label={dictionary['navigation'].clinic} icon={<i className='tabler-shopping-cart' />}>
             <MenuItem href={`/${locale}/clinic`}>{dictionary['navigation'].dashboard}</MenuItem>
-      
-          <SubMenu label={dictionary['navigation'].patientRegistration}>
+
+            <SubMenu label={dictionary['navigation'].patientRegistration}>
               <MenuItem href={`/${locale}/clinic/patient/list`}>{dictionary['navigation'].patientlist}</MenuItem>
               <MenuItem href={`/${locale}/clinic/patient/register`}>{dictionary['navigation'].patientAdd}</MenuItem>
-              <MenuItem href={`/${locale}/clinic/patient/view/879861`}>{"view Patient Temp"}</MenuItem>
-              {/* <MenuItem href={`/${locale}/apps/clinic/users/role`}>
-                {dictionary['navigation'].category}
-              </MenuItem> */}
-          </SubMenu>               
-            <SubMenu label={dictionary['navigation'].userRegistration}>
-              <MenuItem href={`/${locale}/clinic/user/list`}>{dictionary['navigation'].userlist}</MenuItem>
-              <MenuItem href={`/${locale}/clinic/user/register`}>{dictionary['navigation'].userAdd}</MenuItem>
-              <MenuItem href={`/${locale}/clinic/user/view/879861`}>{"view User Temp"}</MenuItem>
+              <MenuItem href={`/${locale}/clinic/patient/view/879861`}>{'view Patient Temp'}</MenuItem>
               {/* <MenuItem href={`/${locale}/apps/clinic/users/role`}>
                 {dictionary['navigation'].category}
               </MenuItem> */}
             </SubMenu>
+            <SubMenu label={dictionary['navigation'].userRegistration}>
+              <MenuItem href={`/${locale}/clinic/user/list`}>{dictionary['navigation'].userlist}</MenuItem>
+              <MenuItem href={`/${locale}/clinic/user/register`}>{dictionary['navigation'].userAdd}</MenuItem>
+              <MenuItem href={`/${locale}/clinic/user/view/879861`}>{'view User Temp'}</MenuItem>
+              {/* <MenuItem href={`/${locale}/apps/clinic/users/role`}>
+                {dictionary['navigation'].category}
+              </MenuItem> */}
+            </SubMenu>
+            <SubMenu label={dictionary['navigation'].appoinmentShedule}>
+              <MenuItem href={`/${locale}/clinic/appoinment-shedule/add`}>
+                {dictionary['navigation'].appoinmentSheduleAdd}
+              </MenuItem>
+              <MenuItem href={`/${locale}/clinic/appoinment-shedule/category`}>
+                {dictionary['navigation'].appoinmentSheduleCat}
+              </MenuItem>
+              <MenuItem href={`/${locale}/clinic/appoinment-shedule/list`}>
+                {dictionary['navigation'].appoinmentSheduleList}
+              </MenuItem>
+            </SubMenu>
+
+            <SubMenu label={dictionary['navigation'].appoinments}>
+              <MenuItem href={`/${locale}/clinic/appoinment/property-listing`}>
+                {dictionary['navigation'].appoinmentBook}
+              </MenuItem>
+              <MenuItem href={`/${locale}/clinic/appoinment/create-deal`}>
+                {dictionary['navigation'].appoinmentCat}
+              </MenuItem>
+              <MenuItem href={`/${locale}/clinic/appoinment/checkout`}>{'otyher File'}</MenuItem>
+              <MenuItem href={`/${locale}/clinic/appoinment/details/5434`}>{'temp Dewtails'}</MenuItem>
+              <MenuItem href={`/${locale}/clinic/appoinment/list`}>{dictionary['navigation'].appoinmentList}</MenuItem>
+            </SubMenu>
+
             <SubMenu label={dictionary['navigation'].products}>
               <MenuItem href={`/${locale}/apps/ecommerce/products/list`}>{dictionary['navigation'].list}</MenuItem>
               <MenuItem href={`/${locale}/apps/ecommerce/products/add`}>{dictionary['navigation'].add}</MenuItem>
@@ -147,7 +167,6 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
             <MenuItem href={`/${locale}/apps/ecommerce/referrals`}>{dictionary['navigation'].referrals}</MenuItem>
             <MenuItem href={`/${locale}/apps/ecommerce/settings`}>{dictionary['navigation'].settings}</MenuItem>
           </SubMenu>
-
 
           <SubMenu label={dictionary['navigation'].eCommerce} icon={<i className='tabler-shopping-cart' />}>
             <MenuItem href={`/${locale}/apps/ecommerce/dashboard`}>{dictionary['navigation'].dashboard}</MenuItem>

@@ -19,8 +19,8 @@
 // };
 
 // const loginUser = async (email: string, password: string): Promise<LoginResult> => {
-//   try { 
-    
+//   try {
+
 //     const response = await axios.post<LoginResponse>(`${process.env.NEXT_PUBLIC_API_URL}/userSignIn`, {
 //       username : email,
 //       password: password,
@@ -29,7 +29,6 @@
 
 //     const { accessToken, refreshToken } = response.data;
 
-    
 //     setSiteCookie('accessToken', accessToken, 7);  // 7 days expiration
 //     setSiteCookie('refreshToken', refreshToken, 7);  // 7 days expiration
 

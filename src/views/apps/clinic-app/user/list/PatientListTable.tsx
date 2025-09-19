@@ -143,9 +143,9 @@ const PatientListTable = ({ customerData }: { customerData?: Customer[] }) => {
   // Hooks
   const { lang: locale } = useParams()
 
-    useEffect(() => {
+  useEffect(() => {
     setData(data)
-    }, []) // Need to remove Just COde Fix
+  }, []) // Need to remove Just COde Fix
 
   const columns = useMemo<ColumnDef<ECommerceOrderTypeWithAction, any>[]>(
     () => [
@@ -265,11 +265,10 @@ const PatientListTable = ({ customerData }: { customerData?: Customer[] }) => {
 
   return (
     <>
-      <Typography variant="h3" gutterBottom>
+      <Typography variant='h3' gutterBottom>
         Patient List
       </Typography>
       <Card>
-        
         <CardContent className='flex justify-between flex-wrap max-sm:flex-col sm:items-center gap-4'>
           <DebouncedInput
             value={globalFilter ?? ''}

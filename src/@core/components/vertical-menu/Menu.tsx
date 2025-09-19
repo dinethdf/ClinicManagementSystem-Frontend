@@ -35,7 +35,7 @@ import styles from '../../styles/styles.module.css'
 
 // Default Config Imports
 import { verticalSubMenuToggleDuration } from '../../defaultConfigs'
-import { menuClasses } from '../../utils/menuClasses';
+import { menuClasses } from '../../utils/menuClasses'
 
 export type MenuSectionStyles = {
   root?: CSSObject
