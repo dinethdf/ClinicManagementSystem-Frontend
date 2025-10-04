@@ -5,7 +5,9 @@ import { useState } from 'react'
 
 // import type { ChangeEvent } from 'react'
 
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
+
 
 // MUI Imports
 import Grid from '@mui/material/Grid2'
@@ -66,7 +68,7 @@ const initialData: Data = {
   
   emgRelationship: '',
   emgMobileNumber: '',
-  emgEmail: null
+  emgEmail: ''
 }
 
 
@@ -107,7 +109,8 @@ const AccountDetails = () => {
   const handelFormSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault()
     console.log(formData)
-    setFormData(initialData)
+    
+    // setFormData(initialData)
   }
 
   // const handleFileInputReset = () => {
@@ -196,7 +199,7 @@ const AccountDetails = () => {
                 value={formData.ethnicity}
                 onChange={e => setFormData({ ...formData, ethnicity: e.target.value })}
               >
-               <MenuItem value=''>Select Gender</MenuItem>
+               <MenuItem value=''>Select Ethnicity</MenuItem>
                 <MenuItem value='0'>Sinhala</MenuItem>
                 <MenuItem value='1'>Tamil</MenuItem>
                 <MenuItem value='2'>Muslims</MenuItem>
@@ -226,7 +229,7 @@ const AccountDetails = () => {
                 value={formData.maritalStatus}
                 onChange={e => setFormData({ ...formData, maritalStatus: e.target.value })}
               >
-                <MenuItem value=''>Select Gender</MenuItem>
+                <MenuItem value=''>Select Marital Status</MenuItem>
                 <MenuItem value='1'>Married</MenuItem>
                 <MenuItem value='2'>Divorced</MenuItem>
                 <MenuItem value='3'>Widowed</MenuItem>
