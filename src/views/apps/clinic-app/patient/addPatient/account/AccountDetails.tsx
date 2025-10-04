@@ -5,6 +5,10 @@ import { useState } from 'react'
 
 // import type { ChangeEvent } from 'react'
 
+import dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
+
+
 // MUI Imports
 import Grid from '@mui/material/Grid2'
 import Card from '@mui/material/Card'
@@ -13,54 +17,60 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
 
-// import type { SelectChangeEvent } from '@mui/material/Select'
-
 import { CardHeader, Divider, InputAdornment } from '@mui/material'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
 
-
-
-// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
 
 type Data = {
   firstName: string
   lastName: string
   fullName: string
-  email: string
-  organization: string
-  phoneNumber: number | string
-  address: string
-  state: string
-  zipCode: string
-  country: string
   ethnicity: string
-  timezone: string
-  currency: string
+  gender: string
+  maritalStatus: string  
+  nic: string
+  dob: Dayjs | null
+  address: string
+  city: string
+  district: string  
+
+  email: string
+  mobileNumber: number | string
+  landNumber: number | string
+
+  emgName: string
+  emgRelationship: string
+  emgMobileNumber: number | string
+  emgEmail: string | null
 }
 
-// Vars
 const initialData: Data = {
-  firstName: 'John',
-  lastName: 'Doe',
-  fullName: 'Jone Doe',
-  email: 'john.doe@example.com',
-  organization: 'Pixinvent',
-  phoneNumber: '+1 (917) 543-9876',
-  address: '123 Main St, New York, NY 10001',
-  state: 'New York',
-  zipCode: '634880',
-  country: 'usa',
-  ethnicity: 'Sinhala',
-  timezone: 'gmt-12',
-  currency: 'usd'
+  firstName: '',
+  lastName: '',
+  fullName: '',
+  ethnicity: '',
+  gender: '',
+  maritalStatus: '',
+  nic: '',
+  dob: null,
+  address: '',
+  city: '',
+  district: '',
+
+  email: '',
+  mobileNumber: '',
+  landNumber: '',
+
+  emgName: '',
+  
+  emgRelationship: '',
+  emgMobileNumber: '',
+  emgEmail: ''
 }
 
-// const languageData = ['English', 'Arabic', 'French', 'German', 'Portuguese']
 
 const AccountDetails = () => {
   // States
@@ -99,7 +109,8 @@ const AccountDetails = () => {
   const handelFormSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault()
     console.log(formData)
-    setFormData(initialData)
+    
+    // setFormData(initialData)
   }
 
   // const handleFileInputReset = () => {
@@ -133,13 +144,13 @@ const AccountDetails = () => {
           </div>
         </div>
       </CardContent> */}
-      <CardHeader title='Patient Details' />
+      <CardHeader title='Patient Details' className='pb-2' titleTypographyProps={{ variant: 'h4'}} />
       <Divider />
       <CardContent>
         <form onSubmit={handelFormSubmit}>
           <Grid container spacing={6}>
             <Grid size={{ xs: 12 }}>
-              <Typography variant='body2' className='font-medium'>
+              <Typography variant='body1' className='font-medium'>
                 1. Personal Info
               </Typography>
             </Grid>
@@ -180,41 +191,56 @@ const AccountDetails = () => {
                 onChange={e => handleFormChange('fullName', e.target.value)}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 3 }}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <CustomTextField
                 select
                 fullWidth
                 label='Ethnicity'
                 value={formData.ethnicity}
-                slotProps={{
-                  select: {
-                    multiple: false,
-                    onChange: e => setFormData({ ...formData, ethnicity: e.target.value as string })
-                  }
-                }}
+                onChange={e => setFormData({ ...formData, ethnicity: e.target.value })}
               >
-                <MenuItem value='Sinhala'>Sinhala</MenuItem>
-                <MenuItem value='Tamil'>Tamil</MenuItem>
-                <MenuItem value='Muslims'>Muslims</MenuItem>
-                <MenuItem value='Burghers'>Burghers</MenuItem>
-                <MenuItem value='Malays'>Malays</MenuItem>
-                <MenuItem value='Veddas'>Veddas</MenuItem>
+               <MenuItem value=''>Select Ethnicity</MenuItem>
+                <MenuItem value='0'>Sinhala</MenuItem>
+                <MenuItem value='1'>Tamil</MenuItem>
+                <MenuItem value='2'>Muslims</MenuItem>
+                <MenuItem value='3'>Other</MenuItem>
+              </CustomTextField>              
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <CustomTextField
+                select
+                fullWidth
+                label='Gender'
+                value={formData.gender}
+                onChange={e => setFormData({ ...formData, gender: e.target.value })}
+              >
+                <MenuItem value=''>Select Gender</MenuItem>
+                <MenuItem value='0'>Male</MenuItem>
+                <MenuItem value='1'>Female</MenuItem>
+                <MenuItem value='2'>Other</MenuItem>
+             
               </CustomTextField>
             </Grid>
-            <Grid size={{ xs: 12, sm: 3 }}>
-              <CustomDatePicker
-                openTo='year'
-                label='Date of Birth'
-                views={['year', 'month', 'day']}
-                value={null}
-                onChange={newValue => console.log(newValue)}
-              />
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <CustomTextField
+                select
+                fullWidth
+                label='Marital Status'
+                value={formData.maritalStatus}
+                onChange={e => setFormData({ ...formData, maritalStatus: e.target.value })}
+              >
+                <MenuItem value=''>Select Marital Status</MenuItem>
+                <MenuItem value='1'>Married</MenuItem>
+                <MenuItem value='2'>Divorced</MenuItem>
+                <MenuItem value='3'>Widowed</MenuItem>
+                <MenuItem value='4'>Separated</MenuItem>
+              </CustomTextField>
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <CustomTextField
                 fullWidth
                 label='NIC Number'
-                value={''}
+                value={formData.nic}
                 placeholder='****V/****'
                 slotProps={{
                   input: {
@@ -225,34 +251,23 @@ const AccountDetails = () => {
                     )
                   }
                 }}
-                onChange={e => handleFormChange('fullName', e.target.value)}
-              />
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <Divider />
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <Typography variant='body2' className='font-medium'>
-                2. Personal Info
-              </Typography>
-            </Grid>
-
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField
-                fullWidth
-                label='Email'
-                value={formData.email}
-                placeholder='john.doe@gmail.com'
-                onChange={e => handleFormChange('email', e.target.value)}
+                onChange={e => handleFormChange('nic', e.target.value)}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField
-                fullWidth
-                label='Phone Number'
-                value={formData.phoneNumber}
-                placeholder='+1 (234) 567-8901'
-                onChange={e => handleFormChange('phoneNumber', e.target.value)}
+              <CustomDatePicker
+                openTo='year'
+                label='Date of Birth'
+                views={['year', 'month', 'day']}
+                value={formData.dob}              
+                yearsOrder="desc"
+                maxDate={dayjs()}
+                format="YYYY-MM-DD"
+                onChange={dobDate => {
+                  console.log(dobDate);
+                  handleFormChange('dob', dobDate as Dayjs);
+                  console.log(dobDate?.format('YYYY-MM-DD'));
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -264,118 +279,102 @@ const AccountDetails = () => {
                 onChange={e => handleFormChange('address', e.target.value)}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <CustomTextField
                 fullWidth
-                label='State'
-                value={formData.state}
-                placeholder='New York'
-                onChange={e => handleFormChange('state', e.target.value)}
+                label='City'
+                value={formData.city}
+                placeholder='Pelmadulla'
+                onChange={e => handleFormChange('city', e.target.value)}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <CustomTextField
                 fullWidth
-                type='number'
-                label='Zip Codea'
-                value={formData.zipCode}
-                placeholder='123456'
-                onChange={e => handleFormChange('zipCode', e.target.value)}
+                label='District'
+                value={formData.district}
+                placeholder='Rathnapura'
+                onChange={e => handleFormChange('district', e.target.value)}
               />
+            </Grid>            
+            <Grid size={{ xs: 12 }}>
+              <Divider />
             </Grid>
 
-            {/* <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid size={{ xs: 12 }}>
+            <Typography variant='body1' className='font-medium'>
+                2. Contact Information
+            </Typography>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <CustomTextField
-                select
                 fullWidth
-                label='Country'
-                value={formData.country}
-                onChange={e => handleFormChange('country', e.target.value)}
-              >
-                <MenuItem value='usa'>USA</MenuItem>
-                <MenuItem value='uk'>UK</MenuItem>
-                <MenuItem value='australia'>Australia</MenuItem>
-                <MenuItem value='germany'>Germany</MenuItem>
-              </CustomTextField>
-            </Grid> */}
-            {/* <Grid size={{ xs: 12, sm: 6 }}>
+                label='Email'
+                value={formData.email}
+                placeholder='john.doe@gmail.com'
+                onChange={e => handleFormChange('email', e.target.value)}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <CustomTextField
-                select
                 fullWidth
-                label='Language'
-                value={language}
-                slotProps={{
-                  select: {
-                    multiple: true, // @ts-ignore
-                    onChange: handleChange,
-                    renderValue: selected => (
-                      <div className='flex flex-wrap gap-2'>
-                        {(selected as string[]).map(value => (
-                          <Chip
-                            key={value}
-                            clickable
-                            onMouseDown={event => event.stopPropagation()}
-                            size='small'
-                            label={value}
-                            onDelete={() => handleDelete(value)}
-                          />
-                        ))}
-                      </div>
-                    )
-                  }
-                }}
-              >
-                {languageData.map(name => (
-                  <MenuItem key={name} value={name}>
-                    {name}
-                  </MenuItem>
-                ))}
-              </CustomTextField>
-            </Grid> */}
-            {/* <Grid size={{ xs: 12, sm: 6 }}>
+                label='Mobile Number'
+                value={formData.mobileNumber}
+                placeholder='+1 (234) 567-8901'
+                onChange={e => handleFormChange('mobileNumber', e.target.value)}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <CustomTextField
-                select
                 fullWidth
-                label='TimeZone'
-                value={formData.timezone}
-                onChange={e => handleFormChange('timezone', e.target.value)}
-                slotProps={{
-                  select: { MenuProps: { PaperProps: { style: { maxHeight: 250 } } } }
-                }}
-              >
-                <MenuItem value='gmt-12'>(GMT-12:00) International Date Line West</MenuItem>
-                <MenuItem value='gmt-11'>(GMT-11:00) Midway Island, Samoa</MenuItem>
-                <MenuItem value='gmt-10'>(GMT-10:00) Hawaii</MenuItem>
-                <MenuItem value='gmt-09'>(GMT-09:00) Alaska</MenuItem>
-                <MenuItem value='gmt-08'>(GMT-08:00) Pacific Time (US & Canada)</MenuItem>
-                <MenuItem value='gmt-08-baja'>(GMT-08:00) Tijuana, Baja California</MenuItem>
-                <MenuItem value='gmt-07'>(GMT-07:00) Chihuahua, La Paz, Mazatlan</MenuItem>
-                <MenuItem value='gmt-07-mt'>(GMT-07:00) Mountain Time (US & Canada)</MenuItem>
-                <MenuItem value='gmt-06'>(GMT-06:00) Central America</MenuItem>
-                <MenuItem value='gmt-06-ct'>(GMT-06:00) Central Time (US & Canada)</MenuItem>
-                <MenuItem value='gmt-06-mc'>(GMT-06:00) Guadalajara, Mexico City, Monterrey</MenuItem>
-                <MenuItem value='gmt-06-sk'>(GMT-06:00) Saskatchewan</MenuItem>
-                <MenuItem value='gmt-05'>(GMT-05:00) Bogota, Lima, Quito, Rio Branco</MenuItem>
-                <MenuItem value='gmt-05-et'>(GMT-05:00) Eastern Time (US & Canada)</MenuItem>
-                <MenuItem value='gmt-05-ind'>(GMT-05:00) Indiana (East)</MenuItem>
-                <MenuItem value='gmt-04'>(GMT-04:00) Atlantic Time (Canada)</MenuItem>
-                <MenuItem value='gmt-04-clp'>(GMT-04:00) Caracas, La Paz</MenuItem>
-              </CustomTextField>
-            </Grid> */}
+                label='Land Number'
+                value={formData.landNumber}
+                placeholder='+1 (234) 567-8901'
+                onChange={e => handleFormChange('landNumber', e.target.value)}
+              />
+            </Grid>            
+
+            <Grid size={{ xs: 12 }}>
+            <Typography variant='body1' className='font-medium'>
+                3. Emergency Contact
+            </Typography>
+            </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <CustomTextField
-                select
                 fullWidth
-                label='Currency'
-                value={formData.currency}
-                onChange={e => handleFormChange('currency', e.target.value)}
-              >
-                <MenuItem value='usd'>USD</MenuItem>
-                <MenuItem value='euro'>EUR</MenuItem>
-                <MenuItem value='pound'>Pound</MenuItem>
-                <MenuItem value='bitcoin'>Bitcoin</MenuItem>
-              </CustomTextField>
+                label='Contact Name'
+                value={formData.emgName}
+                placeholder='Enter Name'
+                onChange={e => handleFormChange('emgName', e.target.value)}
+              />
             </Grid>
+            <Grid size={{ xs: 12, sm: 6}}>
+              <CustomTextField
+                fullWidth
+                label='Relationship'
+                value={formData.emgRelationship}
+                placeholder='Enter Relationship'
+                onChange={e => handleFormChange('emgRelationship', e.target.value)}
+              />
+            </Grid>            
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <CustomTextField
+                fullWidth
+                label='Mobile Number'
+                value={formData.emgMobileNumber}
+                placeholder='+1 (234) 567-8901'
+                onChange={e => handleFormChange('emgMobileNumber', e.target.value)}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <CustomTextField
+                fullWidth
+                label='Email (Optional)'
+                value={formData.emgEmail}
+                placeholder='john.doe@gmail.com'
+                onChange={e => handleFormChange('emgEmail', e.target.value)}
+              />
+            </Grid>                        
             <Grid size={{ xs: 12 }} className='flex gap-4 flex-wrap'>
               <Button variant='contained' type='submit'>
                 Save Changes

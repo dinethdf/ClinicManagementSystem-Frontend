@@ -115,7 +115,7 @@ const DatePickerStyled = styled(DatePicker)(({ theme }) => ({
 }))
 
 type CustomDatePickerProps = Omit<DatePickerProps<any>, 'slotProps'> & {
-
+  
   // You can add any custom props here if needed in the future
 }
 

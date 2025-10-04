@@ -10,11 +10,11 @@ import Tab from '@mui/material/Tab'
 import TabContext from '@mui/lab/TabContext'
 import TabPanel from '@mui/lab/TabPanel'
 
-import Typography from '@mui/material/Typography'
+// import Typography from '@mui/material/Typography'
 
 // Component Imports
 import CustomTabList from '@core/components/mui/TabList'
-
+import GoBack from '@/@core/components/custom-inputs/GoBack'
 
 
 const AccountSettings = ({ tabContentList }: { tabContentList: { [key: string]: ReactElement } }) => {
@@ -27,8 +27,7 @@ const AccountSettings = ({ tabContentList }: { tabContentList: { [key: string]: 
 
   return (
     <TabContext value={activeTab}>
-      <Typography className='pb-4' variant='h4'>{`Patient Register`}</Typography>
-
+      <GoBack title={"Add Patient"} description={" Register a new patient in your clinic."} />
       <Grid container spacing={6}>
         <Grid size={{ xs: 12 }}>
           <CustomTabList onChange={handleChange} variant='scrollable' pill='true'>

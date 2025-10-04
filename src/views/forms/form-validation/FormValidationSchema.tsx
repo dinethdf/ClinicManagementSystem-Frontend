@@ -65,7 +65,19 @@ const FormValidationOnScheme = () => {
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  const onSubmit = () => toast.success('Form Submitted')
+  const onSubmit = () =>  toast('Blank Toast', {
+            hideProgressBar: false,
+        style: {
+        padding: '16px',
+        color: 'var(--mui-palette-primary-main)',
+        border: '1px solid var(--mui-palette-primary-main)',
+        backgroundColor: 'var(--mui-palette-background-paper)'
+      },
+      className: 'custom-toast',
+      progressStyle: {
+        backgroundColor: 'var(--mui-palette-primary-main)'
+      }
+    })
 
   return (
     <Card>
