@@ -95,8 +95,8 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   // Vars
   const darkImg = '/images/pages/auth-mask-dark.png'
   const lightImg = '/images/pages/auth-mask-light.png'
-  const darkIllustration = '/images/illustrations/auth/v2-login-dark.png'
-  const lightIllustration = '/images/illustrations/auth/v2-login-light.png'
+  const darkIllustration = '/images/illustrations/auth/3775385.jpg'
+  const lightIllustration = '/images/illustrations/auth/3775385.jpg'
   const borderedDarkIllustration = '/images/illustrations/auth/v2-login-dark-border.png'
   const borderedLightIllustration = '/images/illustrations/auth/v2-login-light-border.png'
 
@@ -147,7 +147,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
     if (result && result?.success == true && result?.data?.accessToken && result?.data?.refreshToken) {
       await setLoginCookie(result.data.accessToken, result.data.refreshToken)
 
-      const redirectURL = searchParams.get('redirectTo') ?? '/'
+      const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
 
       router.replace(getLocalizedUrl(redirectURL, locale as Locale))
     } else {
