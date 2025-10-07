@@ -23,7 +23,7 @@ import Button from '@mui/material/Button'
 
 // Third-party Imports
 // import { signOut, useSession } from 'next-auth/react'
-import { useSession } from 'next-auth/react'
+// import { useSession } from 'next-auth/react'
 
 // Type Imports
 import type { Locale } from '@configs/i18n'
@@ -54,7 +54,9 @@ const UserDropdown = () => {
 
   // Hooks
   const router = useRouter()
-  const { data: session } = useSession()
+  
+  // const { data: session } = useSession()
+    const { data: session } = "" as any  // reemove this after addin use session
   const { settings } = useSettings()
   const { lang: locale } = useParams()
 
