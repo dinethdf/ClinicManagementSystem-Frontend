@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import Grid from '@mui/material/Grid2'
 
 // Type Imports
-import type { InvoiceType } from '@/types/apps/invoiceTypes'
+import type { InvoiceType } from '@/libs/types/apps/invoiceTypes'
 
 // Component Imports
 import EditCard from '@views/apps/invoice/edit/EditCard'

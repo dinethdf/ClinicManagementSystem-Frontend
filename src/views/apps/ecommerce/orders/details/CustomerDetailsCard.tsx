@@ -7,7 +7,7 @@ import type { TypographyProps } from '@mui/material/Typography'
 
 // Type Imports
 import type { ThemeColor } from '@/@core/typesDef'
-import type { OrderType } from '@/types/apps/ecommerceTypes'
+import type { OrderType } from '@/libs/types/apps/ecommerceTypes'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'

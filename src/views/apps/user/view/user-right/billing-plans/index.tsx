@@ -2,7 +2,7 @@
 import Grid from '@mui/material/Grid2'
 
 // Type Imports
-import type { PricingPlanType } from '@/types/pages/pricingTypes'
+import type { PricingPlanType } from '@/libs/types/pages/pricingTypes'
 
 // Component Imports
 import CurrentPlan from './CurrentPlan'

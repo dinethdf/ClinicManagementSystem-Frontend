@@ -10,14 +10,31 @@ import type { ChildrenType } from '@/@core/typesDef'
 // Component Imports
 import AuthRedirect from '@/components/AuthRedirect'
 
-import { validateToken } from '@/libs/authentication'
+import { verifyToken } from '@/libs/authentication'
+import ClientAuthContextProvider from '@/contexts/ClientAuthContextProvider'
 
 export default async function AuthGuard({ children, locale }: ChildrenType & { locale: Locale }) {
   const cookieStore = await cookies()
   const token: string | undefined = cookieStore.get('accessToken')?.value
-  const userVerification = token ? await validateToken(token) : false
 
-  // const session = await getServerSession()
+  const user = await verifyToken(token)
+  
+  if(!user.valid) {
+  
+    return <AuthRedirect lang={locale} />
+    
+  }
 
-  return <>{userVerification?.valid ? children : <AuthRedirect lang={locale} />}</>
+  const { role, userName, sub } = user.payload;
+  const essentialUserInfo = { role, userName, sub };
+
+  return (<>
+
+  {user?.valid ?
+    <ClientAuthContextProvider userData={essentialUserInfo || null}>
+      {children}
+    </ClientAuthContextProvider>
+   : <AuthRedirect lang={locale} />}
+  
+  </>)
 }

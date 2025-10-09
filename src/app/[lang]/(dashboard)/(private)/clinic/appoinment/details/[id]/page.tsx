@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation'
 
 // Type Imports
-import type { OrderType } from '@/types/apps/ecommerceTypes'
+import type { OrderType } from '@/libs/types/apps/ecommerceTypes'
 
 // Component Imports
 import AppoinmentDetails from '@views/apps/clinic-app/appoinment/details'

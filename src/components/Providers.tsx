@@ -2,11 +2,12 @@
 import type { ChildrenType, Direction } from '@/@core/typesDef'
 
 // Context Imports
-import { NextAuthProvider } from '@/contexts/nextAuthProvider'
+
+// import { NextAuthProvider } from '@/contexts/nextAuthProvider'
 import { VerticalNavProvider } from '@/@core/contexts/verticalNavContext'
 import { SettingsProvider } from '@core/contexts/settingsContext'
 import ThemeProvider from '@components/theme'
-import ReduxProvider from '@/redux-store/ReduxProvider'
+import ReduxProvider from '@/libs/redux-store/ReduxProvider'
 
 // Styled Component Imports
 import AppReactToastify from '@/libs/styles/AppReactToastify'
@@ -28,7 +29,8 @@ const Providers = async (props: Props) => {
   const systemMode = await getSystemMode()
 
   return (
-    <NextAuthProvider basePath={process.env.NEXTAUTH_BASEPATH}>
+    
+    // <NextAuthProvider basePath={process.env.NEXTAUTH_BASEPATH}>  // Use THis For better performanse
       <VerticalNavProvider>
         <SettingsProvider settingsCookie={settingsCookie} mode={mode}>
           <ThemeProvider direction={direction} systemMode={systemMode}>
@@ -37,7 +39,8 @@ const Providers = async (props: Props) => {
           </ThemeProvider>
         </SettingsProvider>
       </VerticalNavProvider>
-    </NextAuthProvider>
+    
+    // </NextAuthProvider>
   )
 }
 

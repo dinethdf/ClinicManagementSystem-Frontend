@@ -14,7 +14,7 @@ import classnames from 'classnames'
 import type { ApexOptions } from 'apexcharts'
 
 // Type Imports
-import type { CardStatsWithAreaChartProps } from '@/types/pages/widgetTypes'
+import type { CardStatsWithAreaChartProps } from '@/libs/types/pages/widgetTypes'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'

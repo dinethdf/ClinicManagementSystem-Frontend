@@ -36,7 +36,7 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
 import type { ThemeColor } from '@/@core/typesDef'
-import type { OrderType } from '@/types/apps/ecommerceTypes'
+import type { OrderType } from '@/libs/types/apps/ecommerceTypes'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports

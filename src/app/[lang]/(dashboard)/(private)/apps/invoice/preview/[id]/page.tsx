@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation'
 
 // Type Imports
-import type { InvoiceType } from '@/types/apps/invoiceTypes'
+import type { InvoiceType } from '@/libs/types/apps/invoiceTypes'
 
 // Component Imports
 import Preview from '@views/apps/invoice/preview'
