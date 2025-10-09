@@ -15,7 +15,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import { useForm, Controller } from 'react-hook-form'
 
 // Type Imports
-import type { Customer } from '@/types/apps/ecommerceTypes'
+import type { Customer } from '@/libs/types/apps/ecommerceTypes'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'

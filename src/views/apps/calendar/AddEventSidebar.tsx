@@ -20,7 +20,7 @@ import { useForm, Controller } from 'react-hook-form'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
-import type { AddEventSidebarType, AddEventType } from '@/types/apps/calendarTypes'
+import type { AddEventSidebarType, AddEventType } from '@/libs/types/apps/calendarTypes'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
@@ -29,7 +29,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 // Slice Imports
-import { addEvent, deleteEvent, updateEvent, selectedEvent, filterEvents } from '@/redux-store/slices/calendar'
+import { addEvent, deleteEvent, updateEvent, selectedEvent, filterEvents } from '@/libs/redux-store/slices/calendar'
 
 interface PickerProps {
   label?: string

@@ -2,7 +2,7 @@
 import Grid from '@mui/material/Grid2'
 
 // Types Imports
-import type { CardStatsHorizontalWithBorderProps } from '@/types/pages/widgetTypes'
+import type { CardStatsHorizontalWithBorderProps } from '@/libs/types/pages/widgetTypes'
 
 // Components Imports
 import HorizontalWithBorder from '@components/card-statistics/HorizontalWithBorder'

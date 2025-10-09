@@ -8,7 +8,7 @@ import CardContent from '@mui/material/CardContent'
 import classnames from 'classnames'
 
 // Type Imports
-import type { PricingPlanType } from '@/types/pages/pricingTypes'
+import type { PricingPlanType } from '@/libs/types/pages/pricingTypes'
 
 type Props = {
   pricingPlan: 'monthly' | 'annually'

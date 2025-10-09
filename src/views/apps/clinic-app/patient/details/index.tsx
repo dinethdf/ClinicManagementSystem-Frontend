@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic'
 import Grid from '@mui/material/Grid2'
 
 // Type Imports
-import type { Customer } from '@/types/apps/ecommerceTypes'
+import type { Customer } from '@/libs/types/apps/ecommerceTypes'
 
 // Component Imports
 import CustomerDetailsHeader from './PatientDetailsHeader'

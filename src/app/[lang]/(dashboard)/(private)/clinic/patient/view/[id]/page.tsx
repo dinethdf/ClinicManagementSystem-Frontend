@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation'
 
 // Type Imports
-import type { Customer } from '@/types/apps/clinicsTypes'
+import type { Customer } from '@/libs/types/apps/clinicsTypes'
 
 // Component Imports
 import CustomerDetails from '@/views/apps/clinic-app/patient/details'

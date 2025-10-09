@@ -37,7 +37,7 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
-import type { ReviewType } from '@/types/apps/ecommerceTypes'
+import type { ReviewType } from '@/libs/types/apps/ecommerceTypes'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports

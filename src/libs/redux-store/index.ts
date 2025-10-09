@@ -2,7 +2,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 
 // Slice Imports
-import calendarReducer from '@/redux-store/slices/calendar'
+import calendarReducer from '@/libs/redux-store/slices/calendar'
 
 export const store = configureStore({
   reducer: {

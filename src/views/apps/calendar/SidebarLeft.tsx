@@ -10,14 +10,14 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import classnames from 'classnames'
 
 // Types Imports
-import type { SidebarLeftProps, CalendarFiltersType } from '@/types/apps/calendarTypes'
+import type { SidebarLeftProps, CalendarFiltersType } from '@/libs/types/apps/calendarTypes'
 import type { ThemeColor } from '@/@core/typesDef'
 
 // Styled Component Imports
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 // Slice Imports
-import { filterAllCalendarLabels, filterCalendarLabel, selectedEvent } from '@/redux-store/slices/calendar'
+import { filterAllCalendarLabels, filterCalendarLabel, selectedEvent } from '@/libs/redux-store/slices/calendar'
 
 const SidebarLeft = (props: SidebarLeftProps) => {
   // Props

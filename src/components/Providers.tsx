@@ -7,7 +7,7 @@ import type { ChildrenType, Direction } from '@/@core/typesDef'
 import { VerticalNavProvider } from '@/@core/contexts/verticalNavContext'
 import { SettingsProvider } from '@core/contexts/settingsContext'
 import ThemeProvider from '@components/theme'
-import ReduxProvider from '@/redux-store/ReduxProvider'
+import ReduxProvider from '@/libs/redux-store/ReduxProvider'
 
 // Styled Component Imports
 import AppReactToastify from '@/libs/styles/AppReactToastify'
