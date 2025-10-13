@@ -6,7 +6,8 @@ import { useState } from 'react'
 // import type { ChangeEvent } from 'react'
 
 import dayjs from 'dayjs';
-import type { Dayjs } from 'dayjs';
+
+// import type { Dayjs } from 'dayjs';
 
 
 // MUI Imports
@@ -23,7 +24,8 @@ import { CardHeader, Divider, InputAdornment } from '@mui/material'
 import CustomTextField from '@core/components/mui/TextField'
 
 import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
-import { PatientDetails } from '@/libs/types/patient.types';
+
+import type { PatientDetails } from '@/libs/types/patient.types';
 
 
 const initialData: PatientDetails = {
