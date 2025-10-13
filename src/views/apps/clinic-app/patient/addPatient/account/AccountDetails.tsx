@@ -23,31 +23,10 @@ import { CardHeader, Divider, InputAdornment } from '@mui/material'
 import CustomTextField from '@core/components/mui/TextField'
 
 import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
+import { PatientDetails } from '@/libs/types/patient.types';
 
-type Data = {
-  firstName: string
-  lastName: string
-  fullName: string
-  ethnicity: string
-  gender: string
-  maritalStatus: string  
-  nic: string
-  dob: Dayjs | null
-  address: string
-  city: string
-  district: string  
 
-  email: string
-  mobileNumber: number | string
-  landNumber: number | string
-
-  emgName: string
-  emgRelationship: string
-  emgMobileNumber: number | string
-  emgEmail: string | null
-}
-
-const initialData: Data = {
+const initialData: PatientDetails = {
   firstName: '',
   lastName: '',
   fullName: '',
@@ -74,7 +53,7 @@ const initialData: Data = {
 
 const AccountDetails = () => {
   // States
-  const [formData, setFormData] = useState<Data>(initialData)
+  const [formData, setFormData] = useState<PatientDetails>(initialData)
 
   // const [fileInput, setFileInput] = useState<string>('')
   // const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
@@ -88,7 +67,7 @@ const AccountDetails = () => {
   //   setLanguage(event.target.value as string[])
   // }
 
-  const handleFormChange = (field: keyof Data, value: Data[keyof Data]) => {
+  const handleFormChange = (field: keyof PatientDetails, value: PatientDetails[keyof PatientDetails]) => {
     setFormData({ ...formData, [field]: value })
   }
 
@@ -259,13 +238,13 @@ const AccountDetails = () => {
                 openTo='year'
                 label='Date of Birth'
                 views={['year', 'month', 'day']}
-                value={formData.dob}              
+                value={dayjs(formData.dob)}              
                 yearsOrder="desc"
                 maxDate={dayjs()}
                 format="YYYY-MM-DD"
                 onChange={dobDate => {
                   console.log(dobDate);
-                  handleFormChange('dob', dobDate as Dayjs);
+                  handleFormChange('dob', dobDate ? dobDate.format('YYYY-MM-DD') : null);
                   console.log(dobDate?.format('YYYY-MM-DD'));
                 }}
               />
