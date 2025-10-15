@@ -1,48 +1,8 @@
-// import type { Patient, PatientHistory, Prescription } from "@/libs/types/patient.types"
+import type { PatientDetails } from './../libs/types/patient.types';
+import { apiClient } from './api.config';
 
-// // Mock data for development
-// const MOCK_PATIENTS: Patient[] = [
-//   {
-//     id: "PAT-001",
-//     nic: "199012345678",
-//     fullName: "Kasun Bandara",
-//     phoneNumber: "+94771234567",
-//     dateOfBirth: "1990-05-15",
-//     gender: "male",
-//     height: 175,
-//     weight: 72,
-//     existingConditions: ["Hypertension"],
-//     allergies: ["Penicillin"],
-//     createdAt: "2025-01-15T10:30:00Z",
-//     updatedAt: "2025-01-15T10:30:00Z",
-//   }
-// ]
 
-// const MOCK_PRESCRIPTIONS: Prescription[] = [
-//   {
-//     id: "RX-001",
-//     patientId: "PAT-001",
-//     patientName: "Kasun Bandara",
-//     doctorId: "2",
-//     doctorName: "Dr. Kumari Silva",
-//     createdAt: "2025-03-25T10:30:00Z",
-//     status: "fulfilled",
-//     items: [
-//       {
-//         id: "RXI-001",
-//         medicineName: "Amlodipine 5mg",
-//         dosage: "5mg",
-//         quantity: 30,
-//         duration: "30 days",
-//         instructions: "Once daily, morning",
-//         fulfilled: true,
-//       },
-//     ],
-//     notes: "Monitor blood pressure weekly",
-//   },
-// ]
-
-// class PatientService {
+class PatientService {
 //   private patients: Patient[] = [...MOCK_PATIENTS]
 
 //   async getAllPatients(): Promise<Patient[]> {
@@ -68,19 +28,51 @@
 //     return this.patients.find((p) => p.nic === nic) || null
 //   }
 
-//   async createPatient(patientData: Omit<Patient, "id" | "createdAt" | "updatedAt">): Promise<Patient> {
-//     await new Promise((resolve) => setTimeout(resolve, 600))
+  async createPatientDetails(patientData: PatientDetails) : Promise<any>  {
+    try {
+        const response : any = await apiClient.post<PatientDetails>("/api/patient/details/staff", {...patientData,
+                patientAuthId: 1,
+                bloodGroup: "ab-",
+                registrationDate: "2025-09-30T10:30:00",
+                profileImg: "https://example.com/images/john.png",
+                isActive: true,
+                isApproved: false,
+                insuranceId: null,
+                createdDate: "2025-09-30T10:30:00",
+                createdBy: "admin",
+                updatedDate: "2025-09-30T10:30:00",
+                updatedBy: "admin"
+        })
+        
+        return response.data
+        } catch (error: any) {       
+        throw new Error(error.response?.data?.defaultMessage || "Failed to create patient")
+        }
+    }
 
-//     const newPatient: Patient = {
-//       ...patientData,
-//       id: `PAT-${String(this.patients.length + 1).padStart(3, "0")}`,
-//       createdAt: new Date().toISOString(),
-//       updatedAt: new Date().toISOString(),
-//     }
 
-//     this.patients.unshift(newPatient)
-//     return newPatient
-//   }
+  async getPatientById(id: string): Promise<PatientDetails | null> {
+    console.log("run get pat")
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/patients/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // 👇 disables caching for always-fresh data
+        cache: 'no-store',
+      })
+
+      if (!res.ok) {
+        return null
+      }
+
+      return res.json()
+    } catch (error) {
+      console.error('Failed to fetch patient:', error)
+      return null
+    }
+  }
 
 //   async updatePatient(id: string, patientData: Partial<Patient>): Promise<Patient> {
 //     await new Promise((resolve) => setTimeout(resolve, 600))
@@ -110,6 +102,6 @@
 //       consultations: [],
 //     }
 //   }
-// }
+}
 
-// export const patientService = new PatientService()
+export const patientService = new PatientService()

@@ -14,13 +14,13 @@ export interface PatientDetails {
   district: string  
 
   email: string
-  mobileNumber: number | string
+  mobileNo: number | string
   landNumber: number | string
 
-  emgName: string
-  emgRelationship: string
-  emgMobileNumber: number | string
-  emgEmail: string | null
+  emergencyContactName: string
+  emergencyContactRelationship: string
+  emergencyContactMobile: number | string
+  emergencyContactEmail: string | null
 }
 
 export interface PatientHistory {
