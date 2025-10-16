@@ -2,13 +2,12 @@
 import { redirect } from 'next/navigation'
 
 // Type Imports
-import type { Customer } from '@/libs/types/clinicsTypes'
 
 // Component Imports
 import CustomerDetails from '@/views/apps/clinic-app/patient/details'
 
 // Data Imports
-import { getEcommerceData } from '@/app/server/actions'
+
 import { PatientServerSideService } from '@/services/patient.serverside.service'
 
 /**
@@ -33,7 +32,7 @@ const CustomerDetailsPage = async (props: { params: Promise<{ id: string }> }) =
   const params = await props.params
 
   // Vars
-  const data = await getEcommerceData()
+  // const data = await getEcommerceData()
 
   const patient = await PatientServerSideService.getPatientById(params.id);
 
@@ -45,7 +44,7 @@ const CustomerDetailsPage = async (props: { params: Promise<{ id: string }> }) =
   // else{
   //   // console.log("patient",patient);
   // }
-  const filteredData = data?.customerData.filter((item: Customer) =>item.customerId === "879861")[0]
+  // const filteredData = data?.customerData.filter((item: Customer) =>item.customerId === "879861")[0]
 
   if (!patient) {
     redirect('/not-found')
