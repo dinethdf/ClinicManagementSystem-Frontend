@@ -50,7 +50,7 @@ const Overview = async ({ patientDataNo }: { patientDataNo?: string;}) => {
   const tableData = await getEcommerceData()
 
   // console.log("this is overvies Server")
-  // console.log(patientDataNo)
+  console.log(patientDataNo)
 
 
   return (
