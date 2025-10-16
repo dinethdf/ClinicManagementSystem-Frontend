@@ -23,7 +23,7 @@ import Button from '@mui/material/Button'
 
 // Third-party Imports
 // import { signOut, useSession } from 'next-auth/react'
-import { useSession } from 'next-auth/react'
+// import { useSession } from 'next-auth/react'
 
 // Type Imports
 import type { Locale } from '@configs/i18n'
@@ -46,8 +46,6 @@ const BadgeContentSpan = styled('span')({
 })
 
 const UserDropdown = () => {
-
-
   // States
   const [open, setOpen] = useState(false)
 
@@ -56,7 +54,9 @@ const UserDropdown = () => {
 
   // Hooks
   const router = useRouter()
-  const { data: session } = useSession()
+  
+  // const { data: session } = useSession()
+    const { data: session } = "" as any  // reemove this after addin use session
   const { settings } = useSettings()
   const { lang: locale } = useParams()
 
@@ -75,17 +75,15 @@ const UserDropdown = () => {
 
     setOpen(false)
   }
- 
+
   const handleUserLogout = async () => {
     try {
-
       // Sign out from the app
       // await signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })
-    await  logoutAndRedirect();
-      
-    //  <AuthRedirect lang={locale} />
-       router.push("/login")
+      await logoutAndRedirect()
 
+      //  <AuthRedirect lang={locale} />
+      router.replace("/login");
     } catch (error) {
       console.error(error)
 

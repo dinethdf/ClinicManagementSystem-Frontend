@@ -12,12 +12,12 @@ const Account = () => {
       <Grid size={{ xs: 12 }}>
         <AccountDetails />
       </Grid>
-     <Grid size={{ xs: 12 }}>
+      <Grid size={{ xs: 12 }}>
         <Typography variant='h5'>Doctor Details section</Typography>
       </Grid>
       <Grid size={{ xs: 12 }}>
         <StepperCustomHorizontal />
-      </Grid>            
+      </Grid>
     </Grid>
   )
 }

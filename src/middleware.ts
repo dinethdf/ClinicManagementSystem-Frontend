@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 export async function middleware() {
+  console.log(`Middleware triggered`);
 
-  // console.log(`Middleware triggered for `);
 
-  return NextResponse.next();
+  return NextResponse.next()
 }
 
 // async function validateTokenWithBackend(token: string): Promise<boolean> {
@@ -31,5 +31,5 @@ export async function middleware() {
 // }
 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", ]
-};
+  matcher: ['/((?!.+\\.[\\w]+$|_next).*)']
+}

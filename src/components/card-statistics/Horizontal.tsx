@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import classnames from 'classnames'
 
 // Types Imports
-import type { CardStatsHorizontalProps } from '@/types/pages/widgetTypes'
+import type { CardStatsHorizontalProps } from '@/libs/types/pages/widgetTypes'
 
 // Components Imports
 import CustomAvatar from '@core/components/mui/Avatar'

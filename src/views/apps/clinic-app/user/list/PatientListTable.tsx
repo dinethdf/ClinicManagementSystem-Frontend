@@ -37,7 +37,7 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
 import type { ThemeColor } from '@/@core/typesDef'
-import type { Customer } from '@/types/apps/ecommerceTypes'
+import type { Customer } from '@/libs/types/apps/ecommerceTypes'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
@@ -142,6 +142,10 @@ const PatientListTable = ({ customerData }: { customerData?: Customer[] }) => {
 
   // Hooks
   const { lang: locale } = useParams()
+
+  useEffect(() => {
+    setData(data)
+  }, []) // Need to remove Just COde Fix
 
   const columns = useMemo<ColumnDef<ECommerceOrderTypeWithAction, any>[]>(
     () => [
@@ -261,11 +265,10 @@ const PatientListTable = ({ customerData }: { customerData?: Customer[] }) => {
 
   return (
     <>
-      <Typography variant="h3" gutterBottom>
+      <Typography variant='h3' gutterBottom>
         Patient List
       </Typography>
       <Card>
-        
         <CardContent className='flex justify-between flex-wrap max-sm:flex-col sm:items-center gap-4'>
           <DebouncedInput
             value={globalFilter ?? ''}

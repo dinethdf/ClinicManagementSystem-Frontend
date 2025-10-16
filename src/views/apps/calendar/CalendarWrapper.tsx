@@ -11,7 +11,7 @@ import type { Theme } from '@mui/material/styles'
 import { useDispatch, useSelector } from 'react-redux'
 
 // Type Imports
-import type { CalendarColors, CalendarType } from '@/types/apps/calendarTypes'
+import type { CalendarColors, CalendarType } from '@/libs/types/apps/calendarTypes'
 
 // Component Imports
 import Calendar from './Calendar'

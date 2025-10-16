@@ -12,7 +12,7 @@
     "payment": "Payment",
     "checkout": "Checkout",
     "helpCenter": "Help Center",
-    "appsPages": "Apps & Pages",
+    "appsPages": "Clinic Management",
     "apps": "Apps",
     "dashboard": "Dashboard",
 
@@ -26,6 +26,15 @@
     "userlist":"Users List",
     "userAdd": "Users Add",    
 
+    "appoinmentShedule":"Appoinments Shedule",
+    "appoinmentSheduleAdd":"Create",
+    "appoinmentSheduleList":"List",
+    "appoinmentSheduleCat": "Category",  
+
+    "appoinments":"Appoinments",
+    "appoinmentBook":"Appoinment Create",
+    "appoinmentList":"Appoinment List",
+    "appoinmentCat": "Appoinment Category",  
 
     "products": "Products",
     "list": "List",

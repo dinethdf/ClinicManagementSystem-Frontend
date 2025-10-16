@@ -37,7 +37,7 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
 import type { ThemeColor } from '@/@core/typesDef'
-import type { Customer } from '@/types/apps/ecommerceTypes'
+import type { Customer } from '@/libs/types/apps/ecommerceTypes'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
@@ -262,11 +262,10 @@ const CustomerListTable = ({ customerData }: { customerData?: Customer[] }) => {
 
   return (
     <>
-          <Typography variant="h3" gutterBottom>
+      <Typography variant='h3' gutterBottom>
         Clinic Users List
       </Typography>
       <Card>
-        
         <CardContent className='flex justify-between flex-wrap max-sm:flex-col sm:items-center gap-4'>
           <DebouncedInput
             value={globalFilter ?? ''}

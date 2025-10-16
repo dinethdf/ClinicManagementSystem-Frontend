@@ -120,7 +120,7 @@ export const authOptions: NextAuthOptions = {
         // ** Add custom params to user in session which are added in `jwt()` callback via `token` parameter
         session.user.name = token.name
       }
-   
+
       // session.auth = "asdasd" // this work Use for google Auth
       return session
     }

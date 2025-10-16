@@ -2,17 +2,17 @@
 import Grid from '@mui/material/Grid2'
 
 // Type Imports
-import type { Customer } from '@/types/apps/ecommerceTypes'
+import type { PatientDetails } from '@/libs/types/patient.types'
 
 // Component Imports
-import PatientDetails from './PatientDetails'
+import PatientDetailsSection from './PatientDetailsSection'
 import PatientPlan from './PatientPlan'
 
-const CustomerLeftOverview = ({ customerData }: { customerData?: Customer }) => {
+const CustomerLeftOverview = ({ patientData }: { patientData?: PatientDetails }) => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
-        <PatientDetails customerData={customerData} />
+        <PatientDetailsSection patientData={patientData} />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <PatientPlan />

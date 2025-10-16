@@ -2,7 +2,7 @@
 import Grid from '@mui/material/Grid2'
 
 // Types Imports
-import type { CardStatsVerticalProps } from '@/types/pages/widgetTypes'
+import type { CardStatsVerticalProps } from '@/libs/types/pages/widgetTypes'
 
 // Component Imports
 import CardStatVertical from '@/components/card-statistics/Vertical'

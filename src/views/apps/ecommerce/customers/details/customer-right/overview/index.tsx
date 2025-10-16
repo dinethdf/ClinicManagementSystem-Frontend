@@ -44,10 +44,14 @@ import { getStatisticsData, getEcommerceData } from '@/app/server/actions'
   return res.json()
 } */
 
-const Overview = async () => {
+const Overview = async ({ patientDataNo }: { patientDataNo?: string;}) => {
   // Vars
   const data = await getStatisticsData()
   const tableData = await getEcommerceData()
+
+  // console.log("this is overvies Server")
+  console.log(patientDataNo)
+
 
   return (
     <Grid container spacing={6}>

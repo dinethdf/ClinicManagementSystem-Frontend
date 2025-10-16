@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic'
 import Grid from '@mui/material/Grid2'
 
 // Type Imports
-import type { Customer } from '@/types/apps/ecommerceTypes'
+import type { PatientDetails } from '@/libs/types/patient.types'
 
 // Component Imports
 import CustomerDetailsHeader from './PatientDetailsHeader'
@@ -23,22 +23,29 @@ const AddressBillingTab = dynamic(
   () => import('@views/apps/ecommerce/customers/details/customer-right/address-billing')
 )
 
-// Vars
+
+
+const CustomerDetails = ({ patientData }: {patientData: PatientDetails }) => {
+
+  // Vars
 const tabContentList = (): { [key: string]: ReactElement } => ({
-  overview: <OverViewTab />,
+  overview: <OverViewTab patientDataNo={patientData.id} />,
   security: <SecurityTab />,
   addressBilling: <AddressBillingTab />,
   notifications: <NotificationsTab />
 })
+    
+  const patientRegDate = patientData?.registrationDate
+        ? new Date(patientData.registrationDate).toISOString().split("T")[0]
+        : "Not Found";
 
-const CustomerDetails = ({ customerData, customerId }: { customerData?: Customer; customerId: string }) => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
-        <CustomerDetailsHeader customerId={customerId} />
+        <CustomerDetailsHeader patientNo={patientData?.patientNo || "error"} patientRegDate = {patientRegDate} />
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
-        <CustomerLeftOverview customerData={customerData} />
+        <CustomerLeftOverview patientData={patientData} />
       </Grid>
       <Grid size={{ xs: 12, md: 8 }}>
         <CustomerRight tabContentList={tabContentList()} />

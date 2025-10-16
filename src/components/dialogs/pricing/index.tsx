@@ -8,7 +8,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogCloseButton from '../DialogCloseButton'
 
 // Type Imports
-import type { PricingPlanType } from '@/types/pages/pricingTypes'
+import type { PricingPlanType } from '@/libs/types/pages/pricingTypes'
 
 // Component Imports
 import Pricing from '@components/pricing'
