@@ -130,7 +130,6 @@ const handelFormSubmit = async (data: PatientDetails) => {
      toast.error(`${error}`, {
       hideProgressBar: false,
       className: 'custom-toast',
-      // Optional but recommended: use your error color for the progress bar
       progressStyle: {
         backgroundColor: 'var(--mui-palette-error-main)'
       }

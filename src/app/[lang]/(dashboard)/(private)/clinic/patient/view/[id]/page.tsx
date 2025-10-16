@@ -41,7 +41,10 @@ const CustomerDetailsPage = async (props: { params: Promise<{ id: string }> }) =
     // redirect("/clinic/patient/list");
     console.log("Error")
   }else{
-    console.log("patient",patient);}
+    console.log("patient",patient.id);
+    console.log("patientNo",patient.patientNo);
+  }
+    
 
 
 

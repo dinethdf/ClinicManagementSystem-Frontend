@@ -83,7 +83,7 @@ const UserDropdown = () => {
       await logoutAndRedirect()
 
       //  <AuthRedirect lang={locale} />
-      router.push('/login')
+      router.replace("/login");
     } catch (error) {
       console.error(error)
 

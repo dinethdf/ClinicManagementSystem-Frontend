@@ -18,6 +18,7 @@ export const PatientDetailValedationSchema = object({
     custom(
     (input) => {
         const words = typeof input === 'string' ? input.trim().split(/\s+/) : [];
+     
         const validWords = words.filter(word => {
       
           return word.length >= 2 && /^[a-zA-Z'-]+$/.test(word);
