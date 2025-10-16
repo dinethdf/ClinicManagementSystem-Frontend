@@ -10,7 +10,7 @@ import type { ThemeColor } from '@/@core/typesDef'
 import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
-const PatientDetailHeader = ({ customerId }: { customerId: string }) => {
+const PatientDetailHeader = ({ patientNo, patientRegDate }: { patientNo: string, patientRegDate:string }) => {
   // Vars
   const buttonProps = (children: string, color: ThemeColor, variant: ButtonProps['variant']): ButtonProps => ({
     children,
@@ -21,8 +21,8 @@ const PatientDetailHeader = ({ customerId }: { customerId: string }) => {
   return (
     <div className='flex flex-wrap justify-between max-sm:flex-col sm:items-center gap-x-6 gap-y-4'>
       <div className='flex flex-col items-start gap-1'>
-        <Typography variant='h4'>{`Patient ID #${customerId}`}</Typography>
-        <Typography>Aug 17, 2020, 5:48 (ET)</Typography>
+        <Typography variant='h4'>{`Patient No #${patientNo}`}</Typography>
+        <Typography>{patientRegDate}</Typography>
       </div>
       <OpenDialogOnElementClick
         element={Button}

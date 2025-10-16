@@ -114,25 +114,33 @@ const DatePickerStyled = styled(DatePicker)(({ theme }) => ({
   }
 }))
 
-type CustomDatePickerProps = Omit<DatePickerProps<any>, 'slotProps'> & {
+// type CustomDatePickerProps = Omit<DatePickerProps<any>, 'slotProps'> & {
+//     textFieldProps?: TextFieldProps
+//   // You can add any custom props here if needed in the future
+// }
+
+type CustomDatePickerProps = DatePickerProps<any> & {
   
-  // You can add any custom props here if needed in the future
+  // any additional custom props
 }
 
 const CustomDatePicker = forwardRef((props: CustomDatePickerProps, ref: ForwardedRef<HTMLDivElement>) => {
-  return (
-    
+  
+  const { slotProps: incomingSlotProps, ...otherProps } = props
+  
+  return (  
+   
     // LocalizationProvider is essential for date-picker components to work
 
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DatePickerStyled
         ref={ref}
-        {...props}
+        {...otherProps}
         slotProps={{
           textField: {
             size: 'small',
-
-            InputLabelProps: { shrink: true } // This ensures the label is always in the top position
+            InputLabelProps: { shrink: true }, // This ensures the label is always in the top position
+              ...(incomingSlotProps?.textField || {})
           } as TextFieldProps
         }}
       />

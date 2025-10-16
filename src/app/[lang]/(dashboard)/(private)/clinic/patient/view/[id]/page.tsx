@@ -2,13 +2,14 @@
 import { redirect } from 'next/navigation'
 
 // Type Imports
-import type { Customer } from '@/libs/types/apps/clinicsTypes'
+import type { Customer } from '@/libs/types/clinicsTypes'
 
 // Component Imports
 import CustomerDetails from '@/views/apps/clinic-app/patient/details'
 
 // Data Imports
 import { getEcommerceData } from '@/app/server/actions'
+import { PatientServerSideService } from '@/services/patient.serverside.service'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -34,13 +35,23 @@ const CustomerDetailsPage = async (props: { params: Promise<{ id: string }> }) =
   // Vars
   const data = await getEcommerceData()
 
-  const filteredData = data?.customerData.filter((item: Customer) => item.customerId === params.id)[0]
+  const patient = await PatientServerSideService.getPatientById(params.id);
 
-  if (!filteredData) {
+  if (!patient) {
+    redirect("/clinic/patient/list");
+    console.log("Error")
+  }
+
+  // else{
+  //   // console.log("patient",patient);
+  // }
+  const filteredData = data?.customerData.filter((item: Customer) =>item.customerId === "879861")[0]
+
+  if (!patient) {
     redirect('/not-found')
   }
 
-  return filteredData ? <CustomerDetails customerData={filteredData} customerId={params.id} /> : null
+  return patient ? <CustomerDetails patientData={patient} /> : null
 }
 
 export default CustomerDetailsPage
