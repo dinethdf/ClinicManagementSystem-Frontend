@@ -1,6 +1,8 @@
 // import type { Dayjs } from 'dayjs';
 
 export interface PatientDetails {
+  id?:string
+  patientNo?:string
   firstName: string
   lastName: string
   fullName: string
@@ -21,6 +23,9 @@ export interface PatientDetails {
   emergencyContactRelationship: string
   emergencyContactMobile: number | string
   emergencyContactEmail: string | null
+
+  registrationDate?: string
+  isActive?: boolean
 }
 
 export interface PatientHistory {

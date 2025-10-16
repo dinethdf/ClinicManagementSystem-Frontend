@@ -9,6 +9,8 @@ import dayjs from 'dayjs';
 
 import { useForm, Controller } from 'react-hook-form'
 
+import { toast } from 'react-toastify';
+
 import { valibotResolver } from '@hookform/resolvers/valibot'
 
 // MUI Imports
@@ -33,7 +35,6 @@ import { PatientDetailValedationSchema } from '@/schemas/patienDetailsValidation
 import { patientService } from "@/services/patient.service"
 
 import BackDropFullScreen from '@/components/BackDropFullScreen' 
-import { toast } from 'react-toastify';
 
 
 const initialData: PatientDetails = {
@@ -111,9 +112,12 @@ const AccountDetails = () => {
   })
 
 const handelFormSubmit = async (data: PatientDetails) => {
+  
   setIsLoading(true); // Show the loader
+  
   try {
     const response = await patientService.createPatientDetails(data);
+    
     console.log("✅ Patient created successfully:", response);
 
     toast.success(`${response?.message} - ${response?.data.patientNo}`, {
@@ -124,7 +128,7 @@ const handelFormSubmit = async (data: PatientDetails) => {
       }
     });
   reset();
-  router.push(`/clinic/patient/view/${response?.data?.id ? "879861" : "0"}`);
+  router.push(`/clinic/patient/view/${response?.data?.id ? response?.data?.id : "error"}`);
 
   } catch (error) {
      toast.error(`${error}`, {

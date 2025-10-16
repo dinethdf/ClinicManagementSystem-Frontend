@@ -38,23 +38,20 @@ const CustomerDetailsPage = async (props: { params: Promise<{ id: string }> }) =
   const patient = await PatientServerSideService.getPatientById(params.id);
 
   if (!patient) {
-    // redirect("/clinic/patient/list");
+    redirect("/clinic/patient/list");
     console.log("Error")
-  }else{
-    console.log("patient",patient.id);
-    console.log("patientNo",patient.patientNo);
   }
-    
 
-
-
+  // else{
+  //   // console.log("patient",patient);
+  // }
   const filteredData = data?.customerData.filter((item: Customer) =>item.customerId === "879861")[0]
 
-  if (!filteredData) {
+  if (!patient) {
     redirect('/not-found')
   }
 
-  return filteredData ? <CustomerDetails customerData={filteredData} customerId={params.id} /> : null
+  return patient ? <CustomerDetails patientData={patient} /> : null
 }
 
 export default CustomerDetailsPage

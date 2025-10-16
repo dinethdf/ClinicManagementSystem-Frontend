@@ -8,14 +8,14 @@ import Button from '@mui/material/Button'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { Customer } from '@/libs/types/apps/ecommerceTypes'
+import type { PatientDetails } from '@/libs/types/patient.types'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 import EditUserInfo from '@components/dialogs/edit-user-info'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
-const CustomerDetails = ({ customerData }: { customerData?: Customer }) => {
+const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }) => {
   // Vars
   const buttonProps: ButtonProps = {
     variant: 'contained',
@@ -27,10 +27,10 @@ const CustomerDetails = ({ customerData }: { customerData?: Customer }) => {
       <CardContent className='flex flex-col pbs-12 gap-6'>
         <div className='flex flex-col justify-self-center items-center gap-6'>
           <div className='flex flex-col items-center gap-4'>
-            <CustomAvatar src={customerData?.avatar} variant='rounded' alt='Customer Avatar' size={120} />
+            <CustomAvatar src={"/images/avatars/1.png"} variant='rounded' alt='Customer Avatar' size={120} />
             <div className='flex flex-col items-center text-center'>
-              <Typography variant='h5'>{customerData?.customer}</Typography>
-              <Typography>Customer ID #{customerData?.customerId}</Typography>
+              <Typography variant='h5'>{patientData?.firstName + " " + patientData?.lastName}</Typography>
+              <Typography>Customer ID #{patientData?.patientNo}</Typography>
             </div>
           </div>
           <div className='flex items-center justify-around gap-4 flex-wrap is-full'>
@@ -39,7 +39,7 @@ const CustomerDetails = ({ customerData }: { customerData?: Customer }) => {
                 <i className='tabler-shopping-cart' />
               </CustomAvatar>
               <div>
-                <Typography variant='h5'>{customerData?.order}</Typography>
+                <Typography variant='h5'>{"10"}</Typography>
                 <Typography>Orders</Typography>
               </div>
             </div>
@@ -48,7 +48,7 @@ const CustomerDetails = ({ customerData }: { customerData?: Customer }) => {
                 <i className='tabler-currency-dollar' />
               </CustomAvatar>
               <div>
-                <Typography variant='h5'>${customerData?.totalSpent}</Typography>
+                <Typography variant='h5'>${"100"}</Typography>
                 <Typography>Spent</Typography>
               </div>
             </div>
@@ -60,33 +60,42 @@ const CustomerDetails = ({ customerData }: { customerData?: Customer }) => {
           <div className='flex flex-col gap-2'>
             <div className='flex items-center gap-1'>
               <Typography color='text.primary' className='font-medium'>
-                Username:
+                Full Name:
               </Typography>
-              <Typography>{customerData?.customer}</Typography>
+              <Typography>{patientData?.fullName}</Typography>
             </div>
             <div className='flex items-center gap-1'>
               <Typography color='text.primary' className='font-medium'>
-                Billing Email:
+                Nic Number:
               </Typography>
-              <Typography>{customerData?.email}</Typography>
+              <Typography>{patientData?.nic}</Typography>
+            </div>            
+            <div className='flex items-center gap-1'>
+              <Typography color='text.primary' className='font-medium'>
+                Email:
+              </Typography>
+              <Typography>{patientData?.email}</Typography>
             </div>
             <div className='flex items-center gap-1'>
               <Typography color='text.primary' className='font-medium'>
                 Status:
               </Typography>
-              <Chip label='Active' variant='tonal' color='success' size='small' />
+              {
+                patientData?.isActive ? <Chip label='Active' variant='filled' color='success' size='small' /> :
+                <Chip label='Not Active' variant='tonal' color='warning' size='small' />
+              }        
             </div>
             <div className='flex items-center gap-1'>
               <Typography color='text.primary' className='font-medium'>
                 Contact:
               </Typography>
-              <Typography>+1 (234) 464-0600</Typography>
+              <Typography>{patientData?.mobileNo}</Typography>
             </div>
             <div className='flex items-center gap-1'>
               <Typography color='text.primary' className='font-medium'>
-                Country:
+                Address:
               </Typography>
-              <Typography>{customerData?.country}</Typography>
+              <Typography>{patientData?.address +" "+ patientData?.city}</Typography>
             </div>
           </div>
         </div>
@@ -96,4 +105,4 @@ const CustomerDetails = ({ customerData }: { customerData?: Customer }) => {
   )
 }
 
-export default CustomerDetails
+export default PatientDetailsSection

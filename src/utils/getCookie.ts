@@ -2,7 +2,6 @@ export function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null // SSR safety
 
   const cookies: string = document.cookie
-  console.log(cookies)
   const nameEQ: string = `${name}=`
   const ca: string[] = cookies.split(";") // split all cookies
 

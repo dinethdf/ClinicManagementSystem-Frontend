@@ -1,5 +1,6 @@
-import { PatientDetails } from '@/libs/types/patient.types';
 import { cookies } from 'next/headers';
+
+import type { PatientDetails } from '@/libs/types/patient.types';
 
 export class PatientServerSideService {
 
@@ -21,14 +22,17 @@ export class PatientServerSideService {
 
         if (!res.ok) {
           console.error("Failed to fetch patient:", res.status, res.statusText);
+
           return null;
         }
 
         const json = await res.json();
+      
         return json.data;
 
       } catch (error) {
         console.error("Server-side get patient failed:", error);
+      
         return null;
       }
   }
