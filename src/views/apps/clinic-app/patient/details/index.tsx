@@ -23,26 +23,23 @@ const AddressBillingTab = dynamic(
   () => import('@views/apps/ecommerce/customers/details/customer-right/address-billing')
 )
 
-
-
-const CustomerDetails = ({ patientData }: {patientData: PatientDetails }) => {
-
+const CustomerDetails = ({ patientData }: { patientData: PatientDetails }) => {
   // Vars
-const tabContentList = (): { [key: string]: ReactElement } => ({
-  overview: <OverViewTab patientDataNo={patientData.id} />,
-  security: <SecurityTab />,
-  addressBilling: <AddressBillingTab />,
-  notifications: <NotificationsTab />
-})
-    
+  const tabContentList = (): { [key: string]: ReactElement } => ({
+    overview: <OverViewTab patientDataNo={patientData.id} />,
+    security: <SecurityTab />,
+    addressBilling: <AddressBillingTab />,
+    notifications: <NotificationsTab />
+  })
+
   const patientRegDate = patientData?.registrationDate
-        ? new Date(patientData.registrationDate).toISOString().split("T")[0]
-        : "Not Found";
+    ? new Date(patientData.registrationDate).toISOString().split('T')[0]
+    : 'Not Found'
 
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
-        <CustomerDetailsHeader patientNo={patientData?.patientNo || "error"} patientRegDate = {patientRegDate} />
+        <CustomerDetailsHeader patientNo={patientData?.patientNo || 'error'} patientRegDate={patientRegDate} />
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
         <CustomerLeftOverview patientData={patientData} />

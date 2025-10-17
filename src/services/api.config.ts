@@ -1,31 +1,30 @@
-import axios from "axios"
+import axios from 'axios'
 
-import { getCookie } from "@/utils/getCookie"
+import { getCookie } from '@/utils/getCookie'
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_BACK_END_API_URL || "http://localhost:8080"
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACK_END_API_URL || 'http://localhost:8080'
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json'
   },
-   withCredentials: false, 
+  withCredentials: false
 })
 
 // ✅ Request interceptor - attach token if available
 apiClient.interceptors.request.use(
-  (config) => {
-    const token = getCookie("accessToken") // <-- read directly from document.cookie
-  
+  config => {
+    const token = getCookie('accessToken') // <-- read directly from document.cookie
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-  
+
     return config
   },
-  (error) => Promise.reject(error)
+  error => Promise.reject(error)
 )
 
 // ✅ Response interceptor - handle errors globally

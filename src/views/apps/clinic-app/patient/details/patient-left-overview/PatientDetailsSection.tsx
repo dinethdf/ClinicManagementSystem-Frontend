@@ -27,9 +27,9 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
       <CardContent className='flex flex-col pbs-12 gap-6'>
         <div className='flex flex-col justify-self-center items-center gap-6'>
           <div className='flex flex-col items-center gap-4'>
-            <CustomAvatar src={"/images/avatars/1.png"} variant='rounded' alt='Customer Avatar' size={120} />
+            <CustomAvatar src={'/images/avatars/1.png'} variant='rounded' alt='Customer Avatar' size={120} />
             <div className='flex flex-col items-center text-center'>
-              <Typography variant='h5'>{patientData?.firstName + " " + patientData?.lastName}</Typography>
+              <Typography variant='h5'>{patientData?.firstName + ' ' + patientData?.lastName}</Typography>
               <Typography>Customer ID #{patientData?.patientNo}</Typography>
             </div>
           </div>
@@ -39,7 +39,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
                 <i className='tabler-shopping-cart' />
               </CustomAvatar>
               <div>
-                <Typography variant='h5'>{"10"}</Typography>
+                <Typography variant='h5'>{'10'}</Typography>
                 <Typography>Orders</Typography>
               </div>
             </div>
@@ -48,7 +48,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
                 <i className='tabler-currency-dollar' />
               </CustomAvatar>
               <div>
-                <Typography variant='h5'>${"100"}</Typography>
+                <Typography variant='h5'>${'100'}</Typography>
                 <Typography>Spent</Typography>
               </div>
             </div>
@@ -69,7 +69,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
                 Nic Number:
               </Typography>
               <Typography>{patientData?.nic}</Typography>
-            </div>            
+            </div>
             <div className='flex items-center gap-1'>
               <Typography color='text.primary' className='font-medium'>
                 Email:
@@ -80,10 +80,11 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
               <Typography color='text.primary' className='font-medium'>
                 Status:
               </Typography>
-              {
-                patientData?.isActive ? <Chip label='Active' variant='filled' color='success' size='small' /> :
+              {patientData?.isActive ? (
+                <Chip label='Active' variant='filled' color='success' size='small' />
+              ) : (
                 <Chip label='Not Active' variant='tonal' color='warning' size='small' />
-              }        
+              )}
             </div>
             <div className='flex items-center gap-1'>
               <Typography color='text.primary' className='font-medium'>
@@ -95,7 +96,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
               <Typography color='text.primary' className='font-medium'>
                 Address:
               </Typography>
-              <Typography>{patientData?.address +" "+ patientData?.city}</Typography>
+              <Typography>{patientData?.address + ' ' + patientData?.city}</Typography>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-'use client'; // 👈 required in Next.js for client-side context
+'use client' // 👈 required in Next.js for client-side context
 
 // components/PatientRegistrationContextProvider.tsx
 
@@ -26,7 +26,7 @@ export const usePatientRegistration = (): PatientRegistrationData => {
 
 // The provider component
 export default function PatientRegistrationContextProvider({ children }: { children: React.ReactNode }) {
-  const [patientId, setPatientId] = useState<string | null>("Hello patient");
+  const [patientId, setPatientId] = useState<string | null>('Hello patient')
 
   return (
     <PatientRegistrationContext.Provider value={{ patientId, setPatientId }}>

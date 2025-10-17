@@ -65,9 +65,10 @@ const FormValidationOnScheme = () => {
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  const onSubmit = () =>  toast('Blank Toast', {
-            hideProgressBar: false,
-        style: {
+  const onSubmit = () =>
+    toast('Blank Toast', {
+      hideProgressBar: false,
+      style: {
         padding: '16px',
         color: 'var(--mui-palette-primary-main)',
         border: '1px solid var(--mui-palette-primary-main)',
