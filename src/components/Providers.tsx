@@ -1,0 +1,47 @@
+// Type Imports
+import type { ChildrenType, Direction } from '@/@core/typesDef'
+
+// Context Imports
+
+// import { NextAuthProvider } from '@/contexts/nextAuthProvider'
+import { VerticalNavProvider } from '@/@core/contexts/verticalNavContext'
+import { SettingsProvider } from '@core/contexts/settingsContext'
+import ThemeProvider from '@components/theme'
+import ReduxProvider from '@/libs/redux-store/ReduxProvider'
+
+// Styled Component Imports
+import AppReactToastify from '@/libs/styles/AppReactToastify'
+
+// Util Imports
+import { getMode, getSettingsFromCookie, getSystemMode } from '@core/utils/serverHelpers'
+
+type Props = ChildrenType & {
+  direction: Direction
+}
+
+const Providers = async (props: Props) => {
+  // Props
+  const { children, direction } = props
+
+  // Vars
+  const mode = await getMode()
+  const settingsCookie = await getSettingsFromCookie()
+  const systemMode = await getSystemMode()
+
+  return (
+    
+    // <NextAuthProvider basePath={process.env.NEXTAUTH_BASEPATH}>  // Use THis For better performanse
+    <VerticalNavProvider>
+      <SettingsProvider settingsCookie={settingsCookie} mode={mode}>
+        <ThemeProvider direction={direction} systemMode={systemMode}>
+          <ReduxProvider>{children}</ReduxProvider>
+          <AppReactToastify direction={direction} hideProgressBar />
+        </ThemeProvider>
+      </SettingsProvider>
+    </VerticalNavProvider>
+
+    // </NextAuthProvider>
+  )
+}
+
+export default Providers

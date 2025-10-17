@@ -1,14 +1,29 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ["@svgr/webpack"],
-    });
-    return config;
-  },
-};
+  basePath: process.env.BASEPATH,
+  redirects: async () => {
+    return [
+      {
+        source: '/',
+        destination: '/en/dashboards/crm',
+        permanent: true,
+        locale: false
+      },
+      {
+        source: '/:lang(en|fr|ar)',
+        destination: '/:lang/dashboards/crm',
+        permanent: true,
+        locale: false
+      },
+      {
+        source: '/((?!(?:en|fr|ar|front-pages|favicon.ico)\\b)):path',
+        destination: '/en/:path',
+        permanent: true,
+        locale: false
+      }
+    ]
+  }
+}
 
-export default nextConfig;
+export default nextConfig
