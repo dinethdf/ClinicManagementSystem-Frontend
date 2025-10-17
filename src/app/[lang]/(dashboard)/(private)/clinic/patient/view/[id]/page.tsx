@@ -34,11 +34,11 @@ const CustomerDetailsPage = async (props: { params: Promise<{ id: string }> }) =
   // Vars
   // const data = await getEcommerceData()
 
-  const patient = await PatientServerSideService.getPatientById(params.id)
+  const patient = await PatientServerSideService.getPatientById(params.id);
 
   if (!patient) {
-    redirect('/clinic/patient/list')
-    console.log('Error')
+    redirect("/clinic/patient/list");
+    console.log("Error")
   }
 
   // else{

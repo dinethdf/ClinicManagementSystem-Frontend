@@ -126,7 +126,7 @@ const AccountDetails = () => {
         }
       })
       reset()
-      router.push(`/clinic/patient/view/${response?.data?.id ? response?.data?.id : 'error'}`)
+      router.replace(`view/${response?.data?.id ? response?.data?.id : 'error'}`)
     } catch (error) {
       toast.error(`${error}`, {
         hideProgressBar: false,
