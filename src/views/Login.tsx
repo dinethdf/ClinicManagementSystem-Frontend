@@ -133,54 +133,50 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
-    setIsLoading(true)
+const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
+  setIsLoading(true)
 
+  try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login-next`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email: data.email, password: data.password })
+      body: JSON.stringify({ email: data.email.trim(), password: data.password.trim() }),
     })
+
+    // Handle non-OK response
+    if (!res.ok) {
+      if (res.status === 401) {
+        setErrorState({ message: ['Invalid email or password'] })
+      } else {
+        setErrorState({ message: [`Login failed Please try again later.`] })
+      }
+      return
+    }
 
     const result = await res.json()
 
-    // const res = await loginUser(data.email, data.password) // move to Server side
-
-    if (result && result?.success == true && result?.data?.accessToken && result?.data?.refreshToken) {
+    if (
+      result &&
+      result?.success === true &&
+      result?.data?.accessToken &&
+      result?.data?.refreshToken
+    ) {
       await setLoginCookie(result.data.accessToken, result.data.refreshToken)
 
       const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
-
       router.replace(getLocalizedUrl(redirectURL, locale as Locale))
     } else {
-      if (result && result?.success == false) {
-        setErrorState({ message: ['Email or Password is invalid'] })
-      }
+      setErrorState({ message: ['Email or Password is invalid'] })
     }
-
+  } catch (error) {
+    console.error('Login error:', error)
+    setErrorState({ message: ['Network error. Please try again later.'] })
+  } finally {
     setIsLoading(false)
-
-    // const res = await signIn('credentials', {
-    //   email: data.email,
-    //   password: data.password,
-    //   redirect: false
-    // })
-
-    // if (res && res.ok && res.error === null) {
-    //   // Vars
-    //   const redirectURL = searchParams.get('redirectTo') ?? '/'
-
-    //   router.replace(getLocalizedUrl(redirectURL, locale as Locale))
-    // } else {
-    //   if (res?.error) {
-    //     const error = JSON.parse(res.error)
-
-    //     setErrorState(error)
-    //   }
-    // }  // NextAuth Validation
   }
+}
 
   const unAuthState = searchParams.get('unAuth') ?? ''
 
