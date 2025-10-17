@@ -54,9 +54,9 @@ const UserDropdown = () => {
 
   // Hooks
   const router = useRouter()
-  
+
   // const { data: session } = useSession()
-    const { data: session } = "" as any  // reemove this after addin use session
+  const { data: session } = '' as any // reemove this after addin use session
   const { settings } = useSettings()
   const { lang: locale } = useParams()
 
@@ -83,7 +83,7 @@ const UserDropdown = () => {
       await logoutAndRedirect()
 
       //  <AuthRedirect lang={locale} />
-      router.replace("/login");
+      router.replace('/login')
     } catch (error) {
       console.error(error)
 

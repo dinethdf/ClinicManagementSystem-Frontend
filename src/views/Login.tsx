@@ -134,9 +134,8 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
-    
-    setIsLoading(true);
-    
+    setIsLoading(true)
+
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login-next`, {
       method: 'POST',
       headers: {
@@ -156,15 +155,13 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
       router.replace(getLocalizedUrl(redirectURL, locale as Locale))
     } else {
-
       if (result && result?.success == false) {
-      
         setErrorState({ message: ['Email or Password is invalid'] })
       }
     }
-    
-    setIsLoading(false);
-   
+
+    setIsLoading(false)
+
     // const res = await signIn('credentials', {
     //   email: data.email,
     //   password: data.password,

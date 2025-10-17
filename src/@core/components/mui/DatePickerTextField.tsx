@@ -9,7 +9,6 @@ import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers'
 import type { DatePickerProps } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
-
 // MUI Imports
 import { styled } from '@mui/material/styles'
 import type { TextFieldProps } from '@mui/material/TextField'
@@ -120,16 +119,13 @@ const DatePickerStyled = styled(DatePicker)(({ theme }) => ({
 // }
 
 type CustomDatePickerProps = DatePickerProps<any> & {
-  
   // any additional custom props
 }
 
 const CustomDatePicker = forwardRef((props: CustomDatePickerProps, ref: ForwardedRef<HTMLDivElement>) => {
-  
   const { slotProps: incomingSlotProps, ...otherProps } = props
-  
-  return (  
-   
+
+  return (
     // LocalizationProvider is essential for date-picker components to work
 
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -140,7 +136,7 @@ const CustomDatePicker = forwardRef((props: CustomDatePickerProps, ref: Forwarde
           textField: {
             size: 'small',
             InputLabelProps: { shrink: true }, // This ensures the label is always in the top position
-              ...(incomingSlotProps?.textField || {})
+            ...(incomingSlotProps?.textField || {})
           } as TextFieldProps
         }}
       />

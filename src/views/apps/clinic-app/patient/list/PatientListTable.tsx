@@ -145,7 +145,7 @@ const PatientListTable = ({ customerData }: { customerData?: Customer[] }) => {
 
   useEffect(() => {
     setData(data)
-  }, []) 
+  }, [])
 
   const columns = useMemo<ColumnDef<ECommerceOrderTypeWithAction, any>[]>(
     () => [

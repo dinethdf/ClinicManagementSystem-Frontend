@@ -3,13 +3,13 @@
 // React Imports
 import { useState } from 'react'
 
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation'
 
-import dayjs from 'dayjs';
+import dayjs from 'dayjs'
 
 import { useForm, Controller } from 'react-hook-form'
 
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'
 
 import { valibotResolver } from '@hookform/resolvers/valibot'
 
@@ -28,14 +28,13 @@ import CustomTextField from '@core/components/mui/TextField'
 
 import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
 
-import type { PatientDetails } from '@/libs/types/patient.types';
+import type { PatientDetails } from '@/libs/types/patient.types'
 
-import { PatientDetailValedationSchema } from '@/schemas/patienDetailsValidation';
+import { PatientDetailValedationSchema } from '@/schemas/patienDetailsValidation'
 
-import { patientService } from "@/services/patient.service"
+import { patientService } from '@/services/patient.service'
 
-import BackDropFullScreen from '@/components/BackDropFullScreen' 
-
+import BackDropFullScreen from '@/components/BackDropFullScreen'
 
 const initialData: PatientDetails = {
   firstName: '',
@@ -61,7 +60,7 @@ const initialData: PatientDetails = {
 }
 
 const AccountDetails = () => {
-  const router = useRouter();
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
   // States
@@ -107,42 +106,39 @@ const AccountDetails = () => {
     handleSubmit,
     formState: { errors }
   } = useForm<PatientDetails>({
-        resolver: valibotResolver(PatientDetailValedationSchema),
-    defaultValues: {...initialData} 
+    resolver: valibotResolver(PatientDetailValedationSchema),
+    defaultValues: { ...initialData }
   })
 
-const handelFormSubmit = async (data: PatientDetails) => {
-  
-  setIsLoading(true); // Show the loader
-  
-  try {
-    const response = await patientService.createPatientDetails(data);
-    
-    console.log("✅ Patient created successfully:", response);
+  const handelFormSubmit = async (data: PatientDetails) => {
+    setIsLoading(true) // Show the loader
 
-    toast.success(`${response?.message} - ${response?.data.patientNo}`, {
-      hideProgressBar: false,
-      className: 'custom-toast',
-      progressStyle: {
-        backgroundColor: 'var(--mui-palette-primary-main)'
-      }
-    });
-  reset();
-  router.push(`/clinic/patient/view/${response?.data?.id ? response?.data?.id : "error"}`);
+    try {
+      const response = await patientService.createPatientDetails(data)
 
-  } catch (error) {
-     toast.error(`${error}`, {
-      hideProgressBar: false,
-      className: 'custom-toast',
-      progressStyle: {
-        backgroundColor: 'var(--mui-palette-error-main)'
-      }
-    });
+      console.log('✅ Patient created successfully:', response)
 
-  } finally {
-    setIsLoading(false); // Hide the loader
+      toast.success(`${response?.message} - ${response?.data.patientNo}`, {
+        hideProgressBar: false,
+        className: 'custom-toast',
+        progressStyle: {
+          backgroundColor: 'var(--mui-palette-primary-main)'
+        }
+      })
+      reset()
+      router.push(`/clinic/patient/view/${response?.data?.id ? response?.data?.id : 'error'}`)
+    } catch (error) {
+      toast.error(`${error}`, {
+        hideProgressBar: false,
+        className: 'custom-toast',
+        progressStyle: {
+          backgroundColor: 'var(--mui-palette-error-main)'
+        }
+      })
+    } finally {
+      setIsLoading(false) // Hide the loader
+    }
   }
-}
 
   return (
     <Card>
@@ -170,10 +166,14 @@ const handelFormSubmit = async (data: PatientDetails) => {
           </div>
         </div>
       </CardContent> */}
-      <CardHeader title={'Patient Details' + (true ? " asdd" :" vvv") } className='pb-2' titleTypographyProps={{ variant: 'h4'}} />
+      <CardHeader
+        title={'Patient Details' + (true ? ' asdd' : ' vvv')}
+        className='pb-2'
+        titleTypographyProps={{ variant: 'h4' }}
+      />
       <Divider />
       <CardContent>
-        <form onSubmit={handleSubmit(handelFormSubmit)} >
+        <form onSubmit={handleSubmit(handelFormSubmit)}>
           <Grid container spacing={6}>
             <Grid size={{ xs: 12 }}>
               <Typography variant='body1' className='font-medium'>
@@ -211,7 +211,7 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     {...(errors.lastName && { error: true, helperText: errors.lastName.message })}
                   />
                 )}
-              />              
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 12 }}>
               <Controller
@@ -224,19 +224,19 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     fullWidth
                     label='Full Name'
                     placeholder='Doe'
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position='start'>
-                        <i className='tabler-user' />
-                      </InputAdornment>
-                    )
-                  }
-                }}                    
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position='start'>
+                            <i className='tabler-user' />
+                          </InputAdornment>
+                        )
+                      }
+                    }}
                     {...(errors.fullName && { error: true, helperText: errors.fullName.message })}
                   />
                 )}
-              />                
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
@@ -259,7 +259,7 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     <MenuItem value='3'>Other</MenuItem>
                   </CustomTextField>
                 )}
-              /> 
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
@@ -281,7 +281,7 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     <MenuItem value='2'>Other</MenuItem>
                   </CustomTextField>
                 )}
-              />               
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
@@ -304,7 +304,7 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     <MenuItem value='4'>Separated</MenuItem>
                   </CustomTextField>
                 )}
-              />  
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
@@ -318,47 +318,47 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     label='NIC number'
                     placeholder='****V/****'
                     slotProps={{
-                        input: {
-                          startAdornment: (
-                            <InputAdornment position='start'>
-                              <i className='tabler-user' />
-                            </InputAdornment>
-                          )
-                        }
-                    }}                    
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position='start'>
+                            <i className='tabler-user' />
+                          </InputAdornment>
+                        )
+                      }
+                    }}
                     {...(errors.nic && { error: true, helperText: errors.nic.message })}
                   />
                 )}
-              />                
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-            <Controller
-              name="dob"
-              control={control}
-              rules={{ required: "Date of Birth is required" }}
-              render={({ field }) => (
-                <CustomDatePicker
-                  {...field}
-                  value={field.value ? dayjs(field.value) : null}
-                  onChange={(newValue) => {
-                    field.onChange(newValue ? newValue.format('YYYY-MM-DD') : null);
-                    console.log(newValue ? newValue.format('YYYY-MM-DD') : null);
-                  }}
-                  label="Date Of Birth"
-                  openTo="year"
-                  views={['year', 'month', 'day']}
-                  yearsOrder="desc"
-                  maxDate={dayjs()}
-                  format="YYYY-MM-DD"
-                  slotProps={{
-                    textField: {
-                      error: !!errors.dob,
-                      helperText: errors.dob ? errors.dob.message : "",
-                    },
-                  }}
-                />
-              )}
-            />
+              <Controller
+                name='dob'
+                control={control}
+                rules={{ required: 'Date of Birth is required' }}
+                render={({ field }) => (
+                  <CustomDatePicker
+                    {...field}
+                    value={field.value ? dayjs(field.value) : null}
+                    onChange={newValue => {
+                      field.onChange(newValue ? newValue.format('YYYY-MM-DD') : null)
+                      console.log(newValue ? newValue.format('YYYY-MM-DD') : null)
+                    }}
+                    label='Date Of Birth'
+                    openTo='year'
+                    views={['year', 'month', 'day']}
+                    yearsOrder='desc'
+                    maxDate={dayjs()}
+                    format='YYYY-MM-DD'
+                    slotProps={{
+                      textField: {
+                        error: !!errors.dob,
+                        helperText: errors.dob ? errors.dob.message : ''
+                      }
+                    }}
+                  />
+                )}
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
@@ -374,7 +374,7 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     {...(errors.address && { error: true, helperText: errors.address.message })}
                   />
                 )}
-              />   
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 3 }}>
               <Controller
@@ -390,8 +390,7 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     {...(errors.city && { error: true, helperText: errors.city.message })}
                   />
                 )}
-              />                 
-
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 3 }}>
               <Controller
@@ -407,16 +406,16 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     {...(errors.district && { error: true, helperText: errors.district.message })}
                   />
                 )}
-              />                
-            </Grid>            
+              />
+            </Grid>
             <Grid size={{ xs: 12 }}>
               <Divider />
             </Grid>
 
             <Grid size={{ xs: 12 }}>
-            <Typography variant='body1' className='font-medium'>
+              <Typography variant='body1' className='font-medium'>
                 2. Contact Information
-            </Typography>
+              </Typography>
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
@@ -432,7 +431,7 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     {...(errors.email && { error: true, helperText: errors.email.message })}
                   />
                 )}
-              />                 
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
@@ -448,7 +447,7 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     {...(errors.mobileNo && { error: true, helperText: errors.mobileNo.message })}
                   />
                 )}
-              />                 
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
@@ -464,13 +463,13 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     {...(errors.landNumber && { error: true, helperText: errors.landNumber.message })}
                   />
                 )}
-              />                 
-            </Grid>            
+              />
+            </Grid>
 
             <Grid size={{ xs: 12 }}>
-            <Typography variant='body1' className='font-medium'>
+              <Typography variant='body1' className='font-medium'>
                 3. Emergency Contact
-            </Typography>
+              </Typography>
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
@@ -483,12 +482,15 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     fullWidth
                     label='Emergancy Contact Name'
                     placeholder='Enter Name'
-                    {...(errors.emergencyContactName && { error: true, helperText: errors.emergencyContactName.message })}
+                    {...(errors.emergencyContactName && {
+                      error: true,
+                      helperText: errors.emergencyContactName.message
+                    })}
                   />
                 )}
-              />               
+              />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6}}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='emergencyContactRelationship'
                 control={control}
@@ -499,11 +501,14 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     fullWidth
                     label='Relationship'
                     placeholder='Enter Relationship'
-                    {...(errors.emergencyContactRelationship && { error: true, helperText: errors.emergencyContactRelationship.message })}
+                    {...(errors.emergencyContactRelationship && {
+                      error: true,
+                      helperText: errors.emergencyContactRelationship.message
+                    })}
                   />
                 )}
-              />               
-            </Grid>            
+              />
+            </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='emergencyContactMobile'
@@ -515,10 +520,13 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     fullWidth
                     label='Emg Mobile Number'
                     placeholder='0712345678'
-                    {...(errors.emergencyContactMobile && { error: true, helperText: errors.emergencyContactMobile.message })}
+                    {...(errors.emergencyContactMobile && {
+                      error: true,
+                      helperText: errors.emergencyContactMobile.message
+                    })}
                   />
                 )}
-              />               
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
@@ -531,11 +539,14 @@ const handelFormSubmit = async (data: PatientDetails) => {
                     fullWidth
                     label='Emg Email'
                     placeholder='example@gmail.com'
-                    {...(errors.emergencyContactEmail && { error: true, helperText: errors.emergencyContactEmail.message })}
+                    {...(errors.emergencyContactEmail && {
+                      error: true,
+                      helperText: errors.emergencyContactEmail.message
+                    })}
                   />
                 )}
-              />  
-            </Grid>                        
+              />
+            </Grid>
             <Grid size={{ xs: 12 }} className='flex gap-4 flex-wrap'>
               <Button variant='contained' type='submit'>
                 Save Changes
