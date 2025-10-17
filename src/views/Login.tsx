@@ -47,6 +47,7 @@ import { useSettings } from '@core/hooks/useSettings'
 import { getLocalizedUrl } from '@/utils/i18n'
 
 import { logoutAndRedirect, setLoginCookie } from '@/libs/authentication'
+import BackDropFullScreen from '@/components/BackDropFullScreen'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -91,6 +92,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [errorState, setErrorState] = useState<ErrorType | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Vars
   const darkImg = '/images/pages/auth-mask-dark.png'
@@ -132,6 +134,9 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
+    
+    setIsLoading(true);
+    
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login-next`, {
       method: 'POST',
       headers: {
@@ -151,12 +156,15 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
       router.replace(getLocalizedUrl(redirectURL, locale as Locale))
     } else {
+
       if (result && result?.success == false) {
-        // const error = JSON.parse(res.error)
+      
         setErrorState({ message: ['Email or Password is invalid'] })
       }
     }
-
+    
+    setIsLoading(false);
+   
     // const res = await signIn('credentials', {
     //   email: data.email,
     //   password: data.password,
@@ -316,6 +324,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
           </form>
         </div>
       </div>
+      <BackDropFullScreen open={isLoading} />
     </div>
   )
 }
