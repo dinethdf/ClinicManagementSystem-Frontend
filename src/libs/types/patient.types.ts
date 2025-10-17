@@ -1,19 +1,19 @@
 // import type { Dayjs } from 'dayjs';
 
 export interface PatientDetails {
-  id?:string
-  patientNo?:string
+  id?: string
+  patientNo?: string
   firstName: string
   lastName: string
   fullName: string
   ethnicity: string
   gender: string
-  maritalStatus: string  
+  maritalStatus: string
   nic: string
   dob: string | null | undefined
   address: string
   city: string
-  district: string  
+  district: string
 
   email: string
   mobileNo: number | string
@@ -52,7 +52,7 @@ export interface Prescription {
   doctorName: string
   consultationId?: string
   createdAt: string
-  status: "pending" | "partially_fulfilled" | "fulfilled"
+  status: 'pending' | 'partially_fulfilled' | 'fulfilled'
   items: PrescriptionItem[]
   notes?: string
 }

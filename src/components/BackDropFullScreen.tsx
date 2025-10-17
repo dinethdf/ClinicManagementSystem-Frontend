@@ -7,10 +7,8 @@ interface FullScreenLoaderProps {
   open: boolean
 }
 
-
 const BackDropFullScreen = ({ open }: FullScreenLoaderProps) => {
   return (
-
     <Backdrop
       open={open}
       sx={{

@@ -24,7 +24,7 @@ const AccountSettings = ({ tabContentList }: { tabContentList: { [key: string]: 
 
   return (
     <TabContext value={activeTab}>
-      <GoBack title={"Add Patient"} description={" Register a new patient in your clinic."} />
+      <GoBack title={'Add Patient'} description={' Register a new patient in your clinic.'} />
       <Grid container spacing={6}>
         <Grid size={{ xs: 12 }}>
           <CustomTabList onChange={handleChange} variant='scrollable' pill='true'>
