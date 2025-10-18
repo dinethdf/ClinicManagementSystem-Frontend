@@ -27,6 +27,7 @@ import { email, object, minLength, string, pipe, nonEmpty } from 'valibot'
 import type { SubmitHandler } from 'react-hook-form'
 import type { InferInput } from 'valibot'
 import classnames from 'classnames'
+import { toast } from 'react-toastify'
 
 // Type Imports
 import type { SystemMode } from '@/@core/typesDef'
@@ -133,50 +134,113 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
-  setIsLoading(true)
+  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
+    setIsLoading(true)
+    setErrorState(null) // Clear previous errors
 
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login-next`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email: data.email.trim(), password: data.password.trim() }),
-    })
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login-next`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: data.email.trim(), password: data.password.trim() })
+      })
 
-    // Handle non-OK response
-    if (!res.ok) {
-      if (res.status === 401) {
-        setErrorState({ message: ['Invalid email or password'] })
-      } else {
-        setErrorState({ message: [`Login failed Please try again later.`] })
+      // Handle non-OK response
+      if (!res.ok) {
+        if (res.status === 401) {
+          setErrorState({ message: ['Invalid email or password'] })
+        } else {
+          setErrorState({ message: [`Login failed Please try again later.`] })
+        }
+
+        return
       }
-      return
+
+      const result = await res.json()
+
+      if (
+        result &&
+        result?.success === true &&
+        result?.data?.accessToken &&
+        result?.data?.refreshToken
+      ) {
+        await setLoginCookie(result.data.accessToken, result.data.refreshToken)
+
+        const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
+        
+        router.replace(getLocalizedUrl(redirectURL, locale as Locale))
+      } else {
+        setErrorState({ message: ['Email or Password is invalid'] })
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      setErrorState({ message: ['Network error. Please try again later.'] })
+    } finally {
+      setIsLoading(false)
     }
+  }
+
+
+  // ===== NEW CODE START =====
+  // Helper function for quick logins
+  const handleQuickLogin = async (email: string, password: string) => {
+    setIsLoading(true)
+    setErrorState(null) // Clear previous errors
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login-next`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email.trim(), password: password.trim() })
+      })
+
+      // Handle non-OK response
+      if (!res.ok) {
+        if (res.status === 401) {
+          setErrorState({ message: ['Invalid email or password'] })
+        } else {
+          setErrorState({ message: [`Login failed Please try again later.`] })
+        }
+       
+        return
+      }
 
     const result = await res.json()
 
-    if (
-      result &&
-      result?.success === true &&
-      result?.data?.accessToken &&
-      result?.data?.refreshToken
-    ) {
-      await setLoginCookie(result.data.accessToken, result.data.refreshToken)
+      if (
+        result &&
+        result?.success === true &&
+        result?.data?.accessToken &&
+        result?.data?.refreshToken
+      ) {
+        await setLoginCookie(result.data.accessToken, result.data.refreshToken)
 
-      const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
-      router.replace(getLocalizedUrl(redirectURL, locale as Locale))
-    } else {
-      setErrorState({ message: ['Email or Password is invalid'] })
+        const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
+       
+        router.replace(getLocalizedUrl(redirectURL, locale as Locale))
+      } else {
+        setErrorState({ message: ['Email or Password is invalid'] })
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      setErrorState({ message: ['Network error. Please try again later.'] })
+    } finally {
+      setIsLoading(false)
+    
+      toast.success("Login Successful", {
+        className: 'custom-toast',
+        progressStyle: {
+          backgroundColor: 'var(--mui-palette-primary-main)'
+        }
+      })      
     }
-  } catch (error) {
-    console.error('Login error:', error)
-    setErrorState({ message: ['Network error. Please try again later.'] })
-  } finally {
-    setIsLoading(false)
   }
-}
+
+  // ===== NEW CODE END =====
 
   const unAuthState = searchParams.get('unAuth') ?? ''
 
@@ -314,6 +378,50 @@ const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
             >
               Sign in with Google
             </Button>
+
+            {/* ===== NEW CODE START ===== */}
+
+            <Divider className='gap-2'>or try</Divider>
+
+            <div className='flex flex-col gap-4'>
+              {/* Admin Login Section */}
+              <div className='flex justify-between items-center flex-wrap gap-2'>
+                <div className='flex flex-col'>
+                  <Typography variant='body2' className='font-medium'>
+                    Admin
+                  </Typography>
+                  <Typography variant='caption'>Email: dineth@admin.com</Typography>
+                  <Typography variant='caption'>Password: admin@123</Typography>
+                </div>
+                <Button
+                  variant='outlined'
+                  size='small'
+                  onClick={() => handleQuickLogin('dineth@admin.com', 'dd')}
+                >
+                  Login
+                </Button>
+              </div>
+
+              {/* User Login Section */}
+              <div className='flex justify-between items-center flex-wrap gap-2'>
+                <div className='flex flex-col'>
+                  <Typography variant='body2' className='font-medium'>
+                    Staff
+                  </Typography>
+                  <Typography variant='caption'>Email: user@example.com</Typography>
+                  <Typography variant='caption'>Password: user@123</Typography>
+                </div>
+                <Button
+                  variant='outlined'
+                  size='small'
+                  onClick={() => handleQuickLogin('user@example.com', 'user@123')}
+                >
+                  Login
+                </Button>
+              </div>
+            </div>
+
+            {/* ===== NEW CODE END ===== */}
           </form>
         </div>
       </div>

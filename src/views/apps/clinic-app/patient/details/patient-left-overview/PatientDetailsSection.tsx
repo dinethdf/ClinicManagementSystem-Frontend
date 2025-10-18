@@ -53,6 +53,26 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
               </div>
             </div>
           </div>
+          <div className='flex items-center justify-around gap-4 flex-wrap is-full'>
+            <div className='flex items-center gap-4'>
+              <CustomAvatar variant='rounded' skin='light' color='primary'>
+                <i className='tabler-shopping-cart' />
+              </CustomAvatar>
+              <div>
+                <Typography variant='h5'>{'10'}</Typography>
+                <Typography>Orders</Typography>
+              </div>
+            </div>
+            <div className='flex items-center gap-4'>
+              <CustomAvatar variant='rounded' skin='light' color='primary'>
+                <i className='tabler-currency-dollar' />
+              </CustomAvatar>
+              <div>
+                <Typography variant='h5'>${'100'}</Typography>
+                <Typography>Spent</Typography>
+              </div>
+            </div>
+          </div>          
         </div>
         <div className='flex flex-col gap-4'>
           <Typography variant='h5'>Details</Typography>
