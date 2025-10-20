@@ -125,8 +125,8 @@ const AccountDetails = () => {
           backgroundColor: 'var(--mui-palette-primary-main)'
         }
       })
-      reset()
       router.replace(`view/${response?.data?.id ? response?.data?.id : 'error'}`)
+      reset()
     } catch (error) {
       toast.error(`${error}`, {
         hideProgressBar: false,

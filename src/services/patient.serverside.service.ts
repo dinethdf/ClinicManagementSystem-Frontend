@@ -10,7 +10,7 @@ export class PatientServerSideService {
       const cookieStore = await cookies()
       const token = cookieStore.get('accessToken')?.value
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/patient/get-details/staff/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/patient/details/staff/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

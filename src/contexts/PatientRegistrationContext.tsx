@@ -1,36 +1,39 @@
-'use client' // 👈 required in Next.js for client-side context
+// Not Use But Some time Need this Dont remove If need use this 
 
-// components/PatientRegistrationContextProvider.tsx
 
-import { createContext, useContext, useState } from 'react'
+// 'use client' // 👈 required in Next.js for client-side context
 
-// Define the type for your Patient Registration State
-type PatientRegistrationData = {
-  patientId: string | null
-  setPatientId: (id: string | null) => void
-}
+// // components/PatientRegistrationContextProvider.tsx
 
-// Create the context with default undefined
-const PatientRegistrationContext = createContext<PatientRegistrationData | undefined>(undefined)
+// import { createContext, useContext, useState } from 'react'
 
-// Custom hook for easy access
-export const usePatientRegistration = (): PatientRegistrationData => {
-  const context = useContext(PatientRegistrationContext)
+// // Define the type for your Patient Registration State
+// type PatientRegistrationData = {
+//   patientId: string | null
+//   setPatientId: (id: string | null) => void
+// }
 
-  if (context === undefined) {
-    throw new Error('usePatientRegistration must be used within a PatientRegistrationContextProvider')
-  }
+// // Create the context with default undefined
+// const PatientRegistrationContext = createContext<PatientRegistrationData | undefined>(undefined)
 
-  return context
-}
+// // Custom hook for easy access
+// export const usePatientRegistration = (): PatientRegistrationData => {
+//   const context = useContext(PatientRegistrationContext)
 
-// The provider component
-export default function PatientRegistrationContextProvider({ children }: { children: React.ReactNode }) {
-  const [patientId, setPatientId] = useState<string | null>('Hello patient')
+//   if (context === undefined) {
+//     throw new Error('usePatientRegistration must be used within a PatientRegistrationContextProvider')
+//   }
 
-  return (
-    <PatientRegistrationContext.Provider value={{ patientId, setPatientId }}>
-      {children}
-    </PatientRegistrationContext.Provider>
-  )
-}
+//   return context
+// }
+
+// // The provider component
+// export default function PatientRegistrationContextProvider({ children }: { children: React.ReactNode }) {
+//   const [patientId, setPatientId] = useState<string | null>('Hello patient')
+
+//   return (
+//     <PatientRegistrationContext.Provider value={{ patientId, setPatientId }}>
+//       {children}
+//     </PatientRegistrationContext.Provider>
+//   )
+// }

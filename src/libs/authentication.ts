@@ -112,34 +112,36 @@ export async function verifyToken(token: string | undefined): Promise<{
   const [headerB64, payloadB64, signatureB64] = parts
 
   try {
-    // Decode header and payload
-    // const header = JSON.parse(atob(headerB64))
+   
     const payload = JSON.parse(atob(payloadB64))
 
-    // Convert secret from Base64 to ArrayBuffer
-    const secretKey = await crypto.subtle.importKey(
-      'raw',
-      Uint8Array.from(atob(secretBase64), c => c.charCodeAt(0)),
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['verify']
-    )
+    // This is tha part tocke viryfy this the Secret key in back end for now this is not Need After requrement check that later
 
-    // Generate the data string (header.payload)
-    const data = new TextEncoder().encode(`${headerB64}.${payloadB64}`)
+    // // Convert secret from Base64 to ArrayBuffer
+    // const secretKey = await crypto.subtle.importKey(
+    //   'raw',
+    //   Uint8Array.from(atob(secretBase64), c => c.charCodeAt(0)),
+    //   { name: 'HMAC', hash: 'SHA-256' },
+    //   false,
+    //   ['verify']
+    // )
 
-    // Decode the JWT signature from Base64URL to Uint8Array
-    const signature: BufferSource = base64UrlToBufferSource(signatureB64)
+    // // Generate the data string (header.payload)
+    // const data = new TextEncoder().encode(`${headerB64}.${payloadB64}`)
 
-    // Verify signature using Web Crypto API
-    const isValid = await crypto.subtle.verify('HMAC', secretKey, signature, data)
+    // // Decode the JWT signature from Base64URL to Uint8Array
+    // const signature: BufferSource = base64UrlToBufferSource(signatureB64)
 
-    if (!isValid) {
-      return { valid: false, error: '❌ Invalid token: Signature verification failed.' }
-    }
+    // // Verify signature using Web Crypto API
+    // const isValid = await crypto.subtle.verify('HMAC', secretKey, signature, data)
+
+    // if (!isValid) {
+    //   return { valid: false, error: '❌ Invalid token: Signature verification failed.' }
+    // }
 
     // Check expiration
-
+    console.log("Tocken Verifu authentication.ts")
+    console.log(payload);
     const now = Math.floor(Date.now() / 1000)
 
     if (payload.exp && payload.exp < now) {
@@ -152,20 +154,20 @@ export async function verifyToken(token: string | undefined): Promise<{
   }
 }
 
-/**
- * Helper: decode Base64URL string to Uint8Array
- */
+// /**
+//  * Helper: decode Base64URL string to Uint8Array
+//  */
 
-function base64UrlToBufferSource(base64Url: string): BufferSource {
-  let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+// function base64UrlToBufferSource(base64Url: string): BufferSource {
+//   let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
 
-  while (base64.length % 4 !== 0) base64 += '='
-  const raw = atob(base64)
-  const buffer = new Uint8Array(raw.length)
+//   while (base64.length % 4 !== 0) base64 += '='
+//   const raw = atob(base64)
+//   const buffer = new Uint8Array(raw.length)
 
-  for (let i = 0; i < raw.length; i++) {
-    buffer[i] = raw.charCodeAt(i)
-  }
+//   for (let i = 0; i < raw.length; i++) {
+//     buffer[i] = raw.charCodeAt(i)
+//   }
 
-  return buffer // BufferSource type
-}
+//   return buffer // BufferSource type
+// }
