@@ -51,8 +51,6 @@ const SheduleInformation = () => {
     } else {
       setValue('doctorName', '')
     }
-    console.log("Doctor chahnge")
-    console.log(watchedDoctor)
   }, [watchedDoctor, setValue])
 
   return (

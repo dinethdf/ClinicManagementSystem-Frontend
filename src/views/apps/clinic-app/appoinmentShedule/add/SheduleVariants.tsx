@@ -1,7 +1,8 @@
 'use client'
+import { useEffect } from 'react'
 
-import { useState, useEffect, SyntheticEvent } from 'react'
-import { useFormContext, Controller, useFieldArray } from 'react-hook-form';
+// React Hook Form Imports
+import { useFormContext, Controller, useFieldArray } from 'react-hook-form'
 
 // MUI Imports
 import Grid from '@mui/material/Grid2'
@@ -10,121 +11,166 @@ import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 
-// Custom Components
-import CustomIconButton from '@core/components/mui/IconButton'
+// Components Imports
 import CustomTextField from '@core/components/mui/TextField'
-import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
+import CustomIconButton from '@core/components/mui/IconButton'
+import AppReactDatepicker from '@/libs/styles/AppReactDatepicker' // Assuming this is your datepicker path
 
-// Types
-import type { ScheduleSlot } from '@/libs/types/doctor.types'
+// Types Imports
+import type { DoctorSchedule, ScheduleSlot } from '@/libs/types/doctor.types'
 
 const SheduleVariants = () => {
-  const { control, setValue, formState: { errors } } = useFormContext();
+  const {
+    control,
+    formState: { errors }
+  } = useFormContext<DoctorSchedule>()
 
-// Get current date and time
-const now = new Date();
-const pad = (num: number) => num.toString().padStart(2, '0');
+  // Get current date and time
+  const now = new Date()
+  const pad = (num: number) => num.toString().padStart(2, '0')
+  const currentDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+  const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`
 
-const currentDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`; // yyyy-mm-dd
-const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`; // HH:mm
+  // Use RHF's useFieldArray to manage dynamic variants
+  const { fields, append, remove, update } = useFieldArray({
+    control,
+    name: 'schedules'
+  })
 
+  // Initialize first variant if empty
 
-// Initialize state
-const [variants, setVariants] = useState<ScheduleSlot[]>([
-  { date: currentDate, time: currentTime, price: 0, maxPatientCount: 0 }
-])
-
-  // Sync local state with react-hook-form
-  useEffect(() => {
-    // Update the form value "schedules" whenever variants change
-    setValue('schedules', variants)
-    console.log("varient Update", variants)
-  }, [variants, setValue])
-
-  const deleteForm = (e: SyntheticEvent, index: number) => {
-    e.preventDefault()
-    setVariants(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const addVariant = () => {
-    setVariants(prev => [...prev, {  date: currentDate, time: currentTime, price: 0, maxPatientCount: 0 }])
-  }
-
-  const handleChange = (index: number, field: keyof ScheduleSlot, value: any) => {
-    setVariants(prev => {
-      const updated = [...prev]
-      updated[index] = { ...updated[index], [field]: value }
-      return updated
-    })
-  }
 
   const handleDateTimeChange = (index: number, dateObj: Date | null) => {
     if (!dateObj) return
+
     const date = dateObj.toISOString().split('T')[0]
     const time = dateObj.toTimeString().split(' ')[0].slice(0, 5)
-    setVariants(prev => {
-      const updated = [...prev]
-      updated[index] = { ...updated[index], date, time }
-      return updated
+
+    // Use update to set both values at once
+    update(index, {
+      ...(fields[index] as ScheduleSlot), // Cast field to your type
+      date,
+      time
     })
   }
+
+    useEffect(() => {
+    if (fields.length == 0) {
+      append({ date: currentDate, time: currentTime, price: 0, maxPatientCount: 0 })
+    }
+    console.log("first")
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Empty dependency array ensures this runs only once on mount
 
   return (
     <Card>
       <CardHeader title='Schedule Variants' />
       <CardContent>
-        <Grid container spacing={6}>
-          {variants.map((item, index) => (
-            <Grid key={index} size={{ xs: 12 }} className='repeater-item'>
-              <Grid container spacing={2}>
-                {/* Date & Time Picker */}
-                <Grid size={{ xs: 12, lg: 4 }}>
+       <Grid container spacing={6}>
+        {fields.map((item, index) => (
+          <Grid key={item.id} container spacing={4} className='repeater-item mbe-4'>
+            {/* Date & Time */}
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Controller
+                name={`schedules.${index}.date`}
+                control={control}
+                rules={{ required: 'Date is required' }}
+                render={({ field }) => (
                   <AppReactDatepicker
                     showTimeSelect
                     timeFormat='HH:mm'
                     timeIntervals={15}
-                    selected={item.date && item.time ? new Date(`${item.date}T${item.time}`) : null}
                     id={`date-time-picker-${index}`}
-                    dateFormat='MM/dd/yyyy h:mm aa'
-                    onChange={date => handleDateTimeChange(index, date)}
-                    customInput={<CustomTextField label='Date & Time' fullWidth />}
+                    dateFormat='MM/dd/yyyy hh:mm aa'
+                    // Re-combine date and time for the picker's 'selected' prop
+                    selected={field.value && (fields[index] as ScheduleSlot).time
+                        ? new Date(`${field.value}T${(fields[index] as ScheduleSlot).time}`)
+                        : null
+                    }
+                    onChange={(date) => handleDateTimeChange(index, date)}
+                    customInput={
+                      <CustomTextField
+                        label='Date & Time'
+                        fullWidth
+                        error={!!errors?.schedules?.[index]?.date}
+                        helperText={errors?.schedules?.[index]?.date?.message}
+                      />
+                    }
                   />
-                </Grid>
+                )}
+              />
 
-                {/* Price */}
-                <Grid size={{ xs: 12, sm: 4 }} alignSelf='end'>
+              {/* This hidden input correctly stores the 'time' value */}
+              <Controller
+                name={`schedules.${index}.time`}
+                control={control}
+                rules={{ required: 'Time is required' }}
+                render={({ field }) => <input type='hidden' {...field} />}
+              />
+            </Grid>
+
+            {/* Price */}
+            <Grid size={{ xs: 12, md: 3 }}>
+              <Controller
+                name={`schedules.${index}.price`}
+                control={control}
+                rules={{
+                  required: 'Price is required',
+                  min: { value: 1, message: 'Price must be > 0' }
+                }}
+                render={({ field }) => (
                   <CustomTextField
                     label='Price'
-                    fullWidth
                     type='number'
+                    fullWidth
                     placeholder='Enter Price'
-                    value={item.price === 0 ? '' : item.price}
-                    onChange={e => handleChange(index, 'price', Number(e.target.value))}
+                    {...field}
+                    value={field.value === 0 ? '' : field.value} // Show empty instead of 0
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    error={!!errors?.schedules?.[index]?.price}
+                    helperText={errors?.schedules?.[index]?.price?.message}
                   />
-                </Grid>
-
-                {/* Max Patient Count */}
-                <Grid size={{ xs: 12, sm: 4 }} alignSelf='end'>
-                  <div className='flex items-center gap-6'>
-                    <CustomTextField
-                      label='Max Patient Count'
-                      fullWidth
-                      type='number'
-                      placeholder='Enter Count'
-                      value={item.maxPatientCount === 0 ? '' : item.maxPatientCount}
-                      onChange={e => handleChange(index, 'maxPatientCount', Number(e.target.value))}
-                    />
-                    <CustomIconButton onClick={e => deleteForm(e, index)}>
-                      <i className='tabler-x' />
-                    </CustomIconButton>
-                  </div>
-                </Grid>
-              </Grid>
+                )}
+              />
             </Grid>
-          ))}
+
+            {/* Max Patient Count */}
+            <Grid size={{ xs: 10, md: 3 }}>
+              <Controller
+                name={`schedules.${index}.maxPatientCount`}
+                control={control}
+                rules={{
+                  required: 'Max patient count is required',
+                  min: { value: 1, message: 'Must be at least 1' }
+                }}
+                render={({ field }) => (
+                  <CustomTextField
+                    label='Max Patient Count'
+                    type='number'
+                    fullWidth
+                    placeholder='Enter Count'
+                    {...field}
+                    value={field.value === 0 ? '' : field.value} // Show empty instead of 0
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    error={!!errors?.schedules?.[index]?.maxPatientCount}
+                    helperText={errors?.schedules?.[index]?.maxPatientCount?.message}
+                  />
+                )}
+              />
+            </Grid>
+
+            {/* Remove Button */}
+            <Grid size={{ xs: 2, md: 2 }} className='flex items-center'>
+              <CustomIconButton onClick={() => remove(index)}>
+                <i className='tabler-x' />
+              </CustomIconButton>
+            </Grid>
+          </Grid>
+        ))}
 
           <Grid size={{ xs: 12 }}>
-            <Button variant='contained' onClick={addVariant}>
+            <Button variant='contained' 
+             onClick={() => append({ date: currentDate, time: currentTime, price: 0, maxPatientCount: 0 })}>
               Add Another Option
             </Button>
           </Grid>
@@ -141,6 +187,9 @@ const [variants, setVariants] = useState<ScheduleSlot[]>([
                 </div>
               </Grid>                    
         </Grid>
+
+
+     
       </CardContent>
     </Card>
   )

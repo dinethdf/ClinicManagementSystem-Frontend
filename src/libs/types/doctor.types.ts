@@ -33,7 +33,6 @@ export interface DoctorSchedule {
     doctorId: string;
   } | null; // <-- Add "| null" here
   doctorName: string
-  // schedules: ScheduleSlot[];
   schedules: ScheduleSlot[];
 }
 
