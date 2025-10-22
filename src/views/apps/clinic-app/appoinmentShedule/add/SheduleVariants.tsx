@@ -89,8 +89,6 @@ const SheduleVariants = () => {
                     <AppReactDatepicker
                       id={`date-picker-${index}`}
                       dateFormat='MM/dd/yyyy'
-                      // Parse the 'YYYY-MM-DD' string as a local date
-                      // This part is correct: 'T00:00:00' makes it local midnight
                       selected={field.value ? new Date(`${field.value}T00:00:00`) : null}
                       onChange={date => handleDateChange(index, date)}
                       customInput={
@@ -120,6 +118,7 @@ const SheduleVariants = () => {
                       timeIntervals={15}
                       id={`time-picker-${index}`}
                       dateFormat='h:mm aa'
+                      
                       // This part is also correct
                       selected={field.value ? new Date(`1970-01-01T${field.value}`) : null}
                       onChange={date => handleTimeChange(index, date)}

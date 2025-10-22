@@ -109,7 +109,9 @@ export async function verifyToken(token: string | undefined): Promise<{
     return { valid: false, error: 'Invalid JWT format.' }
   }
 
-  const [headerB64, payloadB64, signatureB64] = parts
+  // const [headerB64, payloadB64, signatureB64] = parts
+
+  const [payloadB64] = parts // remove this and Use Upper One for build
 
   try {
    

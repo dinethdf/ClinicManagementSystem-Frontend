@@ -7,13 +7,11 @@ import Grid from '@mui/material/Grid2'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
 
 // React Hook Form Imports
 import { useForm, FormProvider, Controller } from 'react-hook-form'
 
 // Components Imports
-import CustomIconButton from '@core/components/mui/IconButton'
 import CustomTextField from '@core/components/mui/TextField'
 import AsyncAutocomplete from '@/components/form-components/AsyncAutocompleteProps'
 
@@ -33,13 +31,14 @@ const SheduleInformation = () => {
   })
   
 
-  const { control, watch, setValue, handleSubmit } = methods
+  const { control, watch, setValue } = methods
 
   const watchedDoctor: any = watch('doctor')
 
   // 5. This function will receive all form data
   const onSubmit = (data: any) => {
     console.log('Form Data:', data)
+
     // data will now contain { doctor: {...}, doctorName: '...' }
   }
 
@@ -88,10 +87,9 @@ const SheduleInformation = () => {
                   fullWidth  
                   label='Read Only'
                   defaultValue={watchedDoctor?.fullName as string || ''}
-                  // id='form-props-read-only-input'
-                  // slotProps={{
-                  //   htmlInput: { readOnly: true }
-                  // }}
+                  slotProps={{
+                    htmlInput: { readOnly: true }
+                  }}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -99,7 +97,6 @@ const SheduleInformation = () => {
                   fullWidth  
                   label='Read Only'
                   defaultValue={watchedDoctor?.company as string || ''}
-                  // id='form-props-read-only-input'
                   slotProps={{
                     htmlInput: { readOnly: true }
                   }}
@@ -110,7 +107,6 @@ const SheduleInformation = () => {
                   fullWidth  
                   label='Read Only'
                   defaultValue={watchedDoctor?.country as string || ''}
-                  // id='form-props-read-only-input'
                   slotProps={{
                     htmlInput: { readOnly: true }
                   }}
@@ -121,14 +117,12 @@ const SheduleInformation = () => {
                   fullWidth  
                   label='Read Only'
                   defaultValue={watchedDoctor?.contact as string || ''}
-                  // id='form-props-read-only-input'
                   slotProps={{
                     htmlInput: { readOnly: true }
                   }}
                 />
               </Grid> 
                 </>
-                
               }
                                         
             </Grid>
@@ -137,6 +131,7 @@ const SheduleInformation = () => {
           </CardContent>
         </Card>
       </Grid>
+      <Divider/>
       <Grid size={{ xs: 12 }}>
        <SheduleVariants />
       </Grid> 

@@ -74,6 +74,7 @@ const AsyncAutocomplete = <T extends {}>({
     // Don't fetch if the input is empty
     if (inputValue === '') {
       setOptions(value ? [value] : [])
+
       return
     }
 
@@ -82,12 +83,12 @@ const AsyncAutocomplete = <T extends {}>({
     // Set up the timer
     const timer = setTimeout(async () => {
       try {
-        const url = `${fetchUrl}?${searchQueryParam}=${inputValue}&${otherPrams}`
-       
-       
+
+        // const url = `${fetchUrl}?${searchQueryParam}=${inputValue}&${otherPrams}`
         // const response = await fetch(url)
         // const data = (await response.json()) as T[]
 
+        // Dummy Section need remove
        const response = new Response(
             JSON.stringify({
               success: true,
@@ -99,20 +100,21 @@ const AsyncAutocomplete = <T extends {}>({
             {
               status: 200,
               headers: { "Content-Type": "application/json" },
-            }
-          )
-        const data = (await response.json()).data as T[]
+            })
+        
+          const data = (await response.json()).data as T[]
 
         setOptions(data)
       } catch (error) {
         console.error('Failed to fetch autocomplete data:', error)
       }
+
       setLoading(false)
     }, debounceDelay)
 
     // Cleanup
     return () => clearTimeout(timer)
-  }, [inputValue, fetchUrl, searchQueryParam, debounceDelay, value])
+  }, [inputValue, fetchUrl, searchQueryParam, debounceDelay, otherPrams, value])
 
   return (
     <CustomAutocomplete
