@@ -8,7 +8,8 @@ import SheduleInformation from '@/views/apps/clinic-app/appoinmentShedule/add/Sh
 
 const DoctorAppointment = () => {
 
-
+// Use this part Check if that one create doctro or staff 
+//  if doctor create no need to select doctor option
 
   return (
 

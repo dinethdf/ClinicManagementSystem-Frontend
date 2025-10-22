@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect } from 'react'
 
 // MUI Imports
 import Divider from '@mui/material/Divider'
@@ -10,43 +10,50 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 
 // React Hook Form Imports
-import { useForm, FormProvider } from 'react-hook-form'
-
-
-// Third-party Imports
-import classnames from 'classnames'
-import { useEditor, EditorContent } from '@tiptap/react'
-import { StarterKit } from '@tiptap/starter-kit'
-import { Underline } from '@tiptap/extension-underline'
-import { Placeholder } from '@tiptap/extension-placeholder'
-import { TextAlign } from '@tiptap/extension-text-align'
-import type { Editor } from '@tiptap/core'
+import { useForm, FormProvider, Controller } from 'react-hook-form'
 
 // Components Imports
 import CustomIconButton from '@core/components/mui/IconButton'
 import CustomTextField from '@core/components/mui/TextField'
-
 import AsyncAutocomplete from '@/components/form-components/AsyncAutocompleteProps'
 
-// Data Imports
-import { db } from '../../../../../fake-db/apps/userList'
 import SheduleVariants from './SheduleVariants'
 
-
-
+import type { DoctorSchedule } from '@/libs/types/doctor.types'
 
 const SheduleInformation = () => {
 
-  const [selectedDoctor, setSelectedDoctor] = useState<Record<string, unknown> | null>(null)
+// Initialize React Hook Form
+  const methods = useForm<DoctorSchedule>({
+  defaultValues: {
+    doctor: null,
+    doctorName: '',
+    schedules: []
+  }
+  })
+  
 
-    // 1. Initialize React Hook Form
-    const methods = useForm()
-  
-    // 2. This function will receive all form data from all children
-    const onSubmit = (data:any) => {
-  
-      // Send data to your API here
+  const { control, watch, setValue, handleSubmit } = methods
+
+  const watchedDoctor: any = watch('doctor')
+
+  // 5. This function will receive all form data
+  const onSubmit = (data: any) => {
+    console.log('Form Data:', data)
+    // data will now contain { doctor: {...}, doctorName: '...' }
+  }
+
+  // 6. (Optional but recommended)
+  // When the selected doctor changes, automatically update the 'doctorName' field
+  useEffect(() => {
+    if (watchedDoctor) {
+      setValue('doctorName', watchedDoctor?.doctorName || '')
+    } else {
+      setValue('doctorName', '')
     }
+    console.log("Doctor chahnge")
+    console.log(watchedDoctor)
+  }, [watchedDoctor, setValue])
 
   return (
     <FormProvider {...methods}>    
@@ -58,27 +65,42 @@ const SheduleInformation = () => {
           <CardContent>
             <Grid container spacing={6} className='mbe-6'>
               <Grid size={{ xs: 12 }}>
-                <AsyncAutocomplete
-                  label="Search Doctor"
-                  fetchUrl="/api/search-doctors"
-                  searchQueryParam='name'
-                  // otherPrams={`status=active&abe=${"ddf"}`} 
-                  placeholder="Enter Name"
-                  value={selectedDoctor}
-                  onChange={(newValue) => {
-                    setSelectedDoctor(newValue)
-                    console.log(newValue)
-                  }}
-                  fullWidth
+                <Controller
+                  name="doctor"
+                  control={control}
+                  rules={{ required: 'Please select a doctor' }}
+                  render={({ field, fieldState: { error } }) => (
+                  <AsyncAutocomplete
+                    {...field}
+                    label="Search Doctor"
+                    fetchUrl="/api/search-doctors"
+                    searchQueryParam='name'
+                    placeholder="Enter Name"
+                    fullWidth
+                    error={!!error}
+                     helperText={error?.message}
+                  />
+                   )}
                 />
               </Grid>
               {
-                selectedDoctor && <>
+                watchedDoctor && <>
               <Grid size={{ xs: 12, sm: 6 }}>
                 <CustomTextField 
                   fullWidth  
                   label='Read Only'
-                  defaultValue={selectedDoctor?.fullName as string || ''}
+                  defaultValue={watchedDoctor?.fullName as string || ''}
+                  // id='form-props-read-only-input'
+                  // slotProps={{
+                  //   htmlInput: { readOnly: true }
+                  // }}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <CustomTextField 
+                  fullWidth  
+                  label='Read Only'
+                  defaultValue={watchedDoctor?.company as string || ''}
                   // id='form-props-read-only-input'
                   slotProps={{
                     htmlInput: { readOnly: true }
@@ -89,7 +111,7 @@ const SheduleInformation = () => {
                 <CustomTextField 
                   fullWidth  
                   label='Read Only'
-                  defaultValue={selectedDoctor?.company as string || ''}
+                  defaultValue={watchedDoctor?.country as string || ''}
                   // id='form-props-read-only-input'
                   slotProps={{
                     htmlInput: { readOnly: true }
@@ -100,18 +122,7 @@ const SheduleInformation = () => {
                 <CustomTextField 
                   fullWidth  
                   label='Read Only'
-                  defaultValue={selectedDoctor?.country as string || ''}
-                  // id='form-props-read-only-input'
-                  slotProps={{
-                    htmlInput: { readOnly: true }
-                  }}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <CustomTextField 
-                  fullWidth  
-                  label='Read Only'
-                  defaultValue={selectedDoctor?.contact as string || ''}
+                  defaultValue={watchedDoctor?.contact as string || ''}
                   // id='form-props-read-only-input'
                   slotProps={{
                     htmlInput: { readOnly: true }
