@@ -342,7 +342,6 @@ const AccountDetails = () => {
                     value={field.value ? dayjs(field.value) : null}
                     onChange={newValue => {
                       field.onChange(newValue ? newValue.format('YYYY-MM-DD') : null)
-                      console.log(newValue ? newValue.format('YYYY-MM-DD') : null)
                     }}
                     label='Date Of Birth'
                     openTo='year'
