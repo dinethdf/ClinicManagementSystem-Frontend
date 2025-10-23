@@ -147,7 +147,7 @@ const SheduleVariants = () => {
                   }}
                   render={({ field }) => (
                     <CustomTextField
-                      label='Price'
+                      label='Payment'
                       type='number'
                       fullWidth
                       placeholder='Enter Price'

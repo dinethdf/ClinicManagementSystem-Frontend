@@ -86,7 +86,7 @@ const SheduleInformation = () => {
                 <CustomTextField 
                   fullWidth  
                   label='Read Only'
-                  defaultValue={watchedDoctor?.fullName as string || ''}
+                  value={watchedDoctor?.fullName as string || ''}
                   slotProps={{
                     htmlInput: { readOnly: true }
                   }}
@@ -96,7 +96,7 @@ const SheduleInformation = () => {
                 <CustomTextField 
                   fullWidth  
                   label='Read Only'
-                  defaultValue={watchedDoctor?.company as string || ''}
+                  value={watchedDoctor?.company as string || ''}
                   slotProps={{
                     htmlInput: { readOnly: true }
                   }}
@@ -106,7 +106,7 @@ const SheduleInformation = () => {
                 <CustomTextField 
                   fullWidth  
                   label='Read Only'
-                  defaultValue={watchedDoctor?.country as string || ''}
+                  value={watchedDoctor?.country as string || ''}
                   slotProps={{
                     htmlInput: { readOnly: true }
                   }}
