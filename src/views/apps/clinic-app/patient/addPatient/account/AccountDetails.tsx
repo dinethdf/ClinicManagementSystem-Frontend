@@ -126,10 +126,7 @@ const AccountDetails = () => {
   })
 
   const handelFormSubmit = async (data: PatientDetails) => {
-    console.log("submit")
-    console.log(data)
-    setIsLoading(true) // Show the loader
-
+    setIsLoading(true) 
     try {
       const response = await patientService.createPatientDetails(data)
 
