@@ -24,6 +24,8 @@ import MenuItem from '@mui/material/MenuItem'
 import { CardHeader, Divider, InputAdornment } from '@mui/material'
 
 // Component Imports
+import type { TextFieldProps } from '@mui/material/TextField'
+
 import CustomTextField from '@core/components/mui/TextField'
 
 import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
@@ -36,6 +38,10 @@ import { patientService } from '@/services/patient.service'
 
 import BackDropFullScreen from '@/components/BackDropFullScreen'
 
+// Component Imports
+import GuardianSelectDialogBox from '@components/dialogs/guardian-select'
+import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+
 const initialData: PatientDetails = {
   firstName: '',
   lastName: '',
@@ -45,7 +51,7 @@ const initialData: PatientDetails = {
   maritalStatus: '',
   nic: '',
   dob: null,
-  guardianId:null,
+  guardianId: null,
   address: '',
   city: '',
   district: '',
@@ -325,14 +331,21 @@ const AccountDetails = () => {
                     value={field.value ? dayjs(field.value) : null}
                     onChange={newValue => {
                       let age = 0
+
                       if (newValue) {
                         const today = new Date()
+
                         const bday = newValue.toDate()
+
                         age = today.getFullYear() - bday.getFullYear()
+
                         const m = today.getMonth() - bday.getMonth()
+
                         if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--
                       }
+
                       setIsUnderAge(age < 18)
+
                       field.onChange(newValue ? newValue.format('YYYY-MM-DD') : null)
                     }}
                     label='Date Of Birth'
@@ -351,34 +364,53 @@ const AccountDetails = () => {
                 )}
               />
             </Grid>
-            {isUnderAge && 
-             <Grid size={{ xs: 12, sm: 6}}>
-              <Controller
-                name='guardianId'
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    fullWidth                  
-                    label='Guardian'
-                    placeholder='Select Guardian'
-                    slotProps={{
-                      input: {
+            {isUnderAge && (
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Controller
+                  name='guardianId'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => {
+                    const textFieldProps: TextFieldProps = {
+                      ...field,
+                      fullWidth: true,
+                      label: 'Guardian',
+                      placeholder: 'Select Guardian',
+                      value: field.value === null ? '' : field.value,
+                      InputProps: {
+                        readOnly: true,
                         startAdornment: (
                           <InputAdornment position='start'>
                             <i className='tabler-user' />
                           </InputAdornment>
                         )
-                      }
-                    }}
-                    {...(errors.guardianId && { error: true, helperText: errors.guardianId.message })}
-                  />
-                )}
-              />
-            </Grid>   
-            }
-            <Grid size={{ xs: 12, sm: isUnderAge ? 3 : 6}}>
+
+                        // sx: { cursor: 'pointer' } // <-- REMOVE THIS, it targets the wrapper
+                      },
+
+                      // 👇 ADD THIS INSTEAD
+                      // 'inputProps' targets the actual <input ...> element
+                      inputProps: {
+                        style: {
+                          cursor: 'pointer'
+                        }
+                      },
+
+                      ...(errors.guardianId && { error: true, helperText: errors.guardianId.message })
+                    }
+
+                    return (
+                      <OpenDialogOnElementClick
+                        element={CustomTextField}
+                        elementProps={textFieldProps}
+                        dialog={GuardianSelectDialogBox}
+                      />
+                    )
+                  }}
+                />
+              </Grid>
+            )}
+            <Grid size={{ xs: 12, sm: isUnderAge ? 3 : 6 }}>
               <Controller
                 name='nic'
                 control={control}
@@ -387,7 +419,7 @@ const AccountDetails = () => {
                   <CustomTextField
                     {...field}
                     fullWidth
-                    disabled={isUnderAge}                    
+                    disabled={isUnderAge}
                     label='NIC number'
                     placeholder='****V/****'
                     slotProps={{
@@ -403,8 +435,8 @@ const AccountDetails = () => {
                   />
                 )}
               />
-            </Grid>            
-            <Grid size={{ xs: 12, sm: isUnderAge ? 3 : 6}}>
+            </Grid>
+            <Grid size={{ xs: 12, sm: isUnderAge ? 3 : 6 }}>
               <Controller
                 name='address'
                 control={control}
@@ -430,7 +462,7 @@ const AccountDetails = () => {
                   <CustomTextField
                     {...field}
                     fullWidth
-                    disabled={isUnderAge}                          
+                    disabled={isUnderAge}
                     label='City'
                     placeholder='Pelmadulla'
                     {...(errors.city && { error: true, helperText: errors.city.message })}
@@ -447,7 +479,7 @@ const AccountDetails = () => {
                   <CustomTextField
                     {...field}
                     fullWidth
-                    disabled={isUnderAge}      
+                    disabled={isUnderAge}
                     label='District'
                     placeholder='Rathnapura'
                     {...(errors.district && { error: true, helperText: errors.district.message })}
@@ -473,7 +505,7 @@ const AccountDetails = () => {
                   <CustomTextField
                     {...field}
                     fullWidth
-                    disabled={isUnderAge}                          
+                    disabled={isUnderAge}
                     label='Email'
                     placeholder='example@gmail.com'
                     {...(errors.email && { error: true, helperText: errors.email.message })}
@@ -490,7 +522,7 @@ const AccountDetails = () => {
                   <CustomTextField
                     {...field}
                     fullWidth
-                    disabled={isUnderAge}      
+                    disabled={isUnderAge}
                     label='Mobile Number'
                     placeholder='0712345678'
                     {...(errors.mobileNo && { error: true, helperText: errors.mobileNo.message })}
@@ -507,7 +539,7 @@ const AccountDetails = () => {
                   <CustomTextField
                     {...field}
                     fullWidth
-                    disabled={isUnderAge}                          
+                    disabled={isUnderAge}
                     label='Land Number'
                     placeholder='0452222444'
                     {...(errors.landNumber && { error: true, helperText: errors.landNumber.message })}

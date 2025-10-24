@@ -34,9 +34,8 @@ const SheduleVariants = () => {
   // Initialize first variant if empty
   useEffect(() => {
     if (fields.length == 0) {
-      append({ date: "", time: "", price: 0, maxPatientCount: 0 })
+      append({ date: '', time: '', price: 0, maxPatientCount: 0 })
     }
-
   }, [])
 
   // UPDATED: Handler for Date change
@@ -118,7 +117,6 @@ const SheduleVariants = () => {
                       timeIntervals={15}
                       id={`time-picker-${index}`}
                       dateFormat='h:mm aa'
-                      
                       // This part is also correct
                       selected={field.value ? new Date(`1970-01-01T${field.value}`) : null}
                       onChange={date => handleTimeChange(index, date)}
@@ -196,10 +194,7 @@ const SheduleVariants = () => {
           ))}
 
           <Grid size={{ xs: 12 }}>
-            <Button
-              variant='contained'
-              onClick={() => append({ date: "", time: "", price: 0, maxPatientCount: 0 })}
-            >
+            <Button variant='contained' onClick={() => append({ date: '', time: '', price: 0, maxPatientCount: 0 })}>
               Add Another Option
             </Button>
           </Grid>

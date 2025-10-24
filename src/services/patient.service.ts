@@ -31,6 +31,7 @@ class PatientService {
     try {
       const response: any = await apiClient.post<PatientDetails>('/api/patient/details/staff', {
         ...patientData,
+
         // guardian: {
         //   id: patientData.guardianId || 1
         // },

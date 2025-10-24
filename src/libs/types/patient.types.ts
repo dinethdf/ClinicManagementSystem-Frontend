@@ -12,7 +12,7 @@ export interface PatientDetails {
   nic: string
   dob: string | null | undefined
   guardianId: number | null
-  
+
   address: string
   city: string
   district: string

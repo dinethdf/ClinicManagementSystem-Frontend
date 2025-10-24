@@ -160,16 +160,11 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
       const result = await res.json()
 
-      if (
-        result &&
-        result?.success === true &&
-        result?.data?.accessToken &&
-        result?.data?.refreshToken
-      ) {
+      if (result && result?.success === true && result?.data?.accessToken && result?.data?.refreshToken) {
         await setLoginCookie(result.data.accessToken, result.data.refreshToken)
 
         const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
-        
+
         router.replace(getLocalizedUrl(redirectURL, locale as Locale))
       } else {
         setErrorState({ message: ['Email or Password is invalid'] })
@@ -181,7 +176,6 @@ const Login = ({ mode }: { mode: SystemMode }) => {
       setIsLoading(false)
     }
   }
-
 
   // ===== NEW CODE START =====
   // Helper function for quick logins
@@ -205,22 +199,17 @@ const Login = ({ mode }: { mode: SystemMode }) => {
         } else {
           setErrorState({ message: [`Login failed Please try again later.`] })
         }
-       
+
         return
       }
 
-    const result = await res.json()
+      const result = await res.json()
 
-      if (
-        result &&
-        result?.success === true &&
-        result?.data?.accessToken &&
-        result?.data?.refreshToken
-      ) {
+      if (result && result?.success === true && result?.data?.accessToken && result?.data?.refreshToken) {
         await setLoginCookie(result.data.accessToken, result.data.refreshToken)
 
         const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
-       
+
         router.replace(getLocalizedUrl(redirectURL, locale as Locale))
       } else {
         setErrorState({ message: ['Email or Password is invalid'] })
@@ -230,13 +219,13 @@ const Login = ({ mode }: { mode: SystemMode }) => {
       setErrorState({ message: ['Network error. Please try again later.'] })
     } finally {
       setIsLoading(false)
-    
-      toast.success("Login Successful", {
+
+      toast.success('Login Successful', {
         className: 'custom-toast',
         progressStyle: {
           backgroundColor: 'var(--mui-palette-primary-main)'
         }
-      })      
+      })
     }
   }
 
@@ -393,11 +382,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
                   <Typography variant='caption'>Email: dineth@admin.com</Typography>
                   <Typography variant='caption'>Password: admin@123</Typography>
                 </div>
-                <Button
-                  variant='outlined'
-                  size='small'
-                  onClick={() => handleQuickLogin('dineth@admin.com', 'dd')}
-                >
+                <Button variant='outlined' size='small' onClick={() => handleQuickLogin('dineth@admin.com', 'dd')}>
                   Login
                 </Button>
               </div>

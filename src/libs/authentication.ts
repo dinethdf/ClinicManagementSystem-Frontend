@@ -114,7 +114,6 @@ export async function verifyToken(token: string | undefined): Promise<{
   const [payloadB64] = parts // remove this and Use Upper One for build
 
   try {
-   
     const payload = JSON.parse(atob(payloadB64))
 
     // This is tha part tocke viryfy this the Secret key in back end for now this is not Need After requrement check that later
@@ -142,8 +141,8 @@ export async function verifyToken(token: string | undefined): Promise<{
     // }
 
     // Check expiration
-    console.log("Tocken Verifu authentication.ts")
-    console.log(payload);
+    console.log('Tocken Verifu authentication.ts')
+    console.log(payload)
     const now = Math.floor(Date.now() / 1000)
 
     if (payload.exp && payload.exp < now) {

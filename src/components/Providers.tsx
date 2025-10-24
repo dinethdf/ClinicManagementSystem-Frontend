@@ -29,7 +29,6 @@ const Providers = async (props: Props) => {
   const systemMode = await getSystemMode()
 
   return (
-    
     // <NextAuthProvider basePath={process.env.NEXTAUTH_BASEPATH}>  // Use THis For better performanse
     <VerticalNavProvider>
       <SettingsProvider settingsCookie={settingsCookie} mode={mode}>

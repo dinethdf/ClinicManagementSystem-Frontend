@@ -9,7 +9,6 @@ const SheduleHeader = () => {
         </Typography>
         {/* <Typography>Orders placed across your store</Typography> */}
       </div>
-
     </div>
   )
 }

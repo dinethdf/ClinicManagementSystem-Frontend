@@ -119,7 +119,6 @@ const DatePickerStyled = styled(DatePicker)(({ theme }) => ({
 // }
 
 type CustomDatePickerProps = DatePickerProps<any> & {
-  
   // any additional custom props
 }
 
@@ -127,7 +126,6 @@ const CustomDatePicker = forwardRef((props: CustomDatePickerProps, ref: Forwarde
   const { slotProps: incomingSlotProps, ...otherProps } = props
 
   return (
-
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DatePickerStyled
         ref={ref}

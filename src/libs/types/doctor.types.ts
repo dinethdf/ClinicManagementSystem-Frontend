@@ -28,19 +28,19 @@ export interface DoctorDetails {
 
 export interface DoctorSchedule {
   doctor: {
-    id: string;
-    doctorName: string;
-    doctorId: string;
-  } | null; // <-- Add "| null" here
+    id: string
+    doctorName: string
+    doctorId: string
+  } | null // <-- Add "| null" here
   doctorName: string
-  schedules: ScheduleSlot[];
+  schedules: ScheduleSlot[]
 }
 
 export interface ScheduleSlot {
-  date: string;  // Or Date, if you prefer to work with Date objects
-  time: string;
-  price: number|null;
-  maxPatientCount: number|null;
+  date: string // Or Date, if you prefer to work with Date objects
+  time: string
+  price: number | null
+  maxPatientCount: number | null
 }
 
 export interface Consultation {

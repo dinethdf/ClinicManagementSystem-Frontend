@@ -72,7 +72,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
                 <Typography>Spent</Typography>
               </div>
             </div>
-          </div>          
+          </div>
         </div>
         <div className='flex flex-col gap-4'>
           <Typography variant='h5'>Details</Typography>

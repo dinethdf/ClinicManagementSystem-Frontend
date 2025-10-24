@@ -20,16 +20,14 @@ import SheduleVariants from './SheduleVariants'
 import type { DoctorSchedule } from '@/libs/types/doctor.types'
 
 const SheduleInformation = () => {
-
-// Initialize React Hook Form
+  // Initialize React Hook Form
   const methods = useForm<DoctorSchedule>({
-  defaultValues: {
-    doctor: null,
-    doctorName: '',
-    schedules: []
-  }
+    defaultValues: {
+      doctor: null,
+      doctorName: '',
+      schedules: []
+    }
   })
-  
 
   const { control, watch, setValue } = methods
 
@@ -53,90 +51,89 @@ const SheduleInformation = () => {
   }, [watchedDoctor, setValue])
 
   return (
-    <FormProvider {...methods}>    
-    <form onSubmit={methods.handleSubmit(onSubmit)}>
-    <Grid container spacing={6}>
-      <Grid size={{ xs: 12 }}>
-        <Card>
-          <CardHeader title='Doctor Information' />
-          <CardContent>
-            <Grid container spacing={6} className='mbe-6'>
-              <Grid size={{ xs: 12 }}>
-                <Controller
-                  name="doctor"
-                  control={control}
-                  rules={{ required: 'Please select a doctor' }}
-                  render={({ field, fieldState: { error } }) => (
-                  <AsyncAutocomplete
-                    {...field}
-                    label="Search Doctor"
-                    fetchUrl="/api/search-doctors"
-                    searchQueryParam='name'
-                    placeholder="Enter Name"
-                    fullWidth
-                    error={!!error}
-                     helperText={error?.message}
-                  />
-                   )}
-                />
-              </Grid>
-              {
-                watchedDoctor && <>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <CustomTextField 
-                  fullWidth  
-                  label='Read Only'
-                  value={watchedDoctor?.fullName as string || ''}
-                  slotProps={{
-                    htmlInput: { readOnly: true }
-                  }}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <CustomTextField 
-                  fullWidth  
-                  label='Read Only'
-                  value={watchedDoctor?.company as string || ''}
-                  slotProps={{
-                    htmlInput: { readOnly: true }
-                  }}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <CustomTextField 
-                  fullWidth  
-                  label='Read Only'
-                  value={watchedDoctor?.country as string || ''}
-                  slotProps={{
-                    htmlInput: { readOnly: true }
-                  }}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <CustomTextField 
-                  fullWidth  
-                  label='Read Only'
-                  defaultValue={watchedDoctor?.contact as string || ''}
-                  slotProps={{
-                    htmlInput: { readOnly: true }
-                  }}
-                />
-              </Grid> 
-                </>
-              }
-                                        
-            </Grid>
-        
-            {/* <Typography className='mbe-1'>Description (Optional)</Typography> */}
-          </CardContent>
-        </Card>
-      </Grid>
-      <Divider/>
-      <Grid size={{ xs: 12 }}>
-       <SheduleVariants />
-      </Grid> 
-    </Grid>
-    </form>
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(onSubmit)}>
+        <Grid container spacing={6}>
+          <Grid size={{ xs: 12 }}>
+            <Card>
+              <CardHeader title='Doctor Information' />
+              <CardContent>
+                <Grid container spacing={6} className='mbe-6'>
+                  <Grid size={{ xs: 12 }}>
+                    <Controller
+                      name='doctor'
+                      control={control}
+                      rules={{ required: 'Please select a doctor' }}
+                      render={({ field, fieldState: { error } }) => (
+                        <AsyncAutocomplete
+                          {...field}
+                          label='Search Doctor'
+                          fetchUrl='/api/search-doctors'
+                          searchQueryParam='name'
+                          placeholder='Enter Name'
+                          fullWidth
+                          error={!!error}
+                          helperText={error?.message}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  {watchedDoctor && (
+                    <>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <CustomTextField
+                          fullWidth
+                          label='Read Only'
+                          value={(watchedDoctor?.fullName as string) || ''}
+                          slotProps={{
+                            htmlInput: { readOnly: true }
+                          }}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <CustomTextField
+                          fullWidth
+                          label='Read Only'
+                          value={(watchedDoctor?.company as string) || ''}
+                          slotProps={{
+                            htmlInput: { readOnly: true }
+                          }}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <CustomTextField
+                          fullWidth
+                          label='Read Only'
+                          value={(watchedDoctor?.country as string) || ''}
+                          slotProps={{
+                            htmlInput: { readOnly: true }
+                          }}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <CustomTextField
+                          fullWidth
+                          label='Read Only'
+                          defaultValue={(watchedDoctor?.contact as string) || ''}
+                          slotProps={{
+                            htmlInput: { readOnly: true }
+                          }}
+                        />
+                      </Grid>
+                    </>
+                  )}
+                </Grid>
+
+                {/* <Typography className='mbe-1'>Description (Optional)</Typography> */}
+              </CardContent>
+            </Card>
+          </Grid>
+          <Divider />
+          <Grid size={{ xs: 12 }}>
+            <SheduleVariants />
+          </Grid>
+        </Grid>
+      </form>
     </FormProvider>
   )
 }

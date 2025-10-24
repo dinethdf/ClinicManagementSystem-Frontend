@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server'
 
 export async function middleware() {
-
-  console.log(`Middleware triggered up`);
-
+  console.log(`Middleware triggered up`)
 
   return NextResponse.next()
 }
