@@ -1,4 +1,4 @@
-import { email, object, minLength, string, pipe, nonEmpty, custom, regex, union, literal } from 'valibot'
+import { email, object, minLength, string, pipe, nonEmpty, custom, regex, union, literal, nullable, unknown, optional } from 'valibot'
 
 export const getPatientValidationSchema = (isUnderAge: boolean) => {
   return object({
@@ -30,10 +30,10 @@ export const getPatientValidationSchema = (isUnderAge: boolean) => {
     gender: pipe(string(), minLength(1, 'Gender is required')),
     maritalStatus: pipe(string(), minLength(1, 'Marital status is required')),
     dob: pipe(string('Please select your Date of Birth'), minLength(1, 'Please select your Date of Birth')),
+guradian: optional(string()),
     nic: isUnderAge
-      ? string() // If under age, NIC is optional (just a string, no rules)
+      ? string()
       : pipe(
-          // If not under age, apply original validation
           string(),
           minLength(1, 'NIC is required'),
           regex(/(^([0-9]{9}[x|X|v|V]|[0-9]{12})$)/, 'Please enter a valid NIC number')
@@ -57,7 +57,7 @@ export const getPatientValidationSchema = (isUnderAge: boolean) => {
           minLength(1, 'Mobile number is required'),
           regex(/^(?:0)?(7[0-9]{8})$/, 'Please enter a valid 10-digit mobile number')
         ),
-    landNumber: pipe(
+    landNo: pipe(
       string(),
       union([literal(''), pipe(string(), regex(/^(?:0)?[0-9]{9}$/, 'Please enter a valid 10-digit land number'))])
     ),

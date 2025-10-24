@@ -119,6 +119,7 @@ const DatePickerStyled = styled(DatePicker)(({ theme }) => ({
 // }
 
 type CustomDatePickerProps = DatePickerProps<any> & {
+  
   // any additional custom props
 }
 

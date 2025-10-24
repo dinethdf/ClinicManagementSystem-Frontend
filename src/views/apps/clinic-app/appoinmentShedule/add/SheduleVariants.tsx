@@ -117,7 +117,6 @@ const SheduleVariants = () => {
                       timeIntervals={15}
                       id={`time-picker-${index}`}
                       dateFormat='h:mm aa'
-                      // This part is also correct
                       selected={field.value ? new Date(`1970-01-01T${field.value}`) : null}
                       onChange={date => handleTimeChange(index, date)}
                       customInput={

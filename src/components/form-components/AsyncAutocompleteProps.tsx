@@ -113,21 +113,17 @@ const AsyncAutocomplete = <T extends {}>({
   return (
     <CustomAutocomplete
       {...restProps} // Pass props like fullWidth, openOnFocus
-      // Controlled props
       value={value}
       onChange={(event: any, newValue: T | null) => {
         onChange(newValue)
       }}
-      // Internal state props
       onInputChange={(event: ChangeEvent<{}>, newValue: string) => {
         setInputValue(newValue)
       }}
       options={options}
       loading={loading}
-      // Label and comparison props
       getOptionLabel={getOptionLabel}
       isOptionEqualToValue={isOptionEqualToValue}
-      // Render the input field
       renderInput={params => (
         <CustomTextField
           {...params}

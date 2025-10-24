@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -30,7 +30,7 @@ import CustomTextField from '@core/components/mui/TextField'
 
 import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
 
-import type { PatientDetails } from '@/libs/types/patient.types'
+import type { Guardian, PatientDetails } from '@/libs/types/patient.types'
 
 import { getPatientValidationSchema } from '@/schemas/patienDetailsValidation'
 
@@ -51,14 +51,14 @@ const initialData: PatientDetails = {
   maritalStatus: '',
   nic: '',
   dob: null,
-  guardianId: null,
+  guardian: null,
   address: '',
   city: '',
   district: '',
 
   email: '',
   mobileNo: '',
-  landNumber: '',
+  landNo: '',
 
   emergencyContactName: '',
   emergencyContactRelationship: '',
@@ -70,6 +70,8 @@ const AccountDetails = () => {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [isUnderAge, setIsUnderAge] = useState(false)
+
+  const triggerRef = useRef(null)
 
   // States
   // const [formData, setFormData] = useState<PatientDetails>(initialData)
@@ -116,6 +118,7 @@ const AccountDetails = () => {
     control,
     reset,
     handleSubmit,
+    setValue,
     formState: { errors }
   } = useForm<PatientDetails>({
     resolver: valibotResolver(validationSchema),
@@ -123,6 +126,8 @@ const AccountDetails = () => {
   })
 
   const handelFormSubmit = async (data: PatientDetails) => {
+    console.log("submit")
+    console.log(data)
     setIsLoading(true) // Show the loader
 
     try {
@@ -149,9 +154,21 @@ const AccountDetails = () => {
         }
       })
     } finally {
-      setIsLoading(false) // Hide the loader
+      setIsLoading(false)
     }
   }
+
+   const selectGuardian = (guardian:Guardian) =>{
+       setValue("nic", guardian.nic)
+       setValue("address", guardian.address)
+       setValue("city", guardian.city)
+       setValue("district", guardian.district)
+       setValue("email", guardian.email)
+       setValue("mobileNo", guardian.mobileNo)
+       setValue("landNo", guardian?.landNo || "")
+       setValue("guardian", guardian)
+                    
+                  }     
 
   return (
     <Card>
@@ -180,7 +197,7 @@ const AccountDetails = () => {
         </div>
       </CardContent> */}
       <CardHeader
-        title={'Patient Details' + (true ? ' asdd' : ' vvv')}
+        title={'Patient Details'}
         className='pb-2'
         titleTypographyProps={{ variant: 'h4' }}
       />
@@ -367,16 +384,22 @@ const AccountDetails = () => {
             {isUnderAge && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Controller
-                  name='guardianId'
+                  name='guardian'
                   control={control}
-                  rules={{ required: true }}
+                  rules={{ required: false }}
                   render={({ field }) => {
+
+   
+                    const displayValue =
+                      field.value && typeof field.value === 'object'
+                        ? `${field.value.firstName} ${field.value.lastName}` : ''          
+
                     const textFieldProps: TextFieldProps = {
                       ...field,
                       fullWidth: true,
                       label: 'Guardian',
                       placeholder: 'Select Guardian',
-                      value: field.value === null ? '' : field.value,
+                      value: displayValue,
                       InputProps: {
                         readOnly: true,
                         startAdornment: (
@@ -384,19 +407,9 @@ const AccountDetails = () => {
                             <i className='tabler-user' />
                           </InputAdornment>
                         )
-
-                        // sx: { cursor: 'pointer' } // <-- REMOVE THIS, it targets the wrapper
                       },
-
-                      // 👇 ADD THIS INSTEAD
-                      // 'inputProps' targets the actual <input ...> element
-                      inputProps: {
-                        style: {
-                          cursor: 'pointer'
-                        }
-                      },
-
-                      ...(errors.guardianId && { error: true, helperText: errors.guardianId.message })
+                      inputProps: {style: {cursor: 'pointer'}},
+                      ...(errors.guardian && { error: true, helperText: errors.guardian.message })
                     }
 
                     return (
@@ -404,6 +417,10 @@ const AccountDetails = () => {
                         element={CustomTextField}
                         elementProps={textFieldProps}
                         dialog={GuardianSelectDialogBox}
+                        dialogProps={{
+                          onSelectGuardian: selectGuardian, // or just field.onChange
+                          triggerRef: triggerRef        // 5. Pass the ref to the dialog
+                        }}
                       />
                     )
                   }}
@@ -524,7 +541,7 @@ const AccountDetails = () => {
                     fullWidth
                     disabled={isUnderAge}
                     label='Mobile Number'
-                    placeholder='0712345678'
+                    placeholder='07********'
                     {...(errors.mobileNo && { error: true, helperText: errors.mobileNo.message })}
                   />
                 )}
@@ -532,7 +549,7 @@ const AccountDetails = () => {
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
-                name='landNumber'
+                name='landNo'
                 control={control}
                 rules={{ required: true }}
                 render={({ field }) => (
@@ -541,8 +558,8 @@ const AccountDetails = () => {
                     fullWidth
                     disabled={isUnderAge}
                     label='Land Number'
-                    placeholder='0452222444'
-                    {...(errors.landNumber && { error: true, helperText: errors.landNumber.message })}
+                    placeholder='0*********'
+                    {...(errors.landNo && { error: true, helperText: errors.landNo.message })}
                   />
                 )}
               />
