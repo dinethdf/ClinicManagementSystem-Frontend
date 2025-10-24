@@ -27,10 +27,15 @@ import CustomAvatar from '@core/components/mui/Avatar'
 
 // Config Imports
 import themeConfig from '@configs/themeConfig'
+import Grid from '@mui/material/Grid2'
+
+import { useForm, Controller } from 'react-hook-form'
+import { patientService } from '@/services/patient.service'
 
 type DialogBoxProps = {
   open: boolean
   setOpen: (open: boolean) => void
+  onSelectGuardian: (text:string) => void
 }
 
 type OptionsType = {
@@ -63,67 +68,15 @@ const data: DataType[] = [
     value: 'Can Comment',
     name: 'Marvin Wheeler',
     email: 'marvin.wheeler@gmail.com'
-  },
-  {
-    avatar: '4.png',
-    value: 'Can View',
-    name: 'Nannie Ford',
-    email: 'nannie.ford@gmail.com'
-  },
-  {
-    avatar: '5.png',
-    value: 'Can Edit',
-    name: 'Julian Murphy',
-    email: 'julian.murphy@gmail.com'
-  },
-  {
-    avatar: '6.png',
-    value: 'Can View',
-    name: 'Sophie Gilbert',
-    email: 'sophie.gilbert@gmail.com'
-  },
-  {
-    avatar: '7.png',
-    value: 'Can Comment',
-    name: 'Chris Watkins',
-    email: 'chris.watkins@gmail.com'
-  },
-  {
-    avatar: '8.png',
-    value: 'Can Edit',
-    name: 'Adelaide Nichols',
-    email: 'adelaide.nichols@gmail.com'
   }
 ]
 
-const autocompleteOptions: OptionsType[] = [
-  {
-    avatar: '1.png',
-    name: 'Chandler Bing'
-  },
-  {
-    avatar: '2.png',
-    name: 'Rachel Green'
-  },
-  {
-    avatar: '3.png',
-    name: 'Joey Tribbiani'
-  },
-  {
-    avatar: '4.png',
-    name: 'Pheobe Buffay'
-  },
-  {
-    avatar: '5.png',
-    name: 'Ross Geller'
-  },
-  {
-    avatar: '8.png',
-    name: 'Monica Geller'
-  }
-]
+type FormValues = {
+  nicNo: string
+  guardianName: string
+}
 
-const GuardianSelectDialogBox = ({ open, setOpen }: DialogBoxProps) => {
+const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxProps) => {
   // States
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -134,6 +87,36 @@ const GuardianSelectDialogBox = ({ open, setOpen }: DialogBoxProps) => {
   const handleClose = () => {
     setAnchorEl(null)
   }
+
+  
+
+    // Hooks
+    const {
+      control,
+      reset,
+      handleSubmit,
+      getValues, trigger,
+      formState: { errors }
+    } = useForm<FormValues>({
+      defaultValues: {
+        nicNo: '',
+        guardianName: ''
+      }
+    })
+    const onSubmit = async (data:FormValues) => {
+      console.log("Submit Data", data)
+
+          try {
+            const response = await patientService.getGuardianForChildPatient(data.nicNo, data.guardianName)
+      
+            console.log('✅ Patient created successfully:', response)
+
+          } catch (error) {
+            console.log("No Data")
+            console.log(error)
+          }
+
+    }
 
   return (
     <Dialog
@@ -149,92 +132,163 @@ const GuardianSelectDialogBox = ({ open, setOpen }: DialogBoxProps) => {
         <i className='tabler-x' />
       </DialogCloseButton>
       <DialogTitle variant='h4' className='flex gap-2 flex-col text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
-        Share Project
+        Select Guardian
         <Typography component='span' className='flex flex-col text-center'>
           Share project with the team members
         </Typography>
       </DialogTitle>
       <DialogContent className='flex flex-col gap-6 pbs-0 sm:pli-16 sm:pbe-16'>
-        <div className='flex flex-col gap-2'>
-          <CustomAutocomplete
-            fullWidth
-            options={autocompleteOptions || []}
-            slotProps={{ listbox: { component: List } }}
-            id='add-member'
-            getOptionLabel={option => option.name}
-            renderInput={params => (
-              <CustomTextField {...params} size='small' placeholder='Add project members...' label='Add Members' />
-            )}
-            renderOption={(props, option) => {
-              const { key, ...rest } = props
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Controller
+                name='nicNo'
+                control={control}
+                rules={{
+                  validate: (value) => { // 'value' is the current firstName
+                    const guardianName = getValues('guardianName'); // Get the other field's value
 
-              return (
-                <ListItem key={key} {...rest} sx={{ width: 'calc(100% - 1rem)' }}>
-                  <ListItemAvatar>
-                    <CustomAvatar src={`/images/avatars/${option.avatar}`} alt={option.name} size={30} />
-                  </ListItemAvatar>
-                  <ListItemText primary={option.name} />
-                </ListItem>
-              )
-            }}
-          />
-        </div>
+                    if (!value && !guardianName) {
+                      return 'First or Last Name is required.';
+                    }
+
+                    // Check length *only if* this field has a value
+                    if (value && value.length < 3) {
+                      return 'Must be at least 3 characters.';
+                    }
+
+                    return true; 
+                  }
+                }}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+
+                    // Override onChange to trigger validation
+                    onChange={(e) => {
+                      const value = e.target.value; 
+                      const guardianName = getValues('guardianName');
+                      field.onChange(e); // Run the default onChange
+                      trigger('guardianName'); // Trigger validation
+
+                      if (value.length >= 3 || guardianName.length >= 3)  {
+                        handleSubmit(onSubmit)(); // 5. Call submit
+                      }
+                    }}
+                    fullWidth
+                    label='NIC No'
+                    placeholder='####'
+                    {...(errors.nicNo && { error: true, helperText: errors.nicNo.message })}
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Controller
+                name='guardianName'
+                control={control}
+                rules={{
+                 
+                  validate: (value) => { // 'value' is the current lastName
+                    const nicNo = getValues('nicNo'); // Get the other field's value
+
+                    if (!value && !nicNo) {
+                      return 'NIC or Name is required.';
+                    }
+
+                    // Check length *only if* this field has a value
+                    if (value && value.length < 3) {
+                      return 'Must be at least 3 characters.';
+                    }
+
+                    return true; 
+                  }
+                }}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    // Override onChange to trigger validation on the other field
+                    onChange={(e) => {
+                     const value = e.target.value;
+                     const nicNo = getValues('nicNo');
+                      field.onChange(e);
+                      trigger('nicNo'); // Trigger validation
+                      if (value.length >= 3 || nicNo.length >= 3) {
+                        handleSubmit(onSubmit)(); // 5. Call submit
+                      }
+                    }}
+                    fullWidth
+                    label='Guardian Name'
+                    placeholder='Doe'
+                    {...(errors.guardianName && { error: true, helperText: errors.guardianName.message })}
+                  />
+                )}
+              />
+            </Grid>           
+   
+
+            <Grid size={{ xs: 12 }} className='flex gap-4'>
+              {/* <Button variant='contained' type='submit'>
+                Submit
+              </Button> */}
+              <Button variant='tonal' color='secondary' type='reset' onClick={() => reset()}>
+                Reset
+              </Button>
+            </Grid>
+          </Grid>
+        </form>       
         <div className='flex flex-col gap-4'>
           <Typography variant='h5'>{`${data.length} Members`}</Typography>
           <div className='flex flex-col flex-wrap gap-4'>
-            {data.map((member, index) => (
-              <div key={index} className='flex items-center is-full gap-4'>
-                <Avatar src={`/images/avatars/${member.avatar}`} alt={member.name} />
-                <div className='flex justify-between items-center is-full overflow-hidden'>
-                  <div className='flex flex-col items-start overflow-hidden'>
-                    <Typography className='truncate is-full' color='text.primary'>
-                      {member.name}
-                    </Typography>
-                    <Typography variant='body2' className='truncate is-full'>
-                      {member.email}
-                    </Typography>
+            {/* 👇 CHECK IF DATA IS EMPTY */}
+            {data.length === 0 ? (
+              
+              // 👇 IF EMPTY, SHOW THIS MESSAGE
+              <Typography color='text.secondary' className='text-center'>
+                Please enter NIC no or Guardian Name
+              </Typography>
+
+            ) : (
+              
+              // 👇 OTHERWISE, SHOW YOUR LIST
+              data.map((member, index) => (
+                <div key={index} className='flex items-center is-full gap-4'>
+                  <Avatar src={`/images/avatars/common.png`} alt={member.name} />
+                  <div className='flex justify-between items-center is-full overflow-hidden'>
+                    <div className='flex flex-col items-start overflow-hidden'>
+                      <Typography className='truncate is-full' color='text.primary'>
+                        {member.name} - 2999912912853
+                      </Typography>
+                      <Typography variant='body2' className='truncate is-full'>
+                        {member.email}
+                      </Typography>
+                      <Typography variant='body2' className='truncate is-full'>
+                        {member.email}
+                      </Typography>
+                    </div>
+
+                    <IconButton className='sm:hidden' onClick={handleClick}>
+                      <i className='tabler-chevron-down text-base' />
+                    </IconButton>
+
+                    <Button
+                      variant='contained'
+                      className='flex'
+                      startIcon={<i className='tabler-link text-base' />}
+                      onClick={handleClick}
+                      // endIcon={<i className='tabler-chevron-down text-base' />}
+                    >
+                      Select
+                    </Button>
                   </div>
-
-                  <IconButton className='sm:hidden' onClick={handleClick}>
-                    <i className='tabler-chevron-down text-base' />
-                  </IconButton>
-
-                  <Button
-                    color='secondary'
-                    className='hidden sm:flex'
-                    onClick={handleClick}
-                    endIcon={<i className='tabler-chevron-down text-base' />}
-                  >
-                    {member.value}
-                  </Button>
                 </div>
-              </div>
-            ))}
-            <Menu
-              keepMounted
-              anchorEl={anchorEl}
-              onClose={handleClose}
-              open={Boolean(anchorEl)}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            >
-              <MenuItem value='Owner' onClick={handleClose}>
-                Owner
-              </MenuItem>
-              <MenuItem value='Can Edit' onClick={handleClose}>
-                Can Edit
-              </MenuItem>
-              <MenuItem value='Can Comment' onClick={handleClose}>
-                Can Comment
-              </MenuItem>
-              <MenuItem value='Can View' onClick={handleClose}>
-                Can View
-              </MenuItem>
-            </Menu>
+              ))
+            )}
           </div>
         </div>
         <div className='flex items-center justify-between flex-wrap gap-4'>
-          <div className='flex items-center flex-grow gap-2'>
+          {/* <div className='flex items-center flex-grow gap-2'>
             <i className='tabler-users text-xl' />
             <Typography
               color='text.primary'
@@ -243,7 +297,14 @@ const GuardianSelectDialogBox = ({ open, setOpen }: DialogBoxProps) => {
           </div>
           <Button variant='contained' className='flex' startIcon={<i className='tabler-link text-base' />}>
             Copy Project Link
-          </Button>
+          </Button> */}
+                <Button
+                    color='secondary'
+                    className='hidden sm:flex'
+                    onClick={() => {onSelectGuardian("Hello")}}
+                  >
+                    DIneth
+                  </Button>          
         </div>
       </DialogContent>
     </Dialog>
