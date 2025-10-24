@@ -11,6 +11,8 @@ export interface PatientDetails {
   maritalStatus: string
   nic: string
   dob: string | null | undefined
+  guardianId: number | null
+  
   address: string
   city: string
   district: string

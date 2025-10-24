@@ -1,6 +1,7 @@
 import { email, object, minLength, string, pipe, nonEmpty, custom, regex, union, literal } from 'valibot'
 
-export const PatientDetailValedationSchema = object({
+export const getPatientValidationSchema = (isUnderAge: boolean) => {
+  return object({
   firstName: pipe(
     string(),
     nonEmpty('This field is required'),
@@ -28,17 +29,29 @@ export const PatientDetailValedationSchema = object({
   ethnicity: pipe(string(), minLength(1, 'Ethnicity is required')),
   gender: pipe(string(), minLength(1, 'Gender is required')),
   maritalStatus: pipe(string(), minLength(1, 'Marital status is required')),
-  nic: pipe(
-    string(),
-    minLength(1, 'NIC is required'),
-    regex(/(^([0-9]{9}[x|X|v|V]|[0-9]{12})$)/, 'Please enter a valid NIC number')
-  ),
   dob: pipe(string('Please select your Date of Birth'), minLength(1, 'Please select your Date of Birth')),
-  address: pipe(string(), minLength(1, 'Address is required'), minLength(10, 'Please enter a more detailed address')),
-  city: pipe(string(), minLength(3, 'City is required')),
-  district: pipe(string(), minLength(3, 'District is required')),
-  email: pipe(string(), minLength(5, 'Email is required'), email('Please enter a valid email address')),
-  mobileNo: pipe(
+  nic: isUnderAge
+      ? string() // If under age, NIC is optional (just a string, no rules)
+      : pipe(         // If not under age, apply original validation
+          string(),
+          minLength(1, 'NIC is required'),
+          regex(/(^([0-9]{9}[x|X|v|V]|[0-9]{12})$)/, 'Please enter a valid NIC number')
+        ),
+  address: isUnderAge
+      ? string() // If under age, NIC is optional (just a string, no rules)
+      : pipe(string(), minLength(1, 'Address is required'), minLength(10, 'Please enter a more detailed address')),
+  city: isUnderAge
+      ? string() // If under age, NIC is optional (just a string, no rules)
+      : pipe(string(), minLength(3, 'City is required')),
+  district: isUnderAge
+      ? string() // If under age, NIC is optional (just a string, no rules)
+      : pipe(string(), minLength(3, 'District is required')),
+  email: isUnderAge
+      ? string() // If under age, NIC is optional (just a string, no rules)
+      : pipe(string(), minLength(5, 'Email is required'), email('Please enter a valid email address')),
+  mobileNo: isUnderAge
+      ? string() // If under age, NIC is optional (just a string, no rules)
+      : pipe(
     string(),
     minLength(1, 'Mobile number is required'),
     regex(/^(?:0)?(7[0-9]{8})$/, 'Please enter a valid 10-digit mobile number')
@@ -64,3 +77,4 @@ export const PatientDetailValedationSchema = object({
     union([literal(''), pipe(string(), email('Please enter a valid email address'))])
   )
 })
+}

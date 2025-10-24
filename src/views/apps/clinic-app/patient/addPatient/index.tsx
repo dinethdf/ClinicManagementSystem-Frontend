@@ -26,11 +26,14 @@ const AccountSettings = ({ tabContentList }: { tabContentList: { [key: string]: 
     <TabContext value={activeTab}>
       <GoBack title={'Add Patient'} description={' Register a new patient in your clinic.'} />
       <Grid container spacing={6}>
+        
+        {/* 
+        // Commented For now After mure requrement Use this
         <Grid size={{ xs: 12 }}>
           <CustomTabList onChange={handleChange} variant='scrollable' pill='true'>
             <Tab label='Account' icon={<i className='tabler-users' />} iconPosition='start' value='account' />
           </CustomTabList>
-        </Grid>
+        </Grid> */}
         <Grid size={{ xs: 12 }}>
           <TabPanel value={activeTab} className='p-0'>
             {tabContentList[activeTab]}
