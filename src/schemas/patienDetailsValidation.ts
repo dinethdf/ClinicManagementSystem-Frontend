@@ -1,4 +1,4 @@
-import { email, object, minLength, string, pipe, nonEmpty, custom, regex, union, literal, nullable, unknown, optional } from 'valibot'
+import { email, object, minLength, string, pipe, nonEmpty, custom, regex, union, literal, nullable, unknown, optional, nonNullable } from 'valibot'
 
 export const getPatientValidationSchema = (isUnderAge: boolean) => {
   return object({
@@ -12,6 +12,12 @@ export const getPatientValidationSchema = (isUnderAge: boolean) => {
       nonEmpty('This field is required'),
       minLength(3, 'Last Name must be at least 3 characters long')
     ),
+    guardian: isUnderAge
+      ? pipe(
+          nullable(unknown()), // Allow null initially, accept any non-null type (our Guardian object)
+          nonNullable(unknown()) // Enforce that it's NOT null if underage
+        )
+      : nullable(unknown()),
     fullName: pipe(
       string(),
       nonEmpty('This field is required'),

@@ -158,7 +158,8 @@ const AccountDetails = () => {
     }
   }
 
-   const selectGuardian = (guardian:Guardian) =>{
+  const selectGuardian = (guardian:Guardian) =>{
+      
        setValue("nic", guardian.nic)
        setValue("address", guardian.address)
        setValue("city", guardian.city)
@@ -166,9 +167,9 @@ const AccountDetails = () => {
        setValue("email", guardian.email)
        setValue("mobileNo", guardian.mobileNo)
        setValue("landNo", guardian?.landNo || "")
-       setValue("guardian", guardian)
+       setValue("guardian", guardian || null)
                     
-                  }     
+  }     
 
   return (
     <Card>
