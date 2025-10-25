@@ -3,9 +3,8 @@
 // React Imports
 import { useState } from 'react'
 
-import type { MouseEvent, RefObject } from 'react'
+import type {RefObject } from 'react'
 
-import type { Guardian } from '@/libs/types/patient.types'
 
 // MUI Imports
 import Dialog from '@mui/material/Dialog'
@@ -17,13 +16,15 @@ import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box' // <-- CHANGED: Added Box import
 
-import DialogCloseButton from '../DialogCloseButton'
+import { useForm, Controller } from 'react-hook-form'
 
 import CustomTextField from '@core/components/mui/TextField'
 
-import { useForm, Controller } from 'react-hook-form'
-
 import { patientService } from '@/services/patient.service' // Assuming Guardian[] is returned
+
+import DialogCloseButton from '../DialogCloseButton'
+
+import type { Guardian } from '@/libs/types/patient.types'
 
 type DialogBoxProps = {
   open: boolean
@@ -65,7 +66,6 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
 
   // Handler for form submission
   const onSubmit = async (data: FormValues) => {
-    console.log('Submit Data', data)
     try {
       const response = await patientService.getGuardianForChildPatient(data.nicNo, data.guardianName)
 
@@ -122,12 +122,15 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                 rules={{
                   validate: value => {
                     const guardianName = getValues('guardianName')
+                    
                     if (!value && !guardianName) {
                       return 'NIC or Name is required.'
                     }
+                    
                     if (value && value.length < 3) {
                       return 'Must be at least 3 characters.'
                     }
+                    
                     return true
                   }
                 }}
@@ -135,10 +138,14 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                   <CustomTextField
                     {...field}
                     onChange={e => {
+                     
                       const value = e.target.value
+                     
                       const guardianName = getValues('guardianName')
+                      
                       field.onChange(e)
                       trigger('guardianName')
+                     
                       if (value.length >= 3 || (guardianName && guardianName.length >= 3)) {
                         handleSubmit(onSubmit)()
                       }
@@ -157,13 +164,17 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                 control={control}
                 rules={{
                   validate: value => {
+
                     const nicNo = getValues('nicNo')
+                    
                     if (!value && !nicNo) {
                       return 'NIC or Name is required.'
                     }
+
                     if (value && value.length < 3) {
                       return 'Must be at least 3 characters.'
                     }
+
                     return true
                   }
                 }}
@@ -171,10 +182,14 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                   <CustomTextField
                     {...field}
                     onChange={e => {
+                      
                       const value = e.target.value
+                      
                       const nicNo = getValues('nicNo')
+                    
                       field.onChange(e)
                       trigger('nicNo')
+                      
                       if (value.length >= 3 || (nicNo && nicNo.length >= 3)) {
                         handleSubmit(onSubmit)()
                       }

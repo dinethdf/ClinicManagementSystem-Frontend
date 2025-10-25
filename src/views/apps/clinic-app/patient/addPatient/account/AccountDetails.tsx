@@ -127,9 +127,10 @@ const AccountDetails = () => {
 
   const handelFormSubmit = async (data: PatientDetails) => {
     setIsLoading(true) 
-    try {
+    
+    try {  
       const response = await patientService.createPatientDetails(data)
-
+      
       console.log('✅ Patient created successfully:', response)
       router.replace(`view/${response?.data?.id ? response?.data?.id : 'error'}`)
       reset()
