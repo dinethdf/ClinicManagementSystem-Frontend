@@ -131,7 +131,8 @@ const AccountDetails = () => {
       const response = await patientService.createPatientDetails(data)
 
       console.log('✅ Patient created successfully:', response)
-
+      router.replace(`view/${response?.data?.id ? response?.data?.id : 'error'}`)
+      reset()
       toast.success(`${response?.message} - ${response?.data.patientNo}`, {
         hideProgressBar: false,
         className: 'custom-toast',
@@ -139,8 +140,7 @@ const AccountDetails = () => {
           backgroundColor: 'var(--mui-palette-primary-main)'
         }
       })
-      router.replace(`view/${response?.data?.id ? response?.data?.id : 'error'}`)
-      reset()
+
     } catch (error) {
       toast.error(`${error}`, {
         autoClose: false,

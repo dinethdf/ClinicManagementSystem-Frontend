@@ -15,12 +15,11 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid2'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box' // <-- CHANGED: Added Box import
 
 import DialogCloseButton from '../DialogCloseButton'
 
 import CustomTextField from '@core/components/mui/TextField'
-
-
 
 import { useForm, Controller } from 'react-hook-form'
 
@@ -41,7 +40,7 @@ type FormValues = {
 const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }: DialogBoxProps) => {
   // States
   const [guardianList, setGuardianList] = useState<Guardian[]>([])
-  const [searchedBoxMessage, setSearchedBoxMessage] = useState("Please enter NIC no or Guardian Name to search.") // <-- ADD THIS
+  const [searchedBoxMessage, setSearchedBoxMessage] = useState('Please enter NIC no or Guardian Name to search.') // <-- ADD THIS
 
   // Hooks
   const {
@@ -63,18 +62,18 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
     setOpen(false)
     triggerRef.current?.focus()
   }
-  
+
   // Handler for form submission
   const onSubmit = async (data: FormValues) => {
     console.log('Submit Data', data)
     try {
       const response = await patientService.getGuardianForChildPatient(data.nicNo, data.guardianName)
-      
+
       setGuardianList(response) // Populate the list with API data
       console.log('✅ Guardians found:', response)
     } catch (error) {
       setGuardianList([]) // Clear list on error
-      setSearchedBoxMessage("No guardians found matching your search.")
+      setSearchedBoxMessage('No guardians found matching your search.')
       console.log('No Data or error', error)
     }
   }
@@ -88,7 +87,7 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
   // Handler for the reset button
   const handleReset = () => {
     reset() // Reset react-hook-form
-    setSearchedBoxMessage("Please enter NIC no or Guardian Name to search.")
+    setSearchedBoxMessage('Please enter NIC no or Guardian Name to search.')
     setGuardianList([]) // Clear the guardian list
   }
 
@@ -102,7 +101,9 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
       closeAfterTransition={false}
       sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
     >
-      <DialogCloseButton onClick={handleCloseDialog} disableRipple> {/* Use custom handler */}
+      <DialogCloseButton onClick={handleCloseDialog} disableRipple>
+        {' '}
+        {/* Use custom handler */}
         <i className='tabler-x' />
       </DialogCloseButton>
       <DialogTitle variant='h4' className='flex gap-2 flex-col text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
@@ -119,7 +120,7 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                 name='nicNo'
                 control={control}
                 rules={{
-                  validate: (value) => {
+                  validate: value => {
                     const guardianName = getValues('guardianName')
                     if (!value && !guardianName) {
                       return 'NIC or Name is required.'
@@ -133,7 +134,7 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                 render={({ field }) => (
                   <CustomTextField
                     {...field}
-                    onChange={(e) => {
+                    onChange={e => {
                       const value = e.target.value
                       const guardianName = getValues('guardianName')
                       field.onChange(e)
@@ -155,7 +156,7 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                 name='guardianName'
                 control={control}
                 rules={{
-                  validate: (value) => {
+                  validate: value => {
                     const nicNo = getValues('nicNo')
                     if (!value && !nicNo) {
                       return 'NIC or Name is required.'
@@ -169,7 +170,7 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                 render={({ field }) => (
                   <CustomTextField
                     {...field}
-                    onChange={(e) => {
+                    onChange={e => {
                       const value = e.target.value
                       const nicNo = getValues('nicNo')
                       field.onChange(e)
@@ -195,13 +196,18 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
         </form>
         <div className='flex flex-col gap-4'>
           <Typography variant='h5'>{`${guardianList.length} Members Found`}</Typography>
-          <div className='flex flex-col flex-wrap gap-4'>
+
+          {/* This is the scrollable Box container */}
+          <Box
+            className='flex flex-col gap-4'
+            sx={{ maxHeight: 300, overflowY: 'auto', pr: 1 }} // <-- CHANGED: Replaced div with Box and added sx props
+          >
             {guardianList.length === 0 ? (
               <Typography color='text.secondary' className='text-center'>
-               {searchedBoxMessage}
+                {searchedBoxMessage}
               </Typography>
             ) : (
-              guardianList.map((member) => (
+              guardianList.map(member => (
                 <div key={member.id} className='flex items-center is-full gap-4'>
                   <Avatar src={`/images/avatars/common.png`} alt={member.firstName} />
                   <div className='flex justify-between items-center is-full overflow-hidden'>
@@ -225,17 +231,7 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                 </div>
               ))
             )}
-          </div>
-        </div>
-        <div className='flex items-center justify-between flex-wrap gap-4'>
-          {/* Example button, you can remove this */}
-          <Button
-            color='secondary'
-            className='hidden sm:flex'
-            onClick={() => {handleCloseDialog()}}
-          >
-            DIneth (Test)
-          </Button>
+          </Box>
         </div>
       </DialogContent>
     </Dialog>
