@@ -8,15 +8,13 @@ const doctorAppointmentSection = async () => {
  
   const role = valid ? payload?.role : null;
 
-  const allowedRoles = ['ADMIN', 'STAFF', 'USER', 'ABCD'];
+  const allowedRoles = ['ADMIN', 'STAFF', 'USER', 'DOCTOR'];
 
 
   if (role && allowedRoles.includes(role)) {
 
     return <DoctorAppointment role={role} />;
   }
-
-  // If NO (role is 'PATIEN', null, or anything else), show an error
   return (
     <div>
       <h1>Not Authorized</h1>

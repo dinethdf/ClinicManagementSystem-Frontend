@@ -12,16 +12,15 @@ import type { AutocompleteProps } from '@mui/material/Autocomplete'
 import CustomAutocomplete from '@core/components/mui/Autocomplete'
 import CustomTextField from '@core/components/mui/TextField'
 
-// Data Imports
-import { db } from './../../fake-db/apps/userList'
 
-type AsyncAutocompleteProps<T> = {
+type AsyncAutocompleteProps<T extends object> = {
   fetchUrl: string
   label: string
-  value: T | null   // These make it a "Controlled Component"
+  value: T | null  // These make it a "Controlled Component"
   onChange: (newValue: T | null) => void
-  searchQueryParam?: string
-  otherPrams?: string
+  searchParamKey?: string // Renamed from searchQueryParam for clarity
+  otherParams?: Record<string, string | number | boolean> // Changed from string to object for flexibility
+  fetchInputLenth?:number
   debounceDelay?: number
   error?: boolean
   helperText?: string
@@ -31,89 +30,126 @@ type AsyncAutocompleteProps<T> = {
   'options' | 'renderInput' | 'loading' | 'value' | 'onChange' | 'onInputChange'
 >
 
-// Set default values for optional props
-const defaultProps = {
-  searchQueryParam: 'q',
-  debounceDelay: 500,
-  otherPrams: 'param',
-  getOptionLabel: (option: any) => option.firstName + " " + option.lastName  || '',
-  isOptionEqualToValue: (option: any, value: any) => option.id === value.id
-}
-
 // --- The Reusable Component ---
-const AsyncAutocomplete = <T extends {}>({
+const AsyncAutocomplete = <T extends object>({
+  // Required props
   fetchUrl,
   label,
   value,
   onChange,
-  searchQueryParam = defaultProps.searchQueryParam,
-  otherPrams = defaultProps.otherPrams,
-  debounceDelay = defaultProps.debounceDelay,
-  getOptionLabel = defaultProps.getOptionLabel,
-  isOptionEqualToValue = defaultProps.isOptionEqualToValue,
+  // Optional props with default values
+  searchParamKey = 'q',
+  otherParams = {}, // Default to an empty object
+  debounceDelay = 500,
+  // Your original defaults, great for your specific use-case (e.g., User objects)
+  getOptionLabel = (option: any) => `${option.firstName} ${option.lastName}` || '',
+  fetchInputLenth = 1,
+  isOptionEqualToValue = (option: any, value: any) => option.id === value.id,
+  // Other props
   error,
   helperText,
   placeholder,
   ...restProps // Pass other props like fullWidth, openOnFocus
 }: AsyncAutocompleteProps<T>) => {
-  // 1. Internal state for this component
+  // 1. Internal state
   const [options, setOptions] = useState<T[]>([])
   const [loading, setLoading] = useState(false)
   const [inputValue, setInputValue] = useState('')
 
+  // passes an object literal like otherParams={{ isActive: true }}
+  const otherParamsString = JSON.stringify(otherParams)
+
   // 2. The debouncing and fetching logic
   useEffect(() => {
-    // Don't fetch if the input is empty
-    if (inputValue === '') {
+    const trimmedInput = inputValue.trim()
+
+    // If input is empty, reset options to show only the current value (if any)
+    if (trimmedInput === '') {
       setOptions(value ? [value] : [])
+      setLoading(false) // Ensure loading is off
 
       return
     }
 
+
+    // If the input is 1 characters or less, do not start a search.
+    // We set loading to false and clear any previous search options.
+    if (trimmedInput.length <= fetchInputLenth) {
+      setOptions(value ? [value] : []) // Clear options (but keep value if present)
+      setLoading(false)
+      
+      return 
+    }
+
+
+    // Only set loading to true if we are actually going to search (length > 3)
     setLoading(true)
 
     // Set up the timer
     const timer = setTimeout(async () => {
-      try {
-        const url = `${fetchUrl}?${searchQueryParam}=${inputValue}&${otherPrams}`
+        try {
+            // --- Improved URL Building ---
+            const params = new URLSearchParams()
+            
+            // Use the trimmed input for the search
+            params.append(searchParamKey, trimmedInput) 
 
-         const response = await apiClient.get(url);
+            // Add all other params from the object
+            const parsedOtherParams = JSON.parse(otherParamsString)
 
-        const data =  (response.data.data as T[])
+            for (const key in parsedOtherParams) {
+              if (Object.prototype.hasOwnProperty.call(parsedOtherParams, key)) {
+                params.append(key, String(parsedOtherParams[key]))
+              }
+            }
 
-        setOptions(data)
-      } catch (error) {
-        console.error('Failed to fetch autocomplete data:', error)
-      }
+            const url = `${fetchUrl}?${params.toString()}`
+            const response = await apiClient.get(url)
 
-      setLoading(false)
+            // --- Your Corrected Data Handling ---
+            // You are right, the data is nested in response.data.data
+            const data = (response.data.data as T[]) 
+            console.log(data)
+            setOptions(data)
+          } catch (err) {
+            console.error('Failed to fetch autocomplete data:', err)
+            setOptions([]) // Clear options on failure
+          } finally {
+            setLoading(false)
+          }
     }, debounceDelay)
 
     // Cleanup
     return () => clearTimeout(timer)
-  }, [inputValue, fetchUrl, searchQueryParam, debounceDelay, otherPrams, value])
+  }, [inputValue, fetchUrl, searchParamKey, debounceDelay, otherParamsString, value])
 
   return (
     <CustomAutocomplete
-      {...restProps} // Pass props like fullWidth, openOnFocus
+      {...restProps}
       value={value}
-      onChange={(event: any, newValue: T | null) => {
+      onChange={(_, newValue: T | null) => {
+        // Use `_` for unused event parameter
         onChange(newValue)
       }}
-      onInputChange={(event: ChangeEvent<{}>, newValue: string) => {
+      onInputChange={(_, newValue: string) => {
+        // Use `_` for unused event parameter
         setInputValue(newValue)
       }}
       options={options}
       loading={loading}
       getOptionLabel={getOptionLabel}
       isOptionEqualToValue={isOptionEqualToValue}
+      // --- Key Addition ---
+      // Tell Autocomplete to not filter client-side.
+      // The server is already doing the filtering.
+      filterOptions={x => x}
       renderInput={params => (
         <CustomTextField
           {...params}
           label={label}
           error={error}
           helperText={helperText}
-          placeholder={placeholder}
+          placeholder={placeholder} // <-- This prop was missing from renderInput
           InputProps={{
             ...params.InputProps,
             endAdornment: (

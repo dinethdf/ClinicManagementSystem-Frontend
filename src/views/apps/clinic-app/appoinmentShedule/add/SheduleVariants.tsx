@@ -33,16 +33,16 @@ const SheduleVariants = () => {
 
   // Initialize first variant if empty
   useEffect(() => {
-    if (fields.length == 0) {
-      append({ date: '', time: '', price: 0, maxPatientCount: 0 })
+    if (fields.length === 0) {
+      // Updated to use startTime and endTime
+      append({ date: '', startTime: '', endTime: '', price: 0, maxPatientCount: 0 })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // UPDATED: Handler for Date change
+  // Handler for Date change
   const handleDateChange = (index: number, dateObj: Date | null) => {
     if (!dateObj) return
-
-    // const date = dateObj.toISOString().split('T')[0] // <-- BUG: This converts to UTC
 
     // FIX: Get local date components
     const pad = (num: number) => num.toString().padStart(2, '0') // Re-using pad helper
@@ -58,16 +58,29 @@ const SheduleVariants = () => {
     })
   }
 
-  // UPDATED: Handler for Time change (This one was correct)
-  const handleTimeChange = (index: number, dateObj: Date | null) => {
+  // --- NEW: Handler for Start Time change ---
+  const handleStartTimeChange = (index: number, dateObj: Date | null) => {
     if (!dateObj) return
 
     const time = dateObj.toTimeString().split(' ')[0].slice(0, 5) // 'HH:MM'
 
-    // Use update to set only the time
+    // Use update to set only the startTime
     update(index, {
       ...(fields[index] as ScheduleSlot), // Cast field to your type
-      time
+      startTime: time
+    })
+  }
+
+  // --- NEW: Handler for End Time change ---
+  const handleEndTimeChange = (index: number, dateObj: Date | null) => {
+    if (!dateObj) return
+
+    const time = dateObj.toTimeString().split(' ')[0].slice(0, 5) // 'HH:MM'
+
+    // Use update to set only the endTime
+    update(index, {
+      ...(fields[index] as ScheduleSlot), // Cast field to your type
+      endTime: time
     })
   }
 
@@ -78,8 +91,8 @@ const SheduleVariants = () => {
         <Grid container spacing={6}>
           {fields.map((item, index) => (
             <Grid key={item.id} container spacing={4} className='repeater-item mbe-4'>
-              {/* 1. Date Component */}
-              <Grid size={{ xs: 12, md: 2 }}>
+              {/* 1. Date Component (Unchanged) */}
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Controller
                   name={`schedules.${index}.date`}
                   control={control}
@@ -88,6 +101,8 @@ const SheduleVariants = () => {
                     <AppReactDatepicker
                       id={`date-picker-${index}`}
                       dateFormat='MM/dd/yyyy'
+                      autoComplete="off"
+                      // Correctly handle local date string for 'selected'
                       selected={field.value ? new Date(`${field.value}T00:00:00`) : null}
                       onChange={date => handleDateChange(index, date)}
                       customInput={
@@ -103,29 +118,31 @@ const SheduleVariants = () => {
                 />
               </Grid>
 
-              {/* 2. Time Component */}
-              <Grid size={{ xs: 12, md: 2 }}>
+              {/* 2. Start Time Component */}
+              <Grid size={{ xs: 12, md: 1.5 }}>
                 <Controller
-                  name={`schedules.${index}.time`}
+                  name={`schedules.${index}.startTime`}
                   control={control}
-                  rules={{ required: 'Select Time' }}
+                  rules={{ required: 'Select Start Time' }}
                   render={({ field }) => (
                     <AppReactDatepicker
                       showTimeSelect
                       showTimeSelectOnly
                       timeFormat='HH:mm'
                       timeIntervals={15}
-                      id={`time-picker-${index}`}
+                      id={`start-time-picker-${index}`}
                       dateFormat='h:mm aa'
+                      autoComplete="off"
+                      // Use startTime for 'selected'
                       selected={field.value ? new Date(`1970-01-01T${field.value}`) : null}
-                      onChange={date => handleTimeChange(index, date)}
+                      onChange={date => handleStartTimeChange(index, date)}
                       customInput={
                         <CustomTextField
-                          label='Time'
+                          label='Start Time'
                           fullWidth
-                          placeholder='Select Time'
-                          error={!!errors?.schedules?.[index]?.time}
-                          helperText={errors?.schedules?.[index]?.time?.message}
+                          placeholder='Start Time'
+                          error={!!errors?.schedules?.[index]?.startTime}
+                          helperText={errors?.schedules?.[index]?.startTime?.message}
                         />
                       }
                     />
@@ -133,7 +150,39 @@ const SheduleVariants = () => {
                 />
               </Grid>
 
-              {/* Price */}
+              {/* 3. End Time Component */}
+              <Grid size={{ xs: 12, md: 1.5 }}>
+                <Controller
+                  name={`schedules.${index}.endTime`}
+                  control={control}
+                  rules={{ required: 'Select End Time' }}
+                  render={({ field }) => (
+                    <AppReactDatepicker
+                      showTimeSelect
+                      showTimeSelectOnly
+                      timeFormat='HH:mm'
+                      timeIntervals={15}
+                      id={`end-time-picker-${index}`}
+                      dateFormat='h:mm aa'
+                      autoComplete="off"
+                      // Use endTime for 'selected'
+                      selected={field.value ? new Date(`1970-01-01T${field.value}`) : null}
+                      onChange={date => handleEndTimeChange(index, date)}
+                      customInput={
+                        <CustomTextField
+                          label='End Time'
+                          fullWidth
+                          placeholder='End Time'
+                          error={!!errors?.schedules?.[index]?.endTime}
+                          helperText={errors?.schedules?.[index]?.endTime?.message}
+                        />
+                      }
+                    />
+                  )}
+                />
+              </Grid>
+
+              {/* 4. Price (Unchanged) */}
               <Grid size={{ xs: 12, md: 3 }}>
                 <Controller
                   name={`schedules.${index}.price`}
@@ -158,8 +207,8 @@ const SheduleVariants = () => {
                 />
               </Grid>
 
-              {/* Max Patient Count */}
-              <Grid size={{ xs: 10, md: 3 }}>
+              {/* 5. Max Patient Count (Unchanged) */}
+              <Grid size={{ xs: 10, md: 2 }}>
                 <Controller
                   name={`schedules.${index}.maxPatientCount`}
                   control={control}
@@ -183,8 +232,8 @@ const SheduleVariants = () => {
                 />
               </Grid>
 
-              {/* Remove Button */}
-              <Grid size={{ xs: 2, md: 2 }} className='flex items-center'>
+              {/* 6. Remove Button (Unchanged) */}
+              <Grid size={{ xs: 2, md: 1 }} className='flex items-center'>
                 <CustomIconButton onClick={() => remove(index)}>
                   <i className='tabler-x' />
                 </CustomIconButton>
@@ -193,7 +242,11 @@ const SheduleVariants = () => {
           ))}
 
           <Grid size={{ xs: 12 }}>
-            <Button variant='contained' onClick={() => append({ date: '', time: '', price: 0, maxPatientCount: 0 })}>
+            <Button
+              variant='contained'
+              // Updated to append the new object structure
+              onClick={() => append({ date: '', startTime: '', endTime: '', price: 0, maxPatientCount: 0 })}
+            >
               Add Another Option
             </Button>
           </Grid>
@@ -202,8 +255,6 @@ const SheduleVariants = () => {
               <Button variant='tonal' color='secondary' type='button'>
                 Discard
               </Button>
-
-              {/* 5. Set this button's type to 'submit' */}
               <Button variant='contained' type='submit'>
                 Publish
               </Button>

@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid2'
 import SheduleHeader from '@/views/apps/clinic-app/appoinmentShedule/add/SheduleHeader'
 import SheduleInformation from '@/views/apps/clinic-app/appoinmentShedule/add/SheduleInformation'
 
-const DoctorAppointment = (props: { role: string }) => {
+const DoctorAppointment = ({role}: { role: string }) => {
   // Use this part Check if that one create doctro or staff
   //  if doctor create no need to select doctor option
 
@@ -15,7 +15,7 @@ const DoctorAppointment = (props: { role: string }) => {
         <SheduleHeader />
       </Grid>
       <Grid size={{ xs: 12, md: 12 }}>
-        <SheduleInformation role={props.role} />
+        <SheduleInformation role={role} />
       </Grid>
     </Grid>
   )

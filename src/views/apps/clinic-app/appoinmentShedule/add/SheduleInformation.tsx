@@ -1,6 +1,8 @@
 'use client'
 import { useEffect } from 'react'
 
+import { apiClient } from '@/services/api.config'
+
 // MUI Imports
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid2'
@@ -17,39 +19,59 @@ import AsyncAutocomplete from '@/components/form-components/AsyncAutocompletePro
 
 import SheduleVariants from './SheduleVariants'
 
-import type { DoctorSchedule } from '@/libs/types/doctor.types'
+import type { Doctor, DoctorSchedule, DoctorScheduleDTO } from '@/libs/types/doctor.types'
+import { toast } from 'react-toastify'
+import { doctorService } from './../../../../../services/doctor.service';
 
-const SheduleInformation = (props:any) => {
-  console.log(props);
+const SheduleInformation = ({role}: { role: string }) => {
   // Initialize React Hook Form
   const methods = useForm<DoctorSchedule>({
     defaultValues: {
       doctor: null,
-      doctorName: '',
       schedules: []
     }
   })
 
-  const { control, watch, setValue } = methods
+  const { control, watch, setValue, reset } = methods
 
-  const watchedDoctor: any = watch('doctor')
+  const watchedDoctor = watch('doctor');
 
-  // 5. This function will receive all form data
-  const onSubmit = (data: any) => {
-    console.log('Form Data:', data)
-
-    // data will now contain { doctor: {...}, doctorName: '...' }
+const onSubmit = async (data: DoctorSchedule) => {
+  
+  if (!data.doctor) {
+    toast.error('Please select a doctor first.');
+    return;
   }
 
-  // 6. (Optional but recommended)
-  // When the selected doctor changes, automatically update the 'doctorName' field
-  useEffect(() => {
-    if (watchedDoctor) {
-      setValue('doctorName', watchedDoctor?.doctorName || '')
-    } else {
-      setValue('doctorName', '')
-    }
-  }, [watchedDoctor, setValue])
+  const payload : DoctorScheduleDTO[] = data.schedules.map(schedule => ({
+    doctorId: data?.doctor?.id ? data?.doctor?.id : 0,
+    scheduleDate: schedule.date,
+    startTime: schedule.startTime,
+    endTime: schedule.endTime,
+    payment: Number(schedule.price), // Ensure it's a number
+    maxPatientCount: Number(schedule.maxPatientCount) // Ensure it's a number
+  }));
+  
+  try {
+
+    const createdSchedules = await doctorService.createBatchSchedules(payload);
+    toast.success("Schedules published successfully!");
+    
+     reset();
+
+  } catch (error:any) {
+    toast.error(error.message || "An unknown error occurred.");
+  }
+};
+
+
+  // useEffect(() => {
+  //   if (watchedDoctor) {
+  //     // setValue('doctorName', watchedDoctor?.firstName || '')
+  //   } else {
+  //     // setValue('doctorName', '')
+  //   }
+  // }, [watchedDoctor, setValue])
 
   return (
     <FormProvider {...methods}>
@@ -69,9 +91,11 @@ const SheduleInformation = (props:any) => {
                         <AsyncAutocomplete
                           {...field}
                           label='Search Doctor'
-                          fetchUrl='/api/search-doctors'
-                          searchQueryParam='name'
+                          fetchUrl='/api/doctor/search'
+                          searchParamKey='q'
                           placeholder='Enter Name'
+                          getOptionLabel={(doctor:any) => doctor.firstName + " " + doctor.lastName + " : " + doctor.specialization }
+                          fetchInputLenth={2}
                           fullWidth
                           error={!!error}
                           helperText={error?.message}
@@ -84,8 +108,8 @@ const SheduleInformation = (props:any) => {
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <CustomTextField
                           fullWidth
-                          label='Read Only'
-                          value={(watchedDoctor?.fullName as string) || ''}
+                          label='Name with Initials'
+                          value={(watchedDoctor?.nameWithInitials as string) || ''}
                           slotProps={{
                             htmlInput: { readOnly: true }
                           }}
@@ -94,8 +118,8 @@ const SheduleInformation = (props:any) => {
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <CustomTextField
                           fullWidth
-                          label='Read Only'
-                          value={(watchedDoctor?.company as string) || ''}
+                          label='SLMC Number'
+                          value={(watchedDoctor?.slmcNumber as string) || ''}
                           slotProps={{
                             htmlInput: { readOnly: true }
                           }}
@@ -104,8 +128,8 @@ const SheduleInformation = (props:any) => {
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <CustomTextField
                           fullWidth
-                          label='Read Only'
-                          value={(watchedDoctor?.country as string) || ''}
+                          label='Mobile No'
+                          value={(watchedDoctor?.mobileNo as string) || ''}
                           slotProps={{
                             htmlInput: { readOnly: true }
                           }}
@@ -114,8 +138,8 @@ const SheduleInformation = (props:any) => {
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <CustomTextField
                           fullWidth
-                          label='Read Only'
-                          defaultValue={(watchedDoctor?.contact as string) || ''}
+                          label='Email'
+                          defaultValue={(watchedDoctor?.email as string) || ''}
                           slotProps={{
                             htmlInput: { readOnly: true }
                           }}

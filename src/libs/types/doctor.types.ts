@@ -1,46 +1,42 @@
-export interface DoctorDetails {
-  id?: string
-  patientNo?: string
+export interface Doctor {
+  id?: number
   firstName: string
   lastName: string
-  fullName: string
-  ethnicity: string
-  gender: string
-  maritalStatus: string
-  nic: string
-  dob: string | null | undefined
-  address: string
-  city: string
-  district: string
-
   email: string
   mobileNo: number | string
-  landNumber: number | string
-
-  emergencyContactName: string
-  emergencyContactRelationship: string
-  emergencyContactMobile: number | string
-  emergencyContactEmail: string | null
-
-  registrationDate?: string
-  isActive?: boolean
+  nic: string
+  dob: string | null | undefined
+  nameWithInitials: string
+  slmcNumber: string
+  specialization: string
+  qualification: string
+  experienceYears?: string
+  profileImg?: string
 }
 
 export interface DoctorSchedule {
-  doctor: {
-    id: string
-    doctorName: string
-    doctorId: string
-  } | null // <-- Add "| null" here
-  doctorName: string
+  doctor: Doctor | null 
   schedules: ScheduleSlot[]
 }
 
 export interface ScheduleSlot {
+  id?: number
   date: string // Or Date, if you prefer to work with Date objects
-  time: string
+  startTime: string
+  endTime: string
   price: number | null
   maxPatientCount: number | null
+}
+
+export interface DoctorScheduleDTO {
+  id?: number
+  doctorId: number
+  scheduleDate: string
+  startTime: string
+  endTime: string
+  payment: number
+  maxPatientCount: number
+  isActive?: boolean
 }
 
 export interface Consultation {
