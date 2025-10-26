@@ -1,6 +1,4 @@
-import { cookies } from 'next/headers'
 
-// Third-party Imports
 // import { getServerSession } from 'next-auth'
 
 // Type Imports
@@ -10,14 +8,12 @@ import type { ChildrenType } from '@/@core/typesDef'
 // Component Imports
 import AuthRedirect from '@/components/AuthRedirect'
 
-import { verifyToken } from '@/libs/authentication'
+import { verifyToken } from '@/libs/verifyToken'
 import ClientAuthContextProvider from '@/contexts/ClientAuthContextProvider'
 
 export default async function AuthGuard({ children, locale }: ChildrenType & { locale: Locale }) {
-  const cookieStore = await cookies()
-  const token: string | undefined = cookieStore.get('accessToken')?.value
 
-  const user = await verifyToken(token)
+  const user = await verifyToken()
 
   if (!user.valid) {
     return <AuthRedirect lang={locale} />

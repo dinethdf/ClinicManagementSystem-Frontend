@@ -19,7 +19,8 @@ import SheduleVariants from './SheduleVariants'
 
 import type { DoctorSchedule } from '@/libs/types/doctor.types'
 
-const SheduleInformation = () => {
+const SheduleInformation = (props:any) => {
+  console.log(props);
   // Initialize React Hook Form
   const methods = useForm<DoctorSchedule>({
     defaultValues: {
