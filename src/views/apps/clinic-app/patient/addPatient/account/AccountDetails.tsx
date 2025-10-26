@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useMemo, useState, useRef } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -24,17 +24,23 @@ import MenuItem from '@mui/material/MenuItem'
 import { CardHeader, Divider, InputAdornment } from '@mui/material'
 
 // Component Imports
+import type { TextFieldProps } from '@mui/material/TextField'
+
 import CustomTextField from '@core/components/mui/TextField'
 
 import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
 
-import type { PatientDetails } from '@/libs/types/patient.types'
+import type { Guardian, PatientDetails } from '@/libs/types/patient.types'
 
-import { PatientDetailValedationSchema } from '@/schemas/patienDetailsValidation'
+import { getPatientValidationSchema } from '@/schemas/patienDetailsValidation'
 
 import { patientService } from '@/services/patient.service'
 
 import BackDropFullScreen from '@/components/BackDropFullScreen'
+
+// Component Imports
+import GuardianSelectDialogBox from '@components/dialogs/guardian-select'
+import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 const initialData: PatientDetails = {
   firstName: '',
@@ -45,13 +51,14 @@ const initialData: PatientDetails = {
   maritalStatus: '',
   nic: '',
   dob: null,
+  guardian: null,
   address: '',
   city: '',
   district: '',
 
   email: '',
   mobileNo: '',
-  landNumber: '',
+  landNo: '',
 
   emergencyContactName: '',
   emergencyContactRelationship: '',
@@ -62,6 +69,9 @@ const initialData: PatientDetails = {
 const AccountDetails = () => {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isUnderAge, setIsUnderAge] = useState(false)
+
+  const triggerRef = useRef(null)
 
   // States
   // const [formData, setFormData] = useState<PatientDetails>(initialData)
@@ -100,24 +110,30 @@ const AccountDetails = () => {
   //   setFormData({ ...formData, [field]: value })
   // }
 
+  const validationSchema = useMemo(() => {
+    return getPatientValidationSchema(isUnderAge)
+  }, [isUnderAge]) // Re-create schema when isUnderAge changes
+
   const {
     control,
     reset,
     handleSubmit,
+    setValue,
     formState: { errors }
   } = useForm<PatientDetails>({
-    resolver: valibotResolver(PatientDetailValedationSchema),
+    resolver: valibotResolver(validationSchema),
     defaultValues: { ...initialData }
   })
 
   const handelFormSubmit = async (data: PatientDetails) => {
-    setIsLoading(true) // Show the loader
-
-    try {
+    setIsLoading(true) 
+    
+    try {  
       const response = await patientService.createPatientDetails(data)
-
+      
       console.log('✅ Patient created successfully:', response)
-
+      router.replace(`view/${response?.data?.id ? response?.data?.id : 'error'}`)
+      reset()
       toast.success(`${response?.message} - ${response?.data.patientNo}`, {
         hideProgressBar: false,
         className: 'custom-toast',
@@ -125,10 +141,10 @@ const AccountDetails = () => {
           backgroundColor: 'var(--mui-palette-primary-main)'
         }
       })
-      reset()
-      router.replace(`view/${response?.data?.id ? response?.data?.id : 'error'}`)
+
     } catch (error) {
       toast.error(`${error}`, {
+        autoClose: false,
         hideProgressBar: false,
         className: 'custom-toast',
         progressStyle: {
@@ -136,9 +152,22 @@ const AccountDetails = () => {
         }
       })
     } finally {
-      setIsLoading(false) // Hide the loader
+      setIsLoading(false)
     }
   }
+
+  const selectGuardian = (guardian:Guardian) =>{
+      
+       setValue("nic", guardian.nic)
+       setValue("address", guardian.address)
+       setValue("city", guardian.city)
+       setValue("district", guardian.district)
+       setValue("email", guardian.email)
+       setValue("mobileNo", guardian.mobileNo)
+       setValue("landNo", guardian?.landNo || "")
+       setValue("guardian", guardian || null)
+                    
+  }     
 
   return (
     <Card>
@@ -167,7 +196,7 @@ const AccountDetails = () => {
         </div>
       </CardContent> */}
       <CardHeader
-        title={'Patient Details' + (true ? ' asdd' : ' vvv')}
+        title={'Patient Details'}
         className='pb-2'
         titleTypographyProps={{ variant: 'h4' }}
       />
@@ -298,36 +327,12 @@ const AccountDetails = () => {
                     {...(errors.maritalStatus && { error: true, helperText: errors.maritalStatus.message })}
                   >
                     <MenuItem value=''>Select Marital Status</MenuItem>
-                    <MenuItem value='1'>Married</MenuItem>
-                    <MenuItem value='2'>Divorced</MenuItem>
-                    <MenuItem value='3'>Widowed</MenuItem>
-                    <MenuItem value='4'>Separated</MenuItem>
+                    <MenuItem value='1'>Single</MenuItem>
+                    <MenuItem value='2'>Married</MenuItem>
+                    <MenuItem value='3'>Divorced</MenuItem>
+                    <MenuItem value='4'>Widowed</MenuItem>
+                    <MenuItem value='5'>Separated</MenuItem>
                   </CustomTextField>
-                )}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <Controller
-                name='nic'
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    fullWidth
-                    label='NIC number'
-                    placeholder='****V/****'
-                    slotProps={{
-                      input: {
-                        startAdornment: (
-                          <InputAdornment position='start'>
-                            <i className='tabler-user' />
-                          </InputAdornment>
-                        )
-                      }
-                    }}
-                    {...(errors.nic && { error: true, helperText: errors.nic.message })}
-                  />
                 )}
               />
             </Grid>
@@ -341,8 +346,23 @@ const AccountDetails = () => {
                     {...field}
                     value={field.value ? dayjs(field.value) : null}
                     onChange={newValue => {
+                      let age = 0
+
+                      if (newValue) {
+                        const today = new Date()
+
+                        const bday = newValue.toDate()
+
+                        age = today.getFullYear() - bday.getFullYear()
+
+                        const m = today.getMonth() - bday.getMonth()
+
+                        if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--
+                      }
+
+                      setIsUnderAge(age < 18)
+
                       field.onChange(newValue ? newValue.format('YYYY-MM-DD') : null)
-                      console.log(newValue ? newValue.format('YYYY-MM-DD') : null)
                     }}
                     label='Date Of Birth'
                     openTo='year'
@@ -360,7 +380,79 @@ const AccountDetails = () => {
                 )}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            {isUnderAge && (
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Controller
+                  name='guardian'
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field }) => {
+
+   
+                    const displayValue =
+                      field.value && typeof field.value === 'object'
+                        ? `${field.value.firstName} ${field.value.lastName}` : ''          
+
+                    const textFieldProps: TextFieldProps = {
+                      ...field,
+                      fullWidth: true,
+                      label: 'Guardian',
+                      placeholder: 'Select Guardian',
+                      value: displayValue,
+                      InputProps: {
+                        readOnly: true,
+                        startAdornment: (
+                          <InputAdornment position='start'>
+                            <i className='tabler-user' />
+                          </InputAdornment>
+                        )
+                      },
+                      inputProps: {style: {cursor: 'pointer'}},
+                      ...(errors.guardian && { error: true, helperText: errors.guardian.message })
+                    }
+
+                    return (
+                      <OpenDialogOnElementClick
+                        element={CustomTextField}
+                        elementProps={textFieldProps}
+                        dialog={GuardianSelectDialogBox}
+                        dialogProps={{
+                          onSelectGuardian: selectGuardian, // or just field.onChange
+                          triggerRef: triggerRef        // 5. Pass the ref to the dialog
+                        }}
+                      />
+                    )
+                  }}
+                />
+              </Grid>
+            )}
+            <Grid size={{ xs: 12, sm: isUnderAge ? 3 : 6 }}>
+              <Controller
+                name='nic'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    disabled={isUnderAge}
+                    label='NIC number'
+                    placeholder='****V/****'
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position='start'>
+                            <i className='tabler-user' />
+                          </InputAdornment>
+                        )
+                      }
+                    }}
+                    {...(errors.nic && { error: true, helperText: errors.nic.message })}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: isUnderAge ? 3 : 6 }}>
               <Controller
                 name='address'
                 control={control}
@@ -368,6 +460,7 @@ const AccountDetails = () => {
                 render={({ field }) => (
                   <CustomTextField
                     {...field}
+                    disabled={isUnderAge}
                     fullWidth
                     label='Address'
                     placeholder='Address'
@@ -385,6 +478,7 @@ const AccountDetails = () => {
                   <CustomTextField
                     {...field}
                     fullWidth
+                    disabled={isUnderAge}
                     label='City'
                     placeholder='Pelmadulla'
                     {...(errors.city && { error: true, helperText: errors.city.message })}
@@ -401,6 +495,7 @@ const AccountDetails = () => {
                   <CustomTextField
                     {...field}
                     fullWidth
+                    disabled={isUnderAge}
                     label='District'
                     placeholder='Rathnapura'
                     {...(errors.district && { error: true, helperText: errors.district.message })}
@@ -426,6 +521,7 @@ const AccountDetails = () => {
                   <CustomTextField
                     {...field}
                     fullWidth
+                    disabled={isUnderAge}
                     label='Email'
                     placeholder='example@gmail.com'
                     {...(errors.email && { error: true, helperText: errors.email.message })}
@@ -442,8 +538,9 @@ const AccountDetails = () => {
                   <CustomTextField
                     {...field}
                     fullWidth
+                    disabled={isUnderAge}
                     label='Mobile Number'
-                    placeholder='0712345678'
+                    placeholder='07********'
                     {...(errors.mobileNo && { error: true, helperText: errors.mobileNo.message })}
                   />
                 )}
@@ -451,16 +548,17 @@ const AccountDetails = () => {
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
-                name='landNumber'
+                name='landNo'
                 control={control}
                 rules={{ required: true }}
                 render={({ field }) => (
                   <CustomTextField
                     {...field}
                     fullWidth
+                    disabled={isUnderAge}
                     label='Land Number'
-                    placeholder='0452222444'
-                    {...(errors.landNumber && { error: true, helperText: errors.landNumber.message })}
+                    placeholder='0*********'
+                    {...(errors.landNo && { error: true, helperText: errors.landNo.message })}
                   />
                 )}
               />

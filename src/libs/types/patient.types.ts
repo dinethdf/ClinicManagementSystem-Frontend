@@ -11,13 +11,15 @@ export interface PatientDetails {
   maritalStatus: string
   nic: string
   dob: string | null | undefined
+  guardian: Guardian | null
+
   address: string
   city: string
   district: string
 
   email: string
   mobileNo: number | string
-  landNumber: number | string
+  landNo: number | string
 
   emergencyContactName: string
   emergencyContactRelationship: string
@@ -26,6 +28,20 @@ export interface PatientDetails {
 
   registrationDate?: string
   isActive?: boolean
+}
+
+export interface Guardian {
+  id: number
+  patientNo: string
+  firstName: string
+  lastName: string
+  nic: string
+  address: string
+  city: string
+  district: string
+  email: string
+  mobileNo: string
+  landNo: string | null
 }
 
 export interface PatientHistory {
