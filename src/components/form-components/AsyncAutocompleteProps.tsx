@@ -1,5 +1,6 @@
 'use client'
 
+import { apiClient } from '@/services/api.config'
 // React Imports
 import { useState, useEffect } from 'react'
 import type { ChangeEvent } from 'react'
@@ -15,18 +16,13 @@ import CustomTextField from '@core/components/mui/TextField'
 import { db } from './../../fake-db/apps/userList'
 
 type AsyncAutocompleteProps<T> = {
-  fetchUrl: string // The base API endpoint (e.g., '/api/doctors')
+  fetchUrl: string
   label: string
-
-  // These make it a "Controlled Component"
-  value: T | null
+  value: T | null   // These make it a "Controlled Component"
   onChange: (newValue: T | null) => void
-
   searchQueryParam?: string
   otherPrams?: string
-  debounceDelay?: number // Delay in ms (e.g., 500)
-
-  // Props for react-hook-form's Controller to pass down
+  debounceDelay?: number
   error?: boolean
   helperText?: string
   placeholder?: string
@@ -39,8 +35,8 @@ type AsyncAutocompleteProps<T> = {
 const defaultProps = {
   searchQueryParam: 'q',
   debounceDelay: 500,
-  otherPrams: '',
-  getOptionLabel: (option: any) => option.fullName || '',
+  otherPrams: 'param',
+  getOptionLabel: (option: any) => option.firstName + " " + option.lastName  || '',
   isOptionEqualToValue: (option: any, value: any) => option.id === value.id
 }
 
@@ -79,24 +75,11 @@ const AsyncAutocomplete = <T extends {}>({
     // Set up the timer
     const timer = setTimeout(async () => {
       try {
-        // const url = `${fetchUrl}?${searchQueryParam}=${inputValue}&${otherPrams}`
-        // const response = await fetch(url)
-        // const data = (await response.json()) as T[]
+        const url = `${fetchUrl}?${searchQueryParam}=${inputValue}&${otherPrams}`
 
-        // Dummy Section need remove
-        const response = new Response(
-          JSON.stringify({
-            success: true,
-            message: 'Fetched dummy data successfully',
-            data: db
-          }),
-          {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-          }
-        )
+         const response = await apiClient.get(url);
 
-        const data = (await response.json()).data as T[]
+        const data =  (response.data.data as T[])
 
         setOptions(data)
       } catch (error) {
