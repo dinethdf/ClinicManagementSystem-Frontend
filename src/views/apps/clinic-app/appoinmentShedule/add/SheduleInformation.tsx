@@ -1,7 +1,4 @@
 'use client'
-import { useEffect } from 'react'
-
-import { apiClient } from '@/services/api.config'
 
 // MUI Imports
 import Divider from '@mui/material/Divider'
@@ -9,6 +6,8 @@ import Grid from '@mui/material/Grid2'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
+
+import { toast } from 'react-toastify'
 
 // React Hook Form Imports
 import { useForm, FormProvider, Controller } from 'react-hook-form'
@@ -19,12 +18,16 @@ import AsyncAutocomplete from '@/components/form-components/AsyncAutocompletePro
 
 import SheduleVariants from './SheduleVariants'
 
-import type { Doctor, DoctorSchedule, DoctorScheduleDTO } from '@/libs/types/doctor.types'
-import { toast } from 'react-toastify'
+import type {DoctorSchedule, DoctorScheduleDTO } from '@/libs/types/doctor.types'
+
 import { doctorService } from './../../../../../services/doctor.service';
 
 const SheduleInformation = ({role}: { role: string }) => {
+
+  console.log(role)
+
   // Initialize React Hook Form
+  
   const methods = useForm<DoctorSchedule>({
     defaultValues: {
       doctor: null,
@@ -32,14 +35,16 @@ const SheduleInformation = ({role}: { role: string }) => {
     }
   })
 
-  const { control, watch, setValue, reset } = methods
+  const { control, watch, reset } = methods
 
   const watchedDoctor = watch('doctor');
 
 const onSubmit = async (data: DoctorSchedule) => {
   
   if (!data.doctor) {
+    
     toast.error('Please select a doctor first.');
+    
     return;
   }
 
@@ -54,10 +59,11 @@ const onSubmit = async (data: DoctorSchedule) => {
   
   try {
 
-    const createdSchedules = await doctorService.createBatchSchedules(payload);
+    await doctorService.createBatchSchedules(payload);
+    
     toast.success("Schedules published successfully!");
     
-     reset();
+    reset();
 
   } catch (error:any) {
     toast.error(error.message || "An unknown error occurred.");

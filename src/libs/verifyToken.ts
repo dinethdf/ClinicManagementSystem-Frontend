@@ -12,7 +12,7 @@ export async function verifyToken(): Promise<{
   error?: string
 }> {
   const token2  = (await cookies()).get('accessToken')?.value;
-  // Get the secret from environment variable
+  
   const secretBase64 = process.env.JWT_SECRET
 
   if (!token2 || !secretBase64) {

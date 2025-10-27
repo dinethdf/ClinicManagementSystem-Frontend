@@ -15,6 +15,7 @@ const doctorAppointmentSection = async () => {
 
     return <DoctorAppointment role={role} />;
   }
+  
   return (
     <div>
       <h1>Not Authorized</h1>

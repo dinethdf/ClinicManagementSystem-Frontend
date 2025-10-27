@@ -102,6 +102,7 @@ const SheduleVariants = () => {
                       id={`date-picker-${index}`}
                       dateFormat='MM/dd/yyyy'
                       autoComplete="off"
+                      
                       // Correctly handle local date string for 'selected'
                       selected={field.value ? new Date(`${field.value}T00:00:00`) : null}
                       onChange={date => handleDateChange(index, date)}
@@ -133,7 +134,6 @@ const SheduleVariants = () => {
                       id={`start-time-picker-${index}`}
                       dateFormat='h:mm aa'
                       autoComplete="off"
-                      // Use startTime for 'selected'
                       selected={field.value ? new Date(`1970-01-01T${field.value}`) : null}
                       onChange={date => handleStartTimeChange(index, date)}
                       customInput={
@@ -165,7 +165,6 @@ const SheduleVariants = () => {
                       id={`end-time-picker-${index}`}
                       dateFormat='h:mm aa'
                       autoComplete="off"
-                      // Use endTime for 'selected'
                       selected={field.value ? new Date(`1970-01-01T${field.value}`) : null}
                       onChange={date => handleEndTimeChange(index, date)}
                       customInput={
@@ -244,7 +243,6 @@ const SheduleVariants = () => {
           <Grid size={{ xs: 12 }}>
             <Button
               variant='contained'
-              // Updated to append the new object structure
               onClick={() => append({ date: '', startTime: '', endTime: '', price: 0, maxPatientCount: 0 })}
             >
               Add Another Option
