@@ -1,9 +1,7 @@
 'use client'
 
-import { apiClient } from '@/services/api.config'
 // React Imports
 import { useState, useEffect } from 'react'
-import type { ChangeEvent } from 'react'
 
 // MUI Imports
 import CircularProgress from '@mui/material/CircularProgress'
@@ -11,6 +9,8 @@ import type { AutocompleteProps } from '@mui/material/Autocomplete'
 
 import CustomAutocomplete from '@core/components/mui/Autocomplete'
 import CustomTextField from '@core/components/mui/TextField'
+
+import { apiClient } from '@/services/api.config'
 
 
 type AsyncAutocompleteProps<T extends object> = {
@@ -37,15 +37,12 @@ const AsyncAutocomplete = <T extends object>({
   label,
   value,
   onChange,
-  // Optional props with default values
   searchParamKey = 'q',
   otherParams = {}, // Default to an empty object
   debounceDelay = 500,
-  // Your original defaults, great for your specific use-case (e.g., User objects)
   getOptionLabel = (option: any) => `${option.firstName} ${option.lastName}` || '',
   fetchInputLenth = 1,
   isOptionEqualToValue = (option: any, value: any) => option.id === value.id,
-  // Other props
   error,
   helperText,
   placeholder,
@@ -109,10 +106,10 @@ const AsyncAutocomplete = <T extends object>({
             // --- Your Corrected Data Handling ---
             // You are right, the data is nested in response.data.data
             const data = (response.data.data as T[]) 
-            console.log(data)
+            
             setOptions(data)
           } catch (err) {
-            console.error('Failed to fetch autocomplete data:', err)
+            
             setOptions([]) // Clear options on failure
           } finally {
             setLoading(false)
@@ -139,8 +136,7 @@ const AsyncAutocomplete = <T extends object>({
       loading={loading}
       getOptionLabel={getOptionLabel}
       isOptionEqualToValue={isOptionEqualToValue}
-      // --- Key Addition ---
-      // Tell Autocomplete to not filter client-side.
+
       // The server is already doing the filtering.
       filterOptions={x => x}
       renderInput={params => (
