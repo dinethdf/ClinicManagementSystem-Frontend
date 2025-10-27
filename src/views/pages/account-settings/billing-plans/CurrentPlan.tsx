@@ -16,8 +16,8 @@ import type { PricingPlanType } from '@/libs/types/pages/pricingTypes'
 import type { ThemeColor } from '@/@core/typesDef'
 
 // Component Imports
-import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
-import UpgradePlan from '@components/dialogs/upgrade-plan'
+import ConfirmationDialog from '@/components/dialogs/unUsed/confirmation-dialog'
+import UpgradePlan from '@/components/dialogs/unUsed/upgrade-plan'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 const CurrentPlan = ({ data }: { data?: PricingPlanType[] }) => {

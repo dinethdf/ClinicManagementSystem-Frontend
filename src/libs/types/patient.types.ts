@@ -1,6 +1,6 @@
 // import type { Dayjs } from 'dayjs';
 
-export interface PatientDetails {
+export interface Patient {
   id?: string
   patientNo?: string
   firstName: string

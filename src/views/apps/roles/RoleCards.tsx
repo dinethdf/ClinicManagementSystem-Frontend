@@ -13,7 +13,7 @@ import type { TypographyProps } from '@mui/material/Typography'
 import type { CardProps } from '@mui/material/Card'
 
 // Component Imports
-import RoleDialog from '@components/dialogs/role-dialog'
+import RoleDialog from '@/components/dialogs/unUsed/role-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import Link from '@components/Link'
 

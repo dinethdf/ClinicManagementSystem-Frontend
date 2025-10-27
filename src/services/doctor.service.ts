@@ -38,31 +38,6 @@ async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorSchedule
     throw new Error(error.response?.data?.defaultMessage || 'Failed to create schedules')
   }
 }
-
-  // async getPatientById(id: string): Promise<PatientDetails | null> {
-  //   console.log('run get pat')
-
-  //   try {
-  //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/patients/${id}`, {
-  //       method: 'GET',
-  //       headers: {
-  //         'Content-Type': 'application/json'
-  //       },
-  //       cache: 'no-store'
-  //     })
-
-  //     if (!res.ok) {
-  //       return null
-  //     }
-
-  //     return res.json()
-  //   } catch (error) {
-  //     console.error('Failed to fetch patient:', error)
-
-  //     return null
-  //   }
-  // }
-
 }
 
 export const doctorService = new DoctorService()

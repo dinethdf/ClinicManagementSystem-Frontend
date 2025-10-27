@@ -8,14 +8,14 @@ import Button from '@mui/material/Button'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { PatientDetails } from '@/libs/types/patient.types'
+import type { Patient } from '@/libs/types/patient.types'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
-import EditUserInfo from '@components/dialogs/edit-user-info'
+import EditUserInfo from '@/components/dialogs/unUsed/edit-user-info'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
-const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }) => {
+const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
   // Vars
   const buttonProps: ButtonProps = {
     variant: 'contained',

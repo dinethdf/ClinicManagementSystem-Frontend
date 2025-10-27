@@ -1,4 +1,4 @@
-import type { PatientDetails, Guardian } from './../libs/types/patient.types'
+import type { Patient, Guardian } from './../libs/types/patient.types'
 import { apiClient } from './api.config'
 
 class PatientService {
@@ -27,9 +27,9 @@ class PatientService {
   //     return this.patients.find((p) => p.nic === nic) || null
   //   }
 
-  async createPatientDetails(patientData: PatientDetails): Promise<any> {
+  async createPatientDetails(patientData: Patient): Promise<any> {
     try {
-      const response: any = await apiClient.post<PatientDetails>('/api/patient/details/staff', {
+      const response: any = await apiClient.post<Patient>('/api/patient/details/staff', {
         ...patientData,
         guardian: patientData.guardian,
         patientAuthId: 1,
@@ -66,7 +66,7 @@ async getGuardianForChildPatient(nicNo: string, guardianName: string): Promise<G
   }
 }
 
-  async getPatientById(id: string): Promise<PatientDetails | null> {
+  async getPatientById(id: string): Promise<Patient | null> {
     console.log('run get pat')
 
     try {

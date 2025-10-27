@@ -8,7 +8,7 @@ import CustomerDetails from '@/views/apps/clinic-app/patient/details'
 
 // Data Imports
 
-import { PatientServerSideService } from '@/services/patient.serverside.service'
+import { PatientServerSideService } from '@/services/patient.server.service'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
