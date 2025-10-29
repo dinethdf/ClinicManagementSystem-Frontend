@@ -39,7 +39,7 @@ const AsyncAutocomplete = <T extends object>({
   onChange,
   searchParamKey = 'q',
   otherParams = {}, // Default to an empty object
-  debounceDelay = 500,
+  debounceDelay = 800,
   getOptionLabel = (option: any) => `${option.firstName} ${option.lastName}` || '',
   fetchInputLenth = 1,
   isOptionEqualToValue = (option: any, value: any) => option.id === value.id,
@@ -58,6 +58,14 @@ const AsyncAutocomplete = <T extends object>({
 
   // 2. The debouncing and fetching logic
   useEffect(() => {
+
+    // this is for stop again fetch when after Select 
+    if (value && getOptionLabel(value) === inputValue) {
+      setLoading(false) // Ensure loading is off
+
+      return // Stop the effect here
+    }
+
     const trimmedInput = inputValue.trim()
 
     // If input is empty, reset options to show only the current value (if any)
