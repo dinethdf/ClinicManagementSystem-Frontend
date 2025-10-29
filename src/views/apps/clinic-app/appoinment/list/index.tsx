@@ -6,7 +6,7 @@ import { useState } from 'react'
 import Grid from '@mui/material/Grid2'
 
 // Type Imports
-import type { OrderType } from '@/libs/types/apps/ecommerceTypes'
+import type { OrderType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
 import AppoinmentCard from './AppoinmentCard'

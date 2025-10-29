@@ -1,4 +1,4 @@
-import type { Doctor, DoctorScheduleDTO } from '@/libs/types/doctor.types';
+import type { Doctor, DoctorScheduleDTO } from '@/types/doctor.types';
 import { apiClient } from './api.config'
 
 interface ApiResponse<T> {

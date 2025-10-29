@@ -1,5 +1,5 @@
 // Type Imports
-import type { PermissionRowType } from '@/libs/types/apps/permissionTypes'
+import type { PermissionRowType } from '@/types/apps/permissionTypes'
 
 export const db: PermissionRowType[] = [
   {

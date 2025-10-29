@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid2'
 import Chip from '@mui/material/Chip'
 
 // Type Imports
-import type { ProfileTeamsTechType, ProfileConnectionsType } from '@/libs/types/pages/profileTypes'
+import type { ProfileTeamsTechType, ProfileConnectionsType } from '@/types/pages/profileTypes'
 
 // Component Imports
 import OptionMenu from '@core/components/option-menu'

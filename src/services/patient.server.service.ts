@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 
-import type { Patient } from '@/libs/types/patient.types'
+import type { Patient } from '@/types/patient.types'
 
 export class PatientServerSideService {
   static async getPatientById(

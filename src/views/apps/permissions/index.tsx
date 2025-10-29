@@ -35,7 +35,7 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
 import type { ThemeColor } from '@/@core/typesDef'
-import type { PermissionRowType } from '@/libs/types/apps/permissionTypes'
+import type { PermissionRowType } from '@/types/apps/permissionTypes'
 
 // Component Imports
 import PermissionDialog from '@/components/dialogs/unUsed/permission-dialog'

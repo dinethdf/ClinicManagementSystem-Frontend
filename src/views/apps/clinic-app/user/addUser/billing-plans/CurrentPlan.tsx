@@ -12,7 +12,7 @@ import LinearProgress from '@mui/material/LinearProgress'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { PricingPlanType } from '@/libs/types/pages/pricingTypes'
+import type { PricingPlanType } from '@/types/pages/pricingTypes'
 import type { ThemeColor } from '@/@core/typesDef'
 
 // Component Imports

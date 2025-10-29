@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
 // Type Imports
-import type { ProfileHeaderType } from '@/libs/types/pages/profileTypes'
+import type { ProfileHeaderType } from '@/types/pages/profileTypes'
 
 const UserProfileHeader = ({ data }: { data?: ProfileHeaderType }) => {
   return (

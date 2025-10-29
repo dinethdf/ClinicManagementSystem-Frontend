@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid2'
 import MenuItem from '@mui/material/MenuItem'
 
 // Type Imports
-import type { UsersType } from '@/libs/types/apps/userTypes'
+import type { UsersType } from '@/types/apps/userTypes'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'

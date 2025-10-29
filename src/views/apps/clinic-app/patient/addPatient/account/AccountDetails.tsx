@@ -30,7 +30,7 @@ import CustomTextField from '@core/components/mui/TextField'
 
 import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
 
-import type { Guardian, Patient } from '@/libs/types/patient.types'
+import type { Guardian, Patient } from '@/types/patient.types'
 
 import { getPatientValidationSchema } from '@/schemas/patienDetailsValidation'
 

@@ -17,7 +17,7 @@ import CustomIconButton from '@core/components/mui/IconButton'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker' // Assuming this is your datepicker path
 
 // Types Imports
-import type { DoctorSchedule, ScheduleSlot } from '@/libs/types/doctor.types'
+import type { DoctorSchedule, ScheduleSlot } from '@/types/doctor.types'
 
 const SheduleVariants = () => {
   const {

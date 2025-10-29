@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation'
 
 // Type Imports
-import type { Customer } from '@/libs/types/apps/ecommerceTypes'
+import type { Customer } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
 import CustomerDetails from '@/views/apps/ecommerce/customers/details'

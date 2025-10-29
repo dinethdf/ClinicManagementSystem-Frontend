@@ -2,7 +2,7 @@
 import Grid from '@mui/material/Grid2'
 
 // Types Imports
-import type { CardStatsWithAreaChartProps } from '@/libs/types/pages/widgetTypes'
+import type { CardStatsWithAreaChartProps } from '@/types/pages/widgetTypes'
 
 // Component Imports
 import CardStatsWithAreaChart from '@components/card-statistics/StatsWithAreaChart'

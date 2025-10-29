@@ -17,16 +17,3 @@ export interface Appoinment {
   profileImg?: string
 }
 
-
-
-
-export interface DoctorScheduleDTO {
-  id?: number
-  doctorId: number
-  scheduleDate: string
-  startTime: string
-  endTime: string
-  payment: number
-  maxPatientCount: number
-  isActive?: boolean
-}

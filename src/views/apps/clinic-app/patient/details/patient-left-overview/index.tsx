@@ -2,7 +2,7 @@
 import Grid from '@mui/material/Grid2'
 
 // Type Imports
-import type { Patient } from '@/libs/types/patient.types'
+import type { Patient } from '@/types/patient.types'
 
 // Component Imports
 import PatientDetailsSection from './PatientDetailsSection'

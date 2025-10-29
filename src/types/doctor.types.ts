@@ -8,10 +8,16 @@ export interface Doctor {
   dob: string | null | undefined
   nameWithInitials: string
   slmcNumber: string
-  specialization: string
+  specialization: DoctorSpecialization
   qualification: string
   experienceYears?: string
   profileImg?: string
+}
+
+export interface DoctorSpecialization {
+  id?: number 
+  name: string
+  note?: string
 }
 
 export interface DoctorSchedule {
@@ -32,9 +38,12 @@ export interface DoctorScheduleDTO {
   id?: number
   doctorId: number
   scheduleDate: string
+  doctorName?:string
+  specialization?:string
   startTime: string
   endTime: string
   payment: number
+  registeredPatientCount: number
   maxPatientCount: number
   isActive?: boolean
 }
@@ -48,42 +57,3 @@ export interface Consultation {
   notes: string
   diagnosis?: string
 }
-
-// export interface PatientHistory {
-//   patientId: string
-//   prescriptions: Prescription[]
-//   consultations: Consultation[]
-// }
-
-// export interface Consultation {
-//   id: string
-//   patientId: string
-//   doctorId: string
-//   doctorName: string
-//   date: string
-//   notes: string
-//   diagnosis?: string
-// }
-
-// export interface Prescription {
-//   id: string
-//   patientId: string
-//   patientName: string
-//   doctorId: string
-//   doctorName: string
-//   consultationId?: string
-//   createdAt: string
-//   status: 'pending' | 'partially_fulfilled' | 'fulfilled'
-//   items: PrescriptionItem[]
-//   notes?: string
-// }
-
-// export interface PrescriptionItem {
-//   id: string
-//   medicineName: string
-//   dosage: string
-//   quantity: number
-//   duration: string
-//   instructions?: string
-//   fulfilled: boolean
-// }

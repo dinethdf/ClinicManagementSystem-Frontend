@@ -30,6 +30,23 @@ export interface Patient {
   isActive?: boolean
 }
 
+export interface PatientDTO {
+  id?: string
+  patientNo?: string
+  firstName: string
+  lastName: string
+  fullName: string
+  nic: string
+  dob: string | null | undefined
+  guardian: Guardian | null
+  address: string
+  city: string
+  email: string
+  mobileNo: number | string
+  registrationDate?: string
+  isActive?: boolean
+}
+
 export interface Guardian {
   id: number
   patientNo: string

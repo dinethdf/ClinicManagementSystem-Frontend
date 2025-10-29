@@ -16,7 +16,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 import type { CalendarOptions } from '@fullcalendar/core'
 
 // Type Imports
-import type { AddEventType, CalendarColors, CalendarType } from '@/libs/types/apps/calendarTypes'
+import type { AddEventType, CalendarColors, CalendarType } from '@/types/apps/calendarTypes'
 
 // Slice Imports
 import { filterEvents, selectedEvent, updateEvent } from '@/libs/redux-store/slices/calendar'
