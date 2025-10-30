@@ -1,4 +1,4 @@
-import type { PatientDetails, Guardian } from './../libs/types/patient.types'
+import type { Patient, Guardian, PatientResponceDTO } from '../types/patient.types'
 import { apiClient } from './api.config'
 
 class PatientService {
@@ -27,9 +27,9 @@ class PatientService {
   //     return this.patients.find((p) => p.nic === nic) || null
   //   }
 
-  async createPatientDetails(patientData: PatientDetails): Promise<any> {
+  async createPatientDetails(patientData: Patient): Promise<any> {
     try {
-      const response: any = await apiClient.post<PatientDetails>('/api/patient/details/staff', {
+      const response: any = await apiClient.post<Patient>('/api/patient/details/staff', {
         ...patientData,
         guardian: patientData.guardian,
         patientAuthId: 1,
@@ -52,7 +52,6 @@ class PatientService {
   }
 async getGuardianForChildPatient(nicNo: string, guardianName: string): Promise<Guardian[]> {
   try {
-    // 👇 Use the 'params' config object to pass your variables
     const response = await apiClient.get<Guardian[]>('/api/patient/search-guardian', {
       params: {
         nic: nicNo,
@@ -66,7 +65,24 @@ async getGuardianForChildPatient(nicNo: string, guardianName: string): Promise<G
   }
 }
 
-  async getPatientById(id: string): Promise<PatientDetails | null> {
+
+async getPatientBySearch(patientNo: string, nicNo: string, patientName: string, mobileNo: string): Promise<PatientResponceDTO[]> {
+  try {
+    const response = await apiClient.get<PatientResponceDTO[]>('/api/patient/search-patient', {
+      params: {
+        patientNo: patientNo,
+        nic: nicNo,
+        fullName: patientName,
+        mobileNo: mobileNo 
+      }
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch guardian data');
+  }
+}
+
+  async getPatientById(id: string): Promise<Patient | null> {
     console.log('run get pat')
 
     try {

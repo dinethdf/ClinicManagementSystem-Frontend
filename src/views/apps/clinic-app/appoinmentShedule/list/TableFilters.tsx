@@ -7,7 +7,7 @@ import CardContent from '@mui/material/CardContent'
 import MenuItem from '@mui/material/MenuItem'
 
 // Type Imports
-import type { ProductType } from '@/libs/types/apps/ecommerceTypes'
+import type { ProductType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'

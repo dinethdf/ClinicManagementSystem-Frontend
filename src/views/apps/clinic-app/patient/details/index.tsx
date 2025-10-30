@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic'
 import Grid from '@mui/material/Grid2'
 
 // Type Imports
-import type { PatientDetails } from '@/libs/types/patient.types'
+import type { Patient } from '@/types/patient.types'
 
 // Component Imports
 import CustomerDetailsHeader from './PatientDetailsHeader'
@@ -23,7 +23,7 @@ const AddressBillingTab = dynamic(
   () => import('@views/apps/ecommerce/customers/details/customer-right/address-billing')
 )
 
-const CustomerDetails = ({ patientData }: { patientData: PatientDetails }) => {
+const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
   // Vars
   const tabContentList = (): { [key: string]: ReactElement } => ({
     overview: <OverViewTab patientDataNo={patientData.id} />,

@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Component Imports
-import ReferEarn from '@components/dialogs/refer-earn'
+import ReferEarn from '@/components/dialogs/unUsed/refer-earn'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 const DialogReferEarn = () => {

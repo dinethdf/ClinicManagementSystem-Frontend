@@ -3,6 +3,7 @@ import AppoinmentList from '@views/apps/clinic-app/appoinment/list'
 
 // Data Imports
 import { getEcommerceData } from '@/app/server/actions'
+import { getAppointmentsPagable } from '@/services/appoinment.server.service'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -22,11 +23,22 @@ import { getEcommerceData } from '@/app/server/actions'
   return res.json()
 } */
 
-const OrdersListPage = async () => {
+const AppoinmentListPage = async () => {
   // Vars
   const data = await getEcommerceData()
 
-  return <AppoinmentList orderData={data?.orderData} />
+
+  //  Use thios methode for Fetch data Serever component define and call in client comonents
+
+  // 
+  // 
+  // 
+  
+    const appointmentsPagable = await getAppointmentsPagable(1) // Default page
+
+    console.log("API CALL page component", appointmentsPagable)
+
+  return <AppoinmentList orderData={data?.orderData} initialData={appointmentsPagable}/>
 }
 
-export default OrdersListPage
+export default AppoinmentListPage

@@ -30,7 +30,7 @@ import CustomTextField from '@core/components/mui/TextField'
 
 import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
 
-import type { Guardian, PatientDetails } from '@/libs/types/patient.types'
+import type { Guardian, Patient } from '@/types/patient.types'
 
 import { getPatientValidationSchema } from '@/schemas/patienDetailsValidation'
 
@@ -42,7 +42,7 @@ import BackDropFullScreen from '@/components/BackDropFullScreen'
 import GuardianSelectDialogBox from '@components/dialogs/guardian-select'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
-const initialData: PatientDetails = {
+const initialData: Patient = {
   firstName: '',
   lastName: '',
   fullName: '',
@@ -74,7 +74,7 @@ const AccountDetails = () => {
   const triggerRef = useRef(null)
 
   // States
-  // const [formData, setFormData] = useState<PatientDetails>(initialData)
+  // const [formData, setFormData] = useState<Patient>(initialData)
   // const [fileInput, setFileInput] = useState<string>('')
   // const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
   // const [language, setLanguage] = useState<string[]>(['English'])
@@ -106,7 +106,7 @@ const AccountDetails = () => {
   //   setImgSrc('/images/avatars/1.png')
   // }
 
-  // const handleFormChange = (field: keyof PatientDetails, value: PatientDetails[keyof PatientDetails]) => {
+  // const handleFormChange = (field: keyof Patient, value: Patient[keyof Patient]) => {
   //   setFormData({ ...formData, [field]: value })
   // }
 
@@ -120,12 +120,12 @@ const AccountDetails = () => {
     handleSubmit,
     setValue,
     formState: { errors }
-  } = useForm<PatientDetails>({
+  } = useForm<Patient>({
     resolver: valibotResolver(validationSchema),
     defaultValues: { ...initialData }
   })
 
-  const handelFormSubmit = async (data: PatientDetails) => {
+  const handelFormSubmit = async (data: Patient) => {
     setIsLoading(true) 
     
     try {  

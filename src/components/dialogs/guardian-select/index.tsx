@@ -24,7 +24,7 @@ import { patientService } from '@/services/patient.service' // Assuming Guardian
 
 import DialogCloseButton from '../DialogCloseButton'
 
-import type { Guardian } from '@/libs/types/patient.types'
+import type { Guardian } from '@/types/patient.types'
 
 type DialogBoxProps = {
   open: boolean

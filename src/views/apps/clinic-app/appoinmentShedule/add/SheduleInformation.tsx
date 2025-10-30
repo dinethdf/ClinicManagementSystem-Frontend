@@ -18,7 +18,7 @@ import AsyncAutocomplete from '@/components/form-components/AsyncAutocompletePro
 
 import SheduleVariants from './SheduleVariants'
 
-import type {DoctorSchedule, DoctorScheduleDTO } from '@/libs/types/doctor.types'
+import type {Doctor, DoctorSchedule, DoctorScheduleDTO } from '@/types/doctor.types'
 
 import { doctorService } from './../../../../../services/doctor.service';
 
@@ -54,7 +54,8 @@ const onSubmit = async (data: DoctorSchedule) => {
     startTime: schedule.startTime,
     endTime: schedule.endTime,
     payment: Number(schedule.price), // Ensure it's a number
-    maxPatientCount: Number(schedule.maxPatientCount) // Ensure it's a number
+    maxPatientCount: Number(schedule.maxPatientCount), // Ensure it's a number
+    registeredPatientCount:0
   }));
   
   try {
@@ -100,7 +101,7 @@ const onSubmit = async (data: DoctorSchedule) => {
                           fetchUrl='/api/doctor/search'
                           searchParamKey='q'
                           placeholder='Enter Name'
-                          getOptionLabel={(doctor:any) => doctor.firstName + " " + doctor.lastName + " : " + doctor.specialization }
+                          getOptionLabel={(doctor:Doctor) => doctor.firstName + " " + doctor.lastName + " : " + doctor.specialization.name }
                           fetchInputLenth={2}
                           fullWidth
                           error={!!error}

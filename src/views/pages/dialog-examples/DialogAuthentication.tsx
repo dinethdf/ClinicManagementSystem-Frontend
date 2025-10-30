@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Component Imports
-import TwoFactorAuth from '@components/dialogs/two-factor-auth'
+import TwoFactorAuth from '@/components/dialogs/unUsed/two-factor-auth'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 const DialogAuthentication = () => {

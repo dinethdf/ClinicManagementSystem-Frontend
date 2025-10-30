@@ -35,10 +35,10 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
 import type { ThemeColor } from '@/@core/typesDef'
-import type { PermissionRowType } from '@/libs/types/apps/permissionTypes'
+import type { PermissionRowType } from '@/types/apps/permissionTypes'
 
 // Component Imports
-import PermissionDialog from '@components/dialogs/permission-dialog'
+import PermissionDialog from '@/components/dialogs/unUsed/permission-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@components/TablePaginationComponent'

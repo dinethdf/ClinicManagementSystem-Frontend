@@ -1,0 +1,60 @@
+export interface Doctor {
+  id?: number
+  firstName: string
+  lastName: string
+  email: string
+  mobileNo: number | string
+  nic: string
+  dob: string | null | undefined
+  nameWithInitials: string
+  slmcNumber: string
+  specialization: DoctorSpecialization
+  qualification: string
+  experienceYears?: string
+  profileImg?: string
+}
+
+export interface DoctorSpecialization {
+  id?: number 
+  name: string
+  note?: string
+}
+
+export interface DoctorSchedule {
+  doctor: Doctor | null 
+  schedules: ScheduleSlot[]
+}
+
+export interface ScheduleSlot {
+  id?: number
+  date: string // Or Date, if you prefer to work with Date objects
+  startTime: string
+  endTime: string
+  price: number | null
+  maxPatientCount: number | null
+  registeredPatientCount: number | null
+}
+
+export interface DoctorScheduleDTO {
+  id?: number
+  doctorId: number
+  scheduleDate: string
+  doctorName?:string
+  specialization?:string
+  startTime: string
+  endTime: string
+  payment: number
+  registeredPatientCount: number
+  maxPatientCount: number
+  isActive?: boolean
+}
+
+export interface Consultation {
+  id: string
+  patientId: string
+  doctorId: string
+  doctorName: string
+  date: string
+  notes: string
+  diagnosis?: string
+}
