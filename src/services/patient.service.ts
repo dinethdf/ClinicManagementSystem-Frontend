@@ -76,8 +76,11 @@ async getPatientBySearch(patientNo: string, nicNo: string, patientName: string, 
         mobileNo: mobileNo 
       }
     });
+    
     return response.data;
+ 
   } catch (error: any) {
+ 
     throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch guardian data');
   }
 }

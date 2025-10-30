@@ -71,11 +71,15 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
         console.log(formValues)
        
         if(formValues){
+          
           const response = await patientService.getPatientBySearch(formValues?.patientNo, formValues?.nicNo, formValues?.patientName, formValues?.mobileNo)
+          
           setPatientList(response)
         }else{
-           setPatientList([]) // Clear list on error
-           setSearchedBoxMessage('System Error Cant get form Value.')
+          
+          setPatientList([]) // Clear list on error
+          
+          setSearchedBoxMessage('System Error Cant get form Value.')
         }
       
         } catch (err) {
