@@ -3,9 +3,6 @@
 // React Imports
 import { useEffect, useState } from 'react'
 
-import type {RefObject } from 'react'
-
-
 // MUI Imports
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -20,16 +17,15 @@ import { useForm, Controller } from 'react-hook-form'
 
 import CustomTextField from '@core/components/mui/TextField'
 
-import { patientService } from '@/services/patient.service' // Assuming Guardian[] is returned
-
 import DialogCloseButton from '../DialogCloseButton'
 
-import type { Guardian } from '@/types/patient.types'
+import type { PatientResponceDTO } from '@/types/patient.types'
+import { patientService } from '@/services/patient.service'
 
 type DialogBoxProps = {
   open: boolean
   setOpen: (open: boolean) => void
-  onSelectGuardian: (guardian: Guardian) => void
+  onSelectPatient: (patient: PatientResponceDTO) => void
 }
 
 type FormValues = {
@@ -39,9 +35,9 @@ type FormValues = {
   patientName: string
 }
 
-const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxProps) => {
+const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxProps) => {
   // States
-  const [patientList, setPatientList] = useState<Guardian[]>([])
+  const [patientList, setPatientList] = useState<PatientResponceDTO[]>([])
   const [searchedBoxMessage, setSearchedBoxMessage] = useState('Please enter NIC no or Gsuardian Name to search.') // <-- ADD THIS
     const [formValues, setFormValues] = useState<FormValues | null>()
 
@@ -50,7 +46,6 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxPr
     control,
     reset,
     handleSubmit,
-    getValues,
     trigger,
     formState: { errors }
   } = useForm<FormValues>({
@@ -69,13 +64,24 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxPr
 
   useEffect(() => {
     console.log("run effect")
+   
     const timer = setTimeout(async () => {
-       try {
-            console.log('✅ Guardians found:', "Run search")
-            console.log(formValues)
-       } catch (err) {
-         setPatientList([]) // Clear list on error
-         setSearchedBoxMessage('No Patient found matching your search.')
+      try {
+        console.log('✅ patient found:', "Run search")
+        console.log(formValues)
+       
+        if(formValues){
+          const response = await patientService.getPatientBySearch(formValues?.patientNo, formValues?.nicNo, formValues?.patientName, formValues?.mobileNo)
+          setPatientList(response)
+        }else{
+           setPatientList([]) // Clear list on error
+           setSearchedBoxMessage('System Error Cant get form Value.')
+        }
+      
+        } catch (err) {
+      
+        setPatientList([]) // Clear list on error
+        setSearchedBoxMessage('No Patient found matching your search.')
        }
       }, 500)
     
@@ -88,10 +94,6 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxPr
 
     
     try {
-      // const response = await patientService.getPatientBySearch(data.patientNo, data.nicNo, data.mobileNo, data.patientName)
-
-      // setPatientList(response) // Populate the list with API data
-
       setFormValues(data)
     } catch (error) {
      
@@ -99,17 +101,17 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxPr
     }
   }
 
-  // Handler for selecting a guardian from the list
-  const handleSelect = (guardian: Guardian) => {
-    onSelectGuardian(guardian) // Pass selected name back to parent
+  // Handler for selecting a patient from the list
+  const handleSelect = (patient: PatientResponceDTO) => {
+    onSelectPatient(patient) // Pass selected name back to parent
     handleCloseDialog() // Close dialog and return focus
   }
 
   // Handler for the reset button
   const handleReset = () => {
     reset() // Reset react-hook-form
-    setSearchedBoxMessage('Please enter NIC no or Guardian Name to search.')
-    setPatientList([]) // Clear the guardian list
+    setSearchedBoxMessage('Please enter NIC no or Patient Name to search.')
+    setPatientList([])
   }
 
   return (
@@ -142,10 +144,19 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxPr
                 render={({ field }) => (
                   <CustomTextField
                     {...field}
+                    inputRef={field.ref}
+                    autoFocus
+                    onFocus={(e) => {
+                      setTimeout(() => {e.target.select();}, 5);
+                    }}
                     onChange={e => {
+                     
                       const value = e.target.value
+                     
                       field.onChange(e)
+                     
                       if (value.length >= 4) {
+                      
                         handleSubmit(onSubmit)()
                       }
                     }}
@@ -168,8 +179,11 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxPr
                     onChange={e => {
                      
                       const value = e.target.value
+                    
                       field.onChange(e)
+                    
                       if (value.length >= 3) {
+                       
                         handleSubmit(onSubmit)()
                       }
                     }}
@@ -187,10 +201,12 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxPr
                 control={control}
                 rules={{
                   validate: value => {
-                    const nicNo = getValues('nicNo')
+                  
                     if (value && value.length < 3) {
+                      
                       return 'Must be at least 3 characters.'
                     }
+                  
                     return true
                   }
                 }}
@@ -198,7 +214,9 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxPr
                   <CustomTextField
                     {...field}
                     onChange={e => {
+                      
                       field.onChange(e)
+                      
                       if (e.target.value.length >= 3) {
                         handleSubmit(onSubmit)()
                       }
@@ -225,14 +243,20 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxPr
                     return true
                   }
                 }}
+
                 render={({ field }) => (
                   <CustomTextField
                     {...field}
                     onChange={e => {
+                      
                       const value = e.target.value
+                     
                       field.onChange(e)
+                     
                       trigger('nicNo')
+                     
                       if (value.length >= 3) {
+                     
                         handleSubmit(onSubmit)()
                       }
                     }}
@@ -252,7 +276,7 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxPr
           </Grid>
         </form>
         <div className='flex flex-col gap-4'>
-          <Typography variant='h5'>{`${patientList.length} Members Found`}</Typography>
+          <Typography variant='h5'>{`${patientList.length} Patient Found`}</Typography>
 
           {/* This is the scrollable Box container */}
           <Box
@@ -270,10 +294,10 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectGuardian }: DialogBoxPr
                   <div className='flex justify-between items-center is-full overflow-hidden'>
                     <div className='flex flex-col items-start overflow-hidden'>
                       <Typography className='truncate is-full' color='text.primary'>
-                        {member.firstName} - {member.nic}
+                        {member.firstName} {member.lastName} - {member.patientNo}
                       </Typography>
                       <Typography variant='body2' className='truncate is-full'>
-                        {member.email}
+                        {member.address} :  {member.mobileNo}
                       </Typography>
                     </div>
                     <Button

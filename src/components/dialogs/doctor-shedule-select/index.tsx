@@ -2,7 +2,6 @@
 
 // React Imports
 import { useEffect, useState } from 'react'
-import type { ChangeEvent, ReactNode } from 'react' // Import ReactNode
 
 // MUI Imports
 import Dialog from '@mui/material/Dialog'
@@ -14,17 +13,13 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 
-// Type Imports
-// FIX: Make sure this type import is correct for your project
-import type { CustomInputVerticalData } from '@core/components/custom-inputs/types'
 
 // Component Imports
 import DialogCloseButton from '../DialogCloseButton'
 import AsyncAutocomplete from '@/components/form-components/AsyncAutocompleteProps'
 import CustomInputVertical from '@/@core/components/custom-inputs/Vertical'
-import type { Doctor } from '@/types/doctor.types' // Assuming Doctor has 'id' and 'specialization'
+import type { Doctor, DoctorScheduleDTO } from '@/types/doctor.types' // Assuming Doctor has 'id' and 'specialization'
 import { doctorSheduleService } from '@/services/doctor.shedule.service'
-import { DoctorScheduleDTO } from '@/types/doctor.types'
 
 
 type DialogBoxProps = {
@@ -36,6 +31,7 @@ type DialogBoxProps = {
 // Helper function to format time
 const formatTime = (timeString: string) => {
   const tempDate = new Date(`1970-01-01T${timeString}`);
+  
   return tempDate.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -51,6 +47,7 @@ const DoctorSheduleSelect = ({ open, setOpen, onSelectShedule }: DialogBoxProps)
     content: JSX.Element;
     isSelected: boolean;
   }[]>([]);
+  
   const [doctor, setDoctor] = useState<Doctor | null>(null)
   
   // FIX: Added state to manage the selected schedule
@@ -83,16 +80,17 @@ const DoctorSheduleSelect = ({ open, setOpen, onSelectShedule }: DialogBoxProps)
         
         // Format the date dynamically
         const scheduleDateObj = new Date(schedule.scheduleDate);
+        
         const scheduleDateStr = scheduleDateObj.toLocaleDateString('en-US', {
           month: 'long',
           year: 'numeric',
         });
+        
         const dayOfMonth = scheduleDateObj.getDate();
 
         return {
+        
           value: schedule || "",
-          
-          // 1. DYNAMIC TITLE
           title: (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box
@@ -212,7 +210,6 @@ const DoctorSheduleSelect = ({ open, setOpen, onSelectShedule }: DialogBoxProps)
                       <Grid size={{ xs: 12, md: 3, sm: 4 }} key={index}>
                         <CustomInputVertical
                           type='radio'
-                          // FIX: Use the state variable for selection
                           selected={selectedSchedule?.id?.toString() || ""}
                           handleChange={ () => {handleOptionChange(item.value)}}
                           data={{...item, value: item.value.id?.toString() || ""}}

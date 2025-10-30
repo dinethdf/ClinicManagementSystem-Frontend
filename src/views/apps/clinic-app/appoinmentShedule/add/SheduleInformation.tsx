@@ -54,7 +54,8 @@ const onSubmit = async (data: DoctorSchedule) => {
     startTime: schedule.startTime,
     endTime: schedule.endTime,
     payment: Number(schedule.price), // Ensure it's a number
-    maxPatientCount: Number(schedule.maxPatientCount) // Ensure it's a number
+    maxPatientCount: Number(schedule.maxPatientCount), // Ensure it's a number
+    registeredPatientCount:0
   }));
   
   try {

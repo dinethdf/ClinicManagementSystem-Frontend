@@ -1,70 +1,37 @@
-'use server'
+// services/appoinment.server.service.ts
 
-import { cookies } from 'next/headers'
+'use server'; // <-- THIS IS THE FIX
 
+import { http, ApiError } from '@/services/api.config.server'; // Your API client
+import { revalidatePath } from 'next/cache'; // Optional: if you want to refresh data
 
-export async function getAppointmentsPagable(page: number) {
-   try {
-      const cookieStore = await cookies()
-      const token = cookieStore.get('accessToken')?.value
+/**
+ * This is now a Server Action.
+ * It can be imported and called directly from any Client Component.
+ */
+export async function createAppointment(
+  doctorScheduleId: number,
+  patientId: number,
+  note: string | null
+) {
+  const appointmentData = {
+    doctorScheduleId,
+    patientId,
+    note,
+  };
+    console.log("call API")
+  try {
+    const newAppointment = await http.post('/api/appointments', appointmentData);
+    return { success: true, data: newAppointment };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/schedules/${page}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        cache: 'no-store'
-      })
-
-      console.log("API call in server " )
-
-      if (!res.ok) {
-        console.error('Failed to fetch patient:', res.status, res.statusText)
-
-        return null
-      }
-
-      const json = await res.json()
-
-      return json.data
-    } catch (error) {
-      console.error('Server-side get patient failed:', error)
-
-      return null
+  } catch (err) {
+    // We catch the error here so the client gets a clean response
+    if (err instanceof ApiError) {
+      return { success: false, error: { message: err.message, details: err.details } };
     }
+    
+    // Log the unexpected error on the server
+    console.error('Unexpected error in createAppointment:', err);
+    return { success: false, error: { message: 'An unknown server error occurred.' } };
+  }
 }
-
-// export class PatientServerSideService {
-//   static async getPatientById(
-//     id: string
-//   ): Promise<(Omit<Patient, 'id' | 'patientNo'> & { id: string; patientNo: string }) | null> {
-//     try {
-//       const cookieStore = await cookies()
-//       const token = cookieStore.get('accessToken')?.value
-
-//       const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/patient/details/staff/${id}`, {
-//         method: 'GET',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           ...(token ? { Authorization: `Bearer ${token}` } : {})
-//         },
-//         cache: 'no-store'
-//       })
-
-//       if (!res.ok) {
-//         console.error('Failed to fetch patient:', res.status, res.statusText)
-
-//         return null
-//       }
-
-//       const json = await res.json()
-
-//       return json.data
-//     } catch (error) {
-//       console.error('Server-side get patient failed:', error)
-
-//       return null
-//     }
-//   }
-// }

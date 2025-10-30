@@ -32,6 +32,7 @@ export interface ScheduleSlot {
   endTime: string
   price: number | null
   maxPatientCount: number | null
+  registeredPatientCount: number | null
 }
 
 export interface DoctorScheduleDTO {

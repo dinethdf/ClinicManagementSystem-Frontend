@@ -6,7 +6,8 @@ import Grid from '@mui/material/Grid2'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
-import type { ButtonProps } from '@mui/material/Button'
+
+import { useRouter } from 'next/navigation'
 
 // React Hook Form Imports
 import { useForm, Controller } from 'react-hook-form'
@@ -17,6 +18,8 @@ import { Button, InputAdornment, Typography } from '@mui/material'
 
 import type { TextFieldProps } from '@mui/material/TextField'
 
+import classNames from 'classnames'
+
 // Components Imports
 // import CustomIconButton from '@core/components/mui/IconButton'
 import CustomTextField from '@core/components/mui/TextField'
@@ -24,68 +27,89 @@ import CustomTextField from '@core/components/mui/TextField'
 // Style Imports
 import '@/libs/styles/tiptapEditor.css'
 
-import AsyncAutocomplete from '@/components/form-components/AsyncAutocompleteProps'
-
 import DoctorSheduleSelect from '@/components/dialogs/doctor-shedule-select'
 import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick'
-import { Appoinment } from '@/types/appoinments.types' // Assuming Schedule type might be in here
 import CustomAvatar from '@/@core/components/mui/Avatar'
-import classNames from 'classnames'
 import PatientSelectDialogBox from '@/components/dialogs/patient-select'
-import { DoctorScheduleDTO } from '@/types/doctor.types'
+import type { DoctorScheduleDTO } from '@/types/doctor.types'
+import { PatientResponceDTO } from '@/types/patient.types'
 
-// Define a type for your schedule based on your description
-type DoctorSchedule = {
-  id?: number
-  doctorId: number
-  scheduleDate: string
-  startTime: string
-  endTime: string
-  payment: number
-  maxPatientCount: number
-  isActive?: boolean
-}
+import { createAppointment } from '@/services/appoinment.server.service';
+
 
 const AppoinmentInformation = () => {
+
+  const router = useRouter()
+  
   const methods = useForm<{
-    doctor: any
     schedules: DoctorScheduleDTO | null // Use the specific type here
-    patient: any
+    patient: PatientResponceDTO | null
+    note: string
   }>({
     defaultValues: {
-      doctor: null,
+  
       schedules: null,
-      patient: null
+      patient: null,
+      note: ""
     }
   })
 
   // Add 'watch' to destructuring
-  const { control, watch, setValue, formState: { errors } } = methods
+  const { control, watch, reset, formState: { errors } } = methods
 
   // Watch the 'schedules' field to update the UI dynamically
   const watchedSchedule = watch('schedules')
-  const watchedDoctor = watch('doctor')
 
-  const buttonProps: ButtonProps = {
-    variant: 'contained',
-    children: 'Show'
+
+  const onSubmit = async (data:any) => {
+
+  if (!data.schedules) {
+    toast.error('Please select a doctor schedule first.');
+    return;
+  }
+  
+  if (!data.patient) {
+    toast.error('Please select a patient first.');
+    return;
   }
 
-  const onSubmit = async (data: any) => {
-    if (!data.doctor) {
-      toast.error('Please select a doctor first.')
-      return
-    }
-    // Add logic to handle schedule submission
-    console.log(data)
+  const result = await createAppointment(
+    data.schedules.id,
+    data.patient.id,
+    data.note
+  );
+  if (result.success) {
+
+    console.log('✅ Appointment created successfully:', result);
+    reset();
+    router.replace(`view/${result?.data?.id ? result?.data?.id : 'error'}`)
+    
+    toast.success(`Appointment created: ${result.data.appointmentNumber}`, {
+      hideProgressBar: false,
+      className: 'custom-toast',
+      progressStyle: {
+        backgroundColor: 'var(--mui-palette-primary-main)'
+      }
+    });
+
+  } else {
+    // FAILURE (Handled by the Server Action)
+    console.error('Failed to create appointment:', result.error);
+    
+    toast.error(`${result?.error?.message}`, {
+      autoClose: false,
+      hideProgressBar: false,
+      className: 'custom-toast',
+      progressStyle: {
+        backgroundColor: 'var(--mui-palette-error-main)'
+      }
+    });
+  }
   }
 
-    const selectShedule = (shedule:DoctorScheduleDTO | null) =>{
-      console.log("first")
-        console.log(shedule)
-            setValue("schedules", shedule)
-                      
-    }   
+  // const selectShedule = (shedule:DoctorScheduleDTO | null) =>{ // This one do in that Inline fuction
+  //  setValue("schedules", shedule)
+  // }   
 
   return (
     <Card>
@@ -99,7 +123,7 @@ const AppoinmentInformation = () => {
                 control={control}
                 rules={{ required: true }}
                 render={({ field }) => {
-                  // **MODIFIED:** Display formatted schedule info
+              
                   const displayValue =
                     field.value && field.value.doctorName
                       ? `Dr. ${field.value?.doctorName} : ${field.value.specialization}`
@@ -122,13 +146,14 @@ const AppoinmentInformation = () => {
                     inputProps: { style: { cursor: 'pointer' } },
                     ...(errors.schedules && { error: true, helperText: 'Schedule is required' })
                   }
+                 
                   return (
                     <OpenDialogOnElementClick
                       element={CustomTextField}
                       elementProps={textFieldProps}
                       dialog={DoctorSheduleSelect}
                       dialogProps={{
-                        onSelectShedule: selectShedule
+                        onSelectShedule: field.onChange
                       }}
                     />
                   )
@@ -145,7 +170,6 @@ const AppoinmentInformation = () => {
                 <div>
                   <Typography variant='body2'>Date</Typography>
                   <Typography color='text.primary' className='font-semibold'>
-                    {/* **MODIFIED:** Show selected schedule date */}
                     {watchedSchedule ? watchedSchedule.scheduleDate : 'N/A'}
                   </Typography>
                 </div>
@@ -205,12 +229,12 @@ const AppoinmentInformation = () => {
               <Controller
                 name='patient'
                 control={control}
-                rules={{ required: false }} // Make required if patient is mandatory
+                rules={{ required: true }} // Make required if patient is mandatory
                 render={({ field }) => {
                   // This displayValue logic might need adjusting based on your patient object
                   const displayValue =
                     field.value && typeof field.value === 'object'
-                      ? `${field.value.firstName || ''} ${field.value.lastName || ''}`.trim()
+                      ? `${field.value.firstName || ''} ${field.value.lastName || ''} : ${field.value.patientNo || ''} ${field.value.guardian?.id ? '( Child )' : ""}`.trim()
                       : ''
 
                   const textFieldProps: TextFieldProps = {
@@ -227,28 +251,41 @@ const AppoinmentInformation = () => {
                         </InputAdornment>
                       )
                     },
-                    inputProps: { style: { cursor: 'pointer' } }
-                    // ...(errors.patient && { error: true, helperText: errors.patient.message })
+                    inputProps: { style: { cursor: 'pointer' } },
+                    ...(errors.patient && { error: true, helperText: 'Patient is required' })
                   }
+
                   return (
                     <OpenDialogOnElementClick
                       element={CustomTextField}
                       elementProps={textFieldProps}
                       dialog={PatientSelectDialogBox}
                       dialogProps={{
-                        // **NOTE:** You'll need to do the same here,
-                        // e.g., onSelectPatient: field.onChange
+                      onSelectPatient: field.onChange
                       }}
                     />
                   )
                 }}
               />
             </Grid>
-            
-            {/* Other fields - I've removed the product-specific ones */}
             <Grid size={{ xs: 12 }}>
-              <CustomTextField fullWidth label='Notes' placeholder='Any additional notes...' />
+              <Controller
+                name='note'
+                control={control}
+                rules={{ required: false }}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    label='Notes (optional)'
+                    placeholder='Any additional notes...'
+                    {...(errors.note && { error: true, helperText: "" })}
+                  />
+                )}
+              />
             </Grid>
+
+            
           </Grid>
 
           <Card className='p-0 shadow-none'>

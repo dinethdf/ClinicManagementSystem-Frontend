@@ -35,7 +35,7 @@ const SheduleVariants = () => {
   useEffect(() => {
     if (fields.length === 0) {
       // Updated to use startTime and endTime
-      append({ date: '', startTime: '', endTime: '', price: 0, maxPatientCount: 0 })
+      append({ date: '', startTime: '', endTime: '', price: 0, maxPatientCount: 0, registeredPatientCount: 0 })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -243,7 +243,7 @@ const SheduleVariants = () => {
           <Grid size={{ xs: 12 }}>
             <Button
               variant='contained'
-              onClick={() => append({ date: '', startTime: '', endTime: '', price: 0, maxPatientCount: 0 })}
+              onClick={() => append({ date: '', startTime: '', endTime: '', price: 0, maxPatientCount: 0, registeredPatientCount:0 })}
             >
               Add Another Option
             </Button>

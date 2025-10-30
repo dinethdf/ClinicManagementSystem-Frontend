@@ -1,4 +1,4 @@
-import type { Doctor, DoctorScheduleDTO } from '@/types/doctor.types';
+import type { DoctorScheduleDTO } from '@/types/doctor.types';
 import { apiClient } from './api.config'
 
 interface ApiResponse<T> {
@@ -12,7 +12,7 @@ class DoctorSheduleService {
 async getDoctorSchedulesByDoctor(id: number): Promise<DoctorScheduleDTO[]> {
   try {
   
-    const response : any = await apiClient.get<ApiResponse<DoctorScheduleDTO[]>>(`/api/schedules/by-doctor/${id}/upcoming`);
+    const response = await apiClient.get<ApiResponse<DoctorScheduleDTO[]>>(`/api/schedules/by-doctor/${id}/upcoming`);
   
     // console.log(response.data)
     
