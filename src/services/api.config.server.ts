@@ -44,6 +44,7 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
 
   if (!res.ok) {
     let errorBody: ApiErrorResponse;
+    
     try {
       errorBody = await res.json();
     } catch {
@@ -68,6 +69,7 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
   }
 
   const json = await res.json();
+  
   return json.data;
 }
 

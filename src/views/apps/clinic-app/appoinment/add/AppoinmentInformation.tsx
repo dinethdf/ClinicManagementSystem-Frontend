@@ -1,5 +1,7 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
+
 // MUI Imports
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid2'
@@ -7,7 +9,6 @@ import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 
-import { useRouter } from 'next/navigation'
 
 // React Hook Form Imports
 import { useForm, Controller } from 'react-hook-form'
@@ -32,7 +33,7 @@ import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementCl
 import CustomAvatar from '@/@core/components/mui/Avatar'
 import PatientSelectDialogBox from '@/components/dialogs/patient-select'
 import type { DoctorScheduleDTO } from '@/types/doctor.types'
-import { PatientResponceDTO } from '@/types/patient.types'
+import type { PatientResponceDTO } from '@/types/patient.types'
 
 import { createAppointment } from '@/services/appoinment.server.service';
 
@@ -64,12 +65,16 @@ const AppoinmentInformation = () => {
   const onSubmit = async (data:any) => {
 
   if (!data.schedules) {
+    
     toast.error('Please select a doctor schedule first.');
+   
     return;
   }
   
   if (!data.patient) {
+    
     toast.error('Please select a patient first.');
+  
     return;
   }
 
@@ -78,6 +83,7 @@ const AppoinmentInformation = () => {
     data.patient.id,
     data.note
   );
+  
   if (result.success) {
 
     console.log('✅ Appointment created successfully:', result);

@@ -15,7 +15,7 @@ import AppoinmentListTable from './AppoinmentListTable'
 
 import { getAppointmentsPagable } from '@/services/appoinment.server.service'
 
-const OrderList = ({ orderData, initialData }: { orderData?: OrderType[]; initialData:string }) => {
+const OrderList = ({ orderData, initialData }: { orderData?: OrderType[]; initialData?:string }) => {
 
   const [appointments, setAppointments] = useState(initialData)
   const [page, setPage] = useState(1)
