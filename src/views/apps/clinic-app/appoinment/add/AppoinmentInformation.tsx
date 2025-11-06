@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 // MUI Imports
 import Divider from '@mui/material/Divider'
@@ -37,10 +37,13 @@ import type { PatientResponceDTO } from '@/types/patient.types'
 
 import { createAppointment } from '@/services/appoinment.server.service';
 
+import { encodeHideValue } from '@/utils/encode'
+
 
 const AppoinmentInformation = () => {
 
   const router = useRouter()
+  const params = useParams()
   
   const methods = useForm<{
     schedules: DoctorScheduleDTO | null // Use the specific type here
@@ -85,11 +88,13 @@ const AppoinmentInformation = () => {
   );
   
   if (result.success) {
-
-    console.log('✅ Appointment created successfully:', result);
-    reset();
-    router.replace(`view/${result?.data?.id ? result?.data?.id : 'error'}`)
     
+    reset();
+    const appinemntId = result?.data?.id || 0
+    const encoded = encodeHideValue(appinemntId);
+
+    router.replace(`/${params.lang}/clinic/payment/appoinment/${result?.data?.id ? encoded : 'error'}`)
+  
     toast.success(`Appointment created: ${result.data.appointmentNumber}`, {
       hideProgressBar: false,
       className: 'custom-toast',
@@ -98,8 +103,9 @@ const AppoinmentInformation = () => {
       }
     });
 
+
   } else {
-    // FAILURE (Handled by the Server Action)
+
     console.error('Failed to create appointment:', result.error);
     
     toast.error(`${result?.error?.message}`, {
@@ -113,9 +119,6 @@ const AppoinmentInformation = () => {
   }
   }
 
-  // const selectShedule = (shedule:DoctorScheduleDTO | null) =>{ // This one do in that Inline fuction
-  //  setValue("schedules", shedule)
-  // }   
 
   return (
     <Card>

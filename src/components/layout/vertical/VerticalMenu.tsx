@@ -122,6 +122,16 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
               </MenuItem>
             </SubMenu>
 
+            <SubMenu label={"Appoinment Pay"}>
+              <MenuItem href={`/${locale}/clinic/payment/appoinment/4987`}>
+                {"Paty"}
+              </MenuItem>
+
+              <MenuItem href={`/${locale}/clinic/payment/appoinment`}>
+                {dictionary['navigation'].appoinmentSheduleList}
+              </MenuItem>
+            </SubMenu>            
+
             <SubMenu label={dictionary['navigation'].appoinments}>
               <MenuItem href={`/${locale}/clinic/appoinment/list`}>{dictionary['navigation'].appoinmentList}</MenuItem>
               <MenuItem href={`/${locale}/clinic/appoinment/create`}>
