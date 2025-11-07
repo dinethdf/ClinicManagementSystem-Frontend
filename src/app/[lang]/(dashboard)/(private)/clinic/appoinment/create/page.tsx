@@ -5,7 +5,8 @@ import Grid from '@mui/material/Grid2'
 import AppoinmentAddHeader from '@/views/apps/clinic-app/appoinment/add/AppoinmentAddHeader'
 import AppoinmentInformation from '@views/apps/clinic-app/appoinment/add/AppoinmentInformation'
 
-const eCommerceProductsAdd = () => {
+
+const appointmentCreate = () => {
   
   return (
     <Grid container spacing={6}>
@@ -24,4 +25,4 @@ const eCommerceProductsAdd = () => {
   )
 }
 
-export default eCommerceProductsAdd
+export default appointmentCreate

@@ -53,7 +53,8 @@ const onSubmit = async (data: DoctorSchedule) => {
     scheduleDate: schedule.date,
     startTime: schedule.startTime,
     endTime: schedule.endTime,
-    payment: Number(schedule.price), // Ensure it's a number
+    doctorFee: Number(schedule.doctorFee),
+    clinicFee: Number(schedule.clinicFee),     // Ensure it's a number
     maxPatientCount: Number(schedule.maxPatientCount), // Ensure it's a number
     registeredPatientCount:0
   }));

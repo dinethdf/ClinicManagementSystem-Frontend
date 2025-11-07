@@ -93,9 +93,9 @@ const AppoinmentInformation = () => {
     const appinemntId = result?.data?.id || 0
     const encoded = encodeHideValue(appinemntId);
 
-    router.replace(`/${params.lang}/clinic/payment/appoinment/${result?.data?.id ? encoded : 'error'}`)
+    router.replace(`/${params.lang}/clinic/appoinment/payment/${result?.data?.id ? encoded : 'error'}`)
   
-    toast.success(`Appointment created: ${result.data.appointmentNumber}`, {
+    toast.success(`Appointment created: ${result.data.id}`, {
       hideProgressBar: false,
       className: 'custom-toast',
       progressStyle: {
@@ -223,7 +223,7 @@ const AppoinmentInformation = () => {
                   <Typography variant='body2'>Payment</Typography>
                   <Typography color='text.primary' className='font-semibold'>
                     {/* **MODIFIED:** Show selected schedule payment */}
-                    {watchedSchedule ? `Rs. ${watchedSchedule.payment.toFixed(2)}` : 'N/A'}
+                    {watchedSchedule ? `Rs. ${(watchedSchedule.doctorFee + watchedSchedule.clinicFee).toFixed(2)}` : 'N/A'}
                   </Typography>
                 </div>
               </div>
