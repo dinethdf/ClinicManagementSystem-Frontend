@@ -12,10 +12,13 @@ async getPatients({ page, pageSize, search }: GetPatientsParams): Promise<Pagina
          search: search 
        }
      })
+     
      console.log("api call patienet pagination")
+     
      return response.data
    } catch (error: any) {
-     throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch patient list')
+    
+    throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch patient list')
    }
 }
 

@@ -14,6 +14,7 @@ const EditPage = async (props: { params: Promise<{ id: string }> }) => {
   const encoded = decodeHideValue(params.id);
 
   const result = await getAppointmentInvoiceview(Number(encoded));
+  
   if (!result || (Array.isArray(result) && result.length === 0)) {
       redirect('/en/clinic/appoinment/list');
   } else{

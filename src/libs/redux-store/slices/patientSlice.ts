@@ -46,6 +46,7 @@ export const fetchPatients = createAsyncThunk(
   async ({ page, pageSize, search }: FetchPatientsArgs, { rejectWithValue }) => {
     try {
       const response = await patientService.getPatients({ page, pageSize, search })
+      
       return response 
     } catch (err: any) {
       return rejectWithValue(err.message)
@@ -62,6 +63,7 @@ export const patientSlice = createSlice({
       state.pageSize = action.payload
       state.currentPage = 1
     },
+    
     // Reducer to update the search query from a text field
     setSearchQuery: (state, action: PayloadAction<string>) => {
       state.searchQuery = action.payload

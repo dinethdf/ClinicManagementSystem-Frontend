@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState, type SyntheticEvent } from 'react'
+import { useState } from 'react'
 
 // MUI Imports
 import Grid from '@mui/material/Grid2'
@@ -14,8 +14,6 @@ import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import InputLabel from '@mui/material/InputLabel'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import type { Theme } from '@mui/material/styles'
 import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -58,12 +56,11 @@ interface InvoiceFormData {
   note: string;
 }
 
-// Styled Table Row for striped effect (optional, but looks nice)
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
     backgroundColor: theme.palette.action.hover,
   },
-  // hide last border
+
   '&:last-child td, &:last-child th': {
     border: 0,
   },
@@ -71,7 +68,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appointmentInvDetails?: any }) => {
   
-  const isBelowMdScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
+  // const isBelowMdScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
   const [issueDate, setIssueDate] = useState<Date | null | undefined>(
       appointmentInvDetails?.dateIssued ? new Date(appointmentInvDetails.dateIssued) : new Date()

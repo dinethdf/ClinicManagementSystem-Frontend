@@ -20,7 +20,8 @@ export async function createAppointment(
         patientId,
         note,
       };
-    try {
+    
+      try {
     
       const newAppointment = await http.post('/api/appointments', appointmentData);
   
@@ -86,12 +87,17 @@ export async function getAppointmentInvoiceview(appintmentId: number) {
         },
         cache: 'no-store'
       })
+      
       if (!res.ok) {
         console.error('Failed to fetch patient:', res.status, res.statusText)
+        
         return null
       }
+     
       const json = await res.json()
+      
       return json.data
+  
     } catch (error) {
       console.error('Server-side get patient failed:', error)
 
@@ -100,15 +106,21 @@ export async function getAppointmentInvoiceview(appintmentId: number) {
 }
 
 export async function processInvoicePayment(payload: any) {
+  
   try {
     // This calls POST http://localhost:8080/api/payments/
     const response = await http.post('/api/payments/appointment/pay', payload);
+    
     return { success: true, data: response };
   } catch (err) {
+  
     if (err instanceof ApiError) {
+  
       return { success: false, error: { message: err.message, details: err.details } };
     }
+    
     console.error("Unexpected payment error:", err);
+ 
     return { success: false, error: { message: "An unexpected error occurred during payment." } };
   }
 }

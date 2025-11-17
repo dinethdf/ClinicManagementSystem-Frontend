@@ -3,6 +3,8 @@
 // React Imports
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 
+import { useRouter, useParams } from 'next/navigation'
+
 // MUI Imports
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -13,20 +15,19 @@ import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid2'
 import Box from '@mui/material/Box'
 
-// Third-party Imports
-import classnames from 'classnames'
+import { toast } from 'react-toastify'
 
 // Type Import
-import { CustomInputHorizontalData } from '@core/components/custom-inputs/types'
+import type { CustomInputHorizontalData } from '@core/components/custom-inputs/types'
 
 // Components Imports
 import CustomInputHorizontal from '@core/components/custom-inputs/Horizontal'
-import DialogCloseButton from '../DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
-import { toast } from 'react-toastify'
+
+import DialogCloseButton from '../DialogCloseButton'
 
 import { processInvoicePayment } from '@/services/appoinment.server.service';
-import { useRouter, useParams } from 'next/navigation'
+
 
 // Define the shape of the payment data
 type AddEditPaymentData = {
@@ -100,6 +101,7 @@ const PaymentFinalizer = ({ open, setOpen, finalTotal, invoiceId, discounts }: A
 
   const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
+    
     setPaymentDetails(prev => ({
       ...prev,
       [name]: name === 'payAmount' ? (value === '' ? null : parseFloat(value)) : value
@@ -107,7 +109,9 @@ const PaymentFinalizer = ({ open, setOpen, finalTotal, invoiceId, discounts }: A
   }
 
   const handleMethodChange = (prop: string | ChangeEvent<HTMLInputElement>) => {
+    
     const value = typeof prop === 'string' ? prop : (prop.target as HTMLInputElement).value
+    
     setSelectedMethod(value)
   }
 
@@ -125,14 +129,18 @@ const PaymentFinalizer = ({ open, setOpen, finalTotal, invoiceId, discounts }: A
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
-    // Validate
     if (selectedMethod === 'Cash' && payAmount < required) {
-       alert("Insufficient cash amount."); // Replace with toast later
-       return;
+       
+      alert("Insufficient cash amount."); // Replace with toast later
+    
+      return;
     }
+
     if (selectedMethod !== 'Cash' && !paymentDetails.transactionId) {
-        alert("Transaction ID is required for non-cash payments.");
-        return;
+        
+      alert("Transaction ID is required for non-cash payments.");
+      
+      return;
     }
 
   // Prepare data for API matched exactly to your backend DTO
@@ -149,13 +157,10 @@ const PaymentFinalizer = ({ open, setOpen, finalTotal, invoiceId, discounts }: A
       const result = await processInvoicePayment(paymentPayload);
 
       if (result.success) {
-       
           toast.success("Payment successful!");
           handleClose();
          router.replace(`/${params.lang}/clinic/appoinment/list`)
-          // Optional: Redirect or refresh page
-          
-          // window.location.href = `/invoices/${invoiceId}`; 
+        
       } else {
           toast.error(result?.error?.message || "Payment failed");
           console.error("Payment Error:", result.error);

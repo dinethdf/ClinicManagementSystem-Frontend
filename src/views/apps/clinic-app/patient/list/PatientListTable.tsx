@@ -6,9 +6,9 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 
 // Redux Imports
 import { useDispatch, useSelector } from 'react-redux'
-import type { RootState, AppDispatch } from '@/libs/redux-store'
+
+
 // 1. IMPORT: Added setSearchQuery and resetSearchQuery
-import { fetchPatients, setPageSize, setSearchQuery, resetSearchQuery } from '@/libs/redux-store/slices/patientSlice'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -31,6 +31,10 @@ import {
 } from '@tanstack/react-table'
 import type { ColumnDef } from '@tanstack/react-table'
 
+import type { RootState, AppDispatch } from '@/libs/redux-store'
+
+import { fetchPatients, setPageSize, setSearchQuery, resetSearchQuery } from '@/libs/redux-store/slices/patientSlice'
+
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 import CustomTextField from '@core/components/mui/TextField'
@@ -47,17 +51,23 @@ import tableStyles from '@core/styles/table.module.css'
 // --- HELPER FUNCTIONS ---
 const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) {
+  
     return 'N/A'
   }
+  
   try {
+   
     const date = new Date(dateString)
+    
     const options: Intl.DateTimeFormatOptions = {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
     }
+
     return date.toLocaleDateString('en-US', options)
   } catch (error) {
+
     return 'Invalid Date'
   }
 }
@@ -82,28 +92,30 @@ const DebouncedInput = ({
   }, [initialValue])
 
   useEffect(() => {
-    // If this is the first render, set ref to false and do nothing
+    
     if (isInitialMount.current) {
+   
       isInitialMount.current = false;
+    
       return;
     }
 
-    // On all subsequent renders (user typing), run the timer
     const timeout = setTimeout(() => {
       onChange(value)
     }, debounce)
+
     return () => clearTimeout(timeout)
-  }, [value, onChange, debounce]) // Added all dependencies
+  }, [value, onChange, debounce])
 
   return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
 }
 
-// Column Helper
 const columnHelper = createColumnHelper<PatientResponceDTO>()
 
 const PatientListTable = () => {
-  // --- Redux Hooks ---
+
   const dispatch = useDispatch<AppDispatch>()
+ 
   const {
     data: patients, 
     status,
@@ -132,8 +144,10 @@ const PatientListTable = () => {
 
     if (isInitialUpdate.current) {
       isInitialUpdate.current = false; 
+     
       return;
     }
+    
     console.log("API call: Search/PageSize Updated");
     dispatch(fetchPatients({ page: 1, pageSize, search: searchQuery }));
 
@@ -141,19 +155,27 @@ const PatientListTable = () => {
 
 
   const handleSearch = useCallback((value: string | number) => {
+   
     const query = String(value)
+    
     console.log("Search query changed, dispatching to Redux...")
+    
     if (query.length >= 3) {
       dispatch(setSearchQuery(query))
+    
     } else {
+    
       if (searchQuery !== '') {
+    
         dispatch(resetSearchQuery())
       }
     }
   }, [dispatch, searchQuery])
 
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+   
     const newPageSize = Number(e.target.value)
+    
     dispatch(setPageSize(newPageSize)) 
   }
 
