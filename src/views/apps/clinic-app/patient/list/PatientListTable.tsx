@@ -1,11 +1,12 @@
 'use client'
 
 // React Imports
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 
-// Next Imports
-import Link from 'next/link'
-import { useParams } from 'next/navigation'
+// Redux Imports
+import { useDispatch, useSelector } from 'react-redux'
+import type { RootState, AppDispatch } from '@/libs/redux-store'
+import { fetchPatients, setPageSize } from '@/libs/redux-store/slices/patientSlice'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -16,91 +17,56 @@ import Checkbox from '@mui/material/Checkbox'
 import TablePagination from '@mui/material/TablePagination'
 import type { TextFieldProps } from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
+import Chip from '@mui/material/Chip'
 
 // Third-party Imports
 import classnames from 'classnames'
-import { rankItem } from '@tanstack/match-sorter-utils'
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
-  getFilteredRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFacetedMinMaxValues,
-  getPaginationRowModel,
-  getSortedRowModel
 } from '@tanstack/react-table'
-import type { ColumnDef, FilterFn } from '@tanstack/react-table'
-import type { RankingInfo } from '@tanstack/match-sorter-utils'
-
-// Type Imports
-import type { ThemeColor } from '@/@core/typesDef'
-import type { Customer } from '@/types/apps/ecommerceTypes'
-import type { Locale } from '@configs/i18n'
+import type { ColumnDef } from '@tanstack/react-table'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 import CustomTextField from '@core/components/mui/TextField'
-import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Util Imports
 import { getInitials } from '@/utils/getInitials'
-import { getLocalizedUrl } from '@/utils/i18n'
+
+// Type Imports
+// This is the CRITICAL FIX: We import your actual DTO
+import type { PatientResponceDTO } from '@/types/patient.types'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
-declare module '@tanstack/table-core' {
-  interface FilterFns {
-    fuzzy: FilterFn<unknown>
+// --- HELPER FUNCTIONS ---
+
+/**
+ * Formats a date string (e.g., "YYYY-MM-DD") into "DD Mmm YYYY"
+ * Returns 'N/A' if the date is null or invalid.
+ */
+const formatDate = (dateString: string | null | undefined) => {
+  if (!dateString) {
+    return 'N/A'
   }
-  interface FilterMeta {
-    itemRank: RankingInfo
+  try {
+    const date = new Date(dateString)
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }
+    return date.toLocaleDateString('en-US', options)
+  } catch (error) {
+    return 'Invalid Date'
   }
 }
 
-type PayementStatusType = {
-  text: string
-  color: ThemeColor
-}
-
-type StatusChipColorType = {
-  color: ThemeColor
-}
-
-export const paymentStatus: { [key: number]: PayementStatusType } = {
-  1: { text: 'Paid', color: 'success' },
-  2: { text: 'Pending', color: 'warning' },
-  3: { text: 'Cancelled', color: 'secondary' },
-  4: { text: 'Failed', color: 'error' }
-}
-
-export const statusChipColor: { [key: string]: StatusChipColorType } = {
-  Delivered: { color: 'success' },
-  'Out for Delivery': { color: 'primary' },
-  'Ready to Pickup': { color: 'info' },
-  Dispatched: { color: 'warning' }
-}
-
-type ECommerceOrderTypeWithAction = Customer & {
-  action?: string
-}
-
-const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
-  // Rank the item
-  const itemRank = rankItem(row.getValue(columnId), value)
-
-  // Store the itemRank info
-  addMeta({
-    itemRank
-  })
-
-  // Return if the item should be filtered in/out
-  return itemRank.passed
-}
-
+// --- DEBOUNCED INPUT ---
 const DebouncedInput = ({
   value: initialValue,
   onChange,
@@ -111,7 +77,6 @@ const DebouncedInput = ({
   onChange: (value: string | number) => void
   debounce?: number
 } & Omit<TextFieldProps, 'onChange'>) => {
-  // States
   const [value, setValue] = useState(initialValue)
 
   useEffect(() => {
@@ -122,32 +87,59 @@ const DebouncedInput = ({
     const timeout = setTimeout(() => {
       onChange(value)
     }, debounce)
-
     return () => clearTimeout(timeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
 
   return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
 }
 
-// Column Definitions
-const columnHelper = createColumnHelper<ECommerceOrderTypeWithAction>()
+// Column Helper - Now strongly typed to PatientResponceDTO
+const columnHelper = createColumnHelper<PatientResponceDTO>()
 
-const PatientListTable = ({ customerData }: { customerData?: Customer[] }) => {
-  // States
-  const [customerUserOpen, setCustomerUserOpen] = useState(false)
+const PatientListTable = () => {
+  // --- Redux Hooks ---
+  const dispatch = useDispatch<AppDispatch>()
+  const {
+    data: patients, 
+    status,
+    currentPage, 
+    pageSize,
+    totalItems,
+    totalPages,
+    searchQuery
+  } = useSelector((state: RootState) => state.patientReducer)
+
+  // --- Local State ---
   const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState(...[customerData])
-  const [globalFilter, setGlobalFilter] = useState('')
 
-  // Hooks
-  const { lang: locale } = useParams()
-
+  // --- Effects ---
   useEffect(() => {
-    setData(data)
-  }, [])
+    if (status === 'idle') {
+      console.log("Api  call in Main compinetn")
+      dispatch(fetchPatients({ page: 1, pageSize: 10, search: '' }))
+    }
+  }, [dispatch, status])
 
-  const columns = useMemo<ColumnDef<ECommerceOrderTypeWithAction, any>[]>(
+  // --- Handlers ---
+  const handleSearch = useCallback((value: string | number) => {
+    const query = String(value)
+    console.log("Search quary")
+
+    dispatch(fetchPatients({ page: 1, pageSize: pageSize, search: query }))
+  }, [dispatch, pageSize])
+
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPageSize = Number(e.target.value)
+    dispatch(setPageSize(newPageSize)) 
+    dispatch(fetchPatients({ page: 1, pageSize: newPageSize, search: searchQuery }))
+  }
+
+  const handlePageChange = (_: unknown, newPage: number) => {
+    dispatch(fetchPatients({ page: newPage + 1, pageSize, search: searchQuery }))
+  }
+
+  // --- Columns Definition ---
+  const columns = useMemo<ColumnDef<PatientResponceDTO, any>[]>(
     () => [
       {
         id: 'select',
@@ -171,97 +163,75 @@ const PatientListTable = ({ customerData }: { customerData?: Customer[] }) => {
           />
         )
       },
-      columnHelper.accessor('customer', {
-        header: 'Customers',
+      columnHelper.accessor('patientNo', {
+        header: 'Patient No',
+        cell: ({ row }) => (
+          <Typography color='primary' className='font-medium'>
+            {row.original.patientNo || 'N/A'}
+          </Typography>
+        )
+      }),
+      columnHelper.accessor('fullName', {
+        header: 'Patient Name',
         cell: ({ row }) => (
           <div className='flex items-center gap-3'>
-            {getAvatar({ avatar: row.original.avatar, customer: row.original.customer })}
+            <CustomAvatar skin='light' size={34} color='primary'>
+              {getInitials(row.original.fullName)}
+            </CustomAvatar>
             <div className='flex flex-col items-start'>
-              <Typography
-                component={Link}
-                color='text.primary'
-                href={getLocalizedUrl(`/apps/ecommerce/customers/details/${row.original.customerId}`, locale as Locale)}
-                className='font-medium hover:text-primary'
-              >
-                {row.original.customer}
+              <Typography className='font-medium hover:text-primary cursor-pointer' color='text.primary'>
+                {row.original.fullName}
               </Typography>
-              <Typography variant='body2'>{row.original.email}</Typography>
+              {/* FIXED: Use 'dob' from the DTO */}
+              <Typography variant='body2'>
+                DOB: {formatDate(row.original.dob)}
+              </Typography>
             </div>
           </div>
         )
       }),
-      columnHelper.accessor('customerId', {
-        header: 'Customer Id',
-        cell: ({ row }) => <Typography color='text.primary'>#{row.original.customerId}</Typography>
+      // FIXED: Replaced 'Gender' with 'Email'
+      columnHelper.accessor('email', {
+        header: 'Email',
+        cell: ({ row }) => <Typography>{row.original.email || 'N/A'}</Typography>
       }),
-      columnHelper.accessor('country', {
-        header: 'Country',
+      columnHelper.accessor('mobileNo', {
+        header: 'Mobile',
+        cell: ({ row }) => <Typography>{row.original.mobileNo}</Typography>
+      }),
+      columnHelper.accessor('isActive', {
+        header: 'Status',
         cell: ({ row }) => (
-          <div className='flex items-center gap-2'>
-            <img src={row.original.countryFlag} height={22} />
-            <Typography>{row.original.country}</Typography>
-          </div>
-        )
-      }),
-      columnHelper.accessor('order', {
-        header: 'Orders',
-        cell: ({ row }) => <Typography>{row.original.order}</Typography>
-      }),
-      columnHelper.accessor('totalSpent', {
-        header: 'Total Spent',
-        cell: ({ row }) => (
-          <Typography className='font-medium' color='text.primary'>
-            ${row.original.totalSpent.toLocaleString()}
-          </Typography>
+          <Chip
+            label={row.original.isActive ? 'Active' : 'Inactive'}
+            color={row.original.isActive ? 'success' : 'secondary'}
+            size='small'
+          />
         )
       })
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
 
+  // --- Table Instance ---
   const table = useReactTable({
-    data: data as Customer[],
+    data: (patients as PatientResponceDTO[]) || [],
     columns,
-    filterFns: {
-      fuzzy: fuzzyFilter
-    },
+    pageCount: totalPages, 
     state: {
       rowSelection,
-      globalFilter
-    },
-    initialState: {
       pagination: {
-        pageSize: 10
+        pageIndex: currentPage - 1, 
+        pageSize: pageSize
       }
     },
-    enableRowSelection: true, //enable row selection for all rows
-    // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
-    globalFilterFn: fuzzyFilter,
+    manualPagination: true,
+    manualFiltering: true, 
+    enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues()
+       filterFns: {} as any,
   })
-
-  const getAvatar = (params: Pick<Customer, 'avatar' | 'customer'>) => {
-    const { avatar, customer } = params
-
-    if (avatar) {
-      return <CustomAvatar src={avatar} skin='light' size={34} />
-    } else {
-      return (
-        <CustomAvatar skin='light' size={34}>
-          {getInitials(customer as string)}
-        </CustomAvatar>
-      )
-    }
-  }
 
   return (
     <>
@@ -271,17 +241,17 @@ const PatientListTable = ({ customerData }: { customerData?: Customer[] }) => {
       <Card>
         <CardContent className='flex justify-between flex-wrap max-sm:flex-col sm:items-center gap-4'>
           <DebouncedInput
-            value={globalFilter ?? ''}
-            onChange={value => setGlobalFilter(String(value))}
-            placeholder='Search'
+            value={searchQuery}
+            onChange={handleSearch}
+            placeholder='Search Patients'
             className='max-sm:is-full'
           />
           <div className='flex max-sm:flex-col items-start sm:items-center gap-4 max-sm:is-full'>
             <CustomTextField
               select
-              value={table.getState().pagination.pageSize}
-              onChange={e => table.setPageSize(Number(e.target.value))}
-              className='is-full sm:is-[70px]'
+              value={pageSize}
+              onChange={handlePageSizeChange}
+              className='is-full sm:is-[90px]'
             >
               <MenuItem value='10'>10</MenuItem>
               <MenuItem value='25'>25</MenuItem>
@@ -289,24 +259,16 @@ const PatientListTable = ({ customerData }: { customerData?: Customer[] }) => {
               <MenuItem value='100'>100</MenuItem>
             </CustomTextField>
             <Button
-              variant='tonal'
-              className='max-sm:is-full'
-              color='secondary'
-              startIcon={<i className='tabler-upload' />}
-            >
-              Export
-            </Button>
-            <Button
               variant='contained'
               color='primary'
               className='max-sm:is-full'
               startIcon={<i className='tabler-plus' />}
-              onClick={() => setCustomerUserOpen(!customerUserOpen)}
             >
-              Add Customer
+              Add Patient
             </Button>
           </div>
         </CardContent>
+        
         <div className='overflow-x-auto'>
           <table className={tableStyles.table}>
             <thead>
@@ -314,62 +276,45 @@ const PatientListTable = ({ customerData }: { customerData?: Customer[] }) => {
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
                     <th key={header.id}>
-                      {header.isPlaceholder ? null : (
-                        <>
-                          <div
-                            className={classnames({
-                              'flex items-center': header.column.getIsSorted(),
-                              'cursor-pointer select-none': header.column.getCanSort()
-                            })}
-                            onClick={header.column.getToggleSortingHandler()}
-                          >
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                            {{
-                              asc: <i className='tabler-chevron-up text-xl' />,
-                              desc: <i className='tabler-chevron-down text-xl' />
-                            }[header.column.getIsSorted() as 'asc' | 'desc'] ?? null}
-                          </div>
-                        </>
-                      )}
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </th>
                   ))}
                 </tr>
               ))}
             </thead>
-            {table.getFilteredRowModel().rows.length === 0 ? (
-              <tbody>
+            <tbody>
+              {status === 'loading' ? (
                 <tr>
-                  <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                    No data available
+                  <td colSpan={columns.length} className='text-center p-4'>
+                    Loading...
                   </td>
                 </tr>
-              </tbody>
-            ) : (
-              <tbody>
-                {table
-                  .getRowModel()
-                  .rows.slice(0, table.getState().pagination.pageSize)
-                  .map(row => {
-                    return (
-                      <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                        {row.getVisibleCells().map(cell => (
-                          <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                        ))}
-                      </tr>
-                    )
-                  })}
-              </tbody>
-            )}
+              ) : table.getRowModel().rows.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length} className='text-center p-4'>
+                    No patients found
+                  </td>
+                </tr>
+              ) : (
+                table.getRowModel().rows.map(row => (
+                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                    {row.getVisibleCells().map(cell => (
+                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
           </table>
         </div>
+
         <TablePagination
-          component={() => <TablePaginationComponent table={table} />}
-          count={table.getFilteredRowModel().rows.length}
-          rowsPerPage={table.getState().pagination.pageSize}
-          page={table.getState().pagination.pageIndex}
-          onPageChange={(_, page) => {
-            table.setPageIndex(page)
-          }}
+          component='div'
+          count={totalItems} 
+          rowsPerPage={pageSize}
+          page={currentPage - 1} 
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handlePageSizeChange} 
         />
       </Card>
     </>
