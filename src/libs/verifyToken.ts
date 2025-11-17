@@ -55,8 +55,8 @@ export async function verifyToken(): Promise<{
     }
 
     // Check expiration
-    console.log('Tocken Verifu authentication.ts')
-    console.log(payload)
+    // console.log('Tocken Verifu authentication.ts')
+    // console.log(payload)
     const now = Math.floor(Date.now() / 1000)
 
     if (payload.exp && payload.exp < now) {

@@ -30,7 +30,8 @@ export interface ScheduleSlot {
   date: string // Or Date, if you prefer to work with Date objects
   startTime: string
   endTime: string
-  price: number | null
+  doctorFee: number | null
+  clinicFee: number | null
   maxPatientCount: number | null
   registeredPatientCount: number | null
 }
@@ -43,7 +44,8 @@ export interface DoctorScheduleDTO {
   specialization?:string
   startTime: string
   endTime: string
-  payment: number
+  doctorFee: number
+  clinicFee: number  
   registeredPatientCount: number
   maxPatientCount: number
   isActive?: boolean

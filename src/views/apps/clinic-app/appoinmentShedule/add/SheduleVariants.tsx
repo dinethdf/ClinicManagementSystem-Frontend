@@ -35,7 +35,7 @@ const SheduleVariants = () => {
   useEffect(() => {
     if (fields.length === 0) {
       // Updated to use startTime and endTime
-      append({ date: '', startTime: '', endTime: '', price: 0, maxPatientCount: 0, registeredPatientCount: 0 })
+      append({ date: '', startTime: '', endTime: '', doctorFee: 0, clinicFee: 0, maxPatientCount: 0, registeredPatientCount: 0 })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -182,9 +182,9 @@ const SheduleVariants = () => {
               </Grid>
 
               {/* 4. Price (Unchanged) */}
-              <Grid size={{ xs: 12, md: 3 }}>
+              <Grid size={{ xs: 12, md: 2 }}>
                 <Controller
-                  name={`schedules.${index}.price`}
+                  name={`schedules.${index}.doctorFee`}
                   control={control}
                   rules={{
                     required: 'Price is required',
@@ -192,22 +192,47 @@ const SheduleVariants = () => {
                   }}
                   render={({ field }) => (
                     <CustomTextField
-                      label='Payment'
+                      label='Doctor Fee'
                       type='number'
                       fullWidth
                       placeholder='Enter Price'
                       {...field}
                       value={field.value === 0 ? '' : field.value} // Show empty instead of 0
                       onChange={e => field.onChange(Number(e.target.value))}
-                      error={!!errors?.schedules?.[index]?.price}
-                      helperText={errors?.schedules?.[index]?.price?.message}
+                      error={!!errors?.schedules?.[index]?.doctorFee}
+                      helperText={errors?.schedules?.[index]?.doctorFee?.message}
                     />
                   )}
                 />
               </Grid>
 
+              {/* 4. Price (Unchanged) */}
+              <Grid size={{ xs: 12, md: 2 }}>
+                <Controller
+                  name={`schedules.${index}.clinicFee`}
+                  control={control}
+                  rules={{
+                    required: 'Price is required',
+                    min: { value: 1, message: 'Price must be > 0' }
+                  }}
+                  render={({ field }) => (
+                    <CustomTextField
+                      label='Clinic Fee'
+                      type='number'
+                      fullWidth
+                      placeholder='Enter Price'
+                      {...field}
+                      value={field.value === 0 ? '' : field.value} // Show empty instead of 0
+                      onChange={e => field.onChange(Number(e.target.value))}
+                      error={!!errors?.schedules?.[index]?.clinicFee}
+                      helperText={errors?.schedules?.[index]?.clinicFee?.message}
+                    />
+                  )}
+                />
+              </Grid>              
+
               {/* 5. Max Patient Count (Unchanged) */}
-              <Grid size={{ xs: 10, md: 2 }}>
+              <Grid size={{ xs: 10, md: 1 }}>
                 <Controller
                   name={`schedules.${index}.maxPatientCount`}
                   control={control}
@@ -243,7 +268,7 @@ const SheduleVariants = () => {
           <Grid size={{ xs: 12 }}>
             <Button
               variant='contained'
-              onClick={() => append({ date: '', startTime: '', endTime: '', price: 0, maxPatientCount: 0, registeredPatientCount:0 })}
+              onClick={() => append({ date: '', startTime: '', endTime: '', doctorFee: 0, clinicFee: 0, maxPatientCount: 0, registeredPatientCount:0 })}
             >
               Add Another Option
             </Button>

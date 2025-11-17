@@ -1,7 +1,7 @@
 import PatientListTable from '@views/apps/clinic-app/patient/list/PatientListTable'
 
 // Data Imports
-import { getEcommerceData } from '@/app/server/actions'
+// import { getEcommerceData } from '@/app/server/actions'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -23,9 +23,9 @@ import { getEcommerceData } from '@/app/server/actions'
 
 const CustomerListTablePage = async () => {
   // Vars
-  const data = await getEcommerceData()
+  // const data = await getEcommerceData()
 
-  return <PatientListTable customerData={data?.customerData} />
+  return <PatientListTable />
 }
 
 export default CustomerListTablePage

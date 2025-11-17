@@ -75,6 +75,8 @@ const DoctorSheduleSelect = ({ open, setOpen, onSelectShedule }: DialogBoxProps)
       // Use the 'id' parameter, not a hardcoded '1'
       const shedules = await doctorSheduleService.getDoctorSchedulesByDoctor(id);
 
+      console.log(shedules)
+
       const shedulesArray = shedules.map((schedule, index) => {
         const slotsAvailable = schedule.maxPatientCount - schedule.registeredPatientCount;
         
@@ -130,7 +132,7 @@ const DoctorSheduleSelect = ({ open, setOpen, onSelectShedule }: DialogBoxProps)
                   {doctor?.specialization.name} {/* Use specialization */}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" sx={{mt: 1}}>
-                  Slots: {slotsAvailable} | Fee: {schedule.payment}
+                  Slots: {slotsAvailable} | Fee: {schedule.doctorFee + schedule.clinicFee}
                 </Typography>
               </Box>
             </Box>
