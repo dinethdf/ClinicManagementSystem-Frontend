@@ -3,10 +3,12 @@ import { configureStore } from '@reduxjs/toolkit'
 
 // Slice Imports
 import calendarReducer from '@/libs/redux-store/slices/calendar'
+import patientReducer from '@/libs/redux-store/slices/patientSlice'
 
 export const store = configureStore({
   reducer: {
-    calendarReducer
+    calendarReducer,
+    patientReducer
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware({ serializableCheck: false })
 })

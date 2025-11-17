@@ -1,33 +1,25 @@
-import type { Patient, Guardian, PatientResponceDTO } from '../types/patient.types'
+import type { Patient, Guardian, PatientResponceDTO, GetPatientsParams, PaginatedPatientResponse } from '../types/patient.types'
 import { apiClient } from './api.config'
 
 class PatientService {
-  //   private patients: Patient[] = [...MOCK_PATIENTS]
 
-  //   async getAllPatients(): Promise<Patient[]> {
-  //     await new Promise((resolve) => setTimeout(resolve, 500))
-  //     return [...this.patients]
-  //   }
+async getPatients({ page, pageSize, search }: GetPatientsParams): Promise<PaginatedPatientResponse<PatientResponceDTO>> {
+   try {
+     const response = await apiClient.get<PaginatedPatientResponse<PatientResponceDTO>>('/api/patient/list', {
+       params: {
+         page: page - 1,
+         size: pageSize, 
+         search: search 
+       }
+     })
+     console.log("api call patienet pagination")
+     return response.data
+   } catch (error: any) {
+     throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch patient list')
+   }
+}
 
-  //   async searchPatients(query: string): Promise<Patient[]> {
-  //     await new Promise((resolve) => setTimeout(resolve, 400))
-  //     const lowerQuery = query.toLowerCase()
-  //     return this.patients.filter(
-  //       (p) => p.fullName.toLowerCase().includes(lowerQuery) || p.nic.includes(query) || p.phoneNumber.includes(query),
-  //     )
-  //   }
-
-  //   async getPatientById(id: string): Promise<Patient | null> {
-  //     await new Promise((resolve) => setTimeout(resolve, 300))
-  //     return this.patients.find((p) => p.id === id) || null
-  //   }
-
-  //   async getPatientByNIC(nic: string): Promise<Patient | null> {
-  //     await new Promise((resolve) => setTimeout(resolve, 300))
-  //     return this.patients.find((p) => p.nic === nic) || null
-  //   }
-
-  async createPatientDetails(patientData: Patient): Promise<any> {
+async createPatientDetails(patientData: Patient): Promise<any> {
     try {
       const response: any = await apiClient.post<Patient>('/api/patient/details/staff', {
         ...patientData,
@@ -49,20 +41,21 @@ class PatientService {
     } catch (error: any) {
       throw new Error(error.response?.data?.defaultMessage || 'Failed to create patient')
     }
-  }
-async getGuardianForChildPatient(nicNo: string, guardianName: string): Promise<Guardian[]> {
-  try {
-    const response = await apiClient.get<Guardian[]>('/api/patient/search-guardian', {
-      params: {
-        nic: nicNo,
-        fullName: guardianName 
-      }
-    });
+}
 
-    return response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch guardian data');
-  }
+  async getGuardianForChildPatient(nicNo: string, guardianName: string): Promise<Guardian[]> {
+    try {
+      const response = await apiClient.get<Guardian[]>('/api/patient/search-guardian', {
+        params: {
+          nic: nicNo,
+          fullName: guardianName 
+        }
+      });
+
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch guardian data');
+    }
 }
 
 
@@ -85,7 +78,7 @@ async getPatientBySearch(patientNo: string, nicNo: string, patientName: string, 
   }
 }
 
-  async getPatientById(id: string): Promise<Patient | null> {
+async getPatientById(id: string): Promise<Patient | null> {
     console.log('run get pat')
 
     try {
@@ -107,7 +100,7 @@ async getPatientBySearch(patientNo: string, nicNo: string, patientName: string, 
 
       return null
     }
-  }
+}
 
   //   async updatePatient(id: string, patientData: Partial<Patient>): Promise<Patient> {
   //     await new Promise((resolve) => setTimeout(resolve, 600))

@@ -1,12 +1,14 @@
 'use client'
 
 // React Imports
-import { useState, useEffect, useMemo, useCallback } from 'react'
+// 1. IMPORT: Added useRef
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 
 // Redux Imports
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState, AppDispatch } from '@/libs/redux-store'
-import { fetchPatients, setPageSize } from '@/libs/redux-store/slices/patientSlice'
+// 1. IMPORT: Added setSearchQuery and resetSearchQuery
+import { fetchPatients, setPageSize, setSearchQuery, resetSearchQuery } from '@/libs/redux-store/slices/patientSlice'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -37,18 +39,12 @@ import CustomTextField from '@core/components/mui/TextField'
 import { getInitials } from '@/utils/getInitials'
 
 // Type Imports
-// This is the CRITICAL FIX: We import your actual DTO
 import type { PatientResponceDTO } from '@/types/patient.types'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
 // --- HELPER FUNCTIONS ---
-
-/**
- * Formats a date string (e.g., "YYYY-MM-DD") into "DD Mmm YYYY"
- * Returns 'N/A' if the date is null or invalid.
- */
 const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) {
     return 'N/A'
@@ -66,7 +62,8 @@ const formatDate = (dateString: string | null | undefined) => {
   }
 }
 
-// --- DEBOUNCED INPUT ---
+// 2. FIXED DEBOUNCED INPUT
+// This fix stops it from calling onChange when the component first loads
 const DebouncedInput = ({
   value: initialValue,
   onChange,
@@ -78,22 +75,30 @@ const DebouncedInput = ({
   debounce?: number
 } & Omit<TextFieldProps, 'onChange'>) => {
   const [value, setValue] = useState(initialValue)
+  const isInitialMount = useRef(true); // Ref to track initial mount
 
   useEffect(() => {
     setValue(initialValue)
   }, [initialValue])
 
   useEffect(() => {
+    // If this is the first render, set ref to false and do nothing
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    // On all subsequent renders (user typing), run the timer
     const timeout = setTimeout(() => {
       onChange(value)
     }, debounce)
     return () => clearTimeout(timeout)
-  }, [value])
+  }, [value, onChange, debounce]) // Added all dependencies
 
   return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
 }
 
-// Column Helper - Now strongly typed to PatientResponceDTO
+// Column Helper
 const columnHelper = createColumnHelper<PatientResponceDTO>()
 
 const PatientListTable = () => {
@@ -102,43 +107,60 @@ const PatientListTable = () => {
   const {
     data: patients, 
     status,
-    currentPage, 
-    pageSize,
-    totalItems,
-    totalPages,
-    searchQuery
+    currentPage = 1, 
+    pageSize = 10,
+    totalItems = 0,
+    totalPages = 1,
+    searchQuery = ''
   } = useSelector((state: RootState) => state.patientReducer)
+
+  const isInitialUpdate = useRef(true);
 
   // --- Local State ---
   const [rowSelection, setRowSelection] = useState({})
 
-  // --- Effects ---
   useEffect(() => {
     if (status === 'idle') {
-      console.log("Api  call in Main compinetn")
-      dispatch(fetchPatients({ page: 1, pageSize: 10, search: '' }))
+      console.log("API call: Initial Load (Idle)");
+   
+      dispatch(fetchPatients({ page: 1, pageSize: 10, search: '' })); 
     }
-  }, [dispatch, status])
+  }, [dispatch, status]);
 
-  // --- Handlers ---
+
+  useEffect(() => {
+
+    if (isInitialUpdate.current) {
+      isInitialUpdate.current = false; 
+      return;
+    }
+    console.log("API call: Search/PageSize Updated");
+    dispatch(fetchPatients({ page: 1, pageSize, search: searchQuery }));
+
+  }, [searchQuery, pageSize, dispatch]);
+
+
   const handleSearch = useCallback((value: string | number) => {
     const query = String(value)
-    console.log("Search quary")
+    console.log("Search query changed, dispatching to Redux...")
+    if (query.length >= 3) {
+      dispatch(setSearchQuery(query))
+    } else {
+      if (searchQuery !== '') {
+        dispatch(resetSearchQuery())
+      }
+    }
+  }, [dispatch, searchQuery])
 
-    dispatch(fetchPatients({ page: 1, pageSize: pageSize, search: query }))
-  }, [dispatch, pageSize])
-
-  const handlePageSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newPageSize = Number(e.target.value)
     dispatch(setPageSize(newPageSize)) 
-    dispatch(fetchPatients({ page: 1, pageSize: newPageSize, search: searchQuery }))
   }
 
   const handlePageChange = (_: unknown, newPage: number) => {
     dispatch(fetchPatients({ page: newPage + 1, pageSize, search: searchQuery }))
   }
 
-  // --- Columns Definition ---
   const columns = useMemo<ColumnDef<PatientResponceDTO, any>[]>(
     () => [
       {
@@ -182,7 +204,6 @@ const PatientListTable = () => {
               <Typography className='font-medium hover:text-primary cursor-pointer' color='text.primary'>
                 {row.original.fullName}
               </Typography>
-              {/* FIXED: Use 'dob' from the DTO */}
               <Typography variant='body2'>
                 DOB: {formatDate(row.original.dob)}
               </Typography>
@@ -190,7 +211,6 @@ const PatientListTable = () => {
           </div>
         )
       }),
-      // FIXED: Replaced 'Gender' with 'Email'
       columnHelper.accessor('email', {
         header: 'Email',
         cell: ({ row }) => <Typography>{row.original.email || 'N/A'}</Typography>
@@ -217,12 +237,13 @@ const PatientListTable = () => {
   const table = useReactTable({
     data: (patients as PatientResponceDTO[]) || [],
     columns,
-    pageCount: totalPages, 
+    pageCount: totalPages || 1, 
+    rowCount: totalItems || 0,
     state: {
       rowSelection,
       pagination: {
-        pageIndex: currentPage - 1, 
-        pageSize: pageSize
+        pageIndex: (currentPage || 1) - 1, 
+        pageSize: pageSize || 10 
       }
     },
     manualPagination: true,
@@ -230,7 +251,7 @@ const PatientListTable = () => {
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
-       filterFns: {} as any,
+    filterFns: {} as any,
   })
 
   return (
@@ -243,19 +264,19 @@ const PatientListTable = () => {
           <DebouncedInput
             value={searchQuery}
             onChange={handleSearch}
-            placeholder='Search Patients'
+            placeholder='Search Patients (min 3 chars)'
             className='max-sm:is-full'
           />
           <div className='flex max-sm:flex-col items-start sm:items-center gap-4 max-sm:is-full'>
             <CustomTextField
               select
-              value={pageSize}
+              value={pageSize || 10} 
               onChange={handlePageSizeChange}
               className='is-full sm:is-[90px]'
             >
               <MenuItem value='10'>10</MenuItem>
               <MenuItem value='25'>25</MenuItem>
-              <MenuItem value='50'>50</MenuItem>
+              <MenuItem value='50'>50</MenuItem> 
               <MenuItem value='100'>100</MenuItem>
             </CustomTextField>
             <Button
@@ -310,9 +331,9 @@ const PatientListTable = () => {
 
         <TablePagination
           component='div'
-          count={totalItems} 
-          rowsPerPage={pageSize}
-          page={currentPage - 1} 
+          count={totalItems || 0} 
+          rowsPerPage={pageSize || 10} 
+          page={(currentPage || 1) - 1} 
           onPageChange={handlePageChange}
           onRowsPerPageChange={handlePageSizeChange} 
         />

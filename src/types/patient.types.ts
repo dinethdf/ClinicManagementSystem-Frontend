@@ -78,6 +78,34 @@ export interface Guardian {
   landNo: string | null
 }
 
+export interface PaginatedPatientResponse<T> {
+  content: T[]
+  pageable: {
+    pageNumber: number
+    pageSize: number
+    sort: any
+    offset: number
+    paged: boolean
+    unpaged: boolean
+  }
+  totalPages: number
+  totalElements: number
+  last: boolean
+  size: number
+  number: number
+  sort: any
+  numberOfElements: number
+  first: boolean
+  empty: boolean
+}
+
+
+export interface GetPatientsParams {
+  page: number    
+  pageSize: number
+  search?: string
+}
+
 export interface PatientHistory {
   patientId: string
   prescriptions: Prescription[]
