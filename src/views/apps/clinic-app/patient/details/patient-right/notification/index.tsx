@@ -49,7 +49,7 @@ const Notification = () => {
     <Card>
       <CardHeader title='Notifications' subheader='You will receive notification for the below selected items' />
       <div className='overflow-x-auto'>
-        <table className={tableStyles.table}>
+        {/* <table className={tableStyles.table}>
           <thead>
             <tr>
               <th>Type</th>
@@ -76,7 +76,7 @@ const Notification = () => {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table> */}
       </div>
       <CardActions className='flex items-center'>
         <Button variant='contained' type='submit'>

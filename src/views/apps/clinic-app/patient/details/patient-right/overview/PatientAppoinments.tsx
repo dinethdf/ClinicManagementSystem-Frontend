@@ -14,6 +14,8 @@ import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import TablePagination from '@mui/material/TablePagination'
 import type { TextFieldProps } from '@mui/material/TextField'
+import CircularProgress from '@mui/material/CircularProgress'
+import Alert from '@mui/material/Alert' // Added for error display
 
 // Third-party Imports
 import classnames from 'classnames'
@@ -35,13 +37,16 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
 import type { ThemeColor } from '@/@core/typesDef'
-import type { OrderType } from '@/types/apps/ecommerceTypes'
 import type { Locale } from '@configs/i18n'
+import type { PatientAppointmentDTO } from '@/types/appoinments.types' // Updated import
 
 // Component Imports
 import OptionMenu from '@core/components/option-menu'
 import TablePaginationComponent from '@components/TablePaginationComponent'
 import CustomTextField from '@core/components/mui/TextField'
+
+// Service Import
+import { appointmentService } from '@/services/appoinment.service' // Import the new service
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
@@ -58,43 +63,23 @@ declare module '@tanstack/table-core' {
   }
 }
 
-type PayementStatusType = {
-  text: string
+// --- Status Configuration ---
+type StatusType = {
   color: ThemeColor
+  label: string
 }
 
-type StatusChipColorType = {
-  color: ThemeColor
-}
-
-export const paymentStatus: { [key: number]: PayementStatusType } = {
-  1: { text: 'Paid', color: 'success' },
-  2: { text: 'Pending', color: 'warning' },
-  3: { text: 'Cancelled', color: 'secondary' },
-  4: { text: 'Failed', color: 'error' }
-}
-
-export const statusChipColor: { [key: string]: StatusChipColorType } = {
-  Delivered: { color: 'success' },
-  'Out for Delivery': { color: 'primary' },
-  'Ready to Pickup': { color: 'info' },
-  Dispatched: { color: 'warning' }
-}
-
-type ECommerceOrderTypeWithAction = OrderType & {
-  action?: string
+export const appointmentStatusObj: { [key: string]: StatusType } = {
+  PENDING_PAYMENT: { color: 'warning', label: 'Pending Payment' },
+  Booked: { color: 'success', label: 'Booked' },
+  COMPLETED: { color: 'info', label: 'Completed' },
+  CANCELLED: { color: 'error', label: 'Cancelled' },
+  NOSHOW: { color: 'secondary', label: 'No Show' }
 }
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
-  // Rank the item
   const itemRank = rankItem(row.getValue(columnId), value)
-
-  // Store the itemRank info
-  addMeta({
-    itemRank
-  })
-
-  // Return if the item should be filtered in/out
+  addMeta({ itemRank })
   return itemRank.passed
 }
 
@@ -108,7 +93,6 @@ const DebouncedInput = ({
   onChange: (value: string | number) => void
   debounce?: number
 } & Omit<TextFieldProps, 'onChange'>) => {
-  // States
   const [value, setValue] = useState(initialValue)
 
   useEffect(() => {
@@ -119,58 +103,116 @@ const DebouncedInput = ({
     const timeout = setTimeout(() => {
       onChange(value)
     }, debounce)
-
     return () => clearTimeout(timeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
+  }, [value, debounce, onChange])
 
   return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
 }
 
-// Column Definitions
-const columnHelper = createColumnHelper<ECommerceOrderTypeWithAction>()
+const columnHelper = createColumnHelper<PatientAppointmentDTO>()
 
-const PatientAppoinmentsListTable = ({ orderData, patientId }: { orderData?: OrderType[], patientId?: string }) => {
-  // States
+const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
+  // --- Table States ---
   const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState(...[orderData])
   const [globalFilter, setGlobalFilter] = useState('')
+  
+  // --- Data States ---
+  const [data, setData] = useState<PatientAppointmentDTO[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // Hooks
   const { lang: locale } = useParams()
 
-  const columns = useMemo<ColumnDef<ECommerceOrderTypeWithAction, any>[]>(
+  // --- API Call using Service ---
+  useEffect(() => {
+    const fetchAppointments = async () => {
+        if (!patientId) return;
+
+        setIsLoading(true);
+        setErrorMessage(null);
+
+        try {
+            const result = await appointmentService.getAppointmentsByPatientId(patientId);
+            setData(result);
+        } catch (error: any) {
+            console.error('Error loading appointments:', error);
+            setErrorMessage(error.message || 'Something went wrong');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    fetchAppointments();
+  }, [patientId]); 
+
+  const columns = useMemo<ColumnDef<PatientAppointmentDTO, any>[]>(
     () => [
-      columnHelper.accessor('order', {
-        header: 'order',
+      columnHelper.accessor('appointmentId', {
+        header: 'Ref #',
         cell: ({ row }) => (
           <Typography
             component={Link}
-            href={getLocalizedUrl(`/apps/ecommerce/orders/details/${row.original.order}`, locale as Locale)}
+            href={getLocalizedUrl(`/apps/appointments/details/${row.original.appointmentId}`, locale as Locale)}
             color='primary.main'
-          >{`#${row.original.order}`}</Typography>
+            className='font-medium'
+          >
+            {`#${row.original.appointmentId}`}
+          </Typography>
         )
       }),
-      columnHelper.accessor('date', {
-        header: 'Date',
-        cell: ({ row }) => <Typography>{`${new Date(row.original.date).toDateString()}`}</Typography>
+      columnHelper.accessor('scheduleDate', {
+        header: 'Date & Time',
+        cell: ({ row }) => (
+          <div className='flex flex-col'>
+            <Typography className='font-medium' color='text.primary'>
+              {row.original.scheduleDate}
+            </Typography>
+            <Typography variant='body2' color='text.disabled'>
+              {row.original.startTime}
+            </Typography>
+          </div>
+        )
+      }),
+      columnHelper.accessor('doctorFullName', {
+        header: 'Doctor',
+        cell: ({ row }) => (
+          <div className='flex flex-col'>
+            <Typography color='text.primary'>{row.original.doctorFullName}</Typography>
+            <Typography variant='caption' color='text.disabled'>
+                {row.original.specialization}
+            </Typography>
+          </div>
+        )
+      }),
+      columnHelper.accessor('queuePosition', {
+        header: 'Queue No',
+        cell: ({ row }) => (
+            <Typography className='font-bold text-center' color='secondary.main'>
+                {row.original.queuePosition}
+            </Typography>
+        )
       }),
       columnHelper.accessor('status', {
         header: 'Status',
-        cell: ({ row }) => (
-          <Chip
-            label={row.original.status}
-            color={statusChipColor[row.original.status].color}
-            variant='tonal'
-            size='small'
-          />
-        )
+        cell: ({ row }) => {
+            const status = appointmentStatusObj[row.original.status] || { color: 'primary', label: row.original.status }
+            return (
+                <Chip
+                    label={status.label}
+                    color={status.color}
+                    variant='tonal'
+                    size='small'
+                />
+            )
+        }
       }),
-      columnHelper.accessor('spent', {
-        header: 'Spent',
-        cell: ({ row }) => <Typography>${row.original.spent}</Typography>
+      columnHelper.accessor('totalFee', {
+        header: 'Fee',
+        cell: ({ row }) => <Typography>LKR. {row.original.totalFee.toFixed(2)}</Typography>
       }),
-      columnHelper.accessor('action', {
+      columnHelper.accessor('appointmentId', { 
+        id: 'actions',
         header: 'Actions',
         cell: ({ row }) => (
           <div className='flex items-center'>
@@ -179,18 +221,10 @@ const PatientAppoinmentsListTable = ({ orderData, patientId }: { orderData?: Ord
               iconClassName='text-textSecondary text-[22px]'
               options={[
                 {
-                  text: 'View',
+                  text: 'View Details',
                   icon: 'tabler-eye',
-                  href: getLocalizedUrl(`/apps/ecommerce/orders/details/${row.original.order}`, locale as Locale),
+                  href: getLocalizedUrl(`/apps/appointments/view/${row.original.appointmentId}`, locale as Locale),
                   linkProps: { className: 'flex items-center is-full plb-1.5 pli-4' }
-                },
-                {
-                  text: 'Delete',
-                  icon: 'tabler-trash text-[22px]',
-                  menuItemProps: {
-                    onClick: () => setData(data?.filter(order => order.id !== row.original.id)),
-                    className: 'flex items-center'
-                  }
                 }
               ]}
             />
@@ -199,12 +233,12 @@ const PatientAppoinmentsListTable = ({ orderData, patientId }: { orderData?: Ord
         enableSorting: false
       })
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data]
+    [locale]
   )
 
+  // --- Table Initialization ---
   const table = useReactTable({
-    data: data as OrderType[],
+    data: data,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
@@ -215,11 +249,10 @@ const PatientAppoinmentsListTable = ({ orderData, patientId }: { orderData?: Ord
     },
     initialState: {
       pagination: {
-        pageSize: 6
+        pageSize: 10
       }
     },
-    enableRowSelection: true, //enable row selection for all rows
-    // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
+    enableRowSelection: true,
     globalFilterFn: fuzzyFilter,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
@@ -232,14 +265,31 @@ const PatientAppoinmentsListTable = ({ orderData, patientId }: { orderData?: Ord
     getFacetedMinMaxValues: getFacetedMinMaxValues()
   })
 
+  // --- Rendering Loading/Error States ---
+  if (isLoading) {
+      return (
+          <Card className='h-[400px] flex items-center justify-center'>
+              <CircularProgress />
+          </Card>
+      )
+  }
+
+  if (errorMessage) {
+      return (
+          <Card className='p-6'>
+               <Alert severity="error">{errorMessage}</Alert>
+          </Card>
+      )
+  }
+
   return (
     <Card>
       <CardContent className='flex justify-between flex-col items-start sm:flex-row sm:items-center gap-y-4'>
-        <Typography variant='h5'>Patient Appoinments</Typography>
+        <Typography variant='h5'>Patient Appointments</Typography>
         <DebouncedInput
           value={globalFilter ?? ''}
           onChange={value => setGlobalFilter(String(value))}
-          placeholder='Search Order'
+          placeholder='Search Appointment'
           className='max-sm:is-full'
         />
       </CardContent>
@@ -276,7 +326,7 @@ const PatientAppoinmentsListTable = ({ orderData, patientId }: { orderData?: Ord
             <tbody>
               <tr>
                 <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                  No appointments found.
                 </td>
               </tr>
             </tbody>

@@ -1,41 +1,31 @@
-// import type { Patient, Guardian, PatientResponceDTO } from '../types/patient.types'
-// import { apiClient } from './api.config'
+import { apiClient } from './api.config' // Assuming this is where your axios instance lives
+import type { PatientAppointmentDTO, ApiResponse } from '@/types/appoinments.types'
 
 class AppointmentService {
 
+  /**
+   * Fetch all appointments for a specific patient
+   * Endpoint: GET /api/appointments/patient/{patientId}
+   */
+  async getAppointmentsByPatientId(patientId: string): Promise<PatientAppointmentDTO[]> {
+    try {
+      // We expect ApiResponse<PatientAppointmentDTO[]> from the backend
+      const response = await apiClient.get<ApiResponse<PatientAppointmentDTO[]>>(
+        `/api/appointments/patient/${patientId}`
+      )
+      
+      console.log(`API call: Fetch appointments for patient ${patientId}`)
+      
+      // The controller wraps the list in a 'data' field inside ApiResponse
+      return response.data.data 
+    } catch (error: any) {
+      // Standard error handling matching your PatientService
+      throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch patient appointments')
+    }
+  }
 
-
-
-
-
-  //   async updatePatient(id: string, patientData: Partial<Patient>): Promise<Patient> {
-  //     await new Promise((resolve) => setTimeout(resolve, 600))
-
-  //     const index = this.patients.findIndex((p) => p.id === id)
-  //     if (index === -1) {
-  //       throw new Error("Patient not found")
-  //     }
-
-  //     this.patients[index] = {
-  //       ...this.patients[index],
-  //       ...patientData,
-  //       updatedAt: new Date().toISOString(),
-  //     }
-
-  //     return this.patients[index]
-  //   }
-
-  //   async getPatientHistory(patientId: string): Promise<PatientHistory> {
-  //     await new Promise((resolve) => setTimeout(resolve, 500))
-
-  //     const prescriptions = MOCK_PRESCRIPTIONS.filter((p) => p.patientId === patientId)
-
-  //     return {
-  //       patientId,
-  //       prescriptions,
-  //       consultations: [],
-  //     }
-  //   }
+  // You can add other methods here later (e.g., cancelAppointment)
 }
 
-export const patientService = new AppointmentService()
+// Export a singleton instance
+export const appointmentService = new AppointmentService()

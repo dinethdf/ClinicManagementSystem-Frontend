@@ -19,7 +19,7 @@ const OverViewTab = dynamic(() => import('@views/apps/clinic-app/patient/details
 const SecurityTab = dynamic(() => import('@views/apps/clinic-app/patient/details/patient-right/security'))
 const NotificationsTab = dynamic(() => import('@views/apps/clinic-app/patient/details/patient-right/notification'))
 
-const AddressBillingTab = dynamic(
+const InsuranceOverview = dynamic(
   () => import('@views/apps/ecommerce/customers/details/customer-right/address-billing')
 )
 
@@ -28,7 +28,7 @@ const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
   const tabContentList = (): { [key: string]: ReactElement } => ({
     overview: <OverViewTab patientId={patientData.id} />,
     security: <SecurityTab />,
-    addressBilling: <AddressBillingTab />,
+    insurance: <InsuranceOverview />,
     notifications: <NotificationsTab />
   })
 

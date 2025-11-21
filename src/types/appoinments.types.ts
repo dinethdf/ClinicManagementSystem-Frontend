@@ -17,3 +17,30 @@ export interface Appoinment {
   profileImg?: string
 }
 
+export interface PatientAppointmentDTO {
+  appointmentId: number;
+  queuePosition: number;
+  status: string; // 'PENDING_PAYMENT', 'Booked', etc.
+  
+  // Schedule
+  scheduleDate: string;
+  startTime: string;
+  
+  // Doctor
+  doctorFirstName: string;
+  doctorLastName: string;
+  doctorFullName: string;
+  specialization: string;
+  
+  // Fees
+  doctorFee: number;
+  clinicFee: number;
+  totalFee: number;
+}
+
+// Wrapper for the standard backend response
+export interface ApiResponse<T> {
+    data: T;
+    message: string;
+    success: boolean;
+}

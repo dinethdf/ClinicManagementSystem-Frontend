@@ -65,7 +65,7 @@ const Overview = async ({ patientId }: { patientId?: string }) => {
         <ActivityTimeline/>
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <PatientAppoinmentsListTable patientId = {patientId} orderData={tableData?.orderData} />
+        <PatientAppoinmentsListTable patientId = {patientId ? patientId : "0"} />
       </Grid>
     </Grid>
   )
