@@ -26,7 +26,7 @@ const PatientDetailHeader = ({ patientNo, patientRegDate }: { patientNo: string;
       </div>
       <OpenDialogOnElementClick
         element={Button}
-        elementProps={buttonProps('Delete Customer', 'error', 'tonal')}
+        elementProps={buttonProps('Delete Patient', 'error', 'tonal')}
         dialog={ConfirmationDialog}
         dialogProps={{ type: 'delete-customer' }}
       />

@@ -7,7 +7,7 @@ import type { CardStatsCustomerStatsProps } from '@/types/pages/widgetTypes'
 // Component Imports
 import CustomerStats from '@components/card-statistics/CustomerStats'
 
-const CustomerStatisticsCard = ({ customerStatData }: { customerStatData?: CardStatsCustomerStatsProps[] }) => {
+const CustomerStatisticsCard = ({ customerStatData }: { customerStatData?: any[] }) => {
   return (
     <Grid container spacing={6}>
       {customerStatData?.map((item, index) => (

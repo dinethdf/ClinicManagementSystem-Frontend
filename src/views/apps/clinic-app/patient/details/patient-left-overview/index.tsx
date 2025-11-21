@@ -15,7 +15,7 @@ const CustomerLeftOverview = ({ patientData }: { patientData?: Patient }) => {
         <PatientDetailsSection patientData={patientData} />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <PatientPlan />
+        {/* <PatientPlan /> */}
       </Grid>
     </Grid>
   )

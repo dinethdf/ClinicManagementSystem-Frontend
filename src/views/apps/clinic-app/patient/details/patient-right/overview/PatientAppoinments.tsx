@@ -130,7 +130,7 @@ const DebouncedInput = ({
 // Column Definitions
 const columnHelper = createColumnHelper<ECommerceOrderTypeWithAction>()
 
-const OrderListTable = ({ orderData }: { orderData?: OrderType[] }) => {
+const PatientAppoinmentsListTable = ({ orderData, patientId }: { orderData?: OrderType[], patientId?: string }) => {
   // States
   const [rowSelection, setRowSelection] = useState({})
   const [data, setData] = useState(...[orderData])
@@ -235,7 +235,7 @@ const OrderListTable = ({ orderData }: { orderData?: OrderType[] }) => {
   return (
     <Card>
       <CardContent className='flex justify-between flex-col items-start sm:flex-row sm:items-center gap-y-4'>
-        <Typography variant='h5'>Orders Placed</Typography>
+        <Typography variant='h5'>Patient Appoinments</Typography>
         <DebouncedInput
           value={globalFilter ?? ''}
           onChange={value => setGlobalFilter(String(value))}
@@ -311,4 +311,4 @@ const OrderListTable = ({ orderData }: { orderData?: OrderType[] }) => {
   )
 }
 
-export default OrderListTable
+export default PatientAppoinmentsListTable

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 
+import { useRouter } from 'next/navigation'
 
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -105,7 +106,8 @@ const columnHelper = createColumnHelper<PatientResponceDTO>()
 
 const PatientListTable = () => {
 
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
  
   const {
     data: patients, 
@@ -320,7 +322,14 @@ const PatientListTable = () => {
                 </tr>
               ) : (
                 table.getRowModel().rows.map(row => (
-                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })} style={{ cursor: 'pointer' }}
+                      onClick={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest('.MuiCheckbox-root') || target.closest('button') || target.closest('input')) {
+                            return;
+                          }
+                    router.push(`/en/clinic/patient/view/${row.original.id}`);
+                  }}>
                     {row.getVisibleCells().map(cell => (
                       <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                     ))}

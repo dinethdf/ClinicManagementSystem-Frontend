@@ -27,13 +27,13 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
       <CardContent className='flex flex-col pbs-12 gap-6'>
         <div className='flex flex-col justify-self-center items-center gap-6'>
           <div className='flex flex-col items-center gap-4'>
-            <CustomAvatar src={'/images/avatars/1.png'} variant='rounded' alt='Customer Avatar' size={120} />
+            <CustomAvatar src={'/images/avatars/common.png'} variant='rounded' alt='Customer Avatar' size={120} />
             <div className='flex flex-col items-center text-center'>
               <Typography variant='h5'>{patientData?.firstName + ' ' + patientData?.lastName}</Typography>
               <Typography>Customer ID #{patientData?.patientNo}</Typography>
             </div>
           </div>
-          <div className='flex items-center justify-around gap-4 flex-wrap is-full'>
+          {/* <div className='flex items-center justify-around gap-4 flex-wrap is-full'>
             <div className='flex items-center gap-4'>
               <CustomAvatar variant='rounded' skin='light' color='primary'>
                 <i className='tabler-shopping-cart' />
@@ -52,8 +52,8 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
                 <Typography>Spent</Typography>
               </div>
             </div>
-          </div>
-          <div className='flex items-center justify-around gap-4 flex-wrap is-full'>
+          </div> */}
+          {/* <div className='flex items-center justify-around gap-4 flex-wrap is-full'>
             <div className='flex items-center gap-4'>
               <CustomAvatar variant='rounded' skin='light' color='primary'>
                 <i className='tabler-shopping-cart' />
@@ -72,7 +72,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
                 <Typography>Spent</Typography>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className='flex flex-col gap-4'>
           <Typography variant='h5'>Details</Typography>
@@ -84,6 +84,12 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
               </Typography>
               <Typography>{patientData?.fullName}</Typography>
             </div>
+            <div className='flex items-center gap-1'>
+              <Typography color='text.primary' className='font-medium'>
+                Gender:
+              </Typography>
+              <Typography>{patientData?.gender == "1" ? "Male" : patientData?.gender == "2" ? "Female" : "Other"}</Typography>
+            </div>            
             <div className='flex items-center gap-1'>
               <Typography color='text.primary' className='font-medium'>
                 Nic Number:
@@ -112,6 +118,12 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
               </Typography>
               <Typography>{patientData?.mobileNo}</Typography>
             </div>
+            <div className='flex items-center gap-1'>
+              <Typography color='text.primary' className='font-medium'>
+                Emg Contact:
+              </Typography>
+              <Typography>{patientData?.emergencyContactMobile}</Typography>
+            </div>            
             <div className='flex items-center gap-1'>
               <Typography color='text.primary' className='font-medium'>
                 Address:

@@ -11,13 +11,13 @@ import Grid from '@mui/material/Grid2'
 import type { Patient } from '@/types/patient.types'
 
 // Component Imports
-import CustomerDetailsHeader from './PatientDetailsHeader'
-import CustomerLeftOverview from './patient-left-overview'
-import CustomerRight from './patient-right'
+import PatientDetailsHeader from './PatientDetailsHeader'
+import PatientLeftOverview from './patient-left-overview'
+import PatientRight from './patient-right'
 
-const OverViewTab = dynamic(() => import('@views/apps/ecommerce/customers/details/customer-right/overview'))
-const SecurityTab = dynamic(() => import('@views/apps/ecommerce/customers/details/customer-right/security'))
-const NotificationsTab = dynamic(() => import('@views/apps/ecommerce/customers/details/customer-right/notification'))
+const OverViewTab = dynamic(() => import('@views/apps/clinic-app/patient/details/patient-right/overview'))
+const SecurityTab = dynamic(() => import('@views/apps/clinic-app/patient/details/patient-right/security'))
+const NotificationsTab = dynamic(() => import('@views/apps/clinic-app/patient/details/patient-right/notification'))
 
 const AddressBillingTab = dynamic(
   () => import('@views/apps/ecommerce/customers/details/customer-right/address-billing')
@@ -26,7 +26,7 @@ const AddressBillingTab = dynamic(
 const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
   // Vars
   const tabContentList = (): { [key: string]: ReactElement } => ({
-    overview: <OverViewTab patientDataNo={patientData.id} />,
+    overview: <OverViewTab patientId={patientData.id} />,
     security: <SecurityTab />,
     addressBilling: <AddressBillingTab />,
     notifications: <NotificationsTab />
@@ -39,13 +39,13 @@ const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
-        <CustomerDetailsHeader patientNo={patientData?.patientNo || 'error'} patientRegDate={patientRegDate} />
+        <PatientDetailsHeader patientNo={patientData?.patientNo || 'error'} patientRegDate={patientRegDate} />
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
-        <CustomerLeftOverview patientData={patientData} />
+        <PatientLeftOverview patientData={patientData} />
       </Grid>
       <Grid size={{ xs: 12, md: 8 }}>
-        <CustomerRight tabContentList={tabContentList()} />
+        <PatientRight tabContentList={tabContentList()} />
       </Grid>
     </Grid>
   )
