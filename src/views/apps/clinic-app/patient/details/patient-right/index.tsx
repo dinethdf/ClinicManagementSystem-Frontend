@@ -14,7 +14,6 @@ import Grid from '@mui/material/Grid2'
 import CustomTabList from '@core/components/mui/TabList'
 
 const CustomerRight = ({ tabContentList }: { tabContentList: { [key: string]: ReactElement } }) => {
-  // States
   const [activeTab, setActiveTab] = useState('overview')
 
   const handleChange = (event: SyntheticEvent, value: string) => {

@@ -46,7 +46,7 @@ export const fetchPatients = createAsyncThunk(
   async ({ page, pageSize, search }: FetchPatientsArgs, { rejectWithValue }) => {
     try {
       const response = await patientService.getPatients({ page, pageSize, search })
-      
+      console.log(response.content)
       return response 
     } catch (err: any) {
       return rejectWithValue(err.message)
