@@ -6,7 +6,6 @@ import type { Patient } from '@/types/patient.types'
 
 // Component Imports
 import PatientDetailsSection from './PatientDetailsSection'
-import PatientPlan from './PatientPlan'
 
 const CustomerLeftOverview = ({ patientData }: { patientData?: Patient }) => {
   return (

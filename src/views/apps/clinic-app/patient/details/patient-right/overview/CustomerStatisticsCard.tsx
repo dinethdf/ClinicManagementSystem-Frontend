@@ -1,8 +1,6 @@
 // MUI Imports
 import Grid from '@mui/material/Grid2'
 
-// Types Imports
-import type { CardStatsCustomerStatsProps } from '@/types/pages/widgetTypes'
 
 // Component Imports
 import CustomerStats from '@components/card-statistics/CustomerStats'

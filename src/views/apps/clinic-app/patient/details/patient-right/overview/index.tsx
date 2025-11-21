@@ -5,8 +5,6 @@ import Grid from '@mui/material/Grid2'
 import CustomerStatisticsCard from './CustomerStatisticsCard'
 import PatientAppoinmentsListTable from './PatientAppoinments'
 
-// Data Imports
-import { getStatisticsData, getEcommerceData } from '@/app/server/actions'
 import ActivityTimeline from './ActivityTimeline'
 
 /* const getStatisticsData = async () => {
@@ -34,8 +32,8 @@ import ActivityTimeline from './ActivityTimeline'
 
 const Overview = async ({ patientId }: { patientId?: string }) => {
   // Vars
-  const data = await getStatisticsData()
   const constodata = {
+  
     customerStats: [
     {
       color: 'success',
@@ -50,11 +48,11 @@ const Overview = async ({ patientId }: { patientId?: string }) => {
       title: 'Follow Up',
       stats: 'Next',
       content: '19 June, 2024 - 11:00 AM',
+
       // description: 'Antihistamine'
     },
   ],
   }
-  const tableData = await getEcommerceData()
 
   return (
     <Grid container spacing={6}>

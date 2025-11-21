@@ -2,47 +2,7 @@
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardActions from '@mui/material/CardActions'
-import Typography from '@mui/material/Typography'
-import Checkbox from '@mui/material/Checkbox'
 import Button from '@mui/material/Button'
-
-// Style Imports
-import tableStyles from '@core/styles/table.module.css'
-
-type TableDataType = {
-  type: string
-  app: boolean
-  email: boolean
-  browser: boolean
-}
-
-// Vars
-const tableData: TableDataType[] = [
-  {
-    app: false,
-    email: true,
-    browser: false,
-    type: 'New for you'
-  },
-  {
-    app: true,
-    email: false,
-    browser: true,
-    type: 'Account activity'
-  },
-  {
-    app: true,
-    email: true,
-    browser: true,
-    type: 'A new browser used to sign in'
-  },
-  {
-    app: false,
-    email: false,
-    browser: true,
-    type: 'A new device is linked'
-  }
-]
 
 const Notification = () => {
   return (

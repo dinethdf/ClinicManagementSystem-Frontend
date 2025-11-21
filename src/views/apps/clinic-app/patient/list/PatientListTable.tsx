@@ -66,6 +66,7 @@ const formatDate = (dateString: string | null | undefined) => {
     return 'Invalid Date'
   }
 }
+
 const DebouncedInput = ({
   value: initialValue,
   onChange,
@@ -119,17 +120,17 @@ const PatientListTable = () => {
     searchQuery = ''
   } = useSelector((state: RootState) => state.patientReducer)
 
-  const isInitialUpdate = useRef(true);
-
   // --- Local State ---
   const [rowSelection, setRowSelection] = useState({})
 
   useEffect(() => {
+    
     const promise = dispatch(fetchPatients({ 
         page: currentPage, 
         pageSize, 
         search: searchQuery 
     }));
+  
     return () => {
         promise.abort(); 
     };
@@ -324,11 +325,15 @@ const PatientListTable = () => {
                 table.getRowModel().rows.map(row => (
                   <tr key={row.id} className={classnames({ selected: row.getIsSelected() })} style={{ cursor: 'pointer' }}
                       onClick={(e) => {
-                          const target = e.target as HTMLElement;
-                          if (target.closest('.MuiCheckbox-root') || target.closest('button') || target.closest('input')) {
-                            return;
+                          
+                        const target = e.target as HTMLElement;
+                        
+                        if (target.closest('.MuiCheckbox-root') || target.closest('button') || target.closest('input')) {
+                        
+                          return;
                           }
-                    router.push(`/en/clinic/patient/view/${row.original.id}`);
+                    
+                          router.push(`/en/clinic/patient/view/${row.original.id}`);
                   }}>
                     {row.getVisibleCells().map(cell => (
                       <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>

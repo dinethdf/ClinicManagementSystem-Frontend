@@ -79,7 +79,9 @@ export const appointmentStatusObj: { [key: string]: StatusType } = {
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   const itemRank = rankItem(row.getValue(columnId), value)
+  
   addMeta({ itemRank })
+  
   return itemRank.passed
 }
 
@@ -100,9 +102,11 @@ const DebouncedInput = ({
   }, [initialValue])
 
   useEffect(() => {
+  
     const timeout = setTimeout(() => {
       onChange(value)
     }, debounce)
+   
     return () => clearTimeout(timeout)
   }, [value, debounce, onChange])
 
@@ -134,6 +138,7 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
 
         try {
             const result = await appointmentService.getAppointmentsByPatientId(patientId);
+            
             setData(result);
         } catch (error: any) {
             console.error('Error loading appointments:', error);
@@ -197,6 +202,7 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
         header: 'Status',
         cell: ({ row }) => {
             const status = appointmentStatusObj[row.original.status] || { color: 'primary', label: row.original.status }
+         
             return (
                 <Chip
                     label={status.label}
