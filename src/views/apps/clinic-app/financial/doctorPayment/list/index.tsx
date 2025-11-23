@@ -4,23 +4,23 @@
 import Grid from '@mui/material/Grid2'
 
 // Type Imports
-import type { OrderType } from '@/types/apps/ecommerceTypes'
+import type { ScheduleListTypes } from '@/types/doctor.types'
 
 // Component Imports
-import OrderCard from './OrderCard'
-import OrderListTable from './OrderListTable'
+import HeaderListCard from './HeaderListCard' // You can use your existing one or a new one
+import ScheduleListTable from './ScheduleListTable'
 
-const OrderList = ({ orderData }: { orderData?: OrderType[] }) => {
+const ScheduleList = ({ scheduleData }: { scheduleData?: ScheduleListTypes[] }) => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
-        <OrderCard />
+        <HeaderListCard /> 
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <OrderListTable orderData={orderData} />
+        <ScheduleListTable scheduleData={scheduleData} />
       </Grid>
     </Grid>
   )
 }
 
-export default OrderList
+export default ScheduleList

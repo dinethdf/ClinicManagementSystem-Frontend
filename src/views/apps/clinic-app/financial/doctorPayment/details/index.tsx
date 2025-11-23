@@ -2,42 +2,40 @@
 import Grid from '@mui/material/Grid2'
 
 // Type Imports
-import type { OrderType } from '@/types/apps/ecommerceTypes'
+import type { FinancialScheduleItem } from '@/types/financial.types'
 
 // Component Imports
-import OrderDetailHeader from './OrderDetailHeader'
-import OrderDetailsCard from './OrderDetailsCard'
+import FinancialDoctorHeader from './FinancialDoctorHeader'
+import FinancialDoctorDetailsCard from './FinancialDoctorDetailsCard'
+import FinancialSummaryCard from './CustomerDetailsCard'
 
-import CustomerDetails from './CustomerDetailsCard'
-import ShippingAddress from './ShippingAddressCard'
-
-
-const ShedulePaymentDetails = ({ orderData, order }: { orderData?: OrderType; order: string }) => {
+const SchedulePaymentDetails = ({ data, scheduleId }: { data: FinancialScheduleItem[]; scheduleId: string }) => {
   return (
     <Grid container spacing={6}>
+      
+      {/* 1. Header Section - Full Width */}
       <Grid size={{ xs: 12 }}>
-        <OrderDetailHeader orderData={orderData} order={order} />
+        <FinancialDoctorHeader scheduleId={scheduleId} itemCount={data.length} />
       </Grid>
-      <Grid size={{ xs: 12, md: 8 }}>
-        <Grid container spacing={6}>
-          <Grid size={{ xs: 12 }}>
-            <OrderDetailsCard />
-          </Grid>
 
-        </Grid>
+      {/* 2. Table Section - Now Full Width (xs: 12) */}
+      <Grid size={{ xs: 12 }}>
+         <FinancialDoctorDetailsCard data={data} />
       </Grid>
-      <Grid size={{ xs: 12, md: 4 }}>
+
+      {/* 3. Summary Section - Moved to Bottom & Full Width */}
+      <Grid size={{ xs: 12 }}>
         <Grid container spacing={6}>
-          <Grid size={{ xs: 12 }}>
-            <CustomerDetails orderData={orderData} />
-          </Grid>
-          <Grid size={{ xs: 12 }}>
-            <ShippingAddress />
-          </Grid>
+           {/* You can adjust the size here if you want the summary card to be smaller, e.g., md: 4, but keeping it inside a full row */}
+           <Grid size={{ xs: 12, md: 4 }}>
+             <FinancialSummaryCard data={data} />
+           </Grid>
+           {/* If you have other bottom cards, add them here */}
         </Grid>
       </Grid>
+
     </Grid>
   )
 }
 
-export default ShedulePaymentDetails
+export default SchedulePaymentDetails

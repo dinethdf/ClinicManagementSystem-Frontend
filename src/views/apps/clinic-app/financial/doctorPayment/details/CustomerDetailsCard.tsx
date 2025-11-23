@@ -1,94 +1,52 @@
+'use client'
+
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
-import type { TypographyProps } from '@mui/material/Typography'
+import Avatar from '@mui/material/Avatar'
 
 // Type Imports
-import type { ThemeColor } from '@/@core/typesDef'
-import type { OrderType } from '@/types/apps/ecommerceTypes'
+import type { FinancialScheduleItem } from '@/types/financial.types'
 
-// Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-import EditUserInfo from '@/components/dialogs/unUsed/edit-user-info'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
-
-// Util Imports
-import { getInitials } from '@/utils/getInitials'
-
-const getAvatar = (params: Pick<OrderType, 'avatar' | 'customer'>) => {
-  const { avatar, customer } = params
-
-  if (avatar) {
-    return <Avatar src={avatar} />
-  } else {
-    return <Avatar>{getInitials(customer as string)}</Avatar>
-  }
-}
-
-// Vars
-const userData = {
-  firstName: 'Gabrielle',
-  lastName: 'Feyer',
-  userName: '@gabriellefeyer',
-  billingEmail: 'gfeyer0@nyu.edu',
-  status: 'active',
-  role: 'Customer',
-  taxId: 'Tax-8894',
-  contact: '+1 (234) 464-0600',
-  language: ['English'],
-  country: 'France',
-  useAsBillingAddress: true
-}
-
-const CustomerDetails = ({ orderData }: { orderData?: OrderType }) => {
-  // Vars
-  const typographyProps = (children: string, color: ThemeColor, className: string): TypographyProps => ({
-    children,
-    color,
-    className
-  })
+const FinancialSummaryCard = ({ data }: { data: FinancialScheduleItem[] }) => {
+  
+  const totalProfit = data.reduce((sum, item) => sum + item.netClinicProfit, 0)
+  const totalDiscounts = data.reduce((sum, item) => sum + item.clinicDiscountAmount + item.doctorDiscountAmount, 0)
+  const paidCount = data.filter(i => i.paymentStatus === 'PAID').length
 
   return (
     <Card>
       <CardContent className='flex flex-col gap-6'>
-        <Typography variant='h5'>Customer details</Typography>
+        <Typography variant='h5'>Session Summary</Typography>
+        
         <div className='flex items-center gap-3'>
-          {getAvatar({ avatar: orderData?.avatar ?? '', customer: orderData?.customer ?? '' })}
+          <Avatar variant='rounded' color='success'>
+            <i className='tabler-currency-dollar' />
+          </Avatar>
           <div className='flex flex-col'>
-            <Typography color='text.primary' className='font-medium'>
-              {orderData?.customer}
-            </Typography>
-            <Typography>Customer ID: #47389</Typography>
+            <Typography color='text.primary' className='font-medium'>Total Clinic Profit</Typography>
+            <Typography variant='h6' color='success.main'>Rs.{totalProfit.toFixed(2)}</Typography>
           </div>
         </div>
-        <div className='flex items-center gap-3'>
-          <CustomAvatar skin='light' color='success' size={40}>
-            <i className='tabler-shopping-cart' />
-          </CustomAvatar>
-          <Typography color='text.primary' className='font-medium'>
-            12 Orders
-          </Typography>
-        </div>
-        <div className='flex flex-col gap-1'>
-          <div className='flex justify-between items-center'>
-            <Typography color='text.primary' className='font-medium'>
-              Contact info
-            </Typography>
-            <OpenDialogOnElementClick
-              element={Typography}
-              elementProps={typographyProps('Edit', 'primary', 'cursor-pointer font-medium')}
-              dialog={EditUserInfo}
-              dialogProps={{ data: userData }}
-            />
-          </div>
-          <Typography>Email: {orderData?.email}</Typography>
-          <Typography>Mobile: +1 (609) 972-22-22</Typography>
+
+        <div className='flex flex-col gap-2'>
+           <div className='flex justify-between'>
+             <Typography>Appointments:</Typography>
+             <Typography className='font-medium'>{data.length}</Typography>
+           </div>
+           <div className='flex justify-between'>
+             <Typography>Paid:</Typography>
+             <Typography className='font-medium' color='success.main'>{paidCount}</Typography>
+           </div>
+           <div className='flex justify-between'>
+             <Typography>Total Discounts Given:</Typography>
+             <Typography className='font-medium' color='error.main'>-Rs.{totalDiscounts.toFixed(2)}</Typography>
+           </div>
         </div>
       </CardContent>
     </Card>
   )
 }
 
-export default CustomerDetails
+export default FinancialSummaryCard
