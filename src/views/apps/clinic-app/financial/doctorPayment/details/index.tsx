@@ -1,0 +1,43 @@
+// MUI Imports
+import Grid from '@mui/material/Grid2'
+
+// Type Imports
+import type { OrderType } from '@/types/apps/ecommerceTypes'
+
+// Component Imports
+import OrderDetailHeader from './OrderDetailHeader'
+import OrderDetailsCard from './OrderDetailsCard'
+
+import CustomerDetails from './CustomerDetailsCard'
+import ShippingAddress from './ShippingAddressCard'
+
+
+const ShedulePaymentDetails = ({ orderData, order }: { orderData?: OrderType; order: string }) => {
+  return (
+    <Grid container spacing={6}>
+      <Grid size={{ xs: 12 }}>
+        <OrderDetailHeader orderData={orderData} order={order} />
+      </Grid>
+      <Grid size={{ xs: 12, md: 8 }}>
+        <Grid container spacing={6}>
+          <Grid size={{ xs: 12 }}>
+            <OrderDetailsCard />
+          </Grid>
+
+        </Grid>
+      </Grid>
+      <Grid size={{ xs: 12, md: 4 }}>
+        <Grid container spacing={6}>
+          <Grid size={{ xs: 12 }}>
+            <CustomerDetails orderData={orderData} />
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <ShippingAddress />
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  )
+}
+
+export default ShedulePaymentDetails
