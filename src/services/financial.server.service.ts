@@ -1,7 +1,7 @@
 'use server'; 
 import { cookies } from 'next/headers';
 
-import { http, ApiError } from '@/services/api.config.server';
+// import { http, ApiError } from '@/services/api.config.server';
 
 export async function getFinancialSchedule(scheduleId: number) {
   try {
@@ -19,6 +19,7 @@ export async function getFinancialSchedule(scheduleId: number) {
 
     if (!res.ok) {
       console.error('Failed to fetch financial schedule:', res.status, res.statusText)
+      
       return null
     }
 
@@ -27,6 +28,7 @@ export async function getFinancialSchedule(scheduleId: number) {
     return json
   } catch (error) {
     console.error('Server-side get financial schedule failed:', error)
+   
     return null
   }
 }

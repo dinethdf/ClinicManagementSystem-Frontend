@@ -1,7 +1,7 @@
 'use server'; 
 import { cookies } from 'next/headers';
 
-import { http, ApiError } from '@/services/api.config.server';
+// import { http, ApiError } from '@/services/api.config.server';
 
 export async function getSchedulesList() {
   try {
@@ -19,14 +19,17 @@ export async function getSchedulesList() {
 
     if (!res.ok) {
       console.error('Failed to fetch schedules:', res.status, res.statusText)
+      
       return []
     }
 
     const json = await res.json()
+   
     return json.content || []
     
   } catch (error) {
     console.error('Server-side get schedules failed:', error)
+    
     return []
   }
 }

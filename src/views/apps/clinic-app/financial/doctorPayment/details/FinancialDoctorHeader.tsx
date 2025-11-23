@@ -6,7 +6,7 @@ import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
 
 // Type Imports
-import type { ThemeColor } from '@/@core/typesDef'
+// import type { ThemeColor } from '@/@core/typesDef'
 
 const FinancialDoctor = ({ scheduleId, itemCount }: { scheduleId: string, itemCount: number }) => {
   

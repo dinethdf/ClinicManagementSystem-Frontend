@@ -37,7 +37,8 @@ import type { Locale } from '@configs/i18n'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
-import OptionMenu from '@core/components/option-menu'
+
+// import OptionMenu from '@core/components/option-menu'
 import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@components/TablePaginationComponent'
 
@@ -52,7 +53,9 @@ import tableStyles from '@core/styles/table.module.css'
 // Filter Logic
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   const itemRank = rankItem(row.getValue(columnId), value)
+  
   addMeta({ itemRank })
+  
   return itemRank.passed
 }
 
@@ -62,7 +65,7 @@ const columnHelper = createColumnHelper<ScheduleListTypes>()
 const ScheduleListTable = ({ scheduleData }: { scheduleData?: ScheduleListTypes[] }) => {
   // States
   const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState(scheduleData || [])
+  const [data] = useState(scheduleData || [])
   const [globalFilter, setGlobalFilter] = useState('')
 
   // Hooks
@@ -136,6 +139,7 @@ const ScheduleListTable = ({ scheduleData }: { scheduleData?: ScheduleListTypes[
         header: 'Capacity',
         cell: ({ row }) => {
             const isFull = row.original.registeredCount >= row.original.maxCount;
+            
             return (
                 <div className='flex flex-col gap-1'>
                     <div className='flex items-center gap-2'>
