@@ -49,6 +49,7 @@ export const fetchPatients = createAsyncThunk(
       
       return response 
     } catch (err: any) {
+    
       return rejectWithValue(err.message)
     }
   }

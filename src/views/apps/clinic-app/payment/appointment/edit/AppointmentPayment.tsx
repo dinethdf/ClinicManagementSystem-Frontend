@@ -383,8 +383,8 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                 dialogProps={{ 
                     finalTotal: finalTotal, 
                     invoiceId: appointmentInvDetails?.invoiceId || id,
-                    discounts: watchedDiscounts // <-- PASS IT HERE
-                    
+                    discounts: watchedDiscounts,
+                    patientMobileNo: appointmentInvDetails?.patientContactNo
                 }} 
             />
           </CardContent>

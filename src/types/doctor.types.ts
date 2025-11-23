@@ -60,3 +60,14 @@ export interface Consultation {
   notes: string
   diagnosis?: string
 }
+
+export type ScheduleListTypes = {
+  id: number
+  doctorName: string
+  specialization: string
+  scheduleDate: string
+  timeRange: string
+  registeredCount: number
+  maxCount: number
+  active: boolean
+}

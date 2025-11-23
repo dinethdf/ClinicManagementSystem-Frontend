@@ -1,6 +1,4 @@
-// services/appoinment.server.service.ts
-
-'use server'; // <-- THIS IS THE FIX
+'use server';
 import { cookies } from 'next/headers';
 
 import { http, ApiError } from '@/services/api.config.server'; // Your API client

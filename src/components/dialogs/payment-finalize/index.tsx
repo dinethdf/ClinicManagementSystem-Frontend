@@ -50,7 +50,8 @@ type AddEditPaymentProps = {
   setOpen: (open: boolean) => void
   finalTotal: number
   invoiceId: string
-  discounts: Discount[] // <-- NEW PROP
+  discounts: Discount[]
+  patientMobileNo: string
 }
 
 
@@ -77,7 +78,7 @@ const paymentMethodes: CustomInputHorizontalData[] = [
   }
 ]
 
-const PaymentFinalizer = ({ open, setOpen, finalTotal, invoiceId, discounts }: AddEditPaymentProps) => {
+const PaymentFinalizer = ({ open, setOpen, finalTotal, invoiceId, discounts, patientMobileNo }: AddEditPaymentProps) => {
 
   const router = useRouter()
   const params = useParams()
@@ -143,12 +144,12 @@ const PaymentFinalizer = ({ open, setOpen, finalTotal, invoiceId, discounts }: A
       return;
     }
 
-  // Prepare data for API matched exactly to your backend DTO
       const paymentPayload = {
-          invoiceId: parseInt(invoiceId), // Ensure it's a number if backend expects Long
+          invoiceId: parseInt(invoiceId), 
           paymentMethod: selectedMethod,
           transactionCode: selectedMethod === 'Cash' ? null : paymentDetails.transactionId,
-          discounts: discounts // <-- Pass the discounts here
+          discounts: discounts,
+          patientMobileNo: patientMobileNo
       };
 
       console.log("Submitting Payment:", paymentPayload);

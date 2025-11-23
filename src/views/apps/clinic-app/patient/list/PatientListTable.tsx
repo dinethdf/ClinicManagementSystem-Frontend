@@ -1,14 +1,10 @@
 'use client'
 
-// React Imports
-// 1. IMPORT: Added useRef
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 
-// Redux Imports
+import { useRouter } from 'next/navigation'
+
 import { useDispatch, useSelector } from 'react-redux'
-
-
-// 1. IMPORT: Added setSearchQuery and resetSearchQuery
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -21,7 +17,7 @@ import type { TextFieldProps } from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
 import Chip from '@mui/material/Chip'
 
-// Third-party Imports
+
 import classnames from 'classnames'
 import {
   createColumnHelper,
@@ -35,20 +31,19 @@ import type { RootState, AppDispatch } from '@/libs/redux-store'
 
 import { fetchPatients, setPageSize, setSearchQuery, resetSearchQuery } from '@/libs/redux-store/slices/patientSlice'
 
-// Component Imports
+
 import CustomAvatar from '@core/components/mui/Avatar'
 import CustomTextField from '@core/components/mui/TextField'
 
-// Util Imports
+
 import { getInitials } from '@/utils/getInitials'
 
-// Type Imports
+
 import type { PatientResponceDTO } from '@/types/patient.types'
 
-// Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
-// --- HELPER FUNCTIONS ---
+
 const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) {
   
@@ -72,8 +67,6 @@ const formatDate = (dateString: string | null | undefined) => {
   }
 }
 
-// 2. FIXED DEBOUNCED INPUT
-// This fix stops it from calling onChange when the component first loads
 const DebouncedInput = ({
   value: initialValue,
   onChange,
@@ -85,7 +78,7 @@ const DebouncedInput = ({
   debounce?: number
 } & Omit<TextFieldProps, 'onChange'>) => {
   const [value, setValue] = useState(initialValue)
-  const isInitialMount = useRef(true); // Ref to track initial mount
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
     setValue(initialValue)
@@ -114,7 +107,8 @@ const columnHelper = createColumnHelper<PatientResponceDTO>()
 
 const PatientListTable = () => {
 
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
  
   const {
     data: patients, 
@@ -126,32 +120,21 @@ const PatientListTable = () => {
     searchQuery = ''
   } = useSelector((state: RootState) => state.patientReducer)
 
-  const isInitialUpdate = useRef(true);
-
   // --- Local State ---
   const [rowSelection, setRowSelection] = useState({})
 
   useEffect(() => {
-    if (status === 'idle') {
-      console.log("API call: Initial Load (Idle)");
-   
-      dispatch(fetchPatients({ page: 1, pageSize: 10, search: '' })); 
-    }
-  }, [dispatch, status]);
-
-
-  useEffect(() => {
-
-    if (isInitialUpdate.current) {
-      isInitialUpdate.current = false; 
-     
-      return;
-    }
     
-    console.log("API call: Search/PageSize Updated");
-    dispatch(fetchPatients({ page: 1, pageSize, search: searchQuery }));
-
-  }, [searchQuery, pageSize, dispatch]);
+    const promise = dispatch(fetchPatients({ 
+        page: currentPage, 
+        pageSize, 
+        search: searchQuery 
+    }));
+  
+    return () => {
+        promise.abort(); 
+    };
+  }, [dispatch, pageSize, currentPage, searchQuery]);
 
 
   const handleSearch = useCallback((value: string | number) => {
@@ -233,9 +216,9 @@ const PatientListTable = () => {
           </div>
         )
       }),
-      columnHelper.accessor('email', {
-        header: 'Email',
-        cell: ({ row }) => <Typography>{row.original.email || 'N/A'}</Typography>
+      columnHelper.accessor('nic', {
+        header: 'NIC',
+        cell: ({ row }) => <Typography>{row.original.nic || 'N/A'}</Typography>
       }),
       columnHelper.accessor('mobileNo', {
         header: 'Mobile',
@@ -340,7 +323,18 @@ const PatientListTable = () => {
                 </tr>
               ) : (
                 table.getRowModel().rows.map(row => (
-                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })} style={{ cursor: 'pointer' }}
+                      onClick={(e) => {
+                          
+                        const target = e.target as HTMLElement;
+                        
+                        if (target.closest('.MuiCheckbox-root') || target.closest('button') || target.closest('input')) {
+                        
+                          return;
+                          }
+                    
+                          router.push(`/en/clinic/patient/view/${row.original.id}`);
+                  }}>
                     {row.getVisibleCells().map(cell => (
                       <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                     ))}
