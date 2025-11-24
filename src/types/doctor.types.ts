@@ -14,6 +14,7 @@ export interface Doctor {
   profileImg?: string
 }
 
+
 export interface DoctorSpecialization {
   id?: number 
   name: string
@@ -70,4 +71,50 @@ export type ScheduleListTypes = {
   registeredCount: number
   maxCount: number
   active: boolean
+}
+
+export interface DoctorResponceDTO {
+  id?: number
+
+  firstName: string
+  lastName: string
+
+  nic: string
+  dob: string | null | undefined
+
+  address: string
+  city: string
+  email: string
+  mobileNo: number | string
+  isActive?: boolean
+}
+
+
+export interface DoctorResponseDTO {
+  id: number
+  firstName: string
+  lastName: string
+  email: string
+  mobileNo: string
+  city: string | null
+  nic: string
+  dob: string
+  nameWithInitials: string
+  slmcNumber: string
+  specialization: DoctorSpecialization
+  qualification: string
+  experienceYears: number
+  profileImg: string | null
+  availabilityStatus?: string
+  isApproved: boolean
+  registrationDate: string
+}
+
+// The structure of the paginated data object inside the API response
+export interface PaginatedDoctorResponse {
+  content: DoctorResponseDTO[]
+  totalElements: number
+  totalPages: number
+  size: number
+  number: number // Current page index (0-based)
 }

@@ -24,6 +24,10 @@
     "patientlist":"Patient List",
     "patientAdd": "Patient Add",
 
+    "doctor":"Doctor",
+    "doctorList":"Doctor List",
+    "doctorAdd": "Doctor Add",
+
     "userRegistration":"Users Register",
     "userlist":"Users List",
     "userAdd": "Users Add",    
