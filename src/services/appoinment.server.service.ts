@@ -2,12 +2,10 @@
 import { cookies } from 'next/headers';
 
 import { http, ApiError } from '@/services/api.config.server'; // Your API client
+import { AppointmentApiResponse, AppointmentDetailDTO } from '@/types/appoinments.types';
 
 
-/**
- * This is now a Server Action.
- * It can be imported and called directly from any Client Component.
- */
+
 export async function createAppointment(
   doctorScheduleId: number,
   patientId: number,
@@ -120,5 +118,41 @@ export async function processInvoicePayment(payload: any) {
     console.error("Unexpected payment error:", err);
  
     return { success: false, error: { message: "An unexpected error occurred during payment." } };
+  }
+}
+
+
+export async function getAppointmentList(page: number = 0, size: number = 10): Promise<AppointmentApiResponse | null> {
+  try {
+    const data = await http.get<AppointmentApiResponse>(`/api/appointments?page=${page}&size=${size}`);
+    
+    return data;
+
+  } catch (err) {
+
+    if (err instanceof ApiError) {
+      console.error(`API Error fetching list (Status ${err.status}):`, err.message);
+    } else {
+      console.error('Unexpected error fetching appointment list:', err);
+    }
+
+    return null; 
+  }
+}
+
+export async function getAppointmentDetails(appointmentId: string): Promise<AppointmentDetailDTO | null> {
+  try {
+    const data = await http.get<AppointmentDetailDTO>(`/api/appointments/${appointmentId}`);
+
+    return data;
+
+  } catch (err) {
+    if (err instanceof ApiError) {
+      console.error(`API Error fetching details (Status ${err.status}):`, err.message);
+    } else {
+      console.error('Unexpected error fetching appointment details:', err);
+    }
+    
+    return null;
   }
 }

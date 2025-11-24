@@ -44,3 +44,58 @@ export interface ApiResponse<T> {
     message: string;
     success: boolean;
 }
+
+// src/types/appointment.types.ts
+
+// For the List View
+export type AppointmentListDTO = {
+  id: number
+  startTime: string
+  status: string // 'Booked' | 'COMPLETED' | etc.
+  note: string | null
+  queuePosition: number
+  patientMobile: string
+  scheduleDate: string
+  patientId: number
+  patientNo: string
+  patientName: string
+  doctorName: string
+  appointmentNumber: string | null
+}
+
+
+export type AppointmentDetailDTO = {
+  id: number
+  startTime: string
+  endTime: string
+  status: string
+  note: string | null
+  specialization: string
+  queuePosition: number
+  patientMobile: string
+  scheduleDate: string
+  patientId: number
+  patientNo: string
+  patientName: string
+  patientNic: string
+  doctorName: string
+  doctorFee: number
+  clinicFee: number
+  scheduleId: number
+  // Audit Columns
+  createdDate: string
+  createdBy: string
+  updatedDate: string | null
+  updatedBy: string | null
+  approvedDate: string | null
+  approvedBy: string | null
+}
+
+
+export type AppointmentApiResponse = {
+  content: AppointmentListDTO[]
+  totalPages: number
+  totalElements: number
+  size: number
+  number: number
+}

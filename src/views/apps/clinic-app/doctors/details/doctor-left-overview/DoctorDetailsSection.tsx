@@ -18,7 +18,7 @@ const DoctorDetailsSection = ({ doctorData }: { doctorData?: Doctor }) => {
       <CardContent className='flex flex-col pbs-12 gap-6'>
         <div className='flex flex-col justify-self-center items-center gap-6'>
           <div className='flex flex-col items-center gap-4'>
-            <CustomAvatar src={'/images/avatars/doctor-common.png'} variant='rounded' size={120} />
+            <CustomAvatar src={'/images/avatars/common.png'} variant='rounded' size={120} />
             <div className='flex flex-col items-center text-center'>
               <Typography variant='h5'>{`${doctorData?.firstName} ${doctorData?.lastName}`}</Typography>
               {/* <Chip label={doctorData?.specialization} color='primary' variant='tonal' size="small" className="mt-2" /> */}
