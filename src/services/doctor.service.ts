@@ -1,8 +1,6 @@
 import type { DoctorScheduleDTO } from '@/types/doctor.types'
 import { apiClient } from './api.config'
 
-// You might want to move these DTOs to '@/types/doctor.types' later
-// but defining them here makes the service self-contained for now.
 
 export interface DoctorCreateDTO {
   firstName: string
@@ -28,7 +26,6 @@ export interface DoctorCreateDTO {
   availabilityStatus: string
 }
 
-// Standard Wrapper based on your code
 interface ApiResponse<T> {
   success: boolean
   message: string
@@ -44,10 +41,7 @@ interface PaginatedResponse<T> {
 }
 
 class DoctorService {
-  /**
-   * Registers a new doctor
-   * Endpoint: POST /api/doctor/register
-   */
+
   async createDoctor(payload: DoctorCreateDTO): Promise<any> {
     try {
       const response = await apiClient.post<ApiResponse<any>>(
@@ -57,17 +51,12 @@ class DoctorService {
 
       return response.data
     } catch (error: any) {
-      // Matches your error handling style
       throw new Error(
         error.response?.data?.defaultMessage || 'Failed to register doctor'
       )
     }
   }
 
-  /**
-   * Fetches paginated list of doctors
-   * Endpoint: GET /api/doctor/doctorlist
-   */
   async getDoctorList({
     page,
     pageSize,
@@ -79,7 +68,7 @@ class DoctorService {
   }): Promise<ApiResponse<PaginatedResponse<any>>> {
     try {
       const response = await apiClient.get<ApiResponse<PaginatedResponse<any>>>(
-        '/api/doctor/doctorlist',
+        '/api/doctor/list',
         {
           params: {
             page: page - 1, // Adjust if backend is 0-indexed
@@ -89,8 +78,6 @@ class DoctorService {
         }
       )
 
-      // Based on your Redux slice, we return response.data 
-      // because the slice expects the full wrapper to access 'success', 'message', etc.
       return response.data
     } catch (error: any) {
       throw new Error(
@@ -99,10 +86,6 @@ class DoctorService {
     }
   }
   
-  /**
-   * Get single doctor by ID
-   * Endpoint: GET /api/doctor/{id}
-   */
   async getDoctorById(id: string | number): Promise<any> {
       try {
         const response = await apiClient.get<ApiResponse<any>>(`/api/doctor/${id}`)

@@ -125,7 +125,7 @@ export async function processInvoicePayment(payload: any) {
 
 export async function getAppointmentList(page: number = 0, size: number = 10): Promise<AppointmentApiResponse | null> {
   try {
-    const data = await http.get<AppointmentApiResponse>(`/api/appointments?page=${page}&size=${size}`);
+    const data = await http.get<AppointmentApiResponse>(`/api/appointments/list?page=${page}&size=${size}`);
     
     return data;
 
