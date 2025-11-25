@@ -55,7 +55,6 @@ export const fetchDoctors = createAsyncThunk(
   }
 )
 
-// 4. Update the Slice
 export const doctorSlice = createSlice({
   name: 'doctors',
   initialState: initialState,
@@ -65,7 +64,6 @@ export const doctorSlice = createSlice({
       state.currentPage = 1
     },
     
-    // Reducer to update the search query from a text field
     setSearchQuery: (state, action: PayloadAction<string>) => {
       state.searchQuery = action.payload
       state.status = "idle"
@@ -83,8 +81,7 @@ export const doctorSlice = createSlice({
       })
       .addCase(fetchDoctors.fulfilled, (state, action: PayloadAction<any>) => {
           state.status = 'succeeded'
-          
-          // Access the nested data object
+
           const pageData = action.payload.data; 
 
           state.data = pageData.content 
