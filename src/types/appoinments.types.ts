@@ -82,7 +82,7 @@ export type AppointmentDetailDTO = {
   doctorFee: number
   clinicFee: number
   scheduleId: number
-  // Audit Columns
+
   createdDate: string
   createdBy: string
   updatedDate: string | null

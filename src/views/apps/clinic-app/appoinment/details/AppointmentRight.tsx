@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+
 import Tab from '@mui/material/Tab'
 import TabContext from '@mui/lab/TabContext'
 import TabPanel from '@mui/lab/TabPanel'
@@ -12,6 +13,7 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 
 import CustomTabList from '@core/components/mui/TabList'
+
 import type { AppointmentDetailDTO } from '@/types/appoinments.types'
 
 const AppointmentRight = ({ appointmentData }: { appointmentData: AppointmentDetailDTO }) => {

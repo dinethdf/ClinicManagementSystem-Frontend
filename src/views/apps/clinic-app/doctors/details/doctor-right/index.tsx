@@ -1,9 +1,12 @@
 'use client'
+
 import { useState } from 'react'
+
 import Tab from '@mui/material/Tab'
 import TabContext from '@mui/lab/TabContext'
 import TabPanel from '@mui/lab/TabPanel'
 import Grid from '@mui/material/Grid2'
+
 import CustomTabList from '@core/components/mui/TabList'
 
 // Imports dynamically to avoid circular dependencies if needed, or direct import

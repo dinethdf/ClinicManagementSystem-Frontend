@@ -1,5 +1,5 @@
 // Next Imports
-import { redirect } from 'next/navigation'
+// import { redirect } from 'next/navigation'
 
 // Component Imports
 import DoctorDetails from '@/views/apps/clinic-app/doctors/details'

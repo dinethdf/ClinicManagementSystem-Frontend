@@ -1,8 +1,9 @@
 'use server';
 import { cookies } from 'next/headers';
 
-import { http, ApiError } from '@/services/api.config.server'; // Your API client
-import { AppointmentApiResponse, AppointmentDetailDTO } from '@/types/appoinments.types';
+import { http, ApiError } from '@/services/api.config.server';
+
+import type { AppointmentApiResponse, AppointmentDetailDTO } from '@/types/appoinments.types';
 
 
 

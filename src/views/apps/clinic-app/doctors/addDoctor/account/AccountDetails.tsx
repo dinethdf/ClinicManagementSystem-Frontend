@@ -2,10 +2,15 @@
 
 // React Imports
 import { useMemo, useState } from 'react'
+
 import { useRouter } from 'next/navigation'
+
 import dayjs from 'dayjs'
+
 import { useForm, Controller } from 'react-hook-form'
+
 import { toast } from 'react-toastify'
+
 import { valibotResolver } from '@hookform/resolvers/valibot'
 
 // MUI Imports
@@ -15,7 +20,7 @@ import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
-import { CardHeader, Divider, InputAdornment } from '@mui/material'
+import { CardHeader, Divider } from '@mui/material'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
@@ -23,8 +28,8 @@ import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
 import BackDropFullScreen from '@/components/BackDropFullScreen'
 
 // Logic Imports
-import { getDoctorValidationSchema } from '@/schemas/doctorDetailsValidation' // Create this!
-import { doctorService } from '@/services/doctor.service' // Create this!
+import { getDoctorValidationSchema } from '@/schemas/doctorDetailsValidation' 
+import { doctorService } from '@/services/doctor.service'
 
 // Types (Define this in @/types/doctor.types.ts)
 interface DoctorFormData {
@@ -40,7 +45,7 @@ interface DoctorFormData {
   email: string
   mobileNo: string
   slmcNumber: string
-  specializationId: string // We use ID in the form, but object in API
+  specializationId: string
   qualification: string
   experienceYears: string
   availabilityStatus: string
@@ -88,19 +93,21 @@ const DoctorAccountDetails = () => {
 
     // Format data for API (match the structure you provided)
     const apiPayload = {
+      
       ...data,
-      gender: parseInt(data.gender), // Convert string '1' to number 1
+      gender: parseInt(data.gender), 
       specialization: {
-        id: data.specializationId // Nest the ID
+        id: data.specializationId
       },
-      // Remove the flat ID field if API doesn't want it
+
       specializationId: undefined, 
-      registrationDate: new Date().toISOString(), // Add current date
+      registrationDate: new Date().toISOString(), 
       isApproved: false,
-      profileImg: null // Or handle image upload logic here
+      profileImg: null
     }
 
     try {
+     
       // Ensure you have this service method created
       const response = await doctorService.createDoctor(apiPayload)
 

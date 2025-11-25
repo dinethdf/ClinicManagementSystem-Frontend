@@ -1,6 +1,7 @@
 'use server'; 
 import { cookies } from 'next/headers'
-import type { Doctor, DoctorScheduleDTO } from '@/types/doctor.types'
+
+import type { Doctor } from '@/types/doctor.types'
 
   
   export async function getDoctorById(id: string): Promise<Doctor | null> {
@@ -19,9 +20,11 @@ import type { Doctor, DoctorScheduleDTO } from '@/types/doctor.types'
 
       if (!res.ok) return null
       const json = await res.json()
+      
       return json.data
     } catch (error) {
       console.error('Failed to fetch doctor:', error)
+     
       return null
     }
   }

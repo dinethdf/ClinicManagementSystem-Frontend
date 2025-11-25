@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+
 import { useRouter } from 'next/navigation'
+
 import { useDispatch, useSelector } from 'react-redux'
 
-// MUI Imports
+
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
@@ -27,9 +29,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import type { RootState, AppDispatch } from '@/libs/redux-store'
 import { fetchDoctors, setPageSize, setSearchQuery, resetSearchQuery } from '@/libs/redux-store/slices/doctorSlice'
 
-import CustomAvatar from '@core/components/mui/Avatar'
 import CustomTextField from '@core/components/mui/TextField'
-import { getInitials } from '@/utils/getInitials'
 
 // Define your Doctor Type here based on your JSON response
 // You likely have this in a separate file like '@/types/doctor.types'
@@ -75,13 +75,17 @@ const DebouncedInput = ({
   }, [initialValue])
 
   useEffect(() => {
+   
     if (isInitialMount.current) {
       isInitialMount.current = false;
+      
       return;
     }
+    
     const timeout = setTimeout(() => {
       onChange(value)
     }, debounce)
+   
     return () => clearTimeout(timeout)
   }, [value, onChange, debounce])
 
@@ -120,7 +124,9 @@ const DoctorsListTable = () => {
   }, [dispatch, pageSize, currentPage, searchQuery]);
 
   const handleSearch = useCallback((value: string | number) => {
+    
     const query = String(value)
+  
     if (query.length >= 3) {
       dispatch(setSearchQuery(query))
     } else {
@@ -131,7 +137,9 @@ const DoctorsListTable = () => {
   }, [dispatch, searchQuery])
 
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+   
     const newPageSize = Number(e.target.value)
+    
     dispatch(setPageSize(newPageSize)) 
   }
 
@@ -293,16 +301,22 @@ const DoctorsListTable = () => {
                   </td>
                 </tr>
               ) : (
+               
                 table.getRowModel().rows.map(row => (
                   <tr key={row.id} className={classnames({ selected: row.getIsSelected() })} style={{ cursor: 'pointer' }}
                       onClick={(e) => {
-                          const target = e.target as HTMLElement;
-                          if (target.closest('.MuiCheckbox-root') || target.closest('button') || target.closest('input')) {
+
+                        const target = e.target as HTMLElement;
+
+                        if (target.closest('.MuiCheckbox-root') || target.closest('button') || target.closest('input')) {
+                          
                             return;
                           }
+                          
                           router.push(`/en/clinic/doctors/view/${row.original.id}`);
                   }}>
                     {row.getVisibleCells().map(cell => (
+                      
                       <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                     ))}
                   </tr>

@@ -1,3 +1,4 @@
+import type { DoctorScheduleDTO } from '@/types/doctor.types'
 import { apiClient } from './api.config'
 
 // You might want to move these DTOs to '@/types/doctor.types' later
@@ -105,11 +106,29 @@ class DoctorService {
   async getDoctorById(id: string | number): Promise<any> {
       try {
         const response = await apiClient.get<ApiResponse<any>>(`/api/doctor/${id}`)
+        
         return response.data.data
+      
       } catch (error: any) {
         throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch doctor details')
       }
   }
+
+async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorScheduleDTO[]> {
+  try {
+    
+    const response = await apiClient.post<ApiResponse<DoctorScheduleDTO[]>>(
+      '/api/schedules/batch',
+      payload
+    )
+    
+    return response.data.data
+  } catch (error: any) {
+    // Throw an error with the message from backend's ApiResponse
+    throw new Error(error.response?.data?.defaultMessage || 'Failed to create schedules')
+  }  
+}
+
 }
 
 export const doctorService = new DoctorService()

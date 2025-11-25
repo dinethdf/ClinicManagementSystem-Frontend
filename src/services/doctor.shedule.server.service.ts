@@ -1,6 +1,8 @@
 'use server'; 
-import { DoctorScheduleDTO } from '@/types/doctor.types';
 import { cookies } from 'next/headers';
+
+import type { DoctorScheduleDTO } from '@/types/doctor.types';
+
 
 // import { http, ApiError } from '@/services/api.config.server';
 
@@ -50,17 +52,20 @@ export async function getSchedulesByDoctorId(doctorId: string): Promise<DoctorSc
     })
 
     if (!res.ok) {
+      
       console.error('Failed to fetch doctor schedules:', res.status, res.statusText)
+      
       return []
     }
 
     const json = await res.json()
 
-    // Returning json.data because your API response structure is { success: true, data: [...] }
     return json.data || []
 
   } catch (error) {
+    
     console.error('Server-side get doctor schedules failed:', error)
+    
     return []
   }
 }

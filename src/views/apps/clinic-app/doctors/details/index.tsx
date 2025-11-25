@@ -1,9 +1,6 @@
 // MUI Imports
 import Grid from '@mui/material/Grid2'
 
-// Type Imports
-import type { Doctor } from '@/types/doctor.types'
-
 // Component Imports
 import DoctorDetailsSection from './doctor-left-overview/DoctorDetailsSection'
 import DoctorRight from './doctor-right'

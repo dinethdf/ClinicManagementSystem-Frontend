@@ -2,20 +2,18 @@
 
 // React Imports
 import { useState, useEffect, useMemo } from 'react'
+
 import Link from 'next/link'
+
 import { useParams } from 'next/navigation'
 
-// MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import TablePagination from '@mui/material/TablePagination'
 import CircularProgress from '@mui/material/CircularProgress'
-import type { TextFieldProps } from '@mui/material/TextField'
 
-// Third-party Imports
-import classnames from 'classnames'
 import {
   createColumnHelper,
   flexRender,
@@ -29,19 +27,18 @@ import type { AppointmentListDTO } from '@/types/appoinments.types'
 import type { ThemeColor } from '@/@core/typesDef'
 import type { Locale } from '@configs/i18n'
 
-// Service
+
 import { getAppointmentList } from '@/services/appoinment.server.service'
 
-// Component Imports
+
 import OptionMenu from '@core/components/option-menu'
-import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@components/TablePaginationComponent'
 import { getLocalizedUrl } from '@/utils/i18n'
 
-// Style Imports
+
 import tableStyles from '@core/styles/table.module.css'
 
-// Status Colors
+
 const appointmentStatusObj: { [key: string]: { color: ThemeColor; label: string } } = {
   Booked: { color: 'primary', label: 'Booked' },
   COMPLETED: { color: 'success', label: 'Completed' },
@@ -52,7 +49,6 @@ const appointmentStatusObj: { [key: string]: { color: ThemeColor; label: string 
 const columnHelper = createColumnHelper<AppointmentListDTO>()
 
 const AppointmentListTable = () => {
-  // States
   const [data, setData] = useState<AppointmentListDTO[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
@@ -64,20 +60,22 @@ const AppointmentListTable = () => {
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true)
-      // Note: This calls the server action from the client
       const res = await getAppointmentList(pagination.pageIndex, pagination.pageSize)
       
       if (res) {
         setData(res.content)
         setTotalCount(res.totalElements)
       }
+      
       setIsLoading(false)
     }
+
     loadData()
   }, [pagination.pageIndex, pagination.pageSize])
 
   const columns = useMemo<ColumnDef<AppointmentListDTO, any>[]>(
     () => [
+      
       columnHelper.accessor('id', {
         header: 'Ref #',
         cell: ({ row }) => (
@@ -129,8 +127,10 @@ const AppointmentListTable = () => {
       }),
       columnHelper.accessor('status', {
         header: 'Status',
+       
         cell: ({ row }) => {
           const status = appointmentStatusObj[row.original.status] || { color: 'secondary', label: row.original.status }
+         
           return <Chip label={status.label} color={status.color} variant='tonal' size='small' />
         }
       }),
@@ -138,6 +138,7 @@ const AppointmentListTable = () => {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => (
+         
           <OptionMenu
             iconButtonProps={{ size: 'medium' }}
             iconClassName='text-textSecondary'
