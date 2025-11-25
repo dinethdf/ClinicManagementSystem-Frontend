@@ -49,9 +49,9 @@ const FinancialDoctorDetailsCard = ({ data }: { data: FinancialScheduleItem[] })
   }, [data])
 
   const columns = useMemo(() => [
-      columnHelper.accessor('queueNo', {
-        header: 'Queue',
-        cell: ({ row }) => <Typography color='text.primary' className='font-medium'>#{row.original.queueNo}</Typography>
+      columnHelper.accessor('appointmentId', {
+        header: '#No',
+        cell: ({ row }) => <Typography color='text.primary' className='font-medium'>#{row.original.appointmentId}</Typography>
       }),
       columnHelper.accessor('patientName', {
         header: 'Patient',
@@ -77,6 +77,10 @@ const FinancialDoctorDetailsCard = ({ data }: { data: FinancialScheduleItem[] })
              />
         )
       }),
+      columnHelper.accessor('totalPaidByPatient', {
+        header: 'Total Income',
+        cell: ({ row }) => <Typography>Rs. {row.original.totalPaidByPatient.toFixed(2)}</Typography>
+      }),
       columnHelper.accessor('baseDoctorFee', {
         header: 'Base Dr. Fee',
         cell: ({ row }) => <Typography>Rs. {row.original.baseDoctorFee.toFixed(2)}</Typography>
@@ -84,15 +88,23 @@ const FinancialDoctorDetailsCard = ({ data }: { data: FinancialScheduleItem[] })
       columnHelper.accessor('doctorDiscountAmount', {
         header: 'Dr. Discount',
         cell: ({ row }) => (
-            <Typography color={row.original.doctorDiscountAmount > 0 ? 'error.main' : 'text.disabled'}>
-                {row.original.doctorDiscountAmount > 0 ? `- Rs. ${row.original.doctorDiscountAmount.toFixed(2)}` : '-'}
+            <Typography color={row.original.doctorDiscountAmount < 0 ? 'error.main' : 'text.disabled'}>
+                {row.original.doctorDiscountAmount < 0 ? `Rs. ${row.original.doctorDiscountAmount.toFixed(2)}` : '-'}
             </Typography>
         )
       }),
-      columnHelper.accessor('netClinicProfit', {
-        header: 'Clinic Profit',
-        cell: ({ row }) => <Typography color='success.main'>Rs. {row.original.netClinicProfit.toFixed(2)}</Typography>
-      }),      
+      columnHelper.accessor('baseClinicFee', {
+        header: 'Clinic Fee',
+        cell: ({ row }) => <Typography>Rs. {row.original.baseClinicFee.toFixed(2)}</Typography>
+      }),     
+      columnHelper.accessor('clinicDiscountAmount', {
+        header: 'Clinic Discount',
+        cell: ({ row }) => (
+            <Typography color={row.original.clinicDiscountAmount < 0 ? 'error.main' : 'text.disabled'}>
+                {row.original.clinicDiscountAmount < 0 ? `Rs. ${row.original.clinicDiscountAmount.toFixed(2)}` : '-'}
+            </Typography>
+        )
+      }),       
       columnHelper.accessor('netDoctorPayout', {
         header: 'Net Payout',
         cell: ({ row }) => <Typography color='primary.main' className='font-bold'>Rs. {row.original.netDoctorPayout.toFixed(2)}</Typography>
@@ -114,7 +126,6 @@ const FinancialDoctorDetailsCard = ({ data }: { data: FinancialScheduleItem[] })
     <Card>
       <CardHeader 
         title='Doctor Payout Analysis' 
-        subheader={`Total Patients: ${data.length}`}
       />
       <div className='overflow-x-auto'>
         <table className={tableStyles.table}>
@@ -166,7 +177,7 @@ const FinancialDoctorDetailsCard = ({ data }: { data: FinancialScheduleItem[] })
 
           {/* Net Doctor Payout */}
           <div className='flex items-center justify-between'>
-            <Typography color='text.primary' variant='h6'>Net Doctor Payout:</Typography>
+            <Typography color='text.primary' variant='h6'>Total Doctor Payout:</Typography>
             <Typography color='primary.main' variant='h6'>Rs. {totals.doctorPayout.toFixed(2)}</Typography>
           </div>
 

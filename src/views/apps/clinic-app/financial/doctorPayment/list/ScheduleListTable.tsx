@@ -149,13 +149,13 @@ const ScheduleListTable = ({ scheduleData }: { scheduleData?: ScheduleListTypes[
                          <Typography variant='body2'>/</Typography>
                          <Typography variant='body2'>{row.original.maxCount}</Typography>
                     </div>
-                     {/* Simple progress visual */}
+                     {/*
                     <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
                         <div 
                             className={`h-full ${isFull ? 'bg-red-500' : 'bg-primary-500'}`} 
                             style={{ width: `${(row.original.registeredCount / row.original.maxCount) * 100}%` }}
                         />
-                    </div>
+                    </div> */}
                 </div>
             )
         }

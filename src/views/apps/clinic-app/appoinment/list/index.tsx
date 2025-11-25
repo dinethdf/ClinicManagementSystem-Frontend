@@ -5,17 +5,13 @@ import { useState } from 'react'
 
 import Grid from '@mui/material/Grid2'
 
-// Type Imports
-import type { OrderType } from '@/types/apps/ecommerceTypes'
-
-// Component Imports
 import AppoinmentCard from './AppoinmentCard'
 
 import AppoinmentListTable from './AppoinmentListTable'
 
 import { getAppointmentsPagable } from '@/services/appoinment.server.service'
 
-const OrderList = ({ orderData, initialData }: { orderData?: OrderType[]; initialData?:string }) => {
+const AppoinmentList = ({initialData }: { initialData?:string }) => {
 
   const [appointments, setAppointments] = useState(initialData)
   const [page, setPage] = useState(1)
@@ -38,10 +34,10 @@ const OrderList = ({ orderData, initialData }: { orderData?: OrderType[]; initia
         <AppoinmentCard />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <AppoinmentListTable orderData={orderData} />
+        <AppoinmentListTable/>
       </Grid>
     </Grid>
   )
 }
 
-export default OrderList
+export default AppoinmentList
