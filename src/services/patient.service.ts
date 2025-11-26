@@ -105,34 +105,17 @@ async getPatientById(id: string): Promise<Patient | null> {
     }
 }
 
-  //   async updatePatient(id: string, patientData: Partial<Patient>): Promise<Patient> {
-  //     await new Promise((resolve) => setTimeout(resolve, 600))
 
-  //     const index = this.patients.findIndex((p) => p.id === id)
-  //     if (index === -1) {
-  //       throw new Error("Patient not found")
-  //     }
 
-  //     this.patients[index] = {
-  //       ...this.patients[index],
-  //       ...patientData,
-  //       updatedAt: new Date().toISOString(),
-  //     }
-
-  //     return this.patients[index]
-  //   }
-
-  //   async getPatientHistory(patientId: string): Promise<PatientHistory> {
-  //     await new Promise((resolve) => setTimeout(resolve, 500))
-
-  //     const prescriptions = MOCK_PRESCRIPTIONS.filter((p) => p.patientId === patientId)
-
-  //     return {
-  //       patientId,
-  //       prescriptions,
-  //       consultations: [],
-  //     }
-  //   }
+async updatePatient(id: string, patientData: Partial<Patient>): Promise<any> {
+  try {
+    const response = await apiClient.put(`/api/patient/details/staff/${id}`, patientData)
+    return response.data
+  } catch (error: any) {
+    console.error('Update failed:', error)
+    throw new Error(error.response?.data?.defaultMessage || 'Failed to update patient')
+  }
+}
 }
 
 export const patientService = new PatientService()

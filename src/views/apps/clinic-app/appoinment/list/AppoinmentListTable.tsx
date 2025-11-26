@@ -2,11 +2,10 @@
 
 // React Imports
 import { useState, useEffect, useMemo } from 'react'
-
 import Link from 'next/link'
-
 import { useParams } from 'next/navigation'
 
+// MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
@@ -14,6 +13,7 @@ import Chip from '@mui/material/Chip'
 import TablePagination from '@mui/material/TablePagination'
 import CircularProgress from '@mui/material/CircularProgress'
 
+// TanStack Table Imports
 import {
   createColumnHelper,
   flexRender,
@@ -27,17 +27,13 @@ import type { AppointmentListDTO } from '@/types/appoinments.types'
 import type { ThemeColor } from '@/@core/typesDef'
 import type { Locale } from '@configs/i18n'
 
-
+// Service Import
 import { getAppointmentList } from '@/services/appoinment.server.service'
 
-
+// Component Imports
 import OptionMenu from '@core/components/option-menu'
-import TablePaginationComponent from '@components/TablePaginationComponent'
 import { getLocalizedUrl } from '@/utils/i18n'
-
-
 import tableStyles from '@core/styles/table.module.css'
-
 
 const appointmentStatusObj: { [key: string]: { color: ThemeColor; label: string } } = {
   Booked: { color: 'primary', label: 'Booked' },
@@ -51,23 +47,36 @@ const columnHelper = createColumnHelper<AppointmentListDTO>()
 const AppointmentListTable = () => {
   const [data, setData] = useState<AppointmentListDTO[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
+  
+  // State for Pagination
+  const [pagination, setPagination] = useState({ 
+    pageIndex: 0, 
+    pageSize: 10 
+  })
   const [totalCount, setTotalCount] = useState(0)
 
   const { lang: locale } = useParams()
 
-  // Fetch Data
+  // Fetch Data when pagination state changes
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true)
-      const res = await getAppointmentList(pagination.pageIndex, pagination.pageSize)
-      
-      if (res) {
-        setData(res.content)
-        setTotalCount(res.totalElements)
+      try {
+        // API call using current page index and page size
+        const res = await getAppointmentList(pagination.pageIndex, pagination.pageSize)
+        
+        if (res) {
+          setData(res.content)
+          setTotalCount(res.totalElements)
+        } else {
+          setData([])
+          setTotalCount(0)
+        }
+      } catch (error) {
+        console.error("Failed to load appointments", error)
+      } finally {
+        setIsLoading(false)
       }
-      
-      setIsLoading(false)
     }
 
     loadData()
@@ -75,7 +84,6 @@ const AppointmentListTable = () => {
 
   const columns = useMemo<ColumnDef<AppointmentListDTO, any>[]>(
     () => [
-      
       columnHelper.accessor('id', {
         header: 'Ref #',
         cell: ({ row }) => (
@@ -127,10 +135,8 @@ const AppointmentListTable = () => {
       }),
       columnHelper.accessor('status', {
         header: 'Status',
-       
         cell: ({ row }) => {
           const status = appointmentStatusObj[row.original.status] || { color: 'secondary', label: row.original.status }
-         
           return <Chip label={status.label} color={status.color} variant='tonal' size='small' />
         }
       }),
@@ -138,7 +144,6 @@ const AppointmentListTable = () => {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => (
-         
           <OptionMenu
             iconButtonProps={{ size: 'medium' }}
             iconClassName='text-textSecondary'
@@ -161,18 +166,29 @@ const AppointmentListTable = () => {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    manualPagination: true, // Important for server-side pagination
+    manualPagination: true,
     state: { pagination },
     onPaginationChange: setPagination,
     pageCount: Math.ceil(totalCount / pagination.pageSize),
-    filterFns: {} as any
+    filterFns: {} as any,
   })
+
+  // --- Handlers for MUI Pagination ---
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPagination(prev => ({ ...prev, pageIndex: newPage }))
+  }
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPagination({
+      pageSize: parseInt(event.target.value, 10),
+      pageIndex: 0 // Reset to first page when changing size
+    })
+  }
 
   return (
     <Card>
       <CardContent className='flex justify-between items-center gap-4'>
         <Typography variant='h5'>Appointment List</Typography>
-        {/* You can add Search Input here later */}
       </CardContent>
       
       {isLoading ? (
@@ -204,12 +220,17 @@ const AppointmentListTable = () => {
         </div>
       )}
 
+      {/* Standard MUI Pagination. 
+        This is safer than nesting the custom component unless you are 100% sure of its props.
+      */}
       <TablePagination
-        component={() => <TablePaginationComponent table={table as any} />}
+        component="div"
         count={totalCount}
-        rowsPerPage={pagination.pageSize}
         page={pagination.pageIndex}
-        onPageChange={(_, page) => setPagination(prev => ({ ...prev, pageIndex: page }))}
+        onPageChange={handleChangePage}
+        rowsPerPage={pagination.pageSize}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={[5, 10, 25, 50]}
       />
     </Card>
   )

@@ -11,10 +11,6 @@ export const metadata: Metadata = {
 }
 
 const BookAppointmentPage = () => {
-
-
-//   console.log(data)
-
   return <PublicBookingWizard />
 }
 
