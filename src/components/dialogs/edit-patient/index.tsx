@@ -81,12 +81,12 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
     setIsLoading(true)
     setErrorMessage(null)
 
-    // Prepare payload for API (Convert strings back to numbers)
-    const payload = {
+
+    const payload : Patient = {
         ...data,
-        gender: Number(data.gender),
-        ethnicity: Number(data.ethnicity),
-        maritalStatus: Number(data.maritalStatus)
+        gender: data.gender,
+        ethnicity: data.ethnicity,
+        maritalStatus: data.maritalStatus
     }
 
     try {
