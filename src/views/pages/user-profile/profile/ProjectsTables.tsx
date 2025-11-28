@@ -32,7 +32,7 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
-import type { ProjectTableRowType } from '@/libs/types/pages/profileTypes'
+import type { ProjectTableRowType } from '@/types/pages/profileTypes'
 
 // Component Imports
 import OptionMenu from '@core/components/option-menu'

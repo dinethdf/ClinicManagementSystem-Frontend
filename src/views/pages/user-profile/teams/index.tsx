@@ -10,7 +10,7 @@ import Tooltip from '@mui/material/Tooltip'
 import Chip from '@mui/material/Chip'
 
 // Type Imports
-import type { TeamsTabType } from '@/libs/types/pages/profileTypes'
+import type { TeamsTabType } from '@/types/pages/profileTypes'
 
 // Component Imports
 import OptionMenu from '@core/components/option-menu'

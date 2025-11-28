@@ -8,14 +8,14 @@ import Button from '@mui/material/Button'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { PatientDetails } from '@/libs/types/patient.types'
+import type { Patient } from '@/types/patient.types'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
-import EditUserInfo from '@components/dialogs/edit-user-info'
+import EditPatientDetails from '@/components/dialogs/edit-patient'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
-const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }) => {
+const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
   // Vars
   const buttonProps: ButtonProps = {
     variant: 'contained',
@@ -27,13 +27,13 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
       <CardContent className='flex flex-col pbs-12 gap-6'>
         <div className='flex flex-col justify-self-center items-center gap-6'>
           <div className='flex flex-col items-center gap-4'>
-            <CustomAvatar src={'/images/avatars/1.png'} variant='rounded' alt='Customer Avatar' size={120} />
+            <CustomAvatar src={'/images/avatars/common.png'} variant='rounded' alt='Customer Avatar' size={120} />
             <div className='flex flex-col items-center text-center'>
               <Typography variant='h5'>{patientData?.firstName + ' ' + patientData?.lastName}</Typography>
               <Typography>Customer ID #{patientData?.patientNo}</Typography>
             </div>
           </div>
-          <div className='flex items-center justify-around gap-4 flex-wrap is-full'>
+          {/* <div className='flex items-center justify-around gap-4 flex-wrap is-full'>
             <div className='flex items-center gap-4'>
               <CustomAvatar variant='rounded' skin='light' color='primary'>
                 <i className='tabler-shopping-cart' />
@@ -52,7 +52,27 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
                 <Typography>Spent</Typography>
               </div>
             </div>
-          </div>
+          </div> */}
+          {/* <div className='flex items-center justify-around gap-4 flex-wrap is-full'>
+            <div className='flex items-center gap-4'>
+              <CustomAvatar variant='rounded' skin='light' color='primary'>
+                <i className='tabler-shopping-cart' />
+              </CustomAvatar>
+              <div>
+                <Typography variant='h5'>{'10'}</Typography>
+                <Typography>Orders</Typography>
+              </div>
+            </div>
+            <div className='flex items-center gap-4'>
+              <CustomAvatar variant='rounded' skin='light' color='primary'>
+                <i className='tabler-currency-dollar' />
+              </CustomAvatar>
+              <div>
+                <Typography variant='h5'>${'100'}</Typography>
+                <Typography>Spent</Typography>
+              </div>
+            </div>
+          </div> */}
         </div>
         <div className='flex flex-col gap-4'>
           <Typography variant='h5'>Details</Typography>
@@ -64,6 +84,12 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
               </Typography>
               <Typography>{patientData?.fullName}</Typography>
             </div>
+            <div className='flex items-center gap-1'>
+              <Typography color='text.primary' className='font-medium'>
+                Gender:
+              </Typography>
+              <Typography>{patientData?.gender == "1" ? "Male" : patientData?.gender == "2" ? "Female" : "Other"}</Typography>
+            </div>            
             <div className='flex items-center gap-1'>
               <Typography color='text.primary' className='font-medium'>
                 Nic Number:
@@ -94,13 +120,19 @@ const PatientDetailsSection = ({ patientData }: { patientData?: PatientDetails }
             </div>
             <div className='flex items-center gap-1'>
               <Typography color='text.primary' className='font-medium'>
+                Emg Contact:
+              </Typography>
+              <Typography>{patientData?.emergencyContactMobile}</Typography>
+            </div>            
+            <div className='flex items-center gap-1'>
+              <Typography color='text.primary' className='font-medium'>
                 Address:
               </Typography>
               <Typography>{patientData?.address + ' ' + patientData?.city}</Typography>
             </div>
           </div>
         </div>
-        <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={EditUserInfo} />
+        <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialogProps={{patientData}} dialog={EditPatientDetails} />
       </CardContent>
     </Card>
   )

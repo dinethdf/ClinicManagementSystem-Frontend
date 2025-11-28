@@ -7,7 +7,7 @@ import type { ButtonProps } from '@mui/material/Button'
 import type { ThemeColor } from '@/@core/typesDef'
 
 // Component Imports
-import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
+import ConfirmationDialog from '@/components/dialogs/unUsed/confirmation-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 const PatientDetailHeader = ({ patientNo, patientRegDate }: { patientNo: string; patientRegDate: string }) => {
@@ -26,7 +26,7 @@ const PatientDetailHeader = ({ patientNo, patientRegDate }: { patientNo: string;
       </div>
       <OpenDialogOnElementClick
         element={Button}
-        elementProps={buttonProps('Delete Customer', 'error', 'tonal')}
+        elementProps={buttonProps('Delete Patient', 'error', 'tonal')}
         dialog={ConfirmationDialog}
         dialogProps={{ type: 'delete-customer' }}
       />

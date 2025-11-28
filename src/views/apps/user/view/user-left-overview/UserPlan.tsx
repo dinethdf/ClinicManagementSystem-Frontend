@@ -8,7 +8,7 @@ import Button from '@mui/material/Button'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Component Imports
-import UpgradePlan from '@components/dialogs/upgrade-plan'
+import UpgradePlan from '@/components/dialogs/unUsed/upgrade-plan'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 const UserPlan = () => {

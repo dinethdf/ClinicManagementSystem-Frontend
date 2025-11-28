@@ -3,21 +3,21 @@
 // MUI Imports
 import Grid from '@mui/material/Grid2'
 
-// Type Imports
-import type { OrderType } from '@/libs/types/apps/ecommerceTypes'
+import AppoinmentCard from './AppoinmentCard'
+import AppoinmentListTable from './AppoinmentListTable'
 
-// Component Imports
-import OrderCard from './OrderCard'
-import OrderListTable from './OrderListTable'
+const AppoinmentList = () => {
 
-const AppoinmentList = ({ orderData }: { orderData?: OrderType[] }) => {
+  // Removed redundant state and loadNext function.
+  // The Table component now handles its own data fetching and pagination.
+  
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
-        <OrderCard />
+        <AppoinmentCard />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <OrderListTable orderData={orderData} />
+        <AppoinmentListTable/>
       </Grid>
     </Grid>
   )

@@ -42,7 +42,7 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import type { ThemeColor } from '@/@core/typesDef'
 import type { Locale } from '@configs/i18n'
-import type { ProductType } from '@/libs/types/apps/ecommerceTypes'
+import type { ProductType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
 import TableFilters from './TableFilters'

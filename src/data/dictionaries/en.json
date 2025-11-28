@@ -15,12 +15,18 @@
     "appsPages": "Clinic Management",
     "apps": "Apps",
     "dashboard": "Dashboard",
+    "clinicFinancial": "Clinic Financial",
+    "doctorPayments": "Doctor Payments",
 
     "clinic":"Clinic Management",
 
-    "patientRegistration":"Patient Register",
+    "patient":"Patient",
     "patientlist":"Patient List",
     "patientAdd": "Patient Add",
+
+    "doctor":"Doctor",
+    "doctorList":"Doctor List",
+    "doctorAdd": "Doctor Add",
 
     "userRegistration":"Users Register",
     "userlist":"Users List",
@@ -32,7 +38,7 @@
     "appoinmentSheduleCat": "Category",  
 
     "appoinments":"Appoinments",
-    "appoinmentBook":"Appoinment Create",
+    "appoinmentCreate":"Appoinment Create",
     "appoinmentList":"Appoinment List",
     "appoinmentCat": "Appoinment Category",  
 

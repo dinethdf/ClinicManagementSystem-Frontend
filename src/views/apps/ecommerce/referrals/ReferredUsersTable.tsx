@@ -37,7 +37,7 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import type { ThemeColor } from '@/@core/typesDef'
 import type { Locale } from '@configs/i18n'
-import type { ReferralsType } from '@/libs/types/apps/ecommerceTypes'
+import type { ReferralsType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'

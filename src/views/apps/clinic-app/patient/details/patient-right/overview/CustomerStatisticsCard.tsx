@@ -1,13 +1,11 @@
 // MUI Imports
 import Grid from '@mui/material/Grid2'
 
-// Types Imports
-import type { CardStatsCustomerStatsProps } from '@/libs/types/pages/widgetTypes'
 
 // Component Imports
 import CustomerStats from '@components/card-statistics/CustomerStats'
 
-const CustomerStatisticsCard = ({ customerStatData }: { customerStatData?: CardStatsCustomerStatsProps[] }) => {
+const CustomerStatisticsCard = ({ customerStatData }: { customerStatData?: any[] }) => {
   return (
     <Grid container spacing={6}>
       {customerStatData?.map((item, index) => (

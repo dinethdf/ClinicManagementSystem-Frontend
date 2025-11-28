@@ -1,36 +1,32 @@
-import type { PatientDetails } from './../libs/types/patient.types'
+import type { Patient, Guardian, PatientResponceDTO, GetPatientsParams, PaginatedPatientResponse } from '../types/patient.types'
 import { apiClient } from './api.config'
 
 class PatientService {
-  //   private patients: Patient[] = [...MOCK_PATIENTS]
 
-  //   async getAllPatients(): Promise<Patient[]> {
-  //     await new Promise((resolve) => setTimeout(resolve, 500))
-  //     return [...this.patients]
-  //   }
+async getPatients({ page, pageSize, search }: GetPatientsParams): Promise<PaginatedPatientResponse<PatientResponceDTO>> {
+   try {
+     const response = await apiClient.get<PaginatedPatientResponse<PatientResponceDTO>>('/api/patient/list', {
+       params: {
+         page: page - 1,
+         size: pageSize, 
+         search: search 
+       }
+     })
+     
+     console.log("api call patienet pagination")
+     
+     return response.data
+   } catch (error: any) {
+    
+    throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch patient list')
+   }
+}
 
-  //   async searchPatients(query: string): Promise<Patient[]> {
-  //     await new Promise((resolve) => setTimeout(resolve, 400))
-  //     const lowerQuery = query.toLowerCase()
-  //     return this.patients.filter(
-  //       (p) => p.fullName.toLowerCase().includes(lowerQuery) || p.nic.includes(query) || p.phoneNumber.includes(query),
-  //     )
-  //   }
-
-  //   async getPatientById(id: string): Promise<Patient | null> {
-  //     await new Promise((resolve) => setTimeout(resolve, 300))
-  //     return this.patients.find((p) => p.id === id) || null
-  //   }
-
-  //   async getPatientByNIC(nic: string): Promise<Patient | null> {
-  //     await new Promise((resolve) => setTimeout(resolve, 300))
-  //     return this.patients.find((p) => p.nic === nic) || null
-  //   }
-
-  async createPatientDetails(patientData: PatientDetails): Promise<any> {
+async createPatientDetails(patientData: Patient): Promise<any> {
     try {
-      const response: any = await apiClient.post<PatientDetails>('/api/patient/details/staff', {
+      const response: any = await apiClient.post<Patient>('/api/patient/details/staff', {
         ...patientData,
+        guardian: patientData.guardian,
         patientAuthId: 1,
         bloodGroup: 'ab-',
         registrationDate: '2025-09-30T10:30:00',
@@ -48,9 +44,44 @@ class PatientService {
     } catch (error: any) {
       throw new Error(error.response?.data?.defaultMessage || 'Failed to create patient')
     }
-  }
+}
 
-  async getPatientById(id: string): Promise<PatientDetails | null> {
+  async getGuardianForChildPatient(nicNo: string, guardianName: string): Promise<Guardian[]> {
+    try {
+      const response = await apiClient.get<Guardian[]>('/api/patient/search-guardian', {
+        params: {
+          nic: nicNo,
+          fullName: guardianName 
+        }
+      });
+
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch guardian data');
+    }
+}
+
+
+async getPatientBySearch(patientNo: string, nicNo: string, patientName: string, mobileNo: string): Promise<PatientResponceDTO[]> {
+  try {
+    const response = await apiClient.get<PatientResponceDTO[]>('/api/patient/search-patient', {
+      params: {
+        patientNo: patientNo,
+        nic: nicNo,
+        fullName: patientName,
+        mobileNo: mobileNo 
+      }
+    });
+    
+    return response.data;
+ 
+  } catch (error: any) {
+ 
+    throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch guardian data');
+  }
+}
+
+async getPatientById(id: string): Promise<Patient | null> {
     console.log('run get pat')
 
     try {
@@ -72,36 +103,21 @@ class PatientService {
 
       return null
     }
+}
+
+
+
+async updatePatient(id: string, patientData: Partial<Patient>): Promise<any> {
+  try {
+    const response = await apiClient.put(`/api/patient/details/staff/${id}`, patientData)
+    
+    return response.data
+  } catch (error: any) {
+    console.error('Update failed:', error)
+   
+    throw new Error(error.response?.data?.defaultMessage || 'Failed to update patient')
   }
-
-  //   async updatePatient(id: string, patientData: Partial<Patient>): Promise<Patient> {
-  //     await new Promise((resolve) => setTimeout(resolve, 600))
-
-  //     const index = this.patients.findIndex((p) => p.id === id)
-  //     if (index === -1) {
-  //       throw new Error("Patient not found")
-  //     }
-
-  //     this.patients[index] = {
-  //       ...this.patients[index],
-  //       ...patientData,
-  //       updatedAt: new Date().toISOString(),
-  //     }
-
-  //     return this.patients[index]
-  //   }
-
-  //   async getPatientHistory(patientId: string): Promise<PatientHistory> {
-  //     await new Promise((resolve) => setTimeout(resolve, 500))
-
-  //     const prescriptions = MOCK_PRESCRIPTIONS.filter((p) => p.patientId === patientId)
-
-  //     return {
-  //       patientId,
-  //       prescriptions,
-  //       consultations: [],
-  //     }
-  //   }
+}
 }
 
 export const patientService = new PatientService()

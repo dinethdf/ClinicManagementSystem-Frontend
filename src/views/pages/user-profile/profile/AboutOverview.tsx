@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 
 // Type Imports
-import type { ProfileTeamsType, ProfileCommonType, ProfileTabType } from '@/libs/types/pages/profileTypes'
+import type { ProfileTeamsType, ProfileCommonType, ProfileTabType } from '@/types/pages/profileTypes'
 
 const renderList = (list: ProfileCommonType[]) => {
   return (

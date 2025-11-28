@@ -25,7 +25,7 @@ import type { CustomInputHorizontalData, CustomInputVerticalData } from '@core/c
 // Component Imports
 import CustomInputHorizontal from '@core/components/custom-inputs/Horizontal'
 import CustomInputVertical from '@core/components/custom-inputs/Vertical'
-import AddEditAddress from '@components/dialogs/add-edit-address'
+import AddEditAddress from '@/components/dialogs/unUsed/add-edit-address'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 // Styled Components

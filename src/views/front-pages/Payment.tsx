@@ -20,11 +20,11 @@ import classnames from 'classnames'
 
 // Type Imports
 import type { CustomInputHorizontalData } from '@core/components/custom-inputs/types'
-import type { PricingPlanType } from '@/libs/types/pages/pricingTypes'
+import type { PricingPlanType } from '@/types/pages/pricingTypes'
 
 // Component Imports
 import CustomInputHorizontal from '@core/components/custom-inputs/Horizontal'
-import PricingDialog from '@components/dialogs/pricing'
+import PricingDialog from '@/components/dialogs/unUsed/pricing'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import DirectionalIcon from '@components/DirectionalIcon'
 import { useSettings } from '@core/hooks/useSettings'

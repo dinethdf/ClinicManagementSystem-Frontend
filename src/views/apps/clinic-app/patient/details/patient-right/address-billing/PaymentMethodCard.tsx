@@ -19,7 +19,7 @@ import type { IconButtonProps } from '@mui/material/IconButton'
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
-import AddNewCard from '@components/dialogs/billing-card'
+import AddNewCard from '@/components/dialogs/unUsed/billing-card'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 type dataType = {

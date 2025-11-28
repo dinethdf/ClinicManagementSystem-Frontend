@@ -248,7 +248,7 @@ const FormValidationBasic = () => {
                 />
                 {errors.checkbox && <FormHelperText error>This field is required.</FormHelperText>}
               </FormControl>
-            </Grid>
+            </Grid>        
             <Grid size={{ xs: 12 }} className='flex gap-4'>
               <Button variant='contained' type='submit'>
                 Submit

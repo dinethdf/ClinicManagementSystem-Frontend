@@ -1,46 +1,21 @@
 // Next Imports
-import { redirect } from 'next/navigation'
-
-// Type Imports
-import type { OrderType } from '@/libs/types/apps/ecommerceTypes'
+// import { redirect } from 'next/navigation'
 
 // Component Imports
-import AppoinmentDetails from '@views/apps/clinic-app/appoinment/details'
+import AppointmentDetails from '@/views/apps/clinic-app/appoinment/details'
 
-// Data Imports
-import { getEcommerceData } from '@/app/server/actions'
+// Service Imports
+import { getAppointmentDetails } from '@/services/appoinment.server.service'
 
-/**
- * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
- * ! `.env` file found at root of your project and also update the API endpoints like `/apps/ecommerce` in below example.
- * ! Also, remove the above server action import and the action itself from the `src/app/server/actions.ts` file to clean up unused code
- * ! because we've used the server action for getting our static data.
- */
-
-/* const getEcommerceData = async () => {
-  // Vars
-  const res = await fetch(`${process.env.API_URL}/apps/ecommerce`)
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch ecommerce data')
-  }
-
-  return res.json()
-} */
-
-const AppoinmentDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
+const AppointmentDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params
+  const appointment = await getAppointmentDetails(params.id)
 
-  // Vars
-  const data = await getEcommerceData()
-
-  const filteredData = data?.orderData.filter((item: OrderType) => item.order === params.id)[0]
-
-  if (!filteredData) {
-    redirect('/not-found')
+  if (!appointment) {
+    return <div>Appointment not found</div>
   }
 
-  return filteredData ? <AppoinmentDetails orderData={filteredData} order={params.id} /> : null
+  return <AppointmentDetails appointmentData={appointment} />
 }
 
-export default AppoinmentDetailsPage
+export default AppointmentDetailsPage

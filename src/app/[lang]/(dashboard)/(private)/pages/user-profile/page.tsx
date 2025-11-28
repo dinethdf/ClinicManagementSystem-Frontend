@@ -5,7 +5,7 @@ import type { ReactElement } from 'react'
 import dynamic from 'next/dynamic'
 
 // Type Imports
-import type { Data } from '@/libs/types/pages/profileTypes'
+import type { Data } from '@/types/pages/profileTypes'
 
 // Component Imports
 import UserProfile from '@views/pages/user-profile'

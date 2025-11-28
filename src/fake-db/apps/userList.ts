@@ -1,10 +1,10 @@
 // Type Imports
-import type { UsersType } from '@/libs/types/apps/userTypes'
+import type { UsersType } from '@/types/apps/userTypes'
 
 export const db: UsersType[] = [
   {
     id: 1,
-    fullName: 'Galen Slixby',
+    fullName: 'Galen Slixby dsfsdf sdfsdfs dfsdf sdf sdf sdf',
     company: 'Yotz PVT LTD',
     role: 'editor',
     username: 'gslixby0',
