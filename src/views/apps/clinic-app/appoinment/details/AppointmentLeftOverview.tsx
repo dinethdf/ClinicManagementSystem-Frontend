@@ -20,6 +20,7 @@ import { encodeHideValue } from '@/utils/encode'
 const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: AppointmentDetailDTO }) => {
   
   const router = useRouter();
+  
   return (
     <Card>
       <CardContent className='flex flex-col pbs-12 gap-6'>
@@ -74,7 +75,9 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
               onClick={() => {
                    
                 const appinemntId = appointmentData.id || 0
+                
                 const encoded = encodeHideValue(appinemntId);
+                
                 router.push(`./../payment/${encoded}`)
               }}
             >
