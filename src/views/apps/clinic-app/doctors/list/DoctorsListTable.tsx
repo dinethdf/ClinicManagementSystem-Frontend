@@ -267,7 +267,7 @@ const DoctorsListTable = () => {
               color='primary'
               className='max-sm:is-full'
               startIcon={<i className='tabler-plus' />}
-              onClick={() => router.push('/en/clinic/doctors/add')} // Assuming you have an add route
+              onClick={() => router.push('/en/clinic/doctors/register')}
             >
               Add Doctor
             </Button>

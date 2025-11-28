@@ -99,3 +99,25 @@ export type AppointmentApiResponse = {
   size: number
   number: number
 }
+
+export type ScheduleAppointmentDTO = {
+  id: number
+  startTime: string
+  status: string
+  note: string | null
+  patientId: number
+  scheduleDate: string
+  patientMobile: string
+  patientNo: string
+  patientName: string
+  queuePosition: number
+  appointmentNumber: string | null
+}
+
+export type ScheduleAppointmentResponse = {
+  content: ScheduleAppointmentDTO[]
+  totalPages: number
+  totalElements: number
+  size: number
+  number: number
+}

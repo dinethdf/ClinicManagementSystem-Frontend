@@ -1,19 +1,30 @@
+'use client'
+
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-
-// import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
 import type { Doctor } from '@/types/doctor.types'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
+import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import EditDoctorDetails from '@/components/dialogs/edit-doctor' // Adjust path
 
 const DoctorDetailsSection = ({ doctorData }: { doctorData?: Doctor }) => {
+  
+  // Vars for the button
+  const buttonProps: ButtonProps = {
+    variant: 'contained',
+    fullWidth: true,
+    children: 'Edit Details'
+  }
+
   return (
     <Card>
       <CardContent className='flex flex-col pbs-12 gap-6'>
@@ -22,7 +33,7 @@ const DoctorDetailsSection = ({ doctorData }: { doctorData?: Doctor }) => {
             <CustomAvatar src={'/images/avatars/common.png'} variant='rounded' size={120} />
             <div className='flex flex-col items-center text-center'>
               <Typography variant='h5'>{`${doctorData?.firstName} ${doctorData?.lastName}`}</Typography>
-              {/* <Chip label={doctorData?.specialization} color='primary' variant='tonal' size="small" className="mt-2" /> */}
+              <Typography variant='body2' color='text.secondary'>{doctorData?.specialization.name}</Typography>
             </div>
           </div>
         </div>
@@ -40,11 +51,23 @@ const DoctorDetailsSection = ({ doctorData }: { doctorData?: Doctor }) => {
             </div>
             <div className='flex items-center gap-1'>
                <Typography className='font-medium'>Status:</Typography>
-               {/* <Chip label={doctorData?.status || 'Active'} color='success' size='small' variant='filled'/> */}
+               <Typography color='primary'>{doctorData?.availabilityStatus || 'AVAILABLE'}</Typography>
+            </div>
+            <div className='flex items-center gap-1'>
+               <Typography className='font-medium'>SLMC:</Typography>
+               <Typography>{doctorData?.slmcNumber}</Typography>
             </div>
           </div>
         </div>
-        <Button variant='contained' fullWidth>Edit Details</Button>
+        
+        {/* Replaced static button with Dialog Trigger */}
+        <OpenDialogOnElementClick 
+            element={Button} 
+            elementProps={buttonProps} 
+            dialog={EditDoctorDetails} 
+            dialogProps={{ doctorData: doctorData }} 
+        />
+        
       </CardContent>
     </Card>
   )

@@ -12,7 +12,7 @@ import type { Patient } from '@/types/patient.types'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
-import EditUserInfo from '@/components/dialogs/unUsed/edit-user-info'
+import EditPatientDetails from '@/components/dialogs/edit-patient'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
@@ -132,7 +132,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
             </div>
           </div>
         </div>
-        <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={EditUserInfo} />
+        <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialogProps={{patientData}} dialog={EditPatientDetails} />
       </CardContent>
     </Card>
   )

@@ -19,6 +19,7 @@ import type { Doctor } from '@/types/doctor.types'
       })
 
       if (!res.ok) return null
+     
       const json = await res.json()
       
       return json.data
