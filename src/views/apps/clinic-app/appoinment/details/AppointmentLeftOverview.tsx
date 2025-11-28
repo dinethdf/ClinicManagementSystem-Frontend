@@ -1,9 +1,13 @@
+"use client"
+import { useRouter } from 'next/navigation'
+
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
+import { Button } from '@mui/material'
 
 // Type Imports
 import type { AppointmentDetailDTO } from '@/types/appoinments.types'
@@ -11,7 +15,11 @@ import type { AppointmentDetailDTO } from '@/types/appoinments.types'
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 
+import { encodeHideValue } from '@/utils/encode'
+
 const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: AppointmentDetailDTO }) => {
+  
+  const router = useRouter();
   return (
     <Card>
       <CardContent className='flex flex-col pbs-12 gap-6'>
@@ -57,6 +65,21 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
                 <Typography variant='body2'>{appointmentData.specialization}</Typography>
             </div>
         </div>
+          <Divider />
+            <Button
+              variant='contained'
+              color='primary'
+              className='max-sm:is-full'
+              startIcon={<i className='tabler-plus' />}
+              onClick={() => {
+                   
+                const appinemntId = appointmentData.id || 0
+                const encoded = encodeHideValue(appinemntId);
+                router.push(`./../payment/${encoded}`)
+              }}
+            >
+              {appointmentData.status == 'PENDING_PAYMENT' ? "Make Payment" : "Payment Details" }   
+            </Button>  
       </CardContent>
     </Card>
   )

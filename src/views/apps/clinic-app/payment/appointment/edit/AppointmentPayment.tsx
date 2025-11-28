@@ -22,6 +22,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
+import { Chip } from '@mui/material'
 
 // Third-party Imports
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
@@ -90,7 +91,8 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
      variant: 'contained',
      color:"success",
      className:"capitalize",
-     children: 'Make Payment'
+     children: 'Make Payment',
+     disabled: appointmentInvDetails.status != "UNPAID"
   }  
 
   // --- CALCULATIONS ---
@@ -151,6 +153,15 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                           customInput={<CustomTextField fullWidth />}
                         />
                       </div>
+                      {appointmentInvDetails?.status !== "UNPAID" && (
+                        <Chip 
+                          label={appointmentInvDetails.status} 
+                          color={'primary'}
+                          size='medium'
+                          variant='filled'
+                          className='mt-1 w-max uppercase font-bold text-[10px]' 
+                        />
+                      )}                      
                     </div>
                   </div>
                 </div>
@@ -237,6 +248,8 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
               </Grid>
 
               {/* --- DISCOUNT SECTION (Improved UI) --- */}
+
+              { appointmentInvDetails.status == "UNPAID" &&
               <Grid size={{ xs: 12 }}>
                  <div className='flex items-center justify-between mbe-1'>
                     <Typography variant='h6'>
@@ -312,7 +325,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                     </Typography>
                 )}
               </Grid>
-
+              }
               <Grid size={{ xs: 12 }}>
                 <Divider />
               </Grid>
