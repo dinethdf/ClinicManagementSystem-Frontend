@@ -19,7 +19,9 @@ import type { Doctor } from '@/types/doctor.types'
       })
 
       if (!res.ok) return null
+     
       const json = await res.json()
+      
       return json.data
     } catch (error) {
       console.error('Failed to fetch doctor:', error)

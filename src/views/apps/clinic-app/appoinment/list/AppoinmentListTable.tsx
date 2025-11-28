@@ -2,7 +2,9 @@
 
 // React Imports
 import { useState, useEffect, useMemo } from 'react'
+
 import Link from 'next/link'
+
 import { useParams } from 'next/navigation'
 
 // MUI Imports
@@ -53,6 +55,7 @@ const AppointmentListTable = () => {
     pageIndex: 0, 
     pageSize: 10 
   })
+  
   const [totalCount, setTotalCount] = useState(0)
 
   const { lang: locale } = useParams()
@@ -61,6 +64,7 @@ const AppointmentListTable = () => {
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true)
+    
       try {
         // API call using current page index and page size
         const res = await getAppointmentList(pagination.pageIndex, pagination.pageSize)
@@ -137,6 +141,7 @@ const AppointmentListTable = () => {
         header: 'Status',
         cell: ({ row }) => {
           const status = appointmentStatusObj[row.original.status] || { color: 'secondary', label: row.original.status }
+        
           return <Chip label={status.label} color={status.color} variant='tonal' size='small' />
         }
       }),

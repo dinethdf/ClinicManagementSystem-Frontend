@@ -134,7 +134,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
                 {dictionary['navigation'].appoinmentSheduleList}
               </MenuItem>
               <MenuItem
-                // href={`/${locale}/clinic/appoinment-shedule/details`}
+                href={`/${locale}/clinic/appoinment-shedule/details`}
                 exactMatch={false}
                 disabled
                 activeUrl='/clinic/appoinment-shedule/details'

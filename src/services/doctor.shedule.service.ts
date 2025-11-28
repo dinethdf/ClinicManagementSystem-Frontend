@@ -38,13 +38,14 @@ async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorSchedule
   // 2. Update Schedule
   async updateSchedule(id: number, payload: UpdateScheduleDTO): Promise<any> {
     try {
-      // PUT http://localhost:8080/api/schedules/1
       const response = await apiClient.put<ApiResponse<any>>(
         `/api/schedules/${id}`,
         payload
       );
+      
       return response.data;
     } catch (error: any) {
+     
       throw new Error(error.response?.data?.defaultMessage || 'Failed to update schedule');
     }
   }

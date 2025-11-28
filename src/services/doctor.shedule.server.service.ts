@@ -116,6 +116,7 @@ export async function getScheduleById(id: number): Promise<DoctorScheduleDTO | n
     }
 
     const json = await res.json()
+    
     return json.data || null
 
   } catch (error) {
@@ -188,7 +189,9 @@ export async function getScheduleList(
     })
 
     if (!res.ok) {
+      
       console.error('Failed to fetch schedule list:', res.status, res.statusText)
+      
       return null
     }
 
@@ -198,6 +201,7 @@ export async function getScheduleList(
 
   } catch (error) {
     console.error('Server-side get schedule list failed:', error)
+   
     return null
   }
 }

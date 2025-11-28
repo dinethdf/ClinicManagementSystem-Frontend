@@ -3,10 +3,11 @@
 
 // React Imports
 import { useState, useEffect } from 'react'
+
 import { useRouter } from 'next/navigation'
+
 import { useForm, Controller } from 'react-hook-form'
 
-// MUI Imports
 import Grid from '@mui/material/Grid2'
 import Dialog from '@mui/material/Dialog'
 import Button from '@mui/material/Button'
@@ -18,9 +19,7 @@ import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
 import Divider from '@mui/material/Divider'
-import InputAdornment from '@mui/material/InputAdornment'
 
-// Component Imports
 import DialogCloseButton from '../DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
 
@@ -57,7 +56,6 @@ const EditDoctorDetails = ({ open, setOpen, doctorData }: EditDoctorDetailsProps
         ...doctorData,
         dob: doctorData.dob ? new Date(doctorData.dob).toISOString().split('T')[0] : '',
         gender: doctorData.gender?.toString(), 
-        // Handle other specific conversions if necessary
       } as any)
     }
   }, [open, doctorData, reset])
@@ -73,12 +71,11 @@ const EditDoctorDetails = ({ open, setOpen, doctorData }: EditDoctorDetailsProps
     setIsLoading(true)
     setErrorMessage(null)
 
-    // Prepare payload (Convert strings back to numbers if needed by API)
     const payload = {
         ...data,
         gender: Number(data.gender),
         experienceYears: Number(data.experienceYears),
-        specializationId: Number(data.specialization) // Assuming you have this ID in your type
+        specializationId: Number(data.specialization) 
     }
 
     try {
@@ -118,8 +115,7 @@ const EditDoctorDetails = ({ open, setOpen, doctorData }: EditDoctorDetailsProps
           )}
 
           <Grid container spacing={5}>
-            
-            {/* --- 1. Personal Info --- */}
+
             <Grid size={{ xs: 12 }}>
                 <Typography variant='h6' color='primary'>1. Personal Details</Typography>
                 <Divider />
@@ -185,7 +181,6 @@ const EditDoctorDetails = ({ open, setOpen, doctorData }: EditDoctorDetailsProps
               />
             </Grid>
 
-            {/* --- 2. Professional Info --- */}
             <Grid size={{ xs: 12 }} className='mt-2'>
                 <Typography variant='h6' color='primary'>2. Professional Details</Typography>
                 <Divider />
@@ -232,7 +227,6 @@ const EditDoctorDetails = ({ open, setOpen, doctorData }: EditDoctorDetailsProps
               />
             </Grid>
 
-            {/* --- 3. Contact Info --- */}
             <Grid size={{ xs: 12 }} className='mt-2'>
                 <Typography variant='h6' color='primary'>3. Contact Details</Typography>
                 <Divider />

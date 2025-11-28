@@ -32,9 +32,11 @@ async getAppointmentsByScheduleId(scheduleId: number, page: number = 0, size: nu
            params: { page, size }
         }
       )
+      
       return response.data.data
     } catch (error) {
       console.error('Failed to fetch schedule appointments:', error)
+     
       return null
     }
   }

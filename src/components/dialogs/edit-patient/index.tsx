@@ -1,12 +1,13 @@
 'use client'
 
-// React Imports
 import { useState, useEffect, useMemo } from 'react'
+
 import { useRouter } from 'next/navigation'
+
 import { useForm, Controller } from 'react-hook-form'
+
 import { valibotResolver } from '@hookform/resolvers/valibot'
 
-// MUI Imports
 import Grid from '@mui/material/Grid2'
 import Dialog from '@mui/material/Dialog'
 import Button from '@mui/material/Button'
@@ -19,17 +20,13 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
 import Divider from '@mui/material/Divider'
 
-// Component Imports
 import DialogCloseButton from '../DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
 
-// Type Imports
 import type { Patient } from '@/types/patient.types'
 
-// Service Imports
 import { patientService } from '@/services/patient.service'
 
-// Validation Schema
 import { getPatientValidationSchema } from '@/schemas/patienDetailsValidation'
 
 type EditPatientDetailsProps = {
@@ -55,17 +52,17 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
     defaultValues: {}
   })
 
-  // 1. CONVERT NUMBERS TO STRINGS ON LOAD
+
   useEffect(() => {
     if (open && patientData) {
+    
       reset({
         ...patientData,
         dob: patientData.dob ? new Date(patientData.dob).toISOString().split('T')[0] : '',
-        // Convert numbers to strings for the form controller/validation
         gender: patientData.gender?.toString(), 
         ethnicity: patientData.ethnicity?.toString(),
         maritalStatus: patientData.maritalStatus?.toString()
-      } as any) // Casting as any to allow string injection into number types temporarily for the form
+      } as any)
     }
   }, [open, patientData, reset])
 
@@ -74,13 +71,11 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
     setErrorMessage(null)
   }
 
-  // 3. CONVERT STRINGS BACK TO NUMBERS ON SUBMIT
   const onSubmit = async (data: Patient) => {
     if (!patientData?.id) return
 
     setIsLoading(true)
     setErrorMessage(null)
-
 
     const payload : Patient = {
         ...data,

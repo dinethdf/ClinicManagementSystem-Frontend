@@ -1,7 +1,5 @@
 'use client'
 
-// Next Imports
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 // MUI Imports

@@ -2,7 +2,9 @@
 
 // React Imports
 import { useState, useEffect, useMemo } from 'react'
+
 import Link from 'next/link'
+
 import { useParams } from 'next/navigation'
 
 // MUI Imports
@@ -34,11 +36,9 @@ import { appointmentService } from '@/services/appoinment.service'
 
 // Utils
 import { getLocalizedUrl } from '@/utils/i18n'
-import { getInitials } from '@/utils/getInitials' // Assuming you have this util, or remove it
 
 // Styles
 import tableStyles from '@core/styles/table.module.css'
-import CustomTextField from '@/@core/components/mui/TextField'
 import TablePaginationComponent from '@/components/TablePaginationComponent'
 
 // Status Colors Mapping
@@ -66,15 +66,18 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
     pageIndex: 0,
     pageSize: 10
   })
+  
   const [totalCount, setTotalCount] = useState(0)
 
-  // Fetch Data
   useEffect(() => {
+   
     const loadData = async () => {
       if (!scheduleId) return
       
       setIsLoading(true)
+     
       try {
+      
         const result = await appointmentService.getAppointmentsByScheduleId(
             scheduleId, 
             pagination.pageIndex, 

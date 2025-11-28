@@ -1,16 +1,14 @@
 'use client'
 
-// React Imports
 import { useEffect, useMemo, useState } from 'react'
 
-// Next Imports
 import Link from 'next/link'
+
 import { useParams } from 'next/navigation'
 
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
-import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
 import TablePagination from '@mui/material/TablePagination'
@@ -18,8 +16,6 @@ import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
 import LinearProgress from '@mui/material/LinearProgress'
 
-// Third-party Imports
-import classnames from 'classnames'
 import {
   createColumnHelper,
   flexRender,
@@ -88,6 +84,7 @@ const ScheduleListTable = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
+
       try {
 
         const res = await getScheduleList(
@@ -205,8 +202,9 @@ const ScheduleListTable = () => {
       columnHelper.accessor('id', {
         id: 'actions',
         header: 'Actions',
-        cell: ({ row }) => (
-          <div className='flex items-center'>
+        cell: () => (
+        
+        <div className='flex items-center'>
             <IconButton size='small'>
               <i className='tabler-edit text-textSecondary' />
             </IconButton>

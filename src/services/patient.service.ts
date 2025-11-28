@@ -110,9 +110,11 @@ async getPatientById(id: string): Promise<Patient | null> {
 async updatePatient(id: string, patientData: Partial<Patient>): Promise<any> {
   try {
     const response = await apiClient.put(`/api/patient/details/staff/${id}`, patientData)
+    
     return response.data
   } catch (error: any) {
     console.error('Update failed:', error)
+   
     throw new Error(error.response?.data?.defaultMessage || 'Failed to update patient')
   }
 }
