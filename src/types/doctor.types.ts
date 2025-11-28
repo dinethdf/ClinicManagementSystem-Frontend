@@ -81,9 +81,9 @@ export type ScheduleListTypes = {
   specialization: string
   scheduleDate: string
   timeRange: string
-  registeredCount: number
-  maxCount: number
-  active: boolean
+  registeredPatientCount: number
+  maxPatientCount: number
+  isActive: boolean
 }
 
 export interface DoctorResponceDTO {

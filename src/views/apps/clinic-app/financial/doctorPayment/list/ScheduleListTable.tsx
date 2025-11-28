@@ -100,7 +100,7 @@ const ScheduleListTable = ({ scheduleData }: { scheduleData?: ScheduleListTypes[
         cell: ({ row }) => (
           <Typography
             component={Link}
-            href={getLocalizedUrl(`/en/clinic/financial/details/${encodeHideValue(row.original.id)}`, locale as Locale)}
+            href={getLocalizedUrl(`/en/clinic/financial/doctor-payment/details/${encodeHideValue(row.original.id)}`, locale as Locale)}
             color='primary.main'
             className='font-medium'
           >{`#${row.original.id}`}</Typography>
@@ -135,19 +135,19 @@ const ScheduleListTable = ({ scheduleData }: { scheduleData?: ScheduleListTypes[
           </div>
         )
       }),
-      columnHelper.accessor('registeredCount', {
+      columnHelper.accessor('registeredPatientCount', {
         header: 'Capacity',
         cell: ({ row }) => {
-            const isFull = row.original.registeredCount >= row.original.maxCount;
+            const isFull = row.original.registeredPatientCount >= row.original.maxPatientCount;
             
             return (
                 <div className='flex flex-col gap-1'>
                     <div className='flex items-center gap-2'>
                          <Typography className='font-medium' color={isFull ? 'error.main' : 'text.primary'}>
-                            {row.original.registeredCount}
+                            {row.original.registeredPatientCount}
                          </Typography>
                          <Typography variant='body2'>/</Typography>
-                         <Typography variant='body2'>{row.original.maxCount}</Typography>
+                         <Typography variant='body2'>{row.original.maxPatientCount}</Typography>
                     </div>
                      {/*
                     <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
@@ -160,12 +160,12 @@ const ScheduleListTable = ({ scheduleData }: { scheduleData?: ScheduleListTypes[
             )
         }
       }),
-      columnHelper.accessor('active', {
+      columnHelper.accessor('isActive', {
         header: 'Status',
         cell: ({ row }) => (
           <Chip
-            label={row.original.active ? 'Active' : 'Inactive'}
-            color={row.original.active ? 'success' : 'secondary'}
+            label={row.original.isActive ? 'Active' : 'Inactive'}
+            color={row.original.isActive ? 'success' : 'secondary'}
             variant='tonal'
             size='small'
           />
@@ -178,7 +178,7 @@ const ScheduleListTable = ({ scheduleData }: { scheduleData?: ScheduleListTypes[
           <div className='flex items-center'>
             <Button 
                 component={Link}
-                href={getLocalizedUrl(`/clinic/financial/schedule/${encodeHideValue(row.original.id)}`, locale as Locale)}
+                href={getLocalizedUrl(`/clinic/financial/doctor-payment/details/${encodeHideValue(row.original.id)}`, locale as Locale)}
                 size="small" 
                 variant="tonal" 
                 endIcon={<i className='tabler-arrow-right' />}
