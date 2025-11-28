@@ -112,6 +112,17 @@ async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorSchedule
   }  
 }
 
+async updateDoctor(id: string, doctorData: Partial<any>): Promise<any> {
+    try {
+      // API: http://localhost:8080/api/doctor/update/{id}
+      const response = await apiClient.put(`/api/doctor/update/${id}`, doctorData)
+      return response.data
+    } catch (error: any) {
+      console.error('Update doctor failed:', error)
+      throw new Error(error.response?.data?.defaultMessage || 'Failed to update doctor details')
+    }
+  }
+
 }
 
 export const doctorService = new DoctorService()

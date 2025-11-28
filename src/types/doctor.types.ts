@@ -3,6 +3,9 @@ export interface Doctor {
   firstName: string
   lastName: string
   email: string
+  gender: string
+  address?:string
+  city?:string
   mobileNo: number | string
   nic: string
   dob: string | null | undefined
@@ -11,6 +14,7 @@ export interface Doctor {
   specialization: DoctorSpecialization
   qualification: string
   experienceYears?: string
+  availabilityStatus?: string
   profileImg?: string
 }
 
@@ -50,6 +54,15 @@ export interface DoctorScheduleDTO {
   registeredPatientCount: number
   maxPatientCount: number
   isActive?: boolean
+}
+
+// Payload for updating
+export type UpdateScheduleDTO = {
+  startTime: string
+  endTime: string
+  doctorFee: number
+  clinicFee: number
+  maxPatientCount: number
 }
 
 export interface Consultation {

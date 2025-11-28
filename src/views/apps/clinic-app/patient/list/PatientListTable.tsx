@@ -333,7 +333,7 @@ const PatientListTable = () => {
                           return;
                           }
                     
-                          router.push(`/en/clinic/patient/view/${row.original.id}`);
+                          router.push(`/en/clinic/patient/details/${row.original.id}`);
                   }}>
                     {row.getVisibleCells().map(cell => (
                       <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>

@@ -2,6 +2,7 @@
 
 // Next Imports
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 // MUI Imports
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -29,6 +30,8 @@ const MaskImg = styled('img')({
 })
 
 const NotFound = ({ mode }: { mode: SystemMode }) => {
+  const router = useRouter()
+
   // Vars
   const darkImg = '/images/pages/misc-mask-dark.png'
   const lightImg = '/images/pages/misc-mask-light.png'
@@ -37,6 +40,14 @@ const NotFound = ({ mode }: { mode: SystemMode }) => {
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   const miscBackground = useImageVariant(mode, lightImg, darkImg)
+
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      router.back()
+    } else {
+      router.push('/') // fallback if no history
+    }
+  }
 
   return (
     <div className='flex items-center justify-center min-bs-[100dvh] relative p-6 overflow-x-hidden'>
@@ -48,15 +59,19 @@ const NotFound = ({ mode }: { mode: SystemMode }) => {
           <Typography variant='h4'>Page Not Found ⚠️</Typography>
           <Typography>we couldn&#39;t find the page you are looking for.</Typography>
         </div>
-        <Button href='/' component={Link} variant='contained'>
-          Back To Home
+
+        {/* Back Button */}
+        <Button variant='contained' onClick={handleGoBack}>
+          Go Back
         </Button>
+
         <img
           alt='error-404-illustration'
           src='/images/illustrations/characters/1.png'
           className='object-cover bs-[400px] md:bs-[450px] lg:bs-[500px] mbs-10 md:mbs-14 lg:mbs-20'
         />
       </div>
+
       {!hidden && (
         <MaskImg
           alt='mask'

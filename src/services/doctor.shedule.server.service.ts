@@ -29,7 +29,7 @@ export async function getSchedulesList() {
 
     const json = await res.json()
    
-    return json.content || []
+    return json.data.content || []
     
   } catch (error) {
     console.error('Server-side get schedules failed:', error)
@@ -93,6 +93,39 @@ export async function getSchedulesByDoctorId(doctorId: string): Promise<DoctorSc
   }
 }
 
+
+export async function getScheduleById(id: number): Promise<DoctorScheduleDTO | null> {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('accessToken')?.value
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/schedules/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      cache: 'no-store'
+    })
+
+    if (!res.ok) {
+      
+      console.error('Failed to fetch doctor schedules:', res.status, res.statusText)
+      
+      return null
+    }
+
+    const json = await res.json()
+    return json.data || null
+
+  } catch (error) {
+    
+    console.error('Server-side get doctor schedules failed:', error)
+    
+    return null
+  }
+}  
+
 export const bookPublicAppointment = async (payload: PublicBookingRequest) => {
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/public/book-public`, {
@@ -122,4 +155,49 @@ export const checkPatientAvailability = async (query: string) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/public/check-patient?${param}`, { cache: 'no-store' });
     
     return res.json();
+}
+
+export async function getScheduleList(
+  page: number, 
+  size: number, 
+  doctorId?: string, 
+  specialization?: string, 
+  date?: string
+) {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('accessToken')?.value
+
+    // Construct Query Parameters
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+
+    if (doctorId) params.append('doctorId', doctorId);
+    if (specialization) params.append('specialization', specialization);
+    if (date) params.append('date', date);
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/schedules?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      cache: 'no-store'
+    })
+
+    if (!res.ok) {
+      console.error('Failed to fetch schedule list:', res.status, res.statusText)
+      return null
+    }
+
+    const json = await res.json()
+
+    return json.data 
+
+  } catch (error) {
+    console.error('Server-side get schedule list failed:', error)
+    return null
+  }
 }

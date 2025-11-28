@@ -1,5 +1,5 @@
 import { apiClient } from './api.config' // Assuming this is where your axios instance lives
-import type { PatientAppointmentDTO, ApiResponse } from '@/types/appoinments.types'
+import type { PatientAppointmentDTO, ApiResponse, ScheduleAppointmentResponse } from '@/types/appoinments.types'
 
 class AppointmentService {
 
@@ -21,6 +21,21 @@ class AppointmentService {
     } catch (error: any) {
       // Standard error handling matching your PatientService
       throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch patient appointments')
+    }
+  }
+
+async getAppointmentsByScheduleId(scheduleId: number, page: number = 0, size: number = 10): Promise<ScheduleAppointmentResponse | null> {
+    try {
+      const response = await apiClient.get<{ success: boolean; data: ScheduleAppointmentResponse }>(
+        `/api/appointments/schedule/${scheduleId}`,
+        {
+           params: { page, size }
+        }
+      )
+      return response.data.data
+    } catch (error) {
+      console.error('Failed to fetch schedule appointments:', error)
+      return null
     }
   }
 
