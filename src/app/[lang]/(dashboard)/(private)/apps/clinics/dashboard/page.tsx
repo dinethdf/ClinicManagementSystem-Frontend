@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid2'
 
 // Components Imports
 import CongratulationsJohn from '@/views/apps/clinic-app/dashboard/WelcomeSection'
-import StatisticsCard from '@views/apps/clinic-app/dashboard/StatisticsCard'
+import StatisticsCard from '@/views/apps/clinic-app/dashboard/StatisticsAdminAnalysisCard'
 import LineChartProfit from '@views/apps/clinic-app/dashboard/LineChartProfit'
 import RadialBarChart from '@views/apps/clinic-app/dashboard/RadialBarChart'
 import DonutChartGeneratedLeads from '@views/apps/clinic-app/dashboard/DonutChartGeneratedLeads'

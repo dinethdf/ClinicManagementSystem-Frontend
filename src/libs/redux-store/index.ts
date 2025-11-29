@@ -5,12 +5,14 @@ import { configureStore } from '@reduxjs/toolkit'
 import calendarReducer from '@/libs/redux-store/slices/calendar'
 import patientReducer from '@/libs/redux-store/slices/patientSlice'
 import doctorReducer from '@/libs/redux-store/slices/doctorSlice'
+import adminDashboardReducer from '@/libs/redux-store/slices/adminDashboardSlice'
 
 export const store = configureStore({
   reducer: {
     calendarReducer,
     patientReducer,
-    doctorReducer
+    doctorReducer,
+    adminDashboard: adminDashboardReducer
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware({ serializableCheck: false })
 })
