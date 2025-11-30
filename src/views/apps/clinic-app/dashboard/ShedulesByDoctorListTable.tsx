@@ -15,8 +15,9 @@ import Typography from '@mui/material/Typography'
 import Checkbox from '@mui/material/Checkbox'
 import IconButton from '@mui/material/IconButton'
 import MenuItem from '@mui/material/MenuItem'
-import Tooltip from '@mui/material/Tooltip'
+import Chip from '@mui/material/Chip' // Added for better status display
 import TablePagination from '@mui/material/TablePagination'
+
 import type { TextFieldProps } from '@mui/material/TextField'
 
 // Third-party Imports
@@ -37,19 +38,24 @@ import {
 import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
+// Redux Imports
+import { useDispatch, useSelector } from 'react-redux'
+import type { AppDispatch, RootState } from '@/libs/redux-store'
+import { fetchDoctorSchedules } from '@/libs/redux-store/slices/doctorDashboardSlice'
+
 // Type Imports
 import type { ThemeColor } from '@/@core/typesDef'
-import type { InvoiceType } from '@/types/apps/invoiceTypes'
-import type { Locale } from '@configs/i18n'
+import type { ScheduleDTO } from '@/types/analysis.types'
+
+// import type { Locale } from '@configs/i18n'
 
 // Component Imports
 import OptionMenu from '@core/components/option-menu'
-import CustomAvatar from '@core/components/mui/Avatar'
 import TablePaginationComponent from '@components/TablePaginationComponent'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Util Imports
-import { getLocalizedUrl } from '@/utils/i18n'
+// import { getLocalizedUrl } from '@/utils/i18n'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
@@ -63,11 +69,7 @@ declare module '@tanstack/table-core' {
   }
 }
 
-type InvoiceTypeWithAction = InvoiceType & {
-  action?: string
-}
-
-type InvoiceStatusObj = {
+type ScheduleStatusObj = {
   [key: string]: {
     icon: string
     color: ThemeColor
@@ -75,15 +77,8 @@ type InvoiceStatusObj = {
 }
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
-  // Rank the item
   const itemRank = rankItem(row.getValue(columnId), value)
-
-  // Store the itemRank info
-  addMeta({
-    itemRank
-  })
-
-  // Return if the item should be filtered in/out
+  addMeta({ itemRank })
   return itemRank.passed
 }
 
@@ -97,7 +92,6 @@ const DebouncedInput = ({
   onChange: (value: string | number) => void
   debounce?: number
 } & Omit<TextFieldProps, 'onChange'>) => {
-  // States
   const [value, setValue] = useState(initialValue)
 
   useEffect(() => {
@@ -116,31 +110,52 @@ const DebouncedInput = ({
   return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
 }
 
-// Vars
-const invoiceStatusObj: InvoiceStatusObj = {
-  Sent: { color: 'secondary', icon: 'tabler-send-2' },
-  Paid: { color: 'success', icon: 'tabler-check' },
-  Draft: { color: 'primary', icon: 'tabler-mail' },
-  'Partial Payment': { color: 'warning', icon: 'tabler-chart-pie-2' },
-  'Past Due': { color: 'error', icon: 'tabler-alert-circle' },
-  Downloaded: { color: 'info', icon: 'tabler-arrow-down' }
+// -- STATUS CONFIGURATION --
+const scheduleStatusObj: ScheduleStatusObj = {
+  ACTIVE: { color: 'success', icon: 'tabler-check' },
+  COMPLETED: { color: 'info', icon: 'tabler-circle-check' },
+  CANCELLED: { color: 'error', icon: 'tabler-x' }
 }
 
-// Column Definitions
-const columnHelper = createColumnHelper<InvoiceTypeWithAction>()
+const columnHelper = createColumnHelper<ScheduleDTO>()
 
-const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
-  // States
-  const [status, setStatus] = useState<InvoiceType['invoiceStatus']>('')
-  const [rowSelection, setRowSelection] = useState({})
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [data, setData] = useState(...[invoiceData])
-  const [globalFilter, setGlobalFilter] = useState('')
-
-  // Hooks
+const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
+  // -- Hooks --
+  const dispatch = useDispatch<AppDispatch>()
   const { lang: locale } = useParams()
 
-  const columns = useMemo<ColumnDef<InvoiceTypeWithAction, any>[]>(
+  // -- Redux State --
+  const { schedules, scheduleStatus } = useSelector((state: RootState) => state.doctorDashboard)
+
+  // -- Local State --
+  const [status, setStatus] = useState<string>('')
+  const [rowSelection, setRowSelection] = useState({})
+  const [globalFilter, setGlobalFilter] = useState('')
+  
+  // NOTE: We update 'data' state when Redux 'schedules' change
+  const [data, setData] = useState<ScheduleDTO[]>([])
+
+  // -- Fetch Data on Mount or Prop Change --
+  useEffect(() => {
+    if (doctorId) {
+      dispatch(fetchDoctorSchedules(doctorId))
+    }
+  }, [dispatch, doctorId])
+
+  // -- Sync Redux Data with Local Table Data & Filter --
+  useEffect(() => {
+    if (schedules) {
+        const filteredData = schedules.filter(schedule => {
+            // if (status && schedule.isActive !== isActive) return false  // no need If ISACTIV use
+            return true
+        })
+        setData(filteredData)
+    }
+  }, [schedules, status])
+
+
+  // -- Column Definitions --
+  const columns = useMemo<ColumnDef<ScheduleDTO, any>[]>(
     () => [
       {
         id: 'select',
@@ -165,64 +180,70 @@ const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
         )
       },
       columnHelper.accessor('id', {
-        header: '#',
+        header: 'ID',
         cell: ({ row }) => (
           <Typography
             component={Link}
-            href={getLocalizedUrl(`apps/invoice/preview/${row.original.id}`, locale as Locale)}
+            href={`/apps/schedules/view/${row.original.id}`} // Update link as needed
             color='primary.main'
           >{`#${row.original.id}`}</Typography>
         )
       }),
-      columnHelper.accessor('invoiceStatus', {
-        header: 'Status',
+      columnHelper.accessor('scheduleDate', {
+        header: 'Date',
         cell: ({ row }) => (
-          <Tooltip
-            title={
-              <div>
-                <Typography variant='body2' component='span' className='text-inherit'>
-                  {row.original.invoiceStatus}
+            <div className='flex flex-col'>
+                <Typography className='font-medium' color='text.primary'>
+                    {new Date(row.original.scheduleDate).toLocaleDateString()}
                 </Typography>
-                <br />
-                <Typography variant='body2' component='span' className='text-inherit'>
-                  Balance:
-                </Typography>{' '}
-                {row.original.balance}
-                <br />
-                <Typography variant='body2' component='span' className='text-inherit'>
-                  Due Date:
-                </Typography>{' '}
-                {row.original.dueDate}
-              </div>
-            }
-          >
-            <CustomAvatar skin='light' color={invoiceStatusObj[row.original.invoiceStatus].color} size={28}>
-              <i className={classnames('bs-4 is-4', invoiceStatusObj[row.original.invoiceStatus].icon)} />
-            </CustomAvatar>
-          </Tooltip>
+            </div>
         )
       }),
-      columnHelper.accessor('total', {
-        header: 'Total',
-        cell: ({ row }) => <Typography>{`$${row.original.total}`}</Typography>
+      columnHelper.accessor('startTime', {
+        header: 'Time',
+        cell: ({ row }) => (
+            <Typography>
+                {`${row.original.startTime} - ${row.original.endTime}`}
+            </Typography>
+        )
       }),
-      columnHelper.accessor('issuedDate', {
-        header: 'Issued Date',
-        cell: ({ row }) => <Typography>{row.original.issuedDate}</Typography>
+      columnHelper.accessor('isActive', {
+        header: 'Status',
+        cell: ({ row }) => {
+            const isActive = row.original.isActive
+            
+            return (
+                <Chip 
+                    label={isActive ? 'Active' : 'Inactive'} 
+                    color={isActive ? 'success' : 'secondary'} 
+                    variant="tonal" 
+                    size="small" 
+                    icon={<i className={isActive ? 'tabler-check' : 'tabler-x'} />}
+                />
+            )
+        }
       }),
-      columnHelper.accessor('action', {
+      columnHelper.accessor('registeredPatientCount', {
+        header: 'Capacity',
+        cell: ({ row }) => (
+          <div className='flex flex-col'>
+             <Typography variant="body2">
+                {row.original.registeredPatientCount} / {row.original.maxPatients} Patients
+             </Typography>
+          </div>
+        )
+      }),
+      columnHelper.accessor('id', { // Using ID as accessor for Action column
+        id: 'action',
         header: 'Action',
         cell: ({ row }) => (
           <div className='flex items-center'>
             <IconButton>
-              <i className='tabler-trash text-textSecondary' />
-            </IconButton>
-            <IconButton>
               <Link
-                href={getLocalizedUrl(`apps/invoice/preview/${row.original.id}`, locale as Locale)}
+                href={`/apps/schedules/edit/${row.original.id}`} // Adjust URL
                 className='flex'
               >
-                <i className='tabler-eye text-textSecondary' />
+                <i className='tabler-pencil text-textSecondary' />
               </Link>
             </IconButton>
             <OptionMenu
@@ -230,21 +251,13 @@ const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
               iconClassName='text-textSecondary'
               options={[
                 {
-                  text: 'Download',
-                  icon: 'tabler-download',
+                  text: 'View Patients',
+                  icon: 'tabler-users',
                   menuItemProps: { className: 'flex items-center gap-2 text-textSecondary' }
                 },
                 {
-                  text: 'Edit',
-                  icon: 'tabler-pencil',
-                  href: getLocalizedUrl(`apps/invoice/edit/${row.original.id}`, locale as Locale),
-                  linkProps: {
-                    className: 'flex items-center is-full plb-2 pli-4 gap-2 text-textSecondary'
-                  }
-                },
-                {
-                  text: 'Duplicate',
-                  icon: 'tabler-copy',
+                  text: 'Cancel Schedule',
+                  icon: 'tabler-ban',
                   menuItemProps: { className: 'flex items-center gap-2 text-textSecondary' }
                 }
               ]}
@@ -254,12 +267,11 @@ const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
         enableSorting: false
       })
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
 
   const table = useReactTable({
-    data: data as InvoiceType[],
+    data: data,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
@@ -273,8 +285,7 @@ const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
         pageSize: 6
       }
     },
-    enableRowSelection: true, //enable row selection for all rows
-    // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
+    enableRowSelection: true,
     globalFilterFn: fuzzyFilter,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
@@ -286,16 +297,6 @@ const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues()
   })
-
-  useEffect(() => {
-    const filteredData = invoiceData?.filter(invoice => {
-      if (status && invoice.invoiceStatus.toLowerCase().replace(/\s+/g, '-') !== status) return false
-
-      return true
-    })
-
-    setData(filteredData)
-  }, [status, invoiceData, setData])
 
   return (
     <Card>
@@ -310,7 +311,8 @@ const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
               className='is-[70px]'
             >
               <MenuItem value='6'>6</MenuItem>
-              <MenuItem value='24'>24</MenuItem>
+              <MenuItem value='10'>10</MenuItem>
+              <MenuItem value='25'>25</MenuItem>
               <MenuItem value='50'>50</MenuItem>
             </CustomTextField>
           </div>
@@ -318,17 +320,17 @@ const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
             variant='contained'
             component={Link}
             startIcon={<i className='tabler-plus' />}
-            href={getLocalizedUrl('apps/invoice/add', locale as Locale)}
+            href={`/apps/schedules/add?doctorId=${doctorId}`}
             className='max-sm:is-full'
           >
-            Create Invoice
+            Create Schedule
           </Button>
         </div>
         <div className='flex flex-col sm:flex-row max-sm:is-full items-start sm:items-center gap-4'>
           <DebouncedInput
             value={globalFilter ?? ''}
             onChange={value => setGlobalFilter(String(value))}
-            placeholder='Search Invoice'
+            placeholder='Search Schedules'
             className='max-sm:is-full sm:is-[250px]'
           />
           <CustomTextField
@@ -341,16 +343,14 @@ const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
               select: { displayEmpty: true }
             }}
           >
-            <MenuItem value=''>Invoice Status</MenuItem>
-            <MenuItem value='downloaded'>Downloaded</MenuItem>
-            <MenuItem value='draft'>Draft</MenuItem>
-            <MenuItem value='paid'>Paid</MenuItem>
-            <MenuItem value='partial-payment'>Partial Payment</MenuItem>
-            <MenuItem value='past-due'>Past Due</MenuItem>
-            <MenuItem value='sent'>Sent</MenuItem>
+            <MenuItem value=''>All Status</MenuItem>
+            <MenuItem value='ACTIVE'>Active</MenuItem>
+            <MenuItem value='COMPLETED'>Completed</MenuItem>
+            <MenuItem value='CANCELLED'>Cancelled</MenuItem>
           </CustomTextField>
         </div>
       </CardContent>
+      
       <div className='overflow-x-auto'>
         <table className={tableStyles.table}>
           <thead>
@@ -380,11 +380,21 @@ const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
               </tr>
             ))}
           </thead>
-          {table.getFilteredRowModel().rows.length === 0 ? (
+          
+          {/* Handle Loading State or Empty Data */}
+          {scheduleStatus === 'loading' ? (
+              <tbody>
+                <tr>
+                  <td colSpan={columns.length} className='text-center p-4'>
+                    <Typography>Loading schedules...</Typography>
+                  </td>
+                </tr>
+              </tbody>
+          ) : table.getFilteredRowModel().rows.length === 0 ? (
             <tbody>
               <tr>
-                <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                  No data available
+                <td colSpan={columns.length} className='text-center'>
+                  No schedules found
                 </td>
               </tr>
             </tbody>
@@ -406,6 +416,7 @@ const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
           )}
         </table>
       </div>
+      
       <TablePagination
         component={() => <TablePaginationComponent table={table} />}
         count={table.getFilteredRowModel().rows.length}
@@ -420,4 +431,4 @@ const InvoiceListTable = ({ invoiceData }: { invoiceData: InvoiceType[] }) => {
   )
 }
 
-export default InvoiceListTable
+export default ShedulesByDoctorListTable

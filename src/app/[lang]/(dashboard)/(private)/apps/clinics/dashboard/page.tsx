@@ -10,7 +10,7 @@ import EarningReports from '@views/apps/clinic-app/dashboard/EarningReports'
 import PopularProducts from '@views/apps/clinic-app/dashboard/PopularProducts'
 import Orders from '@views/apps/clinic-app/dashboard/Orders'
 import Transactions from '@views/apps/clinic-app/dashboard/Transactions'
-import InvoiceListTable from '@views/apps/clinic-app/dashboard/InvoiceListTable'
+import InvoiceListTable from '@/views/apps/clinic-app/dashboard/ShedulesByDoctorListTable'
 
 // Data Imports
 import { getInvoiceData } from '@/app/server/actions'
