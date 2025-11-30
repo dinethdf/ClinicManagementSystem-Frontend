@@ -23,14 +23,40 @@ export interface SpecializationStatDTO {
   appointmentCount: number
 }
 
-// 2. Define the response structure containing all timeframes
+
 export interface SpecializationSummaryResponse {
   week: SpecializationStatDTO[]
   month: SpecializationStatDTO[]
   year: SpecializationStatDTO[]
 }
 
-// Define the arguments for the Thunks
+
 export interface FetchRevenueArgs {
   year: number
+}
+
+
+export interface ScheduleDTO {
+  id: number
+  doctorName: string
+  specialization: string
+  scheduleDate: string
+  startTime: string
+  endTime: string
+  isActive: 'ACTIVE' | 'NOT ACTIVE'
+  maxPatientCount: number
+  registeredPatientCount: number
+}
+
+
+export interface DoctorScheduleApiResponse {
+  success: boolean
+  message: string
+  data: {
+    content: ScheduleDTO[]
+    totalElements: number
+    totalPages: number
+    size: number
+    number: number 
+  }
 }
