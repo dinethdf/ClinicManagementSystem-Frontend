@@ -59,8 +59,8 @@ export const refreshDoctorDashboard = createAsyncThunk(
       await Promise.allSettled([
         dispatch(fetchDoctorSchedules(doctorId))
     ])
-    
     }
+    
     return new Date().toLocaleTimeString()
   }
 )

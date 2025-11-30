@@ -65,6 +65,7 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
   const handleFinalize = async () => {
     if (!appointmentId) {
         setErrorMsg("Error: Invalid Appointment ID")
+        
         return
     }
 

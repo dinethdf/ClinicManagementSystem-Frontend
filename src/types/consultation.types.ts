@@ -9,7 +9,6 @@ export type ConsultationPatient = {
   bloodGroup: string
   mobileNo: string
   profileImg?: string
-  // From Linked Tables
   allergies: { id: number; allergyName: string; notes: string }[]
   chronicDiseases: { id: number; diseaseName: string; notes: string }[]
 }

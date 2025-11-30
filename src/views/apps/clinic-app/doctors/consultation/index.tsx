@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 // MUI Imports
 import Grid from '@mui/material/Grid2'
@@ -45,41 +45,52 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
   const handleCheckStatus = async () => {
     if (!selectedPatient?.id) {
         setError("Please select a patient first.")
+        
         return
     }
+    
     setLoading(true); setError(null); setAppointmentInfo(null);
 
     try {
-        const res = await checkAppointmentStatus(Number(scheduleId), selectedPatient.id)
-        if (res.success && res.data) {
+        
+      const res = await checkAppointmentStatus(Number(scheduleId), selectedPatient.id)
+       
+      if (res.success && res.data) {
             setAppointmentInfo(res.data)
         } else {
             setError(res.error?.message || "Patient has no appointment in this schedule.")
-        }
+      
+          }
     } catch (e) { setError("System Error") }
+   
     setLoading(false)
   }
 
-  // --- HANDLER: Start Consultation ---
+
   const handleStartConsultation = async () => {
     if(!selectedPatient?.id) return;
 
     setLoading(true)
     
-    // Fetch Full Patient Profile for Sidebar
+
     const res = await getConsultationPatientDetails(selectedPatient.id)
     
     if(res.success && res.data) {
-        setPatientDetail(res.data)
-        setViewState('CONSULTATION')
+      
+      setPatientDetail(res.data)
+     
+      setViewState('CONSULTATION')
     } else {
-        setError("Failed to load patient profile")
+    
+      setError("Failed to load patient profile")
     }
+   
     setLoading(false)
   }
 
-  // --- HANDLER: Reset (Called after successful prescription) ---
+
   const handleReset = () => {
+
     setViewState('SEARCH')
     setAppointmentInfo(null)
     setSelectedPatient(null)
@@ -90,9 +101,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
   if (viewState === 'SEARCH') {
     return (
       <div className='flex flex-col items-center justify-center min-h-[60vh] gap-6'>
-         {/* ... Search UI (Header, Card, AsyncAutocomplete) ... */}
-         {/* (Keep the exact code from previous step here) */}
-         
+       
          <Card className='w-full max-w-md overflow-visible'>
             <CardContent className='flex flex-col gap-5'>
                 <Alert severity='info' icon={false} className='bg-primary/10 text-primary'>
