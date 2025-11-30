@@ -1,13 +1,10 @@
 'use client'
 
-// React Imports
 import { useState, useEffect, useMemo } from 'react'
 
-// Next Imports
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 
-// MUI Imports
+
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
@@ -20,7 +17,6 @@ import TablePagination from '@mui/material/TablePagination'
 
 import type { TextFieldProps } from '@mui/material/TextField'
 
-// Third-party Imports
 import classnames from 'classnames'
 import { rankItem } from '@tanstack/match-sorter-utils'
 import {
@@ -40,22 +36,18 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Redux Imports
 import { useDispatch, useSelector } from 'react-redux'
+
 import type { AppDispatch, RootState } from '@/libs/redux-store'
 import { fetchDoctorSchedules } from '@/libs/redux-store/slices/doctorDashboardSlice'
 
 // Type Imports
-import type { ThemeColor } from '@/@core/typesDef'
 import type { ScheduleDTO } from '@/types/analysis.types'
 
-// import type { Locale } from '@configs/i18n'
-
-// Component Imports
 import OptionMenu from '@core/components/option-menu'
 import TablePaginationComponent from '@components/TablePaginationComponent'
 import CustomTextField from '@core/components/mui/TextField'
 
-// Util Imports
-// import { getLocalizedUrl } from '@/utils/i18n'
+
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
@@ -69,16 +61,12 @@ declare module '@tanstack/table-core' {
   }
 }
 
-type ScheduleStatusObj = {
-  [key: string]: {
-    icon: string
-    color: ThemeColor
-  }
-}
-
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+  
   const itemRank = rankItem(row.getValue(columnId), value)
+ 
   addMeta({ itemRank })
+  
   return itemRank.passed
 }
 
@@ -90,6 +78,7 @@ const DebouncedInput = ({
 }: {
   value: string | number
   onChange: (value: string | number) => void
+ 
   debounce?: number
 } & Omit<TextFieldProps, 'onChange'>) => {
   const [value, setValue] = useState(initialValue)
@@ -110,20 +99,18 @@ const DebouncedInput = ({
   return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
 }
 
-// -- STATUS CONFIGURATION --
-const scheduleStatusObj: ScheduleStatusObj = {
-  ACTIVE: { color: 'success', icon: 'tabler-check' },
-  COMPLETED: { color: 'info', icon: 'tabler-circle-check' },
-  CANCELLED: { color: 'error', icon: 'tabler-x' }
-}
+// const scheduleStatusObj: ScheduleStatusObj = {
+//   ACTIVE: { color: 'success', icon: 'tabler-check' },
+//   COMPLETED: { color: 'info', icon: 'tabler-circle-check' },
+//   CANCELLED: { color: 'error', icon: 'tabler-x' }
+// }
 
 const columnHelper = createColumnHelper<ScheduleDTO>()
 
 const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
   // -- Hooks --
   const dispatch = useDispatch<AppDispatch>()
-  const { lang: locale } = useParams()
-
+  
   // -- Redux State --
   const { schedules, scheduleStatus } = useSelector((state: RootState) => state.doctorDashboard)
 
@@ -142,19 +129,24 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
     }
   }, [dispatch, doctorId])
 
-  // -- Sync Redux Data with Local Table Data & Filter --
+
   useEffect(() => {
     if (schedules) {
-        const filteredData = schedules.filter(schedule => {
-            // if (status && schedule.isActive !== isActive) return false  // no need If ISACTIV use
-            return true
+
+        const filteredData = schedules.filter(() => {
+            
+          // if (status && schedule.isActive !== isActive) return false  // no need If ISACTIV use
+         
+          return true
         })
+        
         setData(filteredData)
     }
   }, [schedules, status])
 
 
   // -- Column Definitions --
+
   const columns = useMemo<ColumnDef<ScheduleDTO, any>[]>(
     () => [
       {
@@ -228,7 +220,7 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
         cell: ({ row }) => (
           <div className='flex flex-col'>
              <Typography variant="body2">
-                {row.original.registeredPatientCount} / {row.original.maxPatients} Patients
+                {row.original.registeredPatientCount} / {row.original.maxPatientCount} Patients
              </Typography>
           </div>
         )

@@ -37,8 +37,10 @@ export const fetchDoctorSchedules = createAsyncThunk(
   async (doctorId: number, { rejectWithValue }) => {
     try {
       const response = await doctorAnalysisService.getDoctorSchedules(doctorId)
+      
       return response
     } catch (err: any) {
+     
       return rejectWithValue(err.message || 'Failed to fetch schedules')
     }
   }
@@ -88,6 +90,7 @@ export const doctorDashboardSlice = createSlice({
       })
       .addCase(fetchDoctorSchedules.fulfilled, (state, action) => {
         state.scheduleStatus = 'succeeded'
+       
         if (action.payload) {
           state.schedules = action.payload as any
           state.totalSchedules = action.payload.totalElements

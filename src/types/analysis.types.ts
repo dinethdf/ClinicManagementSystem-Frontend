@@ -44,7 +44,7 @@ export interface ScheduleDTO {
   startTime: string
   endTime: string
   isActive: 'ACTIVE' | 'NOT ACTIVE'
-  maxPatients: number
+  maxPatientCount: number
   registeredPatientCount: number
 }
 

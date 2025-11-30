@@ -10,6 +10,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 
 // Redux Imports
 import { useDispatch, useSelector } from 'react-redux'
+
 import type { AppDispatch, RootState } from '@/libs/redux-store'
 
 // Actions Imports
@@ -28,9 +29,12 @@ const DashboardHeader = (props: any) => {
   // -- 2. Dynamic Selector --
   // We choose the correct Redux slice based on the user's role
   const { lastUpdated, status } = useSelector((state: RootState) => {
+  
     if (isDoctor) {
+   
       return state.doctorDashboard
     }
+   
     // Default to Admin
     return state.adminDashboard
   })

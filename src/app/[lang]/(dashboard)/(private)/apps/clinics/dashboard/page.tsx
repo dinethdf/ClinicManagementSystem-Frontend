@@ -10,10 +10,11 @@ import EarningReports from '@views/apps/clinic-app/dashboard/EarningReports'
 import PopularProducts from '@views/apps/clinic-app/dashboard/PopularProducts'
 import Orders from '@views/apps/clinic-app/dashboard/Orders'
 import Transactions from '@views/apps/clinic-app/dashboard/Transactions'
-import InvoiceListTable from '@/views/apps/clinic-app/dashboard/ShedulesByDoctorListTable'
+
+// import InvoiceListTable from '@/views/apps/clinic-app/dashboard/ShedulesByDoctorListTable'
 
 // Data Imports
-import { getInvoiceData } from '@/app/server/actions'
+// import { getInvoiceData } from '@/app/server/actions'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -35,8 +36,9 @@ import { getInvoiceData } from '@/app/server/actions'
  */
 
 const EcommerceDashboard = async () => {
+  
   // Vars
-  const invoiceData = await getInvoiceData()
+  // const invoiceData = await getInvoiceData()
 
   return (
     <Grid container spacing={6}>
@@ -72,7 +74,7 @@ const EcommerceDashboard = async () => {
         <Transactions />
       </Grid>
       <Grid size={{ xs: 12, lg: 8 }}>
-        <InvoiceListTable invoiceData={invoiceData} />
+        {/* <InvoiceListTable invoiceData={invoiceData} /> */}
       </Grid>
     </Grid>
   )
