@@ -141,8 +141,6 @@ const PatientListTable = () => {
    
     const query = String(value)
     
-    console.log("Search query changed, dispatching to Redux...")
-    
     if (query.length >= 3) {
       dispatch(setSearchQuery(query))
     
@@ -209,9 +207,9 @@ const PatientListTable = () => {
               <Typography className='font-medium hover:text-primary cursor-pointer' color='text.primary'>
                 {row.original.fullName}
               </Typography>
-              <Typography variant='body2'>
+              {/* <Typography variant='body2'>
                 DOB: {formatDate(row.original.dob)}
-              </Typography>
+              </Typography> */}
             </div>
           </div>
         )
@@ -288,6 +286,9 @@ const PatientListTable = () => {
               variant='contained'
               color='primary'
               className='max-sm:is-full'
+              onClick={()=> {
+                   router.push(`/en/clinic/patient/register`);
+              }}
               startIcon={<i className='tabler-plus' />}
             >
               Add Patient

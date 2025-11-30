@@ -24,7 +24,7 @@ const isLoading = summaryStatus === 'loading' || !summaryStats
     return [
       {
         title: 'Today Revenue',
-        stats: `$${summaryStats.todayRevenue.toLocaleString()}`,
+        stats: `Rs. ${summaryStats.todayRevenue.toLocaleString()}`,
         avatarIcon: 'tabler-currency-dollar',
         avatarColor: 'primary',
         subtitle: 'Daily Earnings',
