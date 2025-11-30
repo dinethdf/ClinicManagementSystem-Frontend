@@ -44,28 +44,28 @@ import type { PatientResponceDTO } from '@/types/patient.types'
 import tableStyles from '@core/styles/table.module.css'
 
 
-const formatDate = (dateString: string | null | undefined) => {
-  if (!dateString) {
+// const formatDate = (dateString: string | null | undefined) => {
+//   if (!dateString) {
   
-    return 'N/A'
-  }
+//     return 'N/A'
+//   }
   
-  try {
+//   try {
    
-    const date = new Date(dateString)
+//     const date = new Date(dateString)
     
-    const options: Intl.DateTimeFormatOptions = {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }
+//     const options: Intl.DateTimeFormatOptions = {
+//       day: '2-digit',
+//       month: 'short',
+//       year: 'numeric'
+//     }
 
-    return date.toLocaleDateString('en-US', options)
-  } catch (error) {
+//     return date.toLocaleDateString('en-US', options)
+//   } catch (error) {
 
-    return 'Invalid Date'
-  }
-}
+//     return 'Invalid Date'
+//   }
+// }
 
 const DebouncedInput = ({
   value: initialValue,

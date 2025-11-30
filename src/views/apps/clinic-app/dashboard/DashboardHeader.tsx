@@ -12,37 +12,65 @@ import CircularProgress from '@mui/material/CircularProgress'
 import { useDispatch, useSelector } from 'react-redux'
 
 import type { AppDispatch, RootState } from '@/libs/redux-store'
+
+// Actions Imports
 import { refreshDashboard } from '@/libs/redux-store/slices/adminDashboardSlice'
+import { refreshDoctorDashboard } from '@/libs/redux-store/slices/doctorDashboardSlice' // Import Doctor Action
 
 const DashboardHeader = (props: any) => {
-  // Destructure user from props based on your log
+  // Destructure user from props
   const { user } = props
-
+  
   const dispatch = useDispatch<AppDispatch>()
-  const { lastUpdated, status } = useSelector((state: RootState) => state.adminDashboard)
+
+  // -- 1. Role Detection --
+  const isDoctor = user?.role === 'DOCTOR'
+
+  // -- 2. Dynamic Selector --
+  // We choose the correct Redux slice based on the user's role
+  const { lastUpdated, status } = useSelector((state: RootState) => {
+  
+    if (isDoctor) {
+   
+      return state.doctorDashboard
+    }
+   
+    // Default to Admin
+    return state.adminDashboard
+  })
 
   const isLoading = status === 'loading'
 
-  useEffect(() => {
-    if (!lastUpdated) {
+  // -- 3. Dynamic Action --
+  const triggerRefresh = () => {
+    if (isDoctor) {
+      dispatch(refreshDoctorDashboard())
+    } else {
       dispatch(refreshDashboard())
     }
-  }, [dispatch, lastUpdated])
+  }
+
+  // Auto-fetch on mount if data is missing
+  useEffect(() => {
+    if (!lastUpdated) {
+      triggerRefresh()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, lastUpdated, isDoctor])
 
   const handleRefresh = () => {
-    dispatch(refreshDashboard())
+    triggerRefresh()
   }
 
   // --- HELPER FUNCTION: Format the Role ---
   const getDisplayRole = (role: string | undefined) => {
-    if (!role) return 'Overview' // Default if no role found
+    if (!role) return 'Overview' 
 
-    // If Admin, return "Administrator"
     if (role === 'ADMIN') {
       return 'Administrator'
     }
 
-    // For others (e.g., "DOCTOR"), capitalize first letter only -> "Doctor"
+    // Capitalize first letter -> "Doctor"
     return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
   }
 
@@ -51,7 +79,6 @@ const DashboardHeader = (props: any) => {
   return (
     <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full'>
       <div>
-        {/* Updated Title to use the dynamic Role Name */}
         <Typography variant='h4'>{roleTitle} Dashboard</Typography>
         <Typography variant='body2' className='text-textSecondary'>
           Monitor your clinic performance
@@ -65,10 +92,10 @@ const DashboardHeader = (props: any) => {
           disabled={isLoading}
           startIcon={isLoading ? <CircularProgress size={20} color='inherit' /> : <i className='tabler-refresh' />}
         >
-          {isLoading ? '' : 'Refresh '}
+          {isLoading ? 'Refreshing' : 'Refresh'}
         </Button>
         <Typography variant='caption' className='hidden sm:block text-textDisabled'>
-          Last updated: {lastUpdated ? lastUpdated : 'error'}
+          Last updated: {lastUpdated ? lastUpdated : 'Not synced'}
         </Typography>
       </div>
     </div>
