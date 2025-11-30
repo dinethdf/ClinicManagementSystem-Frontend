@@ -10,6 +10,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 
 // Redux Imports
 import { useDispatch, useSelector } from 'react-redux'
+
 import type { AppDispatch, RootState } from '@/libs/redux-store'
 import { refreshDashboard } from '@/libs/redux-store/slices/adminDashboardSlice'
 
@@ -36,7 +37,7 @@ const DashboardHeader = () => {
       <div>
         <Typography variant='h4'>Dashboard Overview</Typography>
         <Typography variant='body2' className='text-textSecondary'>
-          Monitor your hospital's performance
+          Monitor your clinic performance
         </Typography>
       </div>
       <div className='flex items-center gap-4 pr-4'>

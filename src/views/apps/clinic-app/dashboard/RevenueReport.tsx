@@ -24,6 +24,7 @@ import type { ApexOptions } from 'apexcharts'
 
 // Redux Imports
 import { useDispatch, useSelector } from 'react-redux'
+
 import type { AppDispatch, RootState } from '@/libs/redux-store'
 import { fetchRevenueData, setSelectedYear } from '@/libs/redux-store/slices/adminDashboardSlice'
 
@@ -38,9 +39,9 @@ const RevenueReport = () => {
   const dispatch = useDispatch<AppDispatch>()
   
   // Get data directly from the Store
-  const { revenueData: rawData, selectedYear, status } = useSelector((state: RootState) => state.adminDashboard)
+  const { revenueData: rawData, selectedYear, revenueStatus } = useSelector((state: RootState) => state.adminDashboard)
   
-  const loading = status === 'loading'
+  const loading = revenueStatus === 'loading'
 
   // -- Local UI State --
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -51,6 +52,7 @@ const RevenueReport = () => {
   // -- Helpers --
   const generateYearOptions = () => {
     const currentYear = new Date().getFullYear()
+    
     return [currentYear, currentYear - 1, currentYear - 2, currentYear - 3]
   }
 
@@ -61,7 +63,9 @@ const RevenueReport = () => {
 
     if (rawData && rawData.length > 0) {
       rawData.forEach(item => {
+        
         const index = item.monthIndex - 1 
+        
         if (index >= 0 && index < 12) {
           processedData[index] = item.totalRevenue
           total += item.totalRevenue
@@ -72,34 +76,28 @@ const RevenueReport = () => {
     return { chartData: processedData, totalRevenue: total }
   }, [rawData])
 
-  // -- Initial Fetch Effect --
-  // CHANGE 1: Logic updated to check if data exists
+
   useEffect(() => {
-    // Only call API if rawData is empty. 
-    // If you navigated away and came back, rawData will have values, so this is skipped.
+
     if (!rawData || rawData.length === 0) {
       dispatch(fetchRevenueData({ year: selectedYear }))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [dispatch]) 
-  // Removed 'selectedYear' and 'rawData' from dependency array to prevent auto-refetching on prop updates.
-  // We handle updates manually in the dropdown now.
 
-
-  // -- Handlers --
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
   }
 
   const handleClose = (year?: number) => {
+   
     if (year && typeof year === 'number') {
-      // 1. Update the Year in Redux
+    
       dispatch(setSelectedYear(year))
       
-      // CHANGE 2: Explicitly fetch data here because we removed the auto-fetch from useEffect
-      // This ensures we get new data when the user *asks* for it, but not when they just *view* the page.
       dispatch(fetchRevenueData({ year }))
     }
+    
     setAnchorEl(null)
   }
 

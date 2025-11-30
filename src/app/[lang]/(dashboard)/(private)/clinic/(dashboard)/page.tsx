@@ -2,7 +2,7 @@
 import Grid from '@mui/material/Grid2'
 
 // Components Imports
-import CongratulationsJohn from '@/views/apps/clinic-app/dashboard/WelcomeSection'
+import DashboardHeader from '@/views/apps/clinic-app/dashboard/DashboardHeader'
 import StatisticsAdminAnalysisCard from '@/views/apps/clinic-app/dashboard/StatisticsAdminAnalysisCard'
 import LineChartProfit from '@views/apps/clinic-app/dashboard/LineChartProfit'
 import RadialBarChart from '@views/apps/clinic-app/dashboard/RadialBarChart'
@@ -13,12 +13,12 @@ import PopularProducts from '@views/apps/clinic-app/dashboard/PopularProducts'
 import Orders from '@views/apps/clinic-app/dashboard/Orders'
 import Transactions from '@views/apps/clinic-app/dashboard/Transactions'
 import InvoiceListTable from '@views/apps/clinic-app/dashboard/InvoiceListTable'
+import SpecializationSummaryChart from '@/views/apps/clinic-app/dashboard/SpecializationSummaryChart'
+
+// import SheduleCount from '@/views/apps/clinic-app/dashboard/SheduleCount'
 
 // Data Imports
 import { getInvoiceData } from '@/app/server/actions'
-import SheduleCount from '@/views/apps/clinic-app/dashboard/SheduleCount'
-import SpecializationSummaryChart from '@/views/apps/clinic-app/dashboard/SpecializationSummaryChart'
-import DashboardHeader from '@/views/apps/clinic-app/dashboard/DashboardHeader'
 
 const DashboardClinics = async () => {
   // Vars

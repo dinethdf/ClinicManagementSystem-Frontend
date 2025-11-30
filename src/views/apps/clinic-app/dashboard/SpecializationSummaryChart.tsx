@@ -22,11 +22,11 @@ import type { ApexOptions } from 'apexcharts'
 
 // Redux Imports
 import { useDispatch, useSelector } from 'react-redux'
+
 import type { AppDispatch, RootState } from '@/libs/redux-store'
 import { fetchSpecializationData } from '@/libs/redux-store/slices/adminDashboardSlice'
 import type { SpecializationStatDTO } from '@/types/analysis.types'
 
-// Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'), { ssr: false })
 
 const donutColors = {
@@ -39,44 +39,36 @@ const donutColors = {
 }
 
 const SpecializationSummaryChart = () => {
-  // -- Hooks --
+
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
 
-  // -- Redux State --
-  const { specializationData: allData, status } = useSelector((state: RootState) => state.adminDashboard)
+  const { specializationData: allData, specializationStatus } = useSelector((state: RootState) => state.adminDashboard)
   
-  // Derived Loading State
-  const loading = status === 'loading'
+  const loading = specializationStatus === 'loading'
 
-  // -- Local UI State --
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [filterType, setFilterType] = useState<'week' | 'month' | 'year'>('month')
 
-  // -- Fetch Data --
-  // Ensure data exists on mount (Header refresh also triggers this)
   useEffect(() => {
     if (!allData) {
       dispatch(fetchSpecializationData())
     }
   }, [dispatch, allData])
 
-  // -- Derived Data --
-  // Calculate series and labels based on the selected filter
   const { series, labels } = useMemo(() => {
     if (!allData) return { series: [], labels: [] }
 
     const currentList: SpecializationStatDTO[] = allData[filterType] || []
 
-    // Map the API data to Chart format
     return {
       series: currentList.map(item => item.appointmentCount),
       labels: currentList.map(item => item.specialization)
     }
   }, [allData, filterType])
 
-  // -- Handlers --
   const handleClick = (event: MouseEvent<HTMLElement>) => {
+   
     setAnchorEl(event.currentTarget)
   }
 
@@ -84,15 +76,15 @@ const SpecializationSummaryChart = () => {
     if (type) {
       setFilterType(type)
     }
+    
     setAnchorEl(null)
   }
 
-  // -- Chart Config --
   const textSecondary = 'var(--mui-palette-text-secondary)'
 
   const options: ApexOptions = {
     stroke: { width: 0 },
-    labels: labels, // Dynamic labels from API
+    labels: labels,
     colors: [
       donutColors.series1,
       donutColors.series2,
@@ -133,11 +125,12 @@ const SpecializationSummaryChart = () => {
             total: {
               show: true,
               fontSize: '1rem',
-              label: filterType.charAt(0).toUpperCase() + filterType.slice(1), // e.g. "Month"
+              label: filterType.charAt(0).toUpperCase() + filterType.slice(1),
               color: 'var(--mui-palette-text-primary)',
               formatter: (w: any) => {
-                // Sum up all the data points in the current series to get the total
+                
                 const total = w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0)
+                
                 return `${total}`
               }
             }

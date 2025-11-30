@@ -15,18 +15,19 @@ import type {
 
 import type { RootState } from '@/libs/redux-store'
 
-// -- 1. Define State Interface --
 interface AdminDashboardState {
-  // Data Sections
+
   summaryStats: DashboardSummaryDTO | null
   revenueData: MonthlyRevenueDTO[]
   specializationData: SpecializationSummaryResponse | null
 
-  // UI State
-  selectedYear: number // We store the active year here
-  lastUpdated: string | null // Stores the timestamp string
-  
-  // API Status
+
+  selectedYear: number
+  lastUpdated: string | null
+  summaryStatus: 'idle' | 'loading' | 'succeeded' | 'failed'
+  revenueStatus: 'idle' | 'loading' | 'succeeded' | 'failed'
+  specializationStatus: 'idle' | 'loading' | 'succeeded' | 'failed'
+
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
   error: string | null
 }
@@ -37,73 +38,81 @@ const initialState: AdminDashboardState = {
   specializationData: null,
   selectedYear: new Date().getFullYear(),
   lastUpdated: null,
+  
+  summaryStatus: 'idle',
+  revenueStatus: 'idle',
+  specializationStatus: 'idle',
+
   status: 'idle',
   error: null
 }
 
-// -- 2. Define Async Thunks --
-
-// A. Fetch Top Cards Summary
 export const fetchDashboardSummary = createAsyncThunk(
   'admin/fetchSummary',
+ 
   async (_, { rejectWithValue }) => {
+    
     try {
       const response = await appointmentService.getDashboardSummary()
+      
       return response
     } catch (err: any) {
+     
       return rejectWithValue(err.message || 'Failed to fetch summary')
     }
   }
 )
 
-// B. Fetch Revenue Chart Data
 export const fetchRevenueData = createAsyncThunk(
   'admin/fetchRevenue',
+ 
   async ({ year }: FetchRevenueArgs, { rejectWithValue }) => {
+   
     try {
       const response = await appointmentService.getMonthlyRevenue(year)
+    
       return response
     } catch (err: any) {
+     
       return rejectWithValue(err.message || 'Failed to fetch revenue')
     }
   }
 )
 
-// C. Fetch Specialization Chart Data
 export const fetchSpecializationData = createAsyncThunk(
   'admin/fetchSpecialization',
+ 
   async (_, { rejectWithValue }) => {
+  
     try {
       const response = await appointmentService.getSpecializationSummary()
+      
       return response
     } catch (err: any) {
+    
       return rejectWithValue(err.message || 'Failed to fetch specialization')
     }
   }
 )
 
-// D. MASTER REFRESH THUNK
-// This is what your "Refresh Button" will dispatch.
-// It triggers all 3 API calls in parallel.
+
 export const refreshDashboard = createAsyncThunk(
   'admin/refreshAll',
+
   async (_, { dispatch, getState }) => {
     const state = getState() as RootState
-    const year = state.adminDashboard.selectedYear // Use the year currently in Redux
+    const year = state.adminDashboard.selectedYear
 
-    // Dispatch all individual thunks
-    await Promise.all([
+    await Promise.allSettled([
       dispatch(fetchDashboardSummary()),
       dispatch(fetchRevenueData({ year })),
       dispatch(fetchSpecializationData())
     ])
     
-    // Return a timestamp to update "lastUpdated"
     return new Date().toLocaleTimeString()
   }
 )
 
-// -- 3. Create the Slice --
 export const adminDashboardSlice = createSlice({
   name: 'adminDashboard',
   initialState,
@@ -125,17 +134,39 @@ export const adminDashboardSlice = createSlice({
         state.status = 'failed'
       })
 
+
+      .addCase(fetchDashboardSummary.pending, state => {
+        state.summaryStatus = 'loading'
+      })
       .addCase(fetchDashboardSummary.fulfilled, (state, action) => {
+        state.summaryStatus = 'succeeded'
         state.summaryStats = action.payload
       })
-
-      .addCase(fetchRevenueData.fulfilled, (state, action) => {
-        state.revenueData = action.payload
+      .addCase(fetchDashboardSummary.rejected, state => {
+        state.summaryStatus = 'failed'
       })
 
 
+      .addCase(fetchRevenueData.pending, state => {
+        state.revenueStatus = 'loading'
+      })
+      .addCase(fetchRevenueData.fulfilled, (state, action) => {
+        state.revenueStatus = 'succeeded'
+        state.revenueData = action.payload
+      })
+      .addCase(fetchRevenueData.rejected, state => {
+        state.revenueStatus = 'failed'
+      })
+
+      .addCase(fetchSpecializationData.pending, state => {
+        state.specializationStatus = 'loading'
+      })
       .addCase(fetchSpecializationData.fulfilled, (state, action) => {
+        state.specializationStatus = 'succeeded'
         state.specializationData = action.payload
+      })
+      .addCase(fetchSpecializationData.rejected, state => {
+        state.specializationStatus = 'failed'
       })
   }
 })
