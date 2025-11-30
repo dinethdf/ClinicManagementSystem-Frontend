@@ -7,6 +7,9 @@ class DoctorAnalysisService {
 
   async getDoctorSchedules(doctorId: number): Promise<DoctorScheduleApiResponse['data'] | null> {
     try {
+
+      console.log("callDOCID" , doctorId)
+      
       const response = await apiClient.get<DoctorScheduleApiResponse>(
         `/api/schedules/by-doctor/${doctorId}`
       )

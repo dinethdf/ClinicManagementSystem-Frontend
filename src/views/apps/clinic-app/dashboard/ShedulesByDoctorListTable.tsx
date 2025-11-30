@@ -176,7 +176,7 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
         cell: ({ row }) => (
           <Typography
             component={Link}
-            href={`/apps/schedules/view/${row.original.id}`} // Update link as needed
+            href={`clinic/doctors/consultation/${row.original.id}`} // Update link as needed
             color='primary.main'
           >{`#${row.original.id}`}</Typography>
         )

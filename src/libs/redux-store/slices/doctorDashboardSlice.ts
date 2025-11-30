@@ -24,7 +24,7 @@ interface DoctorDashboardState {
 const initialState: DoctorDashboardState = {
   schedules: [],
   totalSchedules: 0,
-  currentDoctorId: 1,
+  currentDoctorId: 0,
   lastUpdated: null,
   
   scheduleStatus: 'idle',
@@ -36,11 +36,12 @@ export const fetchDoctorSchedules = createAsyncThunk(
   'doctor/fetchSchedules',
   async (doctorId: number, { rejectWithValue }) => {
     try {
+      
       const response = await doctorAnalysisService.getDoctorSchedules(doctorId)
       
       return response
     } catch (err: any) {
-     
+      
       return rejectWithValue(err.message || 'Failed to fetch schedules')
     }
   }
@@ -49,14 +50,16 @@ export const fetchDoctorSchedules = createAsyncThunk(
 export const refreshDoctorDashboard = createAsyncThunk(
   'doctor/refreshAll',
   async (_, { dispatch, getState }) => {
-   
+    
     const state = getState() as RootState
 
-    const doctorId = state.doctorDashboard.currentDoctorId || 1 
-
-    await Promise.allSettled([
-      dispatch(fetchDoctorSchedules(doctorId))
+    const doctorId = state.doctorDashboard.currentDoctorId || 0 
+  
+    if (doctorId !== 0) {
+      await Promise.allSettled([
+        dispatch(fetchDoctorSchedules(doctorId))
     ])
+    }
     
     return new Date().toLocaleTimeString()
   }
@@ -90,7 +93,8 @@ export const doctorDashboardSlice = createSlice({
       })
       .addCase(fetchDoctorSchedules.fulfilled, (state, action) => {
         state.scheduleStatus = 'succeeded'
-       
+        state.currentDoctorId = action.meta.arg 
+        
         if (action.payload) {
           state.schedules = action.payload as any
           state.totalSchedules = action.payload.totalElements

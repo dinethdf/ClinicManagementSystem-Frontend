@@ -121,3 +121,13 @@ export type ScheduleAppointmentResponse = {
   size: number
   number: number
 }
+
+export type AppointmentStatusDTO = {
+  id: number
+  fullName: string
+  patientNo: string
+  nic: string
+  queueNo: number
+  status: string
+  createdDate: string
+}
