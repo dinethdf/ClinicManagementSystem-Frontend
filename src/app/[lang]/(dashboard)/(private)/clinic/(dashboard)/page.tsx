@@ -57,7 +57,7 @@ console.log(payload)
 
       {(userRole === 'DOCTOR' || userRole === 'ADMIN') && (
       <Grid size={{ xs: 12, lg: 12 }}>
-        <ShedulesByDoctorListTable doctorId={payload?.userDetailsId ? payload?.userDetailsId : 1} />
+        <ShedulesByDoctorListTable doctorId={payload?.userDetailsId ? payload?.userDetailsId : 0} />
       </Grid>
     )}
       {/*

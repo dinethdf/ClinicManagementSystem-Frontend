@@ -13,9 +13,9 @@ const AppoinmentList = () => {
   
   return (
     <Grid container spacing={6}>
-      <Grid size={{ xs: 12 }}>
+      {/* <Grid size={{ xs: 12 }}>
         <AppoinmentCard />
-      </Grid>
+      </Grid> */}
       <Grid size={{ xs: 12 }}>
         <AppoinmentListTable/>
       </Grid>
