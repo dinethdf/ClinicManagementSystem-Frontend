@@ -1,6 +1,9 @@
 // MUI Imports
 import Grid from '@mui/material/Grid2'
 
+// Next Navigation for redirection if token is invalid
+import { redirect } from 'next/navigation'
+
 // Components Imports
 import DashboardHeader from '@/views/apps/clinic-app/dashboard/DashboardHeader'
 import StatisticsAdminAnalysisCard from '@/views/apps/clinic-app/dashboard/StatisticsAdminAnalysisCard'
@@ -15,20 +18,28 @@ import Transactions from '@views/apps/clinic-app/dashboard/Transactions'
 import InvoiceListTable from '@views/apps/clinic-app/dashboard/InvoiceListTable'
 import SpecializationSummaryChart from '@/views/apps/clinic-app/dashboard/SpecializationSummaryChart'
 
-// import SheduleCount from '@/views/apps/clinic-app/dashboard/SheduleCount'
-
-// Data Imports
+// Data & Auth Imports
 import { getInvoiceData } from '@/app/server/actions'
+import { verifyToken } from '@/libs/verifyToken'
 
 const DashboardClinics = async () => {
-  // Vars
+  const { valid, payload } = await verifyToken()
+  if (!valid) {
+    redirect('/login') 
+  }
+// console.log(payload)
+  const userRole = payload?.role || 'GUEST'
+
   const invoiceData = await getInvoiceData()
 
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
-        <DashboardHeader />
+        <DashboardHeader user = {payload} />
       </Grid>
+
+      {userRole === 'ADMIN' && (
+        <>
       <Grid size={{ xs: 12, md: 12 }}>
         <StatisticsAdminAnalysisCard />
       </Grid>
@@ -51,7 +62,13 @@ const DashboardClinics = async () => {
           </Grid>
         </Grid>
       </Grid>
+</>)}
 
+      {userRole === 'DOCTOR' && (
+      <Grid size={{ xs: 12, lg: 12 }}>
+        <InvoiceListTable invoiceData={invoiceData} />
+      </Grid>
+    )}
       <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
         <EarningReports />
       </Grid>

@@ -386,7 +386,23 @@ const Login = ({ mode }: { mode: SystemMode }) => {
                   Login
                 </Button>
               </div>
-
+              {/* Doctor Login Section */}
+              <div className='flex justify-between items-center flex-wrap gap-2'>
+                <div className='flex flex-col'>
+                  <Typography variant='body2' className='font-medium'>
+                    Doctor
+                  </Typography>
+                  <Typography variant='caption'>Email: test1@doctor.com</Typography>
+                  <Typography variant='caption'>Password: test1</Typography>
+                </div>
+                <Button
+                  variant='outlined'
+                  size='small'
+                  onClick={() => handleQuickLogin('test1@doctor.com', 'test1')}
+                >
+                  Login
+                </Button>
+              </div>
               {/* User Login Section */}
               <div className='flex justify-between items-center flex-wrap gap-2'>
                 <div className='flex flex-col'>
