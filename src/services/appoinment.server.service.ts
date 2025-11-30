@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 
 import { http, ApiError } from '@/services/api.config.server';
 
-import type { AppointmentApiResponse, AppointmentDetailDTO } from '@/types/appoinments.types';
+import type { AppointmentApiResponse, AppointmentDetailDTO, AppointmentStatusDTO } from '@/types/appoinments.types';
 
 
 
@@ -155,5 +155,28 @@ export async function getAppointmentDetails(appointmentId: string): Promise<Appo
     }
     
     return null;
+  }
+}
+
+export async function checkAppointmentStatus(scheduleId: number, patientId: number) {
+ 
+  try {
+   
+    const data = await http.get<AppointmentStatusDTO>(
+      `/api/appointments/check-status?scheduleId=${scheduleId}&patientId=${patientId}`
+    );
+
+    return { success: true, data };
+
+  } catch (err) {
+
+    if (err instanceof ApiError) {
+
+      return { success: false, error: { message: err.message } };
+    }
+    
+    console.error('Unexpected error checking status:', err);
+
+    return { success: false, error: { message: 'Failed to check appointment status.' } };
   }
 }

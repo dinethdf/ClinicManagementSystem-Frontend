@@ -216,8 +216,8 @@ const DoctorAccountDetails = () => {
                     error={!!errors.gender}
                     helperText={errors.gender?.message}
                   >
-                    <MenuItem value='0'>Male</MenuItem>
-                    <MenuItem value='1'>Female</MenuItem>
+                    <MenuItem value='1'>Male</MenuItem>
+                    <MenuItem value='2'>Female</MenuItem>
                   </CustomTextField>
                 )}
               />
@@ -389,9 +389,12 @@ const DoctorAccountDetails = () => {
                     <MenuItem value=''>Select Specialization</MenuItem>
                     {/* You should ideally fetch these from an API */}
                     <MenuItem value='1'>General Physician</MenuItem>
-                    <MenuItem value='2'>Cardiologist</MenuItem>
-                    <MenuItem value='3'>Dermatologist</MenuItem>
-                    <MenuItem value='4'>Pediatrician</MenuItem>
+                    <MenuItem value='2'>Dermatologist</MenuItem>
+                    <MenuItem value='3'>Orthopedic Surgeon</MenuItem>
+                    <MenuItem value='4'>Cardiologist</MenuItem>
+                    <MenuItem value='5'>Pediatrician</MenuItem>
+                    <MenuItem value='7'>Neurologist</MenuItem>
+                    <MenuItem value='10'>Dental Surgeon</MenuItem>
                   </CustomTextField>
                 )}
               />
