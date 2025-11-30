@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type { MouseEvent } from 'react'
 
 // Next Imports
@@ -16,97 +16,116 @@ import Grid from '@mui/material/Grid2'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Typography from '@mui/material/Typography'
+import Skeleton from '@mui/material/Skeleton'
 import { useTheme } from '@mui/material/styles'
 
 // Third Party Imports
 import type { ApexOptions } from 'apexcharts'
 
+// Redux Imports
+import { useDispatch, useSelector } from 'react-redux'
+
+import type { AppDispatch, RootState } from '@/libs/redux-store'
+import { fetchRevenueData, setSelectedYear } from '@/libs/redux-store/slices/adminDashboardSlice'
+
 // Styled Component Imports
-const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
-
-// Vars
-const yearOptions = [new Date().getFullYear() - 1, new Date().getFullYear() - 2, new Date().getFullYear() - 3]
-
-const barSeries = [
-  { name: 'Earning', data: [252, 203, 152, 173, 235, 299, 235, 252, 106] },
-  { name: 'Expense', data: [-128, -157, -190, -163, -89, -51, -89, -136, -190] }
-]
-
-const lineSeries = [
-  { name: 'Last Month', data: [20, 10, 30, 16, 24, 5, 30, 23, 28, 5, 30] },
-  { name: 'This Month', data: [50, 40, 60, 46, 54, 35, 70, 53, 58, 35, 60] }
-]
+const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'), { 
+  ssr: false,
+  loading: () => <Skeleton variant="rectangular" height={320} />
+})
 
 const RevenueReport = () => {
-  // States
+  // -- Redux Hooks --
+  const dispatch = useDispatch<AppDispatch>()
+  
+  // Get data directly from the Store
+  const { revenueData: rawData, selectedYear, revenueStatus } = useSelector((state: RootState) => state.adminDashboard)
+  
+  const loading = revenueStatus === 'loading'
+
+  // -- Local UI State --
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  // -- Hooks --
+  const theme = useTheme()
+
+  // -- Helpers --
+  const generateYearOptions = () => {
+    const currentYear = new Date().getFullYear()
+    
+    return [currentYear, currentYear - 1, currentYear - 2, currentYear - 3]
+  }
+
+  // -- Data Transformation (Memoized) --
+  const { chartData, totalRevenue } = useMemo(() => {
+    const processedData = Array(12).fill(0)
+    let total = 0
+
+    if (rawData && rawData.length > 0) {
+      rawData.forEach(item => {
+        
+        const index = item.monthIndex - 1 
+        
+        if (index >= 0 && index < 12) {
+          processedData[index] = item.totalRevenue
+          total += item.totalRevenue
+        }
+      })
+    }
+
+    return { chartData: processedData, totalRevenue: total }
+  }, [rawData])
+
+
+  useEffect(() => {
+
+    if (!rawData || rawData.length === 0) {
+      dispatch(fetchRevenueData({ year: selectedYear }))
+    }
+
+  }, [dispatch]) 
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
   }
 
-  const handleClose = () => {
+  const handleClose = (year?: number) => {
+   
+    if (year && typeof year === 'number') {
+    
+      dispatch(setSelectedYear(year))
+      
+      dispatch(fetchRevenueData({ year }))
+    }
+    
     setAnchorEl(null)
   }
 
-  // Hooks
-  const theme = useTheme()
-
-  // Vars
+  // -- Chart Config --
   const disabledText = 'var(--mui-palette-text-disabled)'
+
+  const barSeries = [
+    { name: 'Revenue', data: chartData }, 
+  ]
 
   const barOptions: ApexOptions = {
     chart: {
-      stacked: true,
+      stacked: false,
       parentHeightOffset: 0,
-      toolbar: { show: false }
+      toolbar: { show: true }
     },
-    tooltip: { enabled: false },
+    tooltip: { 
+      enabled: true,
+      shared: false, 
+      intersect: false
+    },
     dataLabels: { enabled: false },
-    stroke: {
-      width: 6,
-      colors: ['var(--mui-palette-background-paper)']
-    },
-    colors: ['var(--mui-palette-primary-main)', 'var(--mui-palette-warning-main)'],
-    legend: {
-      offsetY: -4,
-      offsetX: -35,
-      position: 'top',
-      horizontalAlign: 'left',
-      fontSize: '13px',
-      fontFamily: theme.typography.fontFamily,
-      labels: { colors: 'var(--mui-palette-text-secondary)' },
-      itemMargin: {
-        horizontal: 9
-      },
-      markers: {
-        width: 12,
-        height: 12,
-        radius: 10,
-        offsetY: 1,
-        offsetX: theme.direction === 'rtl' ? 7 : -4
-      }
-    },
-    states: {
-      hover: {
-        filter: { type: 'none' }
-      },
-      active: {
-        filter: { type: 'none' }
-      }
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 7,
-        columnWidth: '40%',
-        borderRadiusApplication: 'around',
-        borderRadiusWhenStacked: 'all'
-      }
-    },
+    colors: ['var(--mui-palette-primary-main)'],
+    legend: { show: false },
     grid: {
       borderColor: 'var(--mui-palette-divider)',
       yaxis: {
-        lines: { show: false }
+        lines: { show: true }
       },
       padding: {
         left: -6,
@@ -115,21 +134,20 @@ const RevenueReport = () => {
       }
     },
     xaxis: {
-      axisTicks: { show: false },
-      crosshairs: { opacity: 0 },
-      axisBorder: { show: false },
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       labels: {
         style: {
           colors: disabledText,
           fontFamily: theme.typography.fontFamily,
           fontSize: theme.typography.body2.fontSize as string
         }
-      }
+      },
+      axisTicks: { show: false },
+      axisBorder: { show: false }
     },
     yaxis: {
-      tickAmount: 5,
       labels: {
+        formatter: (value) => `Rs. ${value}`,
         offsetX: -14,
         style: {
           colors: disabledText,
@@ -138,145 +156,89 @@ const RevenueReport = () => {
         }
       }
     },
-    responsive: [
-      {
-        breakpoint: theme.breakpoints.values.xl,
-        options: {
-          plotOptions: {
-            bar: { columnWidth: '48%' }
-          }
-        }
-      },
-      {
-        breakpoint: 1380,
-        options: {
-          plotOptions: {
-            bar: { columnWidth: '55%' }
-          }
-        }
-      },
-      {
-        breakpoint: theme.breakpoints.values.lg,
-        options: {
-          plotOptions: {
-            bar: { borderRadius: 7 }
-          }
-        }
-      },
-      {
-        breakpoint: theme.breakpoints.values.md,
-        options: {
-          plotOptions: {
-            bar: { columnWidth: '50%' }
-          }
-        }
-      },
-      {
-        breakpoint: 680,
-        options: {
-          plotOptions: {
-            bar: { columnWidth: '60%' }
-          }
-        }
-      },
-      {
-        breakpoint: theme.breakpoints.values.sm,
-        options: {
-          plotOptions: {
-            bar: { columnWidth: '55%' }
-          }
-        }
-      },
-      {
-        breakpoint: 450,
-        options: {
-          plotOptions: {
-            bar: { borderRadius: 6, columnWidth: '65%' }
-          }
-        }
+    plotOptions: {
+      bar: {
+        borderRadius: 4,
+        columnWidth: '40%',
       }
-    ]
-  }
-
-  const lineOptions: ApexOptions = {
-    chart: {
-      parentHeightOffset: 0,
-      toolbar: { show: false },
-      zoom: {
-        enabled: false
-      }
-    },
-    stroke: {
-      width: [1, 2],
-      curve: 'smooth',
-      dashArray: [5, 0]
-    },
-    colors: ['var(--mui-palette-divider)', 'var(--mui-palette-primary-main)'],
-    legend: {
-      show: false
-    },
-    grid: {
-      padding: {
-        top: -28,
-        left: -11,
-        right: 0,
-        bottom: -15
-      },
-      yaxis: {
-        lines: { show: false }
-      }
-    },
-    xaxis: {
-      labels: { show: false },
-      axisTicks: { show: false },
-      axisBorder: { show: false }
-    },
-    yaxis: {
-      labels: { show: false }
     }
   }
 
   return (
-    <Card>
+    <Card sx={{ height: '100%' }}>
       <Grid container>
+        {/* Left Side: Chart */}
         <Grid size={{ xs: 12, sm: 8 }} className='border-r'>
-          <CardHeader title='Revenue Report' />
+          <CardHeader title='Revenue Report' subheader={`Analysis for ${selectedYear}`} />
           <CardContent>
-            <AppReactApexCharts type='bar' height={320} width='100%' series={barSeries} options={barOptions} />
+            {loading ? (
+              <Skeleton 
+                variant="rectangular" 
+                height={320} 
+                width="100%" 
+                sx={{ borderRadius: 1 }}
+              />
+            ) : (
+              <AppReactApexCharts 
+                type='bar' 
+                height={320} 
+                width='100%' 
+                series={barSeries} 
+                options={barOptions} 
+              />
+            )}
           </CardContent>
         </Grid>
+
+        {/* Right Side: Controls & Summary */}
         <Grid size={{ xs: 12, sm: 4 }}>
           <CardContent className='flex flex-col items-center justify-center min-bs-full gap-8'>
+            
+            {/* Year Selector */}
             <Button
               size='small'
               variant='tonal'
               onClick={handleClick}
               endIcon={<i className='tabler-chevron-down text-xl' />}
+              disabled={loading}
             >
-              {new Date().getFullYear()}
+              {selectedYear}
             </Button>
             <Menu
               keepMounted
               anchorEl={anchorEl}
-              onClose={handleClose}
+              onClose={() => handleClose()}
               open={Boolean(anchorEl)}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-              {yearOptions.map((year: number) => (
-                <MenuItem key={year} onClick={handleClose}>
+              {generateYearOptions().map((year: number) => (
+                <MenuItem key={year} onClick={() => handleClose(year)} selected={year === selectedYear}>
                   {year}
                 </MenuItem>
               ))}
             </Menu>
+
+            {/* Total Summary */}
             <div className='flex flex-col items-center'>
-              <Typography variant='h3'>$25,825</Typography>
-              <Typography>
-                <span className='font-medium text-textPrimary'>Budget: </span>56,800
-              </Typography>
+              {loading ? (
+                <>
+                  <Skeleton variant="text" width={120} height={60} />
+                  <Skeleton variant="text" width={80} height={20} />
+                </>
+              ) : (
+                <>
+                  <Typography variant='h3'>
+                    Rs. {(totalRevenue/1000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K
+                  </Typography>
+                  <Typography color="text.secondary">
+                    Total Revenue
+                  </Typography>
+                </>
+              )}
             </div>
-            <AppReactApexCharts type='line' height={80} width='100%' series={lineSeries} options={lineOptions} />
-            <Button variant='contained'>Increase Budget</Button>
+            
+            <Button variant='contained'>Download Report</Button>
           </CardContent>
         </Grid>
       </Grid>

@@ -2,8 +2,8 @@
 import Grid from '@mui/material/Grid2'
 
 // Components Imports
-import CongratulationsJohn from '@/views/apps/clinic-app/dashboard/WelcomeSection'
-import StatisticsCard from '@views/apps/clinic-app/dashboard/StatisticsCard'
+import DashboardHeader from '@/views/apps/clinic-app/dashboard/DashboardHeader'
+import StatisticsAdminAnalysisCard from '@/views/apps/clinic-app/dashboard/StatisticsAdminAnalysisCard'
 import LineChartProfit from '@views/apps/clinic-app/dashboard/LineChartProfit'
 import RadialBarChart from '@views/apps/clinic-app/dashboard/RadialBarChart'
 import DonutChartGeneratedLeads from '@views/apps/clinic-app/dashboard/DonutChartGeneratedLeads'
@@ -13,28 +13,12 @@ import PopularProducts from '@views/apps/clinic-app/dashboard/PopularProducts'
 import Orders from '@views/apps/clinic-app/dashboard/Orders'
 import Transactions from '@views/apps/clinic-app/dashboard/Transactions'
 import InvoiceListTable from '@views/apps/clinic-app/dashboard/InvoiceListTable'
+import SpecializationSummaryChart from '@/views/apps/clinic-app/dashboard/SpecializationSummaryChart'
+
+// import SheduleCount from '@/views/apps/clinic-app/dashboard/SheduleCount'
 
 // Data Imports
 import { getInvoiceData } from '@/app/server/actions'
-
-/**
- * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
- * ! `.env` file found at root of your project and also update the API endpoints like `/apps/invoice` in below example.
- * ! Also, remove the above server action import and the action itself from the `src/app/server/actions.ts` file to clean up unused code
- * ! because we've used the server action for getting our static data.
- */
-
-/* const getInvoiceData = async () => {
-  // Vars
-  const res = await fetch(`${process.env.API_URL}/apps/invoice`)
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch invoice data')
-  }
-
-  return res.json()
-}
- */
 
 const DashboardClinics = async () => {
   // Vars
@@ -42,11 +26,17 @@ const DashboardClinics = async () => {
 
   return (
     <Grid container spacing={6}>
-      <Grid size={{ xs: 12, md: 4 }}>
-        <CongratulationsJohn />
+      <Grid size={{ xs: 12 }}>
+        <DashboardHeader />
+      </Grid>
+      <Grid size={{ xs: 12, md: 12 }}>
+        <StatisticsAdminAnalysisCard />
       </Grid>
       <Grid size={{ xs: 12, md: 8 }}>
-        <StatisticsCard />
+        <RevenueReport />
+      </Grid>      
+      <Grid size={{ xs: 12, md: 4 }}>
+        <SpecializationSummaryChart />
       </Grid>
       <Grid size={{ xs: 12, xl: 4 }}>
         <Grid container spacing={6}>
@@ -61,9 +51,7 @@ const DashboardClinics = async () => {
           </Grid>
         </Grid>
       </Grid>
-      <Grid size={{ xs: 12, xl: 8 }}>
-        <RevenueReport />
-      </Grid>
+
       <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
         <EarningReports />
       </Grid>
