@@ -209,6 +209,13 @@ const Login = ({ mode }: { mode: SystemMode }) => {
         await setLoginCookie(result.data.accessToken, result.data.refreshToken)
 
         const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
+     
+        toast.success('Login Successful', {
+        className: 'custom-toast',
+        progressStyle: {
+          backgroundColor: 'var(--mui-palette-primary-main)'
+        }
+      })
 
         router.replace(getLocalizedUrl(redirectURL, locale as Locale))
       } else {
@@ -220,12 +227,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
     } finally {
       setIsLoading(false)
 
-      toast.success('Login Successful', {
-        className: 'custom-toast',
-        progressStyle: {
-          backgroundColor: 'var(--mui-palette-primary-main)'
-        }
-      })
+
     }
   }
 

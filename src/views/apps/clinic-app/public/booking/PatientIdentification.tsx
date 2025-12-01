@@ -172,6 +172,7 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
           if (step === 'CONFIRM_EXISTING') {
 
             payload.existingPatientId = existingPatient.id
+            payload.mobileNo = existingPatient.mobileNo 
          
         } else {
           
