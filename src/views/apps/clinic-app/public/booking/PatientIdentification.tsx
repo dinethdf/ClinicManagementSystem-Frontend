@@ -51,16 +51,14 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
   // Data State
   const [existingPatient, setExistingPatient] = useState<any>(null)
   
-  // New Patient Form Data
+
   const [regForm, setRegForm] = useState({
       firstName: '', lastName: '', dob: '', gender: 1, mobileNo: '', nic: ''
   })
   
   const [note, setNote] = useState('')
 
-  // --- Handlers ---
 
-  // 1. Search Logic -> Triggers OTP Flow
   const handleSearchPatient = async () => {
     if (!identifier) return
     setLoading(true); setErrorMsg('')
@@ -68,13 +66,15 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
     try {
         const res = await checkPatientAvailability(identifier)
         
+        console.log(isOtpSent);
+
         if (res.data) {
-            // SCENARIO A: Patient Found
+
             setExistingPatient(res.data)
             setMobileToVerify(res.data.mobileNo)
             await handleSendOtp(res.data.mobileNo)
         } else {
-            // SCENARIO B: New Patient
+          
             const isNic = identifier.toLowerCase().includes('v') || identifier.length > 9;
             const mobileInput = !isNic ? identifier : '' 
             
@@ -98,63 +98,92 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
     }
   }
 
-  // 2. Send OTP
   const handleSendOtp = async (mobile: string) => {
-      setLoading(true); setErrorMsg('')
+    
+    setLoading(true); setErrorMsg('')
+      
       try {
-          const res = await sendOtp(mobile) 
-          if(res.success) {
-              setIsOtpSent(true)
+
+        const res = await sendOtp(mobile) 
+
+        if(res.success) {
+
+            setIsOtpSent(true)
               setStep('VERIFY_OTP')
           } else {
-              setErrorMsg(res.message || "Failed to send OTP")
+
+            setErrorMsg(res.message || "Failed to send OTP")
           }
       } catch (err) { setErrorMsg("System error sending OTP") }
+
       setLoading(false)
   }
 
-  // 3. Verify OTP
   const handleVerifyOtp = async () => {
-      if(!otp) return
+      
+    if(!otp) return
       setLoading(true); setErrorMsg('')
+     
       try {
           const res = await verifyOtp(mobileToVerify, otp) 
           
           if(res.success && res.data === true) {
-              setIsVerified(true)
-              if(existingPatient) {
-                  setStep('CONFIRM_EXISTING')
+            
+            setIsVerified(true)
+             
+            if(existingPatient) {
+               
+                setStep('CONFIRM_EXISTING')
               } else {
-                  setRegForm(prev => ({ ...prev, mobileNo: mobileToVerify }))
+              
+                setRegForm(prev => ({ ...prev, mobileNo: mobileToVerify }))
                   setStep('REGISTER_NEW')
               }
-          } else {
-              setErrorMsg("Invalid OTP. Please try again.")
+         
+            } else {
+            
+            setErrorMsg("Invalid OTP. Please try again.")
           }
+
       } catch (err) { setErrorMsg("Verification failed") }
+      
       setLoading(false)
   }
 
-  // 4. Booking Submission
   const handleBookAppointment = async () => {
-      if(!isVerified) { setErrorMsg("Mobile number not verified!"); return; }
+     
+    if(!isVerified) { 
+        
+       setErrorMsg("Mobile number not verified!"); 
+       
+       return; 
+    }
 
       setLoading(true); setErrorMsg('')
 
       try {
-          const payload: PublicBookingRequest = {
+         
+        const payload: PublicBookingRequest = {
               scheduleId: selectedSchedule.id,
               existingPatientId: null,
               note: note
           }
 
           if (step === 'CONFIRM_EXISTING') {
-              payload.existingPatientId = existingPatient.id
-          } else {
-              if(!regForm.firstName || !regForm.lastName || !regForm.dob || !regForm.nic) {
-                  setErrorMsg("Please fill in all required fields.")
-                  setLoading(false); return;
+
+            payload.existingPatientId = existingPatient.id
+         
+        } else {
+          
+            if(!regForm.firstName || !regForm.lastName || !regForm.dob || !regForm.nic) {
+                 
+                setErrorMsg("Please fill in all required fields.")
+                  
+                setLoading(false); 
+                
+                return;
               }
+             
               payload.existingPatientId = null
               payload.firstName = regForm.firstName
               payload.lastName = regForm.lastName
@@ -165,6 +194,7 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
           }
 
           const response = await bookPublicAppointment(payload)
+        
           onSubmitBooking(response.data)
 
       } catch (err: any) {
@@ -176,8 +206,10 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
   }
 
   const handleVerifyNewMobile = async () => {
-      if(!regForm.mobileNo) return
-      setMobileToVerify(regForm.mobileNo)
+     
+    if(!regForm.mobileNo) return
+    
+    setMobileToVerify(regForm.mobileNo)
       await handleSendOtp(regForm.mobileNo)
   }
 
