@@ -124,6 +124,7 @@ export type ScheduleAppointmentResponse = {
 
 export type AppointmentStatusDTO = {
   id: number
+  appointmentId: number
   fullName: string
   patientNo: string
   nic: string
