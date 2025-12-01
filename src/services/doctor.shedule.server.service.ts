@@ -205,3 +205,41 @@ export async function getScheduleList(
     return null
   }
 }
+
+export const sendOtp = async (mobileNo: string) => {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/otp/send?mobileNo=${mobileNo}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await res.json();
+        
+        if (!res.ok) {
+            throw new Error(data.message || 'Failed to send OTP');
+        }
+
+        return data; 
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const verifyOtp = async (mobileNo: string, otp: string) => {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/otp/verify?mobileNo=${mobileNo}&otp=${otp}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await res.json();
+        
+        if (!res.ok) {
+            throw new Error(data.message || 'OTP Verification failed');
+        }
+
+        return data; 
+    } catch (error) {
+        throw error;
+    }
+}

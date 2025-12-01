@@ -305,9 +305,9 @@ const AccountDetails = () => {
                     {...(errors.gender && { error: true, helperText: errors.gender.message })}
                   >
                     <MenuItem value=''>Select Gender</MenuItem>
-                    <MenuItem value='0'>Male</MenuItem>
-                    <MenuItem value='1'>Female</MenuItem>
-                    <MenuItem value='2'>Other</MenuItem>
+                    <MenuItem value='1'>Male</MenuItem>
+                    <MenuItem value='2'>Female</MenuItem>
+                    <MenuItem value='3'>Other</MenuItem>
                   </CustomTextField>
                 )}
               />

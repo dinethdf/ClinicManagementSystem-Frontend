@@ -197,7 +197,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
         <Grid size={{ xs: 12, md: 8, lg: 9 }}>
 
              <PrescriptionManager 
-                appointmentId={Number(58)} 
+                appointmentId={Number(appointmentInfo?.id)} 
                 onConsultationComplete={handleReset} 
              />
         </Grid>
