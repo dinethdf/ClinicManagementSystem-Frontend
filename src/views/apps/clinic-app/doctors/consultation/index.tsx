@@ -57,6 +57,8 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
        
       if (res.success && res.data) {
             setAppointmentInfo(res.data)
+
+            console.log(res.data)
         } else {
             setError(res.error?.message || "Patient has no appointment in this schedule.")
       
@@ -197,7 +199,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
         <Grid size={{ xs: 12, md: 8, lg: 9 }}>
 
              <PrescriptionManager 
-                appointmentId={Number(appointmentInfo?.id)} 
+                appointmentId={Number(appointmentInfo?.appointmentId)} 
                 onConsultationComplete={handleReset} 
              />
         </Grid>
