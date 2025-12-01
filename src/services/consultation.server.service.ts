@@ -3,7 +3,6 @@
 import { http, ApiError } from '@/services/api.config.server'
 import type { PatientDetailDTO, CreatePrescriptionDTO } from '@/types/consultation.types'
 
-// 1. Get Patient Details
 export async function getConsultationPatientDetails(patientId: number) {
   try {
    
@@ -11,13 +10,11 @@ export async function getConsultationPatientDetails(patientId: number) {
       `/api/patient/details/staff/${patientId}`
     )
     
-    // Check if we actually got an object back
     if (!patientData) {
      
       return { success: false, data: null }
     }
 
-    // Return it directly
    
     return { success: true, data: patientData }
 
