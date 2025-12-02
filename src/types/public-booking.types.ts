@@ -51,4 +51,5 @@ export interface PublicBookingRequest {
     dob?: string;   // YYYY-MM-DD
     gender?: number; // 1 = Male, 2 = Female (Adjust based on your Enum)
     mobileNo?: string;
+    email?: string;
 }
