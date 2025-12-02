@@ -169,6 +169,7 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
               payload.mobileNo = existingPatient.mobileNo
               payload.email = existingPatient.email 
           } else {
+            console.log(regForm)
               if(!regForm.firstName || !regForm.lastName || !regForm.dob || !regForm.nic) {
                   setErrorMsg("Please fill in all required fields.")
                   setLoading(false); return;
@@ -180,7 +181,7 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
               payload.mobileNo = regForm.mobileNo 
               payload.dob = regForm.dob
               payload.gender = regForm.gender
-              payload.email = existingPatient.email
+              payload.email = regForm.email
           }
 
           const response = await bookPublicAppointment(payload)

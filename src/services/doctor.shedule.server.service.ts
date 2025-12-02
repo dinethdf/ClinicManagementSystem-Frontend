@@ -206,30 +206,40 @@ export async function getScheduleList(
   }
 }
 
-export const sendOtp = async (mobileNo: string) => {
+export const sendOtp = async (mobileNo: string, email: string) => {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/otp/send?mobileNo=${mobileNo}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/otp/send`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                mobileNo,
+                email
+            })
         });
-
         const data = await res.json();
-        
         if (!res.ok) {
             throw new Error(data.message || 'Failed to send OTP');
         }
-
-        return data; 
+        return data;
     } catch (error) {
         throw error;
     }
-}
+};
+
 
 export const verifyOtp = async (mobileNo: string, otp: string) => {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/otp/verify?mobileNo=${mobileNo}&otp=${otp}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/otp/verify`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                mobileNo,
+                otp
+            })
         });
 
         const data = await res.json();
@@ -242,4 +252,4 @@ export const verifyOtp = async (mobileNo: string, otp: string) => {
     } catch (error) {
         throw error;
     }
-}
+};
