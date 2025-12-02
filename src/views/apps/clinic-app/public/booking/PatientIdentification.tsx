@@ -4,7 +4,6 @@ import { useState } from 'react'
 
 import dayjs from 'dayjs'
 
-import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
 
 // MUI Imports
 import Grid from '@mui/material/Grid2'
@@ -19,6 +18,8 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Chip from '@mui/material/Chip'
 import MenuItem from '@mui/material/MenuItem'
 
+import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
+
 // Service & Type Imports
 import { 
     checkPatientAvailability, 
@@ -27,7 +28,6 @@ import {
     verifyOtp 
 } from '@/services/doctor.shedule.server.service'
 import type { PublicScheduleDTO, PublicBookingRequest } from '@/types/public-booking.types'
-import data from './../../../../../data/searchData';
 
 interface Props {
   selectedSchedule: PublicScheduleDTO;
@@ -52,19 +52,16 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
   const [isOtpSent, setIsOtpSent] = useState(false)
   const [isVerified, setIsVerified] = useState(false) 
 
-  // Data State
   const [existingPatient, setExistingPatient] = useState<any>(null)
   
-  // New Patient Form Data
+
   const [regForm, setRegForm] = useState({
       firstName: '', lastName: '', dob: '', gender: 1, mobileNo: '', nic: '', email: ''
   })
   
   const [note, setNote] = useState('')
 
-  // --- Handlers ---
 
-  // 1. Search Logic
   const handleSearchPatient = async () => {
     if (!identifier) return
     setLoading(true); setErrorMsg(''); setSuccessMsg('');
@@ -73,13 +70,13 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
         const res = await checkPatientAvailability(identifier)
         
         if (res.data) {
-            // SCENARIO A: Patient Found
+
             setExistingPatient(res.data)
             setMobileToVerify(res.data.mobileNo)
-            // Send OTP using the EXISTING patient's email and mobile
+
             await handleSendOtp(res.data.mobileNo, res.data.email)
         } else {
-            // SCENARIO B: New Patient
+
             const isNic = identifier.toLowerCase().includes('v') || identifier.length > 9;
             const mobileInput = !isNic ? identifier : '' 
             
@@ -87,12 +84,11 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
                 ...prev,
                 nic: isNic ? identifier : '',
                 mobileNo: mobileInput,
-                email: '' // Reset email for new registration
+                email: ''
             }))
 
             if(mobileInput) {
-                // If searched by mobile, verify it immediately. 
-                // Note: We don't have an email yet for a new user in this specific auto-step.
+               
                 setMobileToVerify(mobileInput)
                 await handleSendOtp(mobileInput, '') 
             } else {
@@ -109,26 +105,37 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
   // 2. Send OTP (Accepts Mobile & Email)
   const handleSendOtp = async (mobile: string, email: string = '') => {
       setLoading(true); setErrorMsg(''); setSuccessMsg('');
+      
       try {
-          // Send both mobile and email to backend
+         
           const res = await sendOtp(mobile, email) 
+          
           if(res.success) {
-              setIsOtpSent(true)
+             
+            setIsOtpSent(true)
               setStep('VERIFY_OTP')
               setSuccessMsg(res.message || "OTP sent successfully.")
           } else {
-              setErrorMsg(res.message || "Failed to send OTP")
+             
+            setErrorMsg(res.message || "Failed to send OTP")
           }
       } catch (err: any) { 
-          setErrorMsg(err.message || "System error sending OTP") 
+        
+        setErrorMsg(err.message || "System error sending OTP") 
       }
+     
       setLoading(false)
   }
 
-  // 3. Verify OTP
+
   const handleVerifyOtp = async () => {
+
       if(!otp) return
+
       setLoading(true); setErrorMsg(''); setSuccessMsg('');
+      
+      console.log(isOtpSent);
+
       try {
           const res = await verifyOtp(mobileToVerify, otp) 
           
@@ -148,12 +155,16 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
       } catch (err: any) { 
           setErrorMsg(err.message || "Verification failed") 
       }
+      
       setLoading(false)
   }
 
-  // 4. Booking Submission
   const handleBookAppointment = async () => {
-      if(!isVerified) { setErrorMsg("Mobile number not verified!"); return; }
+     
+    if(!isVerified) { 
+        setErrorMsg("Mobile number not verified!"); 
+        
+        return; }
 
       setLoading(true); setErrorMsg(''); setSuccessMsg('');
 
@@ -170,10 +181,15 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
               payload.email = existingPatient.email 
           } else {
             console.log(regForm)
-              if(!regForm.firstName || !regForm.lastName || !regForm.dob || !regForm.nic) {
-                  setErrorMsg("Please fill in all required fields.")
-                  setLoading(false); return;
+            
+            if(!regForm.firstName || !regForm.lastName || !regForm.dob || !regForm.nic) {
+                
+                setErrorMsg("Please fill in all required fields.")
+                setLoading(false); 
+                  
+                  return;
               }
+            
               payload.existingPatientId = null
               payload.firstName = regForm.firstName
               payload.lastName = regForm.lastName
@@ -194,23 +210,28 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
           }
 
       } catch (err: any) {
-          console.error(err)
-          setErrorMsg(err.message || "Booking failed. Please try again.")
+        
+        console.error(err)
+        
+        setErrorMsg(err.message || "Booking failed. Please try again.")
       } finally {
-          setLoading(false)
+        
+        setLoading(false)
       }
   }
 
-  // New Patient flow triggers OTP (Sends Email + Mobile from Form)
   const handleVerifyNewMobile = async () => {
+
       if(!regForm.mobileNo) return
+
       setMobileToVerify(regForm.mobileNo)
-      // Send both the entered mobile AND entered email
+    
       await handleSendOtp(regForm.mobileNo, regForm.email)
   }
 
   const handleReset = () => {
-      setStep('SEARCH')
+     
+    setStep('SEARCH')
       setExistingPatient(null)
       setNote('')
       setErrorMsg('')
@@ -219,7 +240,7 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
       setOtp('')
       setIsOtpSent(false)
       setIdentifier('')
-      // regForm is reset when navigating back or you can reset it here explicitly
+
   }
 
   return (

@@ -218,10 +218,14 @@ export const sendOtp = async (mobileNo: string, email: string) => {
                 email
             })
         });
+        
         const data = await res.json();
+      
         if (!res.ok) {
-            throw new Error(data.message || 'Failed to send OTP');
+         
+          throw new Error(data.message || 'Failed to send OTP');
         }
+      
         return data;
     } catch (error) {
         throw error;
@@ -231,7 +235,8 @@ export const sendOtp = async (mobileNo: string, email: string) => {
 
 export const verifyOtp = async (mobileNo: string, otp: string) => {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/otp/verify`, {
+       
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/otp/verify`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json'
@@ -245,7 +250,8 @@ export const verifyOtp = async (mobileNo: string, otp: string) => {
         const data = await res.json();
         
         if (!res.ok) {
-            throw new Error(data.message || 'OTP Verification failed');
+           
+          throw new Error(data.message || 'OTP Verification failed');
         }
 
         return data; 
