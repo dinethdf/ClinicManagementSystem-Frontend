@@ -2,6 +2,10 @@
 
 import { useState } from 'react'
 
+import dayjs from 'dayjs'
+
+import CustomDatePicker from '@/@core/components/mui/DatePickerTextField'
+
 // MUI Imports
 import Grid from '@mui/material/Grid2'
 import Card from '@mui/material/Card'
@@ -23,6 +27,7 @@ import {
     verifyOtp 
 } from '@/services/doctor.shedule.server.service'
 import type { PublicScheduleDTO, PublicBookingRequest } from '@/types/public-booking.types'
+import data from './../../../../../data/searchData';
 
 interface Props {
   selectedSchedule: PublicScheduleDTO;
@@ -32,12 +37,11 @@ interface Props {
 
 const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Props) => {
 
-  // Removed unused queueNumber
-
   // --- State ---
-  const [identifier, setIdentifier] = useState('') 
+  const [identifier, setIdentifier] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [successMsg, setSuccessMsg] = useState('') 
 
   // Flow State
   const [step, setStep] = useState<'SEARCH' | 'VERIFY_OTP' | 'CONFIRM_EXISTING' | 'REGISTER_NEW'>('SEARCH')
@@ -51,42 +55,46 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
   // Data State
   const [existingPatient, setExistingPatient] = useState<any>(null)
   
-
+  // New Patient Form Data
   const [regForm, setRegForm] = useState({
-      firstName: '', lastName: '', dob: '', gender: 1, mobileNo: '', nic: ''
+      firstName: '', lastName: '', dob: '', gender: 1, mobileNo: '', nic: '', email: ''
   })
   
   const [note, setNote] = useState('')
 
+  // --- Handlers ---
 
+  // 1. Search Logic
   const handleSearchPatient = async () => {
     if (!identifier) return
-    setLoading(true); setErrorMsg('')
+    setLoading(true); setErrorMsg(''); setSuccessMsg('');
 
     try {
         const res = await checkPatientAvailability(identifier)
         
-        console.log(isOtpSent);
-
         if (res.data) {
-
+            // SCENARIO A: Patient Found
             setExistingPatient(res.data)
             setMobileToVerify(res.data.mobileNo)
-            await handleSendOtp(res.data.mobileNo)
+            // Send OTP using the EXISTING patient's email and mobile
+            await handleSendOtp(res.data.mobileNo, res.data.email)
         } else {
-          
+            // SCENARIO B: New Patient
             const isNic = identifier.toLowerCase().includes('v') || identifier.length > 9;
             const mobileInput = !isNic ? identifier : '' 
             
             setRegForm(prev => ({
                 ...prev,
                 nic: isNic ? identifier : '',
-                mobileNo: mobileInput
+                mobileNo: mobileInput,
+                email: '' // Reset email for new registration
             }))
 
             if(mobileInput) {
+                // If searched by mobile, verify it immediately. 
+                // Note: We don't have an email yet for a new user in this specific auto-step.
                 setMobileToVerify(mobileInput)
-                await handleSendOtp(mobileInput)
+                await handleSendOtp(mobileInput, '') 
             } else {
                 setStep('REGISTER_NEW') 
             }
@@ -98,93 +106,73 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
     }
   }
 
-  const handleSendOtp = async (mobile: string) => {
-    
-    setLoading(true); setErrorMsg('')
-      
+  // 2. Send OTP (Accepts Mobile & Email)
+  const handleSendOtp = async (mobile: string, email: string = '') => {
+      setLoading(true); setErrorMsg(''); setSuccessMsg('');
       try {
-
-        const res = await sendOtp(mobile) 
-
-        if(res.success) {
-
-            setIsOtpSent(true)
+          // Send both mobile and email to backend
+          const res = await sendOtp(mobile, email) 
+          if(res.success) {
+              setIsOtpSent(true)
               setStep('VERIFY_OTP')
+              setSuccessMsg(res.message || "OTP sent successfully.")
           } else {
-
-            setErrorMsg(res.message || "Failed to send OTP")
+              setErrorMsg(res.message || "Failed to send OTP")
           }
-      } catch (err) { setErrorMsg("System error sending OTP") }
-
+      } catch (err: any) { 
+          setErrorMsg(err.message || "System error sending OTP") 
+      }
       setLoading(false)
   }
 
+  // 3. Verify OTP
   const handleVerifyOtp = async () => {
-      
-    if(!otp) return
-      setLoading(true); setErrorMsg('')
-     
+      if(!otp) return
+      setLoading(true); setErrorMsg(''); setSuccessMsg('');
       try {
           const res = await verifyOtp(mobileToVerify, otp) 
           
           if(res.success && res.data === true) {
-            
-            setIsVerified(true)
-             
-            if(existingPatient) {
-               
-                setStep('CONFIRM_EXISTING')
+              setIsVerified(true)
+              setSuccessMsg(res.message || "Mobile verified successfully.")
+
+              if(existingPatient) {
+                  setStep('CONFIRM_EXISTING')
               } else {
-              
-                setRegForm(prev => ({ ...prev, mobileNo: mobileToVerify }))
+                  setRegForm(prev => ({ ...prev, mobileNo: mobileToVerify }))
                   setStep('REGISTER_NEW')
               }
-         
-            } else {
-            
-            setErrorMsg("Invalid OTP. Please try again.")
+          } else {
+              setErrorMsg(res.message || "Invalid OTP. Please try again.")
           }
-
-      } catch (err) { setErrorMsg("Verification failed") }
-      
+      } catch (err: any) { 
+          setErrorMsg(err.message || "Verification failed") 
+      }
       setLoading(false)
   }
 
+  // 4. Booking Submission
   const handleBookAppointment = async () => {
-     
-    if(!isVerified) { 
-        
-       setErrorMsg("Mobile number not verified!"); 
-       
-       return; 
-    }
+      if(!isVerified) { setErrorMsg("Mobile number not verified!"); return; }
 
-      setLoading(true); setErrorMsg('')
+      setLoading(true); setErrorMsg(''); setSuccessMsg('');
 
       try {
-         
-        const payload: PublicBookingRequest = {
+          const payload: PublicBookingRequest = {
               scheduleId: selectedSchedule.id,
               existingPatientId: null,
               note: note
           }
 
           if (step === 'CONFIRM_EXISTING') {
-
-            payload.existingPatientId = existingPatient.id
-            payload.mobileNo = existingPatient.mobileNo 
-         
-        } else {
-          
-            if(!regForm.firstName || !regForm.lastName || !regForm.dob || !regForm.nic) {
-                 
-                setErrorMsg("Please fill in all required fields.")
-                  
-                setLoading(false); 
-                
-                return;
+              payload.existingPatientId = existingPatient.id
+              payload.mobileNo = existingPatient.mobileNo
+              payload.email = existingPatient.email 
+          } else {
+              if(!regForm.firstName || !regForm.lastName || !regForm.dob || !regForm.nic) {
+                  setErrorMsg("Please fill in all required fields.")
+                  setLoading(false); return;
               }
-             
               payload.existingPatientId = null
               payload.firstName = regForm.firstName
               payload.lastName = regForm.lastName
@@ -192,11 +180,17 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
               payload.mobileNo = regForm.mobileNo 
               payload.dob = regForm.dob
               payload.gender = regForm.gender
+              payload.email = existingPatient.email
           }
 
           const response = await bookPublicAppointment(payload)
-        
-          onSubmitBooking(response.data)
+          
+          if (response.success) {
+             setSuccessMsg(response.message || "Booking Successful!")
+             onSubmitBooking(response.data)
+          } else {
+             setErrorMsg(response.message || "Booking failed.")
+          }
 
       } catch (err: any) {
           console.error(err)
@@ -206,12 +200,12 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
       }
   }
 
+  // New Patient flow triggers OTP (Sends Email + Mobile from Form)
   const handleVerifyNewMobile = async () => {
-     
-    if(!regForm.mobileNo) return
-    
-    setMobileToVerify(regForm.mobileNo)
-      await handleSendOtp(regForm.mobileNo)
+      if(!regForm.mobileNo) return
+      setMobileToVerify(regForm.mobileNo)
+      // Send both the entered mobile AND entered email
+      await handleSendOtp(regForm.mobileNo, regForm.email)
   }
 
   const handleReset = () => {
@@ -219,9 +213,12 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
       setExistingPatient(null)
       setNote('')
       setErrorMsg('')
+      setSuccessMsg('')
       setIsVerified(false)
       setOtp('')
       setIsOtpSent(false)
+      setIdentifier('')
+      // regForm is reset when navigating back or you can reset it here explicitly
   }
 
   return (
@@ -261,6 +258,7 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
                 </div>
 
                 {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+                {successMsg && <Alert severity="success" icon={<i className='tabler-check' />}>{successMsg}</Alert>}
 
                 {/* --- VIEW 1: SEARCH --- */}
                 {step === 'SEARCH' && (
@@ -272,6 +270,8 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
                             onChange={(e) => setIdentifier(e.target.value)}
                             placeholder="e.g., 200012345678 or 0771234567"
                         />
+                        {/* Email Input Removed from here as requested */}
+                        
                         <div className='flex gap-3 justify-end'>
                             <Button onClick={onBack} color="inherit">Back</Button>
                             <Button variant="contained" size="large" onClick={handleSearchPatient} disabled={!identifier || loading}>
@@ -284,11 +284,9 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
                 {/* --- VIEW 2: VERIFY OTP --- */}
                 {step === 'VERIFY_OTP' && (
                     <div className="flex flex-col gap-5 animate-in fade-in">
-                        {/* UPDATE: Success Alert for OTP Sent */}
-                        <Alert severity="success" icon={<i className='tabler-mail-check' />}>
-                            OTP sent successfully to <strong>{mobileToVerify}</strong>.
+                        <Alert severity="info">
+                            We sent a verification code to <strong>{mobileToVerify}</strong>.
                         </Alert>
-                        
                         <TextField 
                             label="Enter OTP Code" 
                             fullWidth 
@@ -348,7 +346,36 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
                             <Grid size={{ xs: 12, md: 6 }}>
                                 <TextField label="NIC" fullWidth required value={regForm.nic} onChange={(e) => setRegForm({...regForm, nic: e.target.value})} />
                             </Grid>
-                            
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <CustomDatePicker
+                                    label='Date Of Birth'
+                                    value={regForm.dob ? dayjs(regForm.dob) : null}
+                                    onChange={(newValue) => {
+                                        setRegForm({
+                                            ...regForm,
+                                            dob: newValue ? newValue.format('YYYY-MM-DD') : ''
+                                        })
+                                    }}
+                                    openTo='year'
+                                    views={['year', 'month', 'day']}
+                                    yearsOrder='desc'
+                                    maxDate={dayjs()}
+                                    format='YYYY-MM-DD'
+                                    slotProps={{
+                                        textField: {
+                                            fullWidth: true,
+                                            required: true
+                                        }
+                                    }}
+                                />
+                            </Grid>
+
+                            {/* Email Field - Shown only in Registration */}
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <TextField label="Email" fullWidth value={regForm.email} onChange={(e) => setRegForm({...regForm, email: e.target.value})} />
+                            </Grid>
+
                             <Grid size={{ xs: 12, md: 6 }}>
                                 <div className='flex gap-2 items-center'>
                                     <TextField 
@@ -366,9 +393,6 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
                                 </div>
                             </Grid>
 
-                            <Grid size={{ xs: 12, md: 6 }}>
-                                <TextField label="Date of Birth" type="date" fullWidth required InputLabelProps={{ shrink: true }} value={regForm.dob} onChange={(e) => setRegForm({...regForm, dob: e.target.value})} />
-                            </Grid>
                             
                              <Grid size={{ xs: 12, md: 6 }}>
                                 <TextField select label="Gender" fullWidth required
