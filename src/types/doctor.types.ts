@@ -129,5 +129,13 @@ export interface PaginatedDoctorResponse {
   totalElements: number
   totalPages: number
   size: number
-  number: number // Current page index (0-based)
+  number: number
+}
+
+export interface ScheduleFilterParams {
+  page: number
+  size: number
+  doctorName?: string
+  specialization?: string
+  date?: string // ISO Date string YYYY-MM-DD
 }
