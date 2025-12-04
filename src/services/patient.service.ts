@@ -62,24 +62,39 @@ async createPatientDetails(patientData: Patient): Promise<any> {
 }
 
 
-async getPatientBySearch(patientNo: string, nicNo: string, patientName: string, mobileNo: string): Promise<PatientResponceDTO[]> {
-  try {
-    const response = await apiClient.get<PatientResponceDTO[]>('/api/patient/search-patient', {
-      params: {
-        patientNo: patientNo,
-        nic: nicNo,
-        fullName: patientName,
-        mobileNo: mobileNo 
+async getPatientBySearch(
+    patientNo?: string, 
+    nicNo?: string, 
+    patientName?: string, 
+    mobileNo?: string
+  ): Promise<PatientResponceDTO[]> {
+    try {
+     
+      const params: any = {};
+     
+      if (patientNo) params.patientNo = patientNo;
+      if (nicNo) params.nic = nicNo;
+      if (patientName) params.fullName = patientName;
+      if (mobileNo) params.mobileNo = mobileNo;
+
+      const response = await apiClient.get<PatientResponceDTO[]>('/api/patient/search-patient', {
+        params: params
+      });
+      
+      return response.data;
+   
+    } catch (error: any) {
+
+      if (error.response && error.response.status === 404) {
+         return []; 
       }
-    });
-    
-    return response.data;
- 
-  } catch (error: any) {
- 
-    throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch guardian data');
+
+      // const errorMessage = error.response?.data?.message || error.response?.data?.defaultMessage || 'System Error: Failed to fetch patient data.';
+      // throw new Error(errorMessage);
+      
+      return []; 
+    }
   }
-}
 
 async getPatientById(id: string): Promise<Patient | null> {
     console.log('run get pat')
