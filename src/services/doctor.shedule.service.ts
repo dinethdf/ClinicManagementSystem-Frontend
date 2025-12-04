@@ -1,4 +1,4 @@
-import type { DoctorScheduleDTO, UpdateScheduleDTO } from '@/types/doctor.types';
+import type { DoctorScheduleDTO, ScheduleFilterParams, UpdateScheduleDTO } from '@/types/doctor.types';
 import { apiClient } from './api.config'
 
 interface ApiResponse<T> {
@@ -6,6 +6,15 @@ interface ApiResponse<T> {
   message: string
   data: T
 }
+
+interface PageableResponse<T> {
+  content: T[]
+  totalPages: number
+  totalElements: number
+  size: number
+  number: number
+}
+
 
 class DoctorSheduleService {
 
@@ -49,6 +58,30 @@ async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorSchedule
       throw new Error(error.response?.data?.defaultMessage || 'Failed to update schedule');
     }
   }
+
+// NEW: Get Upcoming Schedules with Filters (Public/Clinic usage)
+  async getUpcomingSchedules(params: ScheduleFilterParams): Promise<PageableResponse<DoctorScheduleDTO>> {
+    try {
+      // Construct query string
+      const queryParams = new URLSearchParams()
+      
+      queryParams.append('page', params.page.toString())
+      queryParams.append('size', params.size.toString())
+      queryParams.append('sort', 'scheduleDate,asc') // Optional: enforce sort
+
+      if (params.doctorName) queryParams.append('doctorName', params.doctorName)
+      if (params.specialization) queryParams.append('specialization', params.specialization)
+      if (params.date) queryParams.append('date', params.date)
+
+      const response = await apiClient.get<ApiResponse<PageableResponse<DoctorScheduleDTO>>>(
+        `/api/schedules/upcoming-public?${queryParams.toString()}`
+      )
+      
+      return response.data.data
+    } catch (error: any) {
+      throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch schedules')
+    }
+  }  
 }
 
 export const doctorSheduleService = new DoctorSheduleService()
