@@ -6,19 +6,19 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/',
-        destination: '/en/dashboards/crm',
+        destination: '/en/clinic',
         permanent: true,
         locale: false
       },
       {
-        source: '/:lang(en|fr|ar)',
-        destination: '/:lang/dashboards/crm',
+        source: '/:lang(en|si|other)',
+        destination: '/:lang/clinic',
         permanent: true,
         locale: false
       },
       {
-        source: '/((?!(?:en|fr|ar|front-pages|favicon.ico)\\b)):path',
-        destination: '/en/:path',
+        source: '/:path((?!en|si|other|front-pages|images|api|favicon.ico).*)*',
+        destination: '/en/:path*',
         permanent: true,
         locale: false
       }
