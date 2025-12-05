@@ -1,4 +1,4 @@
-import DoctorListTable from '@/views/apps/clinic-app/doctors/list/DoctorsListTable'
+import DoctorListTable from '@/views/clinic-app/doctors/list/DoctorsListTable'
 
 // Data Imports
 // import { getEcommerceData } from '@/app/server/actions'

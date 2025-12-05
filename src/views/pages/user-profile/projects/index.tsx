@@ -1,5 +1,5 @@
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Chip from '@mui/material/Chip'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -110,7 +110,7 @@ const Projects = ({ data }: { data?: ProjectsTabType[] }) => {
                     />
                   </div>
                   <div className='flex items-center justify-between'>
-                    <div className='flex items-center flex-grow gap-3'>
+                    <div className='flex items-center grow gap-3'>
                       <AvatarGroup className='items-center pull-up'>
                         {item.avatarGroup.map((person, index) => {
                           return (
@@ -120,7 +120,7 @@ const Projects = ({ data }: { data?: ProjectsTabType[] }) => {
                           )
                         })}
                       </AvatarGroup>
-                      <Typography variant='body2' className='flex-grow'>
+                      <Typography variant='body2' className='grow'>
                         {item.members}
                       </Typography>
                     </div>

@@ -5,7 +5,7 @@ import { useState } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
@@ -65,20 +65,7 @@ const FormValidationOnScheme = () => {
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  const onSubmit = () =>
-    toast('Blank Toast', {
-      hideProgressBar: false,
-      style: {
-        padding: '16px',
-        color: 'var(--mui-palette-primary-main)',
-        border: '1px solid var(--mui-palette-primary-main)',
-        backgroundColor: 'var(--mui-palette-background-paper)'
-      },
-      className: 'custom-toast',
-      progressStyle: {
-        backgroundColor: 'var(--mui-palette-primary-main)'
-      }
-    })
+  const onSubmit = () => toast.success('Form Submitted')
 
   return (
     <Card>

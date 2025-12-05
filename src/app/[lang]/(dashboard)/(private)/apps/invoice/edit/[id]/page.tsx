@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 // Type Imports
 import type { InvoiceType } from '@/types/apps/invoiceTypes'

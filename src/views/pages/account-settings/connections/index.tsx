@@ -1,3 +1,5 @@
+'use client'
+
 // Next Imports
 import Link from 'next/link'
 
@@ -5,7 +7,7 @@ import Link from 'next/link'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Switch from '@mui/material/Switch'
 
@@ -70,16 +72,16 @@ const socialAccountsArr: SocialAccountsType[] = [
   {
     title: 'Twitter',
     isConnected: true,
-    username: '@Pixinvent',
+    username: '@ D D',
     logo: '/images/logos/twitter.png',
-    href: 'https://twitter.com/pixinvents'
+    href: 'https://twitter.com/ D Ds'
   },
   {
     title: 'Linkedin',
     isConnected: true,
-    username: '@Pixinvent',
+    username: '@ D D',
     logo: '/images/logos/linkedin.png',
-    href: 'https://in.linkedin.com/company/pixinvent'
+    href: 'https://in.linkedin.com/company/ D D'
   },
   {
     title: 'Dribbble',
@@ -105,9 +107,9 @@ const Connections = () => {
           <CardContent className='flex flex-col gap-4'>
             {connectedAccountsArr.map((item, index) => (
               <div key={index} className='flex items-center justify-between gap-4'>
-                <div className='flex flex-grow items-center gap-4'>
+                <div className='flex grow items-center gap-4'>
                   <img height={32} width={32} src={item.logo} alt={item.title} />
-                  <div className='flex-grow'>
+                  <div className='grow'>
                     <Typography className='text-textPrimary font-medium'>{item.title}</Typography>
                     <Typography variant='body2'>{item.subtitle}</Typography>
                   </div>
@@ -122,9 +124,9 @@ const Connections = () => {
           <CardContent className='flex flex-col gap-4'>
             {socialAccountsArr.map((item, index) => (
               <div key={index} className='flex items-center justify-between gap-4'>
-                <div className='flex flex-grow items-center gap-4'>
+                <div className='flex grow items-center gap-4'>
                   <img height={32} width={32} src={item.logo} alt={item.title} />
-                  <div className='flex-grow'>
+                  <div className='grow'>
                     <Typography className='text-textPrimary font-medium'>{item.title}</Typography>
                     {item.isConnected ? (
                       <Typography

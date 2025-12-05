@@ -2,11 +2,12 @@
 import { useState } from 'react'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import Collapse from '@mui/material/Collapse'
+import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
@@ -15,9 +16,10 @@ import Button from '@mui/material/Button'
 import type { ButtonProps } from '@mui/material/Button'
 import type { IconButtonProps } from '@mui/material/IconButton'
 
-
+// Component Imports
+import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
-import AddNewCard from '@/components/dialogs/add-insurance'
+import AddNewCard from '@components/dialogs/billing-card'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 type dataType = {
@@ -31,6 +33,16 @@ const data: dataType[] = [
     typeOfCard: 'Mastercard',
     isDefaultCard: true,
     expiryDate: 'Apr 2028'
+  },
+  {
+    typeOfCard: 'American Express',
+    isDefaultCard: false,
+    expiryDate: 'Jan 2025'
+  },
+  {
+    typeOfCard: 'Visa',
+    isDefaultCard: false,
+    expiryDate: 'Nov 2030'
   }
 ]
 
@@ -44,7 +56,7 @@ const editCardData = {
 
 const CustomerAddress = (props: dataType) => {
   // Props
-  const { isDefaultCard, expiryDate } = props
+  const { typeOfCard, isDefaultCard, expiryDate } = props
 
   // States
   const [expanded, setExpanded] = useState(isDefaultCard ? true : false)
@@ -57,6 +69,10 @@ const CustomerAddress = (props: dataType) => {
 
   // Hooks
   const theme = useTheme()
+
+  const mastercard = '/images/apps/ecommerce/mastercard.png'
+  const americanExpress = '/images/apps/ecommerce/american-express.png'
+  const visa = '/images/apps/ecommerce/visa.png'
 
   return (
     <>
@@ -76,20 +92,20 @@ const CustomerAddress = (props: dataType) => {
           </IconButton>
           <div className='flex items-center gap-4'>
             <div className='flex justify-center items-center bg-[#F6F8FA] rounded-sm is-[50px] bs-[30px]'>
-              {/* <img
+              <img
                 src={
                   typeOfCard === 'Mastercard' ? mastercard : typeOfCard === 'American Express' ? americanExpress : visa
                 }
                 alt={typeOfCard}
                 height={typeOfCard === 'Mastercard' ? 19 : typeOfCard === 'American Express' ? 16 : 12}
-              /> */}
+              />
             </div>
             <div className='flex flex-col items-start gap-1'>
               <div className='flex flex-wrap items-center gap-x-2 gap-y-1'>
                 <Typography color='text.primary' className='font-medium'>
-                  HealthCare Insurance
+                  {typeOfCard}
                 </Typography>
-                {/* {isDefaultCard && <Chip variant='tonal' color='success' label='Default Card' size='small' />} */}
+                {isDefaultCard && <Chip variant='tonal' color='success' label='Default Card' size='small' />}
               </div>
               <Typography>Expires {expiryDate}</Typography>
             </div>
@@ -118,13 +134,33 @@ const CustomerAddress = (props: dataType) => {
             <Grid container spacing={2}>
               <Grid size={{ xs: 4 }}>
                 <div className='flex flex-col gap-1'>
-                  <Typography variant='body2'>Code</Typography>
+                  <Typography variant='body2'>Name</Typography>
+                  <Typography variant='body2'>Number</Typography>
+                  <Typography variant='body2'>Expires</Typography>
+                  <Typography variant='body2'>Type</Typography>
+                  <Typography variant='body2'>Issuer</Typography>
+                  <Typography variant='body2'>ID</Typography>
                 </div>
               </Grid>
               <Grid size={{ xs: 8 }}>
                 <div className='flex flex-col gap-1'>
                   <Typography variant='body2' color='text.primary' className='font-medium'>
-                     #157-PE9871-541
+                    Violet Mendoza
+                  </Typography>
+                  <Typography variant='body2' color='text.primary' className='font-medium'>
+                    **** 4487
+                  </Typography>
+                  <Typography variant='body2' color='text.primary' className='font-medium'>
+                    08/2028
+                  </Typography>
+                  <Typography variant='body2' color='text.primary' className='font-medium'>
+                    {typeOfCard}
+                  </Typography>
+                  <Typography variant='body2' color='text.primary' className='font-medium'>
+                    VICBANK
+                  </Typography>
+                  <Typography variant='body2' color='text.primary' className='font-medium'>
+                    DH73DJ8
                   </Typography>
                 </div>
               </Grid>
@@ -134,15 +170,38 @@ const CustomerAddress = (props: dataType) => {
             <Grid container>
               <Grid size={{ xs: 4 }}>
                 <div className='flex flex-col gap-1'>
-                  <Typography variant='body2'>Company</Typography>
+                  <Typography variant='body2'>Billing</Typography>
+                  <Typography variant='body2'>Number</Typography>
+                  <Typography variant='body2'>Email</Typography>
+                  <Typography variant='body2'>Origin</Typography>
+                  <Typography variant='body2'>CVC</Typography>
                 </div>
               </Grid>
               <Grid size={{ xs: 8 }}>
                 <div className='flex flex-col gap-1'>
                   <Typography variant='body2' color='text.primary' className='font-medium'>
-                    ABCD
+                    USA
                   </Typography>
-
+                  <Typography variant='body2' color='text.primary' className='font-medium'>
+                    +7634 983 637
+                  </Typography>
+                  <Typography variant='body2' color='text.primary' className='font-medium'>
+                    vafgot@vultukir.org
+                  </Typography>
+                  <div className='flex gap-2'>
+                    <Typography variant='body2' color='text.primary' className='font-medium'>
+                      United States
+                    </Typography>
+                    <img src='/images/cards/us.png' height={20} />
+                  </div>
+                  <div className='flex gap-2'>
+                    <Typography variant='body2' color='text.primary' className='font-medium'>
+                      Passed
+                    </Typography>
+                    <CustomAvatar skin='light' size={20} color='success'>
+                      <i className='tabler-check text-xs' />
+                    </CustomAvatar>
+                  </div>
                 </div>
               </Grid>
             </Grid>
@@ -164,7 +223,7 @@ const PaymentMethod = () => {
   return (
     <Card>
       <CardHeader
-        title='Insurance Overview'
+        title='Payment Methods'
         action={<OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={AddNewCard} />}
         className='flex-wrap gap-4'
       />

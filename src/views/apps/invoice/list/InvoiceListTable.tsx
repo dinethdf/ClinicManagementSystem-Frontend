@@ -39,7 +39,7 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
-import type { ThemeColor } from '@/@core/typesDef'
+import type { ThemeColor } from '@core/types'
 import type { InvoiceType } from '@/types/apps/invoiceTypes'
 import type { Locale } from '@configs/i18n'
 

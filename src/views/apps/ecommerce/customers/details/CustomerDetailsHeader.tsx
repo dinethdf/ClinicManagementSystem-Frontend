@@ -4,10 +4,10 @@ import Typography from '@mui/material/Typography'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { ThemeColor } from '@/@core/typesDef'
+import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import ConfirmationDialog from '@/components/dialogs/unUsed/confirmation-dialog'
+import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 const CustomerDetailHeader = ({ customerId }: { customerId: string }) => {

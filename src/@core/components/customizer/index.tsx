@@ -25,7 +25,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
 import type { Settings } from '@core/contexts/settingsContext'
-import type { Direction } from '@/@core/typesDef'
+import type { Direction } from '@core/types'
 import type { PrimaryColorConfig } from '@configs/primaryColorConfig'
 
 // Icon Imports
@@ -240,7 +240,7 @@ const Customizer = ({ breakpoint = 'lg', dir = 'ltr', disableDirection = false }
                     disablePortal
                     anchorEl={anchorRef.current}
                     placement='bottom-end'
-                    className='z-[1]'
+                    className='z-1'
                   >
                     {({ TransitionProps }) => (
                       <Fade {...TransitionProps} style={{ transformOrigin: 'right top' }}>

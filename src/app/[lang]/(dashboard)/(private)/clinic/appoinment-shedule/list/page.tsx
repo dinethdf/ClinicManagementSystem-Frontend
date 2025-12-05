@@ -1,9 +1,9 @@
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 // Component Imports
 // Ensure this path points to the component we just created
-import ScheduleListTable from '@/views/apps/clinic-app/appoinmentShedule/list/ShedulesListTable'
+import ScheduleListTable from '@/views/clinic-app/appoinmentShedule/list/ShedulesListTable'
 
 const ScheduleListPage = () => {
   

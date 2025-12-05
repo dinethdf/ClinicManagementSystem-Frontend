@@ -29,7 +29,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 // Slice Imports
-import { addEvent, deleteEvent, updateEvent, selectedEvent, filterEvents } from '@/libs/redux-store/slices/calendar'
+import { addEvent, deleteEvent, updateEvent, selectedEvent, filterEvents } from '@/redux-store/slices/calendar'
 
 interface PickerProps {
   label?: string

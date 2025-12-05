@@ -1,4 +1,4 @@
-import ScheduleList from '@/views/apps/clinic-app/financial/doctorPayment/list'
+import ScheduleList from '@/views/clinic-app/financial/doctorPayment/list'
 
 import { getSchedulesList } from '@/services/doctor.shedule.server.service'
 

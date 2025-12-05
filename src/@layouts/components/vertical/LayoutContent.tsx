@@ -4,7 +4,7 @@
 import classnames from 'classnames'
 
 // Type Imports
-import type { ChildrenType } from '@/@core/typesDef'
+import type { ChildrenType } from '@core/types'
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'

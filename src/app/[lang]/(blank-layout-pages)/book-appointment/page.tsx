@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 // Component Imports
-import PublicBookingWizard from '@/views/apps/clinic-app/public/booking'
+import PublicBookingWizard from '@/views/clinic-app/public/booking'
 
 
 

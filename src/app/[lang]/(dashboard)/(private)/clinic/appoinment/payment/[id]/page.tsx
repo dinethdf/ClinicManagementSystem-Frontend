@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
-import AppointmentPayment from '@/views/apps/clinic-app/payment/appointment/edit/AppointmentPayment'
+import AppointmentPayment from '@/views/clinic-app/payment/appointment/edit/AppointmentPayment'
 
 import { getAppointmentInvoiceview } from '@/services/appoinment.server.service';
 

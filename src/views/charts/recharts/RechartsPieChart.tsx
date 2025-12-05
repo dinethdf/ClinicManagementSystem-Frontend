@@ -12,18 +12,10 @@ import CardContent from '@mui/material/CardContent'
 
 // Component Imports
 import { Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from '@/libs/Recharts'
+import type { PieLabelRenderProps } from '@/libs/Recharts'
 
 // Styled Component Imports
 const AppRecharts = dynamic(() => import('@/libs/styles/AppRecharts'))
-
-type LabelProp = {
-  cx: number
-  cy: number
-  percent: number
-  midAngle: number
-  innerRadius: number
-  outerRadius: number
-}
 
 // Vars
 const data = [
@@ -35,18 +27,22 @@ const data = [
 
 const RADIAN = Math.PI / 180
 
-const renderCustomizedLabel = (props: LabelProp) => {
+const renderCustomizedLabel = (props: PieLabelRenderProps) => {
   // Props
   const { cx, cy, midAngle, innerRadius, outerRadius, percent } = props
 
+  if (cx == null || cy == null || innerRadius == null || outerRadius == null) {
+    return null
+  }
+
   // Vars
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5
-  const x = cx + radius * Math.cos(-midAngle * RADIAN)
-  const y = cy + radius * Math.sin(-midAngle * RADIAN)
+  const radius = (innerRadius as number) + ((outerRadius as number) - (innerRadius as number)) * 0.5
+  const x = (cx as number) + radius * Math.cos(-(midAngle as number) * RADIAN)
+  const y = (cy as number) + radius * Math.sin(-(midAngle as number) * RADIAN)
 
   return (
     <text x={x} y={y} fill='#fff' textAnchor='middle' dominantBaseline='central' className='max-[400px]:text-xs'>
-      {`${(percent * 100).toFixed(0)}%`}
+      {`${((percent as number) * 100).toFixed(0)}%`}
     </text>
   )
 }

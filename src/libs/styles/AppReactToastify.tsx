@@ -13,7 +13,7 @@ import { ToastContainer } from 'react-toastify'
 import type { ToastContainerProps, ToastPosition } from 'react-toastify'
 
 // Type Imports
-import type { Direction } from '@/@core/typesDef'
+import type { Direction } from '@core/types'
 
 // Config Imports
 import themeConfig from '@configs/themeConfig'
@@ -43,7 +43,7 @@ const ToastifyWrapper = styled(Box)<BoxProps>(({ theme }) => {
     '& .Toastify__toast': {
       minBlockSize: 46,
       borderRadius: 'var(--mui-shape-borderRadius)',
-      padding: theme.spacing(1.5, 2.5),
+      padding: theme.spacing(3, 4),
       backgroundColor: 'var(--mui-palette-background-paper)',
       boxShadow: settings.skin === 'bordered' ? 'none' : 'var(--mui-customShadows-md)',
       border: settings.skin === 'bordered' && '1px solid var(--mui-palette-divider)',
@@ -51,9 +51,7 @@ const ToastifyWrapper = styled(Box)<BoxProps>(({ theme }) => {
         marginBlockEnd: theme.spacing(4)
       }),
       '&:not(.custom-toast)': {
-        '& .Toastify__toast-body': {
-          color: 'var(--mui-palette-text-primary)'
-        },
+        color: 'var(--mui-palette-text-primary)',
         '&.Toastify__toast--success': {
           '& .Toastify__toast-icon svg': {
             fill: 'var(--mui-palette-success-main)'

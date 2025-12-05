@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 // Type Imports
 
 // Component Imports
-import CustomerDetails from '@/views/apps/clinic-app/patient/details'
+import CustomerDetails from '@/views/clinic-app/patient/details'
 
 // Data Imports
 

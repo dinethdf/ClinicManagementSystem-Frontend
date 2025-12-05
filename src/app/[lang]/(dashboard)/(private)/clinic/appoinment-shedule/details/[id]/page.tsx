@@ -1,7 +1,7 @@
 // Next Imports
 import { redirect } from 'next/navigation'
 
-import ScheduleDetails from '@/views/apps/clinic-app/appoinmentShedule/details'
+import ScheduleDetails from '@/views/clinic-app/appoinmentShedule/details'
 
 import { getScheduleById } from '@/services/doctor.shedule.server.service'
 

@@ -9,7 +9,7 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import MenuItem from '@mui/material/MenuItem'
 import Avatar from '@mui/material/Avatar'
 import Divider from '@mui/material/Divider'
@@ -24,7 +24,7 @@ import type { PricingPlanType } from '@/types/pages/pricingTypes'
 
 // Component Imports
 import CustomInputHorizontal from '@core/components/custom-inputs/Horizontal'
-import PricingDialog from '@/components/dialogs/unUsed/pricing'
+import PricingDialog from '@components/dialogs/pricing'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import DirectionalIcon from '@components/DirectionalIcon'
 import { useSettings } from '@core/hooks/useSettings'
@@ -123,7 +123,7 @@ const Payment = ({ data }: { data: PricingPlanType[] }) => {
   }, [])
 
   return (
-    <section className={classnames('md:plb-[50px] plb-6', frontCommonStyles.layoutSpacing)}>
+    <section className={classnames('md:plb-[100px] plb-6', frontCommonStyles.layoutSpacing)}>
       <Card>
         <Grid container>
           <Grid size={{ md: 12, lg: 7 }}>
@@ -237,7 +237,7 @@ const Payment = ({ data }: { data: PricingPlanType[] }) => {
                 </Typography>
               </div>
               <div className='flex flex-col gap-5'>
-                <div className='flex flex-col gap-4 p-6 bg-actionHover rounded'>
+                <div className='flex flex-col gap-4 p-6 bg-actionHover rounded-sm'>
                   <Typography>A simple start for everyone</Typography>
                   <div className='flex items-baseline'>
                     <Typography variant='h1'>$59.99</Typography>

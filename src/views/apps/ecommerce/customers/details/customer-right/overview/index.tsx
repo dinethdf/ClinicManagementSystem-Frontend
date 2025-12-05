@@ -1,5 +1,5 @@
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 // Component Imports
 import CustomerStatisticsCard from './CustomerStatisticsCard'
@@ -44,12 +44,10 @@ import { getStatisticsData, getEcommerceData } from '@/app/server/actions'
   return res.json()
 } */
 
-const Overview = async ({ patientDataNo }: { patientDataNo?: string }) => {
+const Overview = async () => {
   // Vars
   const data = await getStatisticsData()
   const tableData = await getEcommerceData()
-
-  console.log(patientDataNo)
 
   return (
     <Grid container spacing={6}>

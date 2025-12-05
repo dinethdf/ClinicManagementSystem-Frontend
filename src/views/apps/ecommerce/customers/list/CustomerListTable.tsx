@@ -36,7 +36,7 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
-import type { ThemeColor } from '@/@core/typesDef'
+import type { ThemeColor } from '@core/types'
 import type { Customer } from '@/types/apps/ecommerceTypes'
 import type { Locale } from '@configs/i18n'
 
@@ -195,7 +195,7 @@ const CustomerListTable = ({ customerData }: { customerData?: Customer[] }) => {
         header: 'Country',
         cell: ({ row }) => (
           <div className='flex items-center gap-2'>
-            <img src={row.original.countryFlag} height={22} />
+            <img src={row.original.countryFlag} className='size-5.5' />
             <Typography>{row.original.country}</Typography>
           </div>
         )
@@ -262,9 +262,6 @@ const CustomerListTable = ({ customerData }: { customerData?: Customer[] }) => {
 
   return (
     <>
-      <Typography variant='h3' gutterBottom>
-        Clinic Users List
-      </Typography>
       <Card>
         <CardContent className='flex justify-between flex-wrap max-sm:flex-col sm:items-center gap-4'>
           <DebouncedInput

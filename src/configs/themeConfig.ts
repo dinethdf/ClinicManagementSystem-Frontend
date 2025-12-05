@@ -2,7 +2,7 @@
 import type { ToastPosition } from 'react-toastify'
 
 // Type Imports
-import type { Mode, Skin, Layout, LayoutComponentPosition, LayoutComponentWidth } from '@/@core/typesDef'
+import type { Mode, Skin, Layout, LayoutComponentPosition, LayoutComponentWidth } from '@core/types'
 
 type Navbar = {
   type: LayoutComponentPosition
@@ -37,7 +37,7 @@ export type Config = {
 
 const themeConfig: Config = {
   templateName: 'CureGuard',
-  homePageUrl: '/dashboards/crm',
+  homePageUrl: '/clinic',
   settingsCookieName: 'CureGuard-private-clinic',
   mode: 'light', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'
