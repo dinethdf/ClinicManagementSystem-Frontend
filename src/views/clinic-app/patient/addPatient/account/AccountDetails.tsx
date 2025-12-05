@@ -119,6 +119,7 @@ const AccountDetails = () => {
     reset,
     handleSubmit,
     setValue,
+    clearErrors,
     formState: { errors }
   } = useForm<Patient>({
     resolver: valibotResolver(validationSchema) as any,
@@ -126,7 +127,7 @@ const AccountDetails = () => {
   })
 
   const handelFormSubmit = async (data: Patient) => {
-    setIsLoading(true) 
+    // setIsLoading(true) 
     
     try {  
       const response = await patientService.createPatientDetails(data)
@@ -138,7 +139,6 @@ const AccountDetails = () => {
         hideProgressBar: false,
         className: 'custom-toast'
       })
-
     } catch (error) {
       toast.error(`${error}`, {
         autoClose: false,
@@ -158,8 +158,21 @@ const AccountDetails = () => {
        setValue("mobileNo", guardian.mobileNo)
        setValue("landNo", guardian?.landNo || "")
        setValue("guardian", guardian || null)
+      clearErrors('guardian')
+  } 
+  
+  const resetGuardian = () =>{
+      
+       setValue("nic", '')
+       setValue("address", '')
+       setValue("city", '')
+       setValue("district", '')
+       setValue("email", '')
+       setValue("mobileNo", '')
+       setValue("landNo", '')
+       setValue("guardian", null)
                     
-  }     
+  }   
 
   return (
     <Card>
@@ -350,6 +363,10 @@ const AccountDetails = () => {
                         const m = today.getMonth() - bday.getMonth()
 
                         if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--
+                      }
+
+                      if(isUnderAge &&  age > 18){
+                          resetGuardian()
                       }
 
                       setIsUnderAge(age < 18)
