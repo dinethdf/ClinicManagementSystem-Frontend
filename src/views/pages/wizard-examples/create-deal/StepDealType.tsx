@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { ChangeEvent } from 'react'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import FormHelperText from '@mui/material/FormHelperText'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
@@ -13,7 +13,7 @@ import { styled, useTheme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Type Imports
-import type { Mode } from '@/@core/typesDef'
+import type { Mode } from '@core/types'
 import type { CustomInputVerticalData } from '@core/components/custom-inputs/types'
 
 // Component Imports

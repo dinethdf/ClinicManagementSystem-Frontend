@@ -11,13 +11,13 @@ import classnames from 'classnames'
 
 // Types Imports
 import type { SidebarLeftProps, CalendarFiltersType } from '@/types/apps/calendarTypes'
-import type { ThemeColor } from '@/@core/typesDef'
+import type { ThemeColor } from '@core/types'
 
 // Styled Component Imports
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 // Slice Imports
-import { filterAllCalendarLabels, filterCalendarLabel, selectedEvent } from '@/libs/redux-store/slices/calendar'
+import { filterAllCalendarLabels, filterCalendarLabel, selectedEvent } from '@/redux-store/slices/calendar'
 
 const SidebarLeft = (props: SidebarLeftProps) => {
   // Props
@@ -72,11 +72,13 @@ const SidebarLeft = (props: SidebarLeftProps) => {
           keepMounted: true // Better open performance on mobile.
         }}
         className={classnames('block', { static: mdAbove, absolute: !mdAbove })}
-        PaperProps={{
-          className: classnames('items-start is-[280px] shadow-none rounded rounded-se-none rounded-ee-none', {
-            static: mdAbove,
-            absolute: !mdAbove
-          })
+        slotProps={{
+          paper: {
+            className: classnames('items-start is-[280px] shadow-none rounded rounded-se-none rounded-ee-none', {
+              static: mdAbove,
+              absolute: !mdAbove
+            })
+          }
         }}
         sx={{
           zIndex: 3,

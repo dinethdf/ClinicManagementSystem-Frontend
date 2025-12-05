@@ -5,7 +5,7 @@ import { useState } from 'react'
 import type { ChangeEvent } from 'react'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
@@ -37,7 +37,7 @@ const initialData: Data = {
   firstName: 'John',
   lastName: 'Doe',
   email: 'john.doe@example.com',
-  organization: 'Pixinvent',
+  organization: ' D D',
   phoneNumber: '+1 (917) 543-9876',
   address: '123 Main St, New York, NY 10001',
   state: 'New York',
@@ -93,7 +93,7 @@ const AccountDetails = () => {
       <CardContent className='mbe-4'>
         <div className='flex max-sm:flex-col items-center gap-6'>
           <img height={100} width={100} className='rounded' src={imgSrc} alt='Profile' />
-          <div className='flex flex-grow flex-col gap-4'>
+          <div className='flex grow flex-col gap-4'>
             <div className='flex flex-col sm:flex-row gap-4'>
               <Button component='label' variant='contained' htmlFor='account-settings-upload-image'>
                 Upload New Photo
@@ -149,7 +149,7 @@ const AccountDetails = () => {
                 fullWidth
                 label='Organization'
                 value={formData.organization}
-                placeholder='Pixinvent'
+                placeholder=' D D'
                 onChange={e => handleFormChange('organization', e.target.value)}
               />
             </Grid>

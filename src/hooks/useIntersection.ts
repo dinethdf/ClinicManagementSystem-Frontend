@@ -1,16 +1,16 @@
-// // React Imports
-// import { useContext } from 'react'
+// React Imports
+import { useContext } from 'react'
 
-// // Context Imports
-// import { IntersectionContext } from '@/contexts/intersectionContext'
+// Context Imports
+import { IntersectionContext } from '@/contexts/intersectionContext'
 
-// export const useIntersection = () => {
-//   // Hooks
-//   const context = useContext(IntersectionContext)
+export const useIntersection = () => {
+  // Hooks
+  const context = useContext(IntersectionContext)
 
-//   if (!context) {
-//     throw new Error('useIntersection must be used within a IntersectionProvider')
-//   }
+  if (!context) {
+    throw new Error('useIntersection must be used within a IntersectionProvider')
+  }
 
-//   return context
-// }
+  return context
+}

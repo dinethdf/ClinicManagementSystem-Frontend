@@ -15,7 +15,7 @@ import classnames from 'classnames'
 import OptionMenu from '@core/components/option-menu'
 
 // Types Imports
-import type { ThemeColor, SystemMode } from '@/@core/typesDef'
+import type { ThemeColor, SystemMode } from '@core/types'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'

@@ -1,21 +1,24 @@
 'use client'
 
 // MUI Imports
-import Divider from '@mui/material/Divider'
-import Grid from '@mui/material/Grid2'
 import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
+import CardHeader from '@mui/material/CardHeader'
+import Divider from '@mui/material/Divider'
+import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
 // Third-party Imports
-import classnames from 'classnames'
-import { useEditor, EditorContent } from '@tiptap/react'
-import { StarterKit } from '@tiptap/starter-kit'
-import { Underline } from '@tiptap/extension-underline'
+import { Bold } from '@tiptap/extension-bold'
+import { Italic } from '@tiptap/extension-italic'
 import { Placeholder } from '@tiptap/extension-placeholder'
+import { Strike } from '@tiptap/extension-strike'
 import { TextAlign } from '@tiptap/extension-text-align'
-import type { Editor } from '@tiptap/core'
+import { Underline } from '@tiptap/extension-underline'
+import type { Editor } from '@tiptap/react'
+import { EditorContent, useEditor, useEditorState } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import classnames from 'classnames'
 
 // Components Imports
 import CustomIconButton from '@core/components/mui/IconButton'
@@ -25,87 +28,114 @@ import CustomTextField from '@core/components/mui/TextField'
 import '@/libs/styles/tiptapEditor.css'
 
 const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
-  if (!editor) {
+  const editorState = useEditorState({
+    editor,
+    selector: ctx => {
+      if (!ctx.editor) {
+        return {
+          isBold: false,
+          isItalic: false,
+          isUnderline: false,
+          isStrike: false,
+          isLeftAligned: true, // Default to true when no editor
+          isCenterAligned: false,
+          isRightAligned: false,
+          isJustified: false
+        }
+      }
+
+      return {
+        isBold: ctx.editor.isActive('bold') ?? false,
+        isItalic: ctx.editor.isActive('italic') ?? false,
+        isUnderline: ctx.editor.isActive('underline') ?? false,
+        isStrike: ctx.editor.isActive('strike') ?? false,
+        isLeftAligned: ctx.editor.isActive({ textAlign: 'left' }) ?? false,
+        isCenterAligned: ctx.editor.isActive({ textAlign: 'center' }) ?? false,
+        isRightAligned: ctx.editor.isActive({ textAlign: 'right' }) ?? false,
+        isJustified: ctx.editor.isActive({ textAlign: 'justify' }) ?? false
+      }
+    }
+  })
+
+  if (!editor || !editorState) {
     return null
   }
 
   return (
     <div className='flex flex-wrap gap-x-3 gap-y-1 pbs-6 pbe-4 pli-6'>
       <CustomIconButton
-        {...(editor.isActive('bold') && { color: 'primary' })}
+        {...(editorState.isBold && { color: 'primary' })}
         variant='tonal'
         size='small'
         onClick={() => editor.chain().focus().toggleBold().run()}
       >
-        <i className={classnames('tabler-bold', { 'text-textSecondary': !editor.isActive('bold') })} />
+        <i className={classnames('tabler-bold', { 'text-textSecondary': !editorState.isBold })} />
       </CustomIconButton>
       <CustomIconButton
-        {...(editor.isActive('underline') && { color: 'primary' })}
+        {...(editorState.isUnderline && { color: 'primary' })}
         variant='tonal'
         size='small'
         onClick={() => editor.chain().focus().toggleUnderline().run()}
       >
-        <i className={classnames('tabler-underline', { 'text-textSecondary': !editor.isActive('underline') })} />
+        <i className={classnames('tabler-underline', { 'text-textSecondary': !editorState.isUnderline })} />
       </CustomIconButton>
       <CustomIconButton
-        {...(editor.isActive('italic') && { color: 'primary' })}
+        {...(editorState.isItalic && { color: 'primary' })}
         variant='tonal'
         size='small'
         onClick={() => editor.chain().focus().toggleItalic().run()}
       >
-        <i className={classnames('tabler-italic', { 'text-textSecondary': !editor.isActive('italic') })} />
+        <i className={classnames('tabler-italic', { 'text-textSecondary': !editorState.isItalic })} />
       </CustomIconButton>
       <CustomIconButton
-        {...(editor.isActive('strike') && { color: 'primary' })}
+        {...(editorState.isStrike && { color: 'primary' })}
         variant='tonal'
         size='small'
         onClick={() => editor.chain().focus().toggleStrike().run()}
       >
-        <i className={classnames('tabler-strikethrough', { 'text-textSecondary': !editor.isActive('strike') })} />
+        <i className={classnames('tabler-strikethrough', { 'text-textSecondary': !editorState.isStrike })} />
       </CustomIconButton>
       <CustomIconButton
-        {...(editor.isActive({ textAlign: 'left' }) && { color: 'primary' })}
+        {...(editorState.isLeftAligned && { color: 'primary' })}
         variant='tonal'
         size='small'
         onClick={() => editor.chain().focus().setTextAlign('left').run()}
       >
-        <i
-          className={classnames('tabler-align-left', { 'text-textSecondary': !editor.isActive({ textAlign: 'left' }) })}
-        />
+        <i className={classnames('tabler-align-left', { 'text-textSecondary': !editorState.isLeftAligned })} />
       </CustomIconButton>
       <CustomIconButton
-        {...(editor.isActive({ textAlign: 'center' }) && { color: 'primary' })}
+        {...(editorState.isCenterAligned && { color: 'primary' })}
         variant='tonal'
         size='small'
         onClick={() => editor.chain().focus().setTextAlign('center').run()}
       >
         <i
           className={classnames('tabler-align-center', {
-            'text-textSecondary': !editor.isActive({ textAlign: 'center' })
+            'text-textSecondary': !editorState.isCenterAligned
           })}
         />
       </CustomIconButton>
       <CustomIconButton
-        {...(editor.isActive({ textAlign: 'right' }) && { color: 'primary' })}
+        {...(editorState.isRightAligned && { color: 'primary' })}
         variant='tonal'
         size='small'
         onClick={() => editor.chain().focus().setTextAlign('right').run()}
       >
         <i
           className={classnames('tabler-align-right', {
-            'text-textSecondary': !editor.isActive({ textAlign: 'right' })
+            'text-textSecondary': !editorState.isRightAligned
           })}
         />
       </CustomIconButton>
       <CustomIconButton
-        {...(editor.isActive({ textAlign: 'justify' }) && { color: 'primary' })}
+        {...(editorState.isJustified && { color: 'primary' })}
         variant='tonal'
         size='small'
         onClick={() => editor.chain().focus().setTextAlign('justify').run()}
       >
         <i
           className={classnames('tabler-align-justified', {
-            'text-textSecondary': !editor.isActive({ textAlign: 'justify' })
+            'text-textSecondary': !editorState.isJustified
           })}
         />
       </CustomIconButton>
@@ -116,13 +146,21 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
 const ProductInformation = () => {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        bold: false,
+        italic: false,
+        strike: false,
+        underline: false
+      }),
       Placeholder.configure({
         placeholder: 'Write something here...'
       }),
       TextAlign.configure({
         types: ['heading', 'paragraph']
       }),
+      Bold,
+      Italic,
+      Strike,
       Underline
     ],
     immediatelyRender: false,

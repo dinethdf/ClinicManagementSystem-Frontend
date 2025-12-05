@@ -53,7 +53,7 @@ const NoResult = ({ searchValue, setOpen }: { searchValue: string; setOpen: (val
                 className='flex items-center gap-2 hover:text-primary focus-visible:text-primary focus-visible:outline-0'
                 onClick={() => setOpen(false)}
               >
-                <i className={classnames(item.icon, 'text-xl')} />
+                <i className={classnames(item.icon, 'text-xl shrink-0')} />
                 <p className='text-[15px] leading-[1.4667] truncate'>{item.label}</p>
               </Link>
             </li>

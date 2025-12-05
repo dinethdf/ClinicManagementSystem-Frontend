@@ -12,7 +12,7 @@ import { useTheme } from '@mui/material/styles'
 
 // Component Imports
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from '@/libs/Recharts'
-import type { TooltipProps } from '@/libs/Recharts'
+import type { TooltipContentProps } from '@/libs/Recharts'
 
 // Styled Component Imports
 const AppRecharts = dynamic(() => import('@/libs/styles/AppRecharts'))
@@ -36,7 +36,7 @@ const data = [
   { pv: 50, name: '21/12' }
 ]
 
-const CustomTooltip = (props: TooltipProps<any, any>) => {
+const CustomTooltip = (props: TooltipContentProps<any, any>) => {
   // Props
   const { active, payload } = props
 

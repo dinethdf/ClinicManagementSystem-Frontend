@@ -8,16 +8,16 @@ import type { CSSProperties } from 'react'
 import styled from '@emotion/styled'
 
 // Type Imports
-import type { VerticalNavContextProps } from '@/@core/contexts/verticalNavContext'
+import type { VerticalNavContextProps } from '@menu/contexts/verticalNavContext'
 
 // Component Imports
-import CompanyLogo from '@core/svg/Logo'
+import MainLogo from '@core/svg/Logo'
 
 // Config Imports
 import themeConfig from '@configs/themeConfig'
 
 // Hook Imports
-import useVerticalNav from '@/@core/hooks/useVerticalNav'
+import useVerticalNav from '@menu/hooks/useVerticalNav'
 import { useSettings } from '@core/hooks/useSettings'
 
 type LogoTextProps = {
@@ -71,7 +71,7 @@ const Logo = ({ color }: { color?: CSSProperties['color'] }) => {
 
   return (
     <div className='flex items-center'>
-      <CompanyLogo className='text-2xl text-primary' />
+      <MainLogo className='text-2xl text-primary' />
       <LogoText
         color={color}
         ref={logoTextRef}

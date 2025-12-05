@@ -9,7 +9,7 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 import type { ChildrenType } from '@core/types'
 
 // Context Imports
-// import { IntersectionProvider } from '@/contexts/intersectionContext'
+import { IntersectionProvider } from '@/contexts/intersectionContext'
 
 // Component Imports
 import Providers from '@components/Providers'
@@ -42,21 +42,19 @@ const Layout = async ({ children }: ChildrenType) => {
         <InitColorSchemeScript attribute='data' defaultMode={systemMode} />
         <Providers direction='ltr'>
           <BlankLayout systemMode={systemMode}>
-            {/* <IntersectionProvider> */}
-
-            <FrontLayout>
-              {children}
-              <ScrollToTop className='mui-fixed'>
-                <Button
-                  variant='contained'
-                  className='is-10 bs-10 rounded-full p-0 min-is-0 flex items-center justify-center'
-                >
-                  <i className='tabler-arrow-up' />
-                </Button>
-              </ScrollToTop>
-            </FrontLayout>
-
-            {/* </IntersectionProvider> */}
+            <IntersectionProvider>
+              <FrontLayout>
+                {children}
+                <ScrollToTop className='mui-fixed'>
+                  <Button
+                    variant='contained'
+                    className='is-10 bs-10 rounded-full p-0 min-is-0 flex items-center justify-center'
+                  >
+                    <i className='tabler-arrow-up' />
+                  </Button>
+                </ScrollToTop>
+              </FrontLayout>
+            </IntersectionProvider>
           </BlankLayout>
         </Providers>
       </body>

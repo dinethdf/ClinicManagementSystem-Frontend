@@ -13,10 +13,10 @@ import Chip from '@mui/material/Chip'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { ThemeColor } from '@/@core/typesDef'
+import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import BillingCard from '@/components/dialogs/unUsed/billing-card'
+import BillingCard from '@components/dialogs/billing-card'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 type DataType = {
@@ -102,7 +102,7 @@ const PaymentMethod = () => {
           {data.map((item, index) => (
             <div
               key={index}
-              className='flex justify-between border rounded sm:items-center p-6 flex-col !items-start sm:flex-row gap-2'
+              className='flex justify-between border rounded sm:items-center p-6 flex-col items-start! sm:flex-row gap-2'
             >
               <div className='flex flex-col items-start gap-2'>
                 <img src={item.imgSrc} alt={item.imgAlt} height={25} />

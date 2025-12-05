@@ -1,7 +1,9 @@
 .activeSidebarListItem {
   color: var(--mui-palette-primary-main);
   border-inline-start: 3px solid var(--mui-palette-primary-main);
-  padding-inline-start: 1.3125rem !important;
+  @layer utilities {
+    padding-inline-start: 1.3125rem !important;
+  }
 }
 
 .emailList {
@@ -13,9 +15,13 @@
   &:hover {
     box-shadow: var(--mui-customShadows-sm);
     border-color: transparent;
+
     .emailInfo:not(.show) {
-      display: none !important;
+      @layer utilities {
+        display: none !important;
+      }
     }
+
     .emailActions {
       display: flex;
       align-items: center;
@@ -48,10 +54,12 @@
   background-color: var(--mui-palette-background-paper);
   cursor: pointer;
 }
+
 .layer1 {
   inline-size: 90%;
   opacity: 0.5;
 }
+
 .layer2 {
   inline-size: 95%;
   opacity: 0.7;

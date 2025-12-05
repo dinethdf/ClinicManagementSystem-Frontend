@@ -2,7 +2,7 @@
 // import { redirect } from 'next/navigation'
 
 // Component Imports
-import DoctorDetails from '@/views/apps/clinic-app/doctors/details'
+import DoctorDetails from '@/views/clinic-app/doctors/details'
 
 // Service Imports
 import { getDoctorById } from '@/services/doctor.server.service'

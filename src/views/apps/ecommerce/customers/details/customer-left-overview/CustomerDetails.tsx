@@ -12,7 +12,7 @@ import type { Customer } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
-import EditUserInfo from '@/components/dialogs/unUsed/edit-user-info'
+import EditUserInfo from '@components/dialogs/edit-user-info'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 const CustomerDetails = ({ customerData }: { customerData?: Customer }) => {

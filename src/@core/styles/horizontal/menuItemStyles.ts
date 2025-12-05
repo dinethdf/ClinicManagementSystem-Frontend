@@ -2,10 +2,10 @@
 import type { Theme } from '@mui/material/styles'
 
 // Type Imports
-import type { MenuItemStyles } from '@/@core/types'
+import type { MenuItemStyles } from '@menu/types'
 
 // Util Imports
-import { menuClasses } from '@/@core/utils/menuClasses'
+import { menuClasses } from '@menu/utils/menuClasses'
 
 const menuItemStyles = (theme: Theme, iconClass: string): MenuItemStyles => ({
   root: ({ level }) => ({

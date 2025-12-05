@@ -5,9 +5,9 @@ import type { ReactElement } from 'react'
 import dynamic from 'next/dynamic'
 
 // Component Imports
-import AddDoctor from '@/views/apps/clinic-app/doctors/addDoctor'
+import AddDoctor from '@/views/clinic-app/doctors/addDoctor'
 
-const AccountTab = dynamic(() => import('@views/apps/clinic-app/doctors/addDoctor/account'))
+const AccountTab = dynamic(() => import('@views/clinic-app/doctors/addDoctor/account'))
 
 // Vars
 const tabContentList = (): { [key: string]: ReactElement } => ({

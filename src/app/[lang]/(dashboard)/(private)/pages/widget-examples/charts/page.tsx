@@ -1,5 +1,5 @@
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 // Components Imports
 import EarningReports from '@views/pages/widget-examples/charts/EarningReports'
@@ -11,6 +11,7 @@ import EarningReportsWithTabs from '@views/pages/widget-examples/charts/EarningR
 import TotalEarning from '@views/pages/widget-examples/charts/TotalEarning'
 import CarrierPerformance from '@views/pages/widget-examples/charts/CarrierPerformance'
 import DeliveryExceptions from '@views/pages/widget-examples/charts/DeliveryExceptions'
+import VehicleOverview from '@views/pages/widget-examples/charts/VehicleOverview'
 import InterestedTopics from '@views/pages/widget-examples/charts/InterestedTopics'
 
 const Charts = () => {
@@ -42,6 +43,9 @@ const Charts = () => {
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <DeliveryExceptions />
+      </Grid>
+      <Grid size={{ xs: 12, md: 6, lg: 8 }}>
+        <VehicleOverview />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <InterestedTopics />

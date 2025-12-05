@@ -1,5 +1,5 @@
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
@@ -11,7 +11,7 @@ import type { ButtonProps } from '@mui/material/Button'
 
 // Component Imports
 import Link from '@components/Link'
-import PaymentMethod from '@/components/dialogs/unUsed/payment-method'
+import PaymentMethod from '@components/dialogs/payment-method'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 const SupportedMethods = () => {
@@ -25,7 +25,7 @@ const SupportedMethods = () => {
     <Card>
       <CardHeader
         title='Supported payment methods'
-        subheader={`You can add, edit, and delete payment methods that your store supports.`}
+        subheader={`Payment methods that are available`}
       />
       <CardContent className='flex flex-col items-start gap-5'>
         <Typography className='font-medium' color='text.primary'>

@@ -188,7 +188,7 @@ const CheckoutWizard = () => {
               <DirectionalIcon
                 ltrIconClass='tabler-chevron-right'
                 rtlIconClass='tabler-chevron-left'
-                className='mli-12 hidden md:block text-xl text-textDisabled'
+                className='mli-12 hidden md:block text-xl'
               />
             }
           >

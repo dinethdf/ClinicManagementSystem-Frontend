@@ -5,7 +5,7 @@ import type { ReactElement } from 'react'
 import dynamic from 'next/dynamic'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 // Type Imports
 import type { PricingPlanType } from '@/types/pages/pricingTypes'

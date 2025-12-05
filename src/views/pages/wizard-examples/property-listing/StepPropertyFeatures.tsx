@@ -2,7 +2,7 @@
 import { useState } from 'react'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import FormControl from '@mui/material/FormControl'
 import MenuItem from '@mui/material/MenuItem'
 import FormLabel from '@mui/material/FormLabel'
@@ -75,9 +75,11 @@ const StepPropertyFeatures = ({ activeStep, handleNext, handlePrev, steps }: Pro
           getOptionLabel={option => option || ''}
           renderInput={params => <CustomTextField {...params} label='Furnishing Details' />}
           renderTags={(value: string[], getTagProps) =>
-            value.map((option: string, index: number) => (
-              <Chip label={option} size='small' {...(getTagProps({ index }) as {})} key={index} />
-            ))
+            value.map((option: string, index: number) => {
+              const { key, ...otherProps } = getTagProps({ index })
+
+              return <Chip key={key} label={option} size='small' {...otherProps} />
+            })
           }
         />
       </Grid>

@@ -21,7 +21,7 @@ import {
   PolarRadiusAxis,
   ResponsiveContainer
 } from '@/libs/Recharts'
-import type { TooltipProps } from '@/libs/Recharts'
+import type { TooltipContentProps } from '@/libs/Recharts'
 
 // Styled Component Imports
 const AppRecharts = dynamic(() => import('@/libs/styles/AppRecharts'))
@@ -70,7 +70,7 @@ const data = [
   }
 ]
 
-const CustomTooltip = (props: TooltipProps<any, any>) => {
+const CustomTooltip = (props: TooltipContentProps<any, any>) => {
   // Props
   const { active, payload } = props
 

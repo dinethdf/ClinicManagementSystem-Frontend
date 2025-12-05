@@ -30,7 +30,7 @@ import classnames from 'classnames'
 import { toast } from 'react-toastify'
 
 // Type Imports
-import type { SystemMode } from '@/@core/typesDef'
+import type { SystemMode } from '@/@core/types'
 import type { Locale } from '@/configs/i18n'
 
 // Component Imports
@@ -147,8 +147,10 @@ const Login = ({ mode }: { mode: SystemMode }) => {
         body: JSON.stringify({ email: data.email.trim(), password: data.password.trim() })
       })
 
+
       // Handle non-OK response
       if (!res.ok) {
+          
         if (res.status === 401) {
           setErrorState({ message: ['Invalid email or password'] })
         } else {
@@ -170,6 +172,8 @@ const Login = ({ mode }: { mode: SystemMode }) => {
         setErrorState({ message: ['Email or Password is invalid'] })
       }
     } catch (error) {
+
+        console.log("hear Come errrer catch")
       console.error('Login error:', error)
       setErrorState({ message: ['Network error. Please try again later.'] })
     } finally {
@@ -212,9 +216,9 @@ const Login = ({ mode }: { mode: SystemMode }) => {
      
         toast.success('Login Successful', {
         className: 'custom-toast',
-        progressStyle: {
-          backgroundColor: 'var(--mui-palette-primary-main)'
-        }
+        // progressStyle: {
+        //   backgroundColor: 'var(--mui-palette-primary-main)'
+        // }
       })
 
         router.replace(getLocalizedUrl(redirectURL, locale as Locale))

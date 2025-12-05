@@ -9,17 +9,19 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
 import type { getDictionary } from '@/utils/getDictionary'
-import type { VerticalMenuContextProps } from '@core/components/vertical-menu/Menu'
+import type { VerticalMenuContextProps } from '@menu/components/vertical-menu/Menu'
 
 // Component Imports
-import { Menu, SubMenu, MenuItem, MenuSection } from '@/@core/components/vertical-menu'
+import { Menu, SubMenu, MenuItem, MenuSection } from '@menu/vertical-menu'
 import CustomChip from '@core/components/mui/Chip'
 
+// import { GenerateVerticalMenu } from '@components/GenerateMenu'
+
 // Hook Imports
-import useVerticalNav from '@/@core/hooks/useVerticalNav'
+import useVerticalNav from '@menu/hooks/useVerticalNav'
 
 // Styled Component Imports
-import StyledVerticalNavExpandIcon from '@/@core/styles/vertical/StyledVerticalNavExpandIcon'
+import StyledVerticalNavExpandIcon from '@menu/styles/vertical/StyledVerticalNavExpandIcon'
 
 // Style Imports
 import menuItemStyles from '@core/styles/vertical/menuItemStyles'
@@ -87,8 +89,27 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
           <MenuItem href={`/${locale}/dashboards/crm`}>{dictionary['navigation'].crm}</MenuItem>
           <MenuItem href={`/${locale}/dashboards/analytics`}>{dictionary['navigation'].analytics}</MenuItem>
           <MenuItem href={`/${locale}/dashboards/ecommerce`}>{dictionary['navigation'].eCommerce}</MenuItem>
+          <MenuItem href={`/${locale}/dashboards/academy`}>{dictionary['navigation'].academy}</MenuItem>
+          <MenuItem href={`/${locale}/dashboards/logistics`}>{dictionary['navigation'].logistics}</MenuItem>
         </SubMenu>
-        <MenuSection label={dictionary['navigation'].appsPages}>
+        <SubMenu label={dictionary['navigation'].frontPages} icon={<i className='tabler-files' />}>
+          <MenuItem href='/front-pages/landing-page' target='_blank'>
+            {dictionary['navigation'].landing}
+          </MenuItem>
+          <MenuItem href='/front-pages/pricing' target='_blank'>
+            {dictionary['navigation'].pricing}
+          </MenuItem>
+          <MenuItem href='/front-pages/payment' target='_blank'>
+            {dictionary['navigation'].payment}
+          </MenuItem>
+          <MenuItem href='/front-pages/checkout' target='_blank'>
+            {dictionary['navigation'].checkout}
+          </MenuItem>
+          <MenuItem href='/front-pages/help-center' target='_blank'>
+            {dictionary['navigation'].helpCenter}
+          </MenuItem>
+        </SubMenu>
+
           {/* Hospital Management */}
 
           <SubMenu label={dictionary['navigation'].clinic} icon={<i className='tabler-shopping-cart' />}>
@@ -204,7 +225,9 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
             <MenuItem href={`/${locale}/apps/ecommerce/referrals`}>{dictionary['navigation'].referrals}</MenuItem>
             <MenuItem href={`/${locale}/apps/ecommerce/settings`}>{dictionary['navigation'].settings}</MenuItem>
           </SubMenu>
-
+          
+                  
+        <MenuSection label={dictionary['navigation'].appsPages}>
           <SubMenu label={dictionary['navigation'].eCommerce} icon={<i className='tabler-shopping-cart' />}>
             <MenuItem href={`/${locale}/apps/ecommerce/dashboard`}>{dictionary['navigation'].dashboard}</MenuItem>
             <SubMenu label={dictionary['navigation'].products}>
@@ -240,11 +263,33 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
             <MenuItem href={`/${locale}/apps/ecommerce/referrals`}>{dictionary['navigation'].referrals}</MenuItem>
             <MenuItem href={`/${locale}/apps/ecommerce/settings`}>{dictionary['navigation'].settings}</MenuItem>
           </SubMenu>
+          <SubMenu label={dictionary['navigation'].academy} icon={<i className='tabler-school' />}>
+            <MenuItem href={`/${locale}/apps/academy/dashboard`}>{dictionary['navigation'].dashboard}</MenuItem>
+            <MenuItem href={`/${locale}/apps/academy/my-courses`}>{dictionary['navigation'].myCourses}</MenuItem>
+            <MenuItem href={`/${locale}/apps/academy/course-details`}>
+              {dictionary['navigation'].courseDetails}
+            </MenuItem>
+          </SubMenu>
+          <SubMenu label={dictionary['navigation'].logistics} icon={<i className='tabler-truck' />}>
+            <MenuItem href={`/${locale}/apps/logistics/dashboard`}>{dictionary['navigation'].dashboard}</MenuItem>
+            <MenuItem href={`/${locale}/apps/logistics/fleet`}>{dictionary['navigation'].fleet}</MenuItem>
+          </SubMenu>
+          <MenuItem
+            href={`/${locale}/apps/email`}
+            icon={<i className='tabler-mail' />}
+            exactMatch={false}
+            activeUrl='/apps/email'
+          >
+            {dictionary['navigation'].email}
+          </MenuItem>
           <MenuItem href={`/${locale}/apps/chat`} icon={<i className='tabler-message-circle-2' />}>
             {dictionary['navigation'].chat}
           </MenuItem>
           <MenuItem href={`/${locale}/apps/calendar`} icon={<i className='tabler-calendar' />}>
             {dictionary['navigation'].calendar}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/kanban`} icon={<i className='tabler-copy' />}>
+            {dictionary['navigation'].kanban}
           </MenuItem>
           <SubMenu label={dictionary['navigation'].invoice} icon={<i className='tabler-file-description' />}>
             <MenuItem href={`/${locale}/apps/invoice/list`}>{dictionary['navigation'].list}</MenuItem>
@@ -426,7 +471,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
             icon={<i className='tabler-lifebuoy' />}
             suffix={<i className='tabler-external-link text-xl' />}
             target='_blank'
-            href='https://pixinvent.ticksy.com'
+            href='https:// D D.ticksy.com'
           >
             {dictionary['navigation'].raiseSupport}
           </MenuItem>
@@ -443,7 +488,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
               {dictionary['navigation'].itemWithBadge}
             </MenuItem>
             <MenuItem
-              href='https://pixinvent.com'
+              href='https:// D D.com'
               target='_blank'
               suffix={<i className='tabler-external-link text-xl' />}
             >
@@ -467,7 +512,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
         renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
-       
+        <GenerateVerticalMenu menuData={menuData(dictionary)} />
       </Menu> */}
     </ScrollWrapper>
   )

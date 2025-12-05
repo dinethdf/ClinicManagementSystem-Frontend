@@ -5,7 +5,7 @@ import { useState } from 'react'
 import type { SyntheticEvent } from 'react'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
@@ -61,7 +61,7 @@ const AddAction = ({ invoiceData }: { invoiceData?: InvoiceType[] }) => {
   return (
     <>
       <Card>
-        <CardContent className='sm:!p-12'>
+        <CardContent className='sm:p-12!'>
           <Grid container spacing={6}>
             <Grid size={{ xs: 12 }}>
               <div className='p-6 bg-actionHover rounded'>
@@ -139,7 +139,7 @@ const AddAction = ({ invoiceData }: { invoiceData?: InvoiceType[] }) => {
                     }}
                   >
                     <MenuItem
-                      className='flex items-center gap-2 !text-success !bg-transparent hover:text-success hover:!bg-[var(--mui-palette-success-lightOpacity)]'
+                      className='flex items-center gap-2 text-success! bg-transparent! hover:text-success hover:bg-(--mui-palette-success-lightOpacity)!'
                       value=''
                       onClick={() => {
                         setSelectData(null)
@@ -212,7 +212,7 @@ const AddAction = ({ invoiceData }: { invoiceData?: InvoiceType[] }) => {
                   key={index}
                   className={classnames('repeater-item flex relative mbe-4 border rounded', {
                     'mbs-8': !isBelowMdScreen,
-                    '!mbs-14': index !== 0 && !isBelowMdScreen,
+                    'mbs-14!': index !== 0 && !isBelowMdScreen,
                     'gap-5': isBelowMdScreen
                   })}
                 >
@@ -356,7 +356,7 @@ const AddAction = ({ invoiceData }: { invoiceData?: InvoiceType[] }) => {
                 rows={2}
                 fullWidth
                 multiline
-                className='border rounded'
+                className='rounded'
                 defaultValue='It was a pleasure working with you and your team. We hope you will keep us in mind for future freelance
               projects. Thank You!'
               />

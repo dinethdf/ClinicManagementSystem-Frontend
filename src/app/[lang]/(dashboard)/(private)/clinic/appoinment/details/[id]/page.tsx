@@ -2,7 +2,7 @@
 // import { redirect } from 'next/navigation'
 
 // Component Imports
-import AppointmentDetails from '@/views/apps/clinic-app/appoinment/details'
+import AppointmentDetails from '@/views/clinic-app/appoinment/details'
 
 // Service Imports
 import { getAppointmentDetails } from '@/services/appoinment.server.service'

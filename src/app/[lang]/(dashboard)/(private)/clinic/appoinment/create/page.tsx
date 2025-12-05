@@ -1,9 +1,9 @@
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 // Component Imports
-import AppoinmentAddHeader from '@/views/apps/clinic-app/appoinment/add/AppoinmentAddHeader'
-import AppoinmentInformation from '@views/apps/clinic-app/appoinment/add/AppoinmentInformation'
+import AppoinmentAddHeader from '@/views/clinic-app/appoinment/add/AppoinmentAddHeader'
+import AppoinmentInformation from '@views/clinic-app/appoinment/add/AppoinmentInformation'
 
 
 const appointmentCreate = () => {

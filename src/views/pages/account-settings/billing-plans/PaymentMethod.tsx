@@ -6,7 +6,7 @@ import { useState } from 'react'
 // MUI Imports
 import Card from '@mui/material/Card'
 import Chip from '@mui/material/Chip'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Radio from '@mui/material/Radio'
 import Switch from '@mui/material/Switch'
 import Button from '@mui/material/Button'
@@ -18,10 +18,10 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { ThemeColor } from '@/@core/typesDef'
+import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import BillingCard from '@/components/dialogs/unUsed/billing-card'
+import BillingCard from '@components/dialogs/billing-card'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import CustomTextField from '@core/components/mui/TextField'
 

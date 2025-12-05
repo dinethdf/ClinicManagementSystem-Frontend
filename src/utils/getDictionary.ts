@@ -6,7 +6,8 @@ import type { Locale } from '@configs/i18n'
 
 const dictionaries = {
   en: () => import('@/data/dictionaries/en.json').then(module => module.default),
-  si: () => import('@/data/dictionaries/si.json').then(module => module.default)
+  si: () => import('@/data/dictionaries/si.json').then(module => module.default),
+  other: () => import('@/data/dictionaries/other.json').then(module => module.default)
 }
 
 export const getDictionary = async (locale: Locale) => dictionaries[locale]()

@@ -1,4 +1,4 @@
-import PatientListTable from '@views/apps/clinic-app/patient/list/PatientListTable'
+import PatientListTable from '@views/clinic-app/patient/list/PatientListTable'
 
 
 const CustomerListTablePage = async () => {

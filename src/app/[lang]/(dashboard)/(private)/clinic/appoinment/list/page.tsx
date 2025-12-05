@@ -1,5 +1,5 @@
 // Component Imports
-import AppoinmentList from '@views/apps/clinic-app/appoinment/list'
+import AppoinmentList from '@views/clinic-app/appoinment/list'
 
 const AppoinmentListPage = async () => {
   return <AppoinmentList />
