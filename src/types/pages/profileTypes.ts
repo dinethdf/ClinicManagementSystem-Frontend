@@ -1,5 +1,5 @@
 // Type Imports
-import type { ThemeColor } from '@/@core/typesDef'
+import type { ThemeColor } from '@core/types'
 
 export type ProjectTableRowType = {
   id: number

@@ -1,6 +1,6 @@
 import { verifyToken } from '@/libs/verifyToken';
 
-import DoctorAppointment from '@/views/apps/clinic-app/appoinmentShedule/add'
+import DoctorAppointment from '@/views/clinic-app/appoinmentShedule/add'
 
 const doctorAppointmentSection = async () => {
 

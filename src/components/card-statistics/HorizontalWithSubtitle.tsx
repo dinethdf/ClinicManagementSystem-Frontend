@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import classnames from 'classnames'
 
 // Type Imports
-import type { ThemeColor } from '@/@core/typesDef'
+import type { ThemeColor } from '@core/types'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
@@ -29,7 +29,7 @@ const HorizontalWithSubtitle = (props: UserDataType) => {
   return (
     <Card>
       <CardContent className='flex justify-between gap-1'>
-        <div className='flex flex-col gap-1 flex-grow'>
+        <div className='flex flex-col gap-1 grow'>
           <Typography color='text.primary'>{title}</Typography>
           <div className='flex items-center gap-2 flex-wrap'>
             <Typography variant='h4'>{stats}</Typography>

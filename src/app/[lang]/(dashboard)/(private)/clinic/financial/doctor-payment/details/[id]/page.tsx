@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 
 // Component Imports
-import SchedulePaymentDetails from '@/views/apps/clinic-app/financial/doctorPayment/details/index'
+import SchedulePaymentDetails from '@/views/clinic-app/financial/doctorPayment/details/index'
 
 // Service Imports
 import { getFinancialSchedule } from '@/services/financial.server.service'

@@ -12,7 +12,7 @@ import { useColorScheme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Types Imports
-import type { ThemeColor, SystemMode } from '@/@core/typesDef'
+import type { ThemeColor, SystemMode } from '@core/types'
 
 // Components Imports
 import OptionMenu from '@core/components/option-menu'

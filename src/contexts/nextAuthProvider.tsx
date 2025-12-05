@@ -7,5 +7,3 @@
 // export const NextAuthProvider = ({ children, ...rest }: SessionProviderProps) => {
 //   return <SessionProvider {...rest}>{children}</SessionProvider>
 // }
-
-// #### Use That Dont delete Can use for hand auth part in using context with next auth #### with Spring boot back end

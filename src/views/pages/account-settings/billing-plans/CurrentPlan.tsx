@@ -2,7 +2,7 @@
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
@@ -13,11 +13,11 @@ import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
 import type { PricingPlanType } from '@/types/pages/pricingTypes'
-import type { ThemeColor } from '@/@core/typesDef'
+import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import ConfirmationDialog from '@/components/dialogs/unUsed/confirmation-dialog'
-import UpgradePlan from '@/components/dialogs/unUsed/upgrade-plan'
+import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
+import UpgradePlan from '@components/dialogs/upgrade-plan'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 const CurrentPlan = ({ data }: { data?: PricingPlanType[] }) => {

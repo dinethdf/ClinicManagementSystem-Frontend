@@ -5,7 +5,7 @@ import { useState } from 'react'
 import type { SyntheticEvent } from 'react'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
@@ -177,7 +177,7 @@ const EditCard = ({ invoiceData, id, data }: { invoiceData?: InvoiceType; id: st
                   key={index}
                   className={classnames('repeater-item flex relative mbe-4 border rounded', {
                     'mbs-8': !isBelowMdScreen,
-                    '!mbs-14': index !== 0 && !isBelowMdScreen,
+                    'mbs-14!': index !== 0 && !isBelowMdScreen,
                     'gap-5': isBelowMdScreen
                   })}
                 >
@@ -327,7 +327,7 @@ const EditCard = ({ invoiceData, id, data }: { invoiceData?: InvoiceType; id: st
                 rows={2}
                 fullWidth
                 multiline
-                className='border rounded'
+                className='rounded'
                 defaultValue='It was a pleasure working with you and your team. We hope you will keep us in mind for future freelance
               projects. Thank You!'
               />

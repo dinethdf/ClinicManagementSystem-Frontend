@@ -7,7 +7,7 @@ import Chip from '@mui/material/Chip'
 import Progress from '@mui/material/LinearProgress'
 
 // Types Imports
-import type { ThemeColor } from '@/@core/typesDef'
+import type { ThemeColor } from '@core/types'
 
 // Component Imports
 import OptionMenu from '@core/components/option-menu'

@@ -12,16 +12,16 @@ import { styled, useColorScheme, useTheme } from '@mui/material/styles'
 
 // Type Imports
 import type { getDictionary } from '@/utils/getDictionary'
-import type { Mode } from '@/@core/typesDef'
+import type { Mode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import VerticalNav, { NavHeader, NavCollapseIcons } from '@/@core/components/vertical-menu'
+import VerticalNav, { NavHeader, NavCollapseIcons } from '@menu/vertical-menu'
 import VerticalMenu from './VerticalMenu'
 import Logo from '@components/layout/shared/Logo'
 
 // Hook Imports
-import useVerticalNav from '@/@core/hooks/useVerticalNav'
+import useVerticalNav from '@menu/hooks/useVerticalNav'
 import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports

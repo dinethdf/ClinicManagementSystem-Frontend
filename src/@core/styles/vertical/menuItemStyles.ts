@@ -2,11 +2,11 @@
 import type { Theme } from '@mui/material/styles'
 
 // Type Imports
-import type { MenuItemStyles } from '@/@core/types'
-import type { VerticalNavState } from '@/@core/contexts/verticalNavContext'
+import type { MenuItemStyles } from '@menu/types'
+import type { VerticalNavState } from '@menu/contexts/verticalNavContext'
 
 // Util Imports
-import { menuClasses } from '@/@core/utils/menuClasses'
+import { menuClasses } from '@menu/utils/menuClasses'
 
 const menuItemStyles = (verticalNavOptions: VerticalNavState, theme: Theme): MenuItemStyles => {
   // Vars
@@ -121,7 +121,6 @@ const menuItemStyles = (verticalNavOptions: VerticalNavState, theme: Theme): Men
       marginInlineEnd: theme.spacing(2)
     },
     label: ({ level }) => ({
-      fontSize: '0.85rem',
       ...((!isPopoutWhenCollapsed || popoutExpanded || (popoutCollapsed && level === 0)) && {
         transition: `opacity ${transitionDuration}ms ease-in-out`,
         ...(collapsedNotHovered && {

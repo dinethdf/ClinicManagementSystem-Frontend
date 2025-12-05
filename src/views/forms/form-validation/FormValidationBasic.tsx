@@ -7,7 +7,7 @@ import { useState } from 'react'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -248,7 +248,7 @@ const FormValidationBasic = () => {
                 />
                 {errors.checkbox && <FormHelperText error>This field is required.</FormHelperText>}
               </FormControl>
-            </Grid>        
+            </Grid>
             <Grid size={{ xs: 12 }} className='flex gap-4'>
               <Button variant='contained' type='submit'>
                 Submit

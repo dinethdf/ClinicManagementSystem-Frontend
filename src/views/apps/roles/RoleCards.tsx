@@ -3,7 +3,7 @@
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
 import AvatarGroup from '@mui/material/AvatarGroup'
@@ -13,7 +13,7 @@ import type { TypographyProps } from '@mui/material/Typography'
 import type { CardProps } from '@mui/material/Card'
 
 // Component Imports
-import RoleDialog from '@/components/dialogs/unUsed/role-dialog'
+import RoleDialog from '@components/dialogs/role-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import Link from '@components/Link'
 
@@ -75,7 +75,7 @@ const RoleCards = () => {
             <Card>
               <CardContent className='flex flex-col gap-4'>
                 <div className='flex items-center justify-between'>
-                  <Typography className='flex-grow'>{`Total ${item.totalUsers} users`}</Typography>
+                  <Typography className='grow'>{`Total ${item.totalUsers} users`}</Typography>
                   <AvatarGroup total={item.totalUsers}>
                     {item.avatars.map((img, index: number) => (
                       <Avatar key={index} alt={item.title} src={`/images/avatars/${img}`} />

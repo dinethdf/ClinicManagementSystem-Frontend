@@ -5,7 +5,7 @@ import { useState } from 'react'
 import type { ChangeEvent, SyntheticEvent } from 'react'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Accordion from '@mui/material/Accordion'
 import Radio from '@mui/material/Radio'
@@ -125,7 +125,7 @@ const FormLayoutsCollapsible = () => {
           <Typography>Delivery Address</Typography>
         </AccordionSummary>
         <Divider />
-        <AccordionDetails className='!pbs-6'>
+        <AccordionDetails className='pbs-6!'>
           <Grid container spacing={6}>
             <Grid size={{ xs: 12, sm: 6 }}>
               <CustomTextField
@@ -220,7 +220,7 @@ const FormLayoutsCollapsible = () => {
           <Typography>Delivery Options</Typography>
         </AccordionSummary>
         <Divider />
-        <AccordionDetails className='!pbs-6'>
+        <AccordionDetails className='pbs-6!'>
           <Grid container>
             {data.map((item, index) => (
               <CustomInputHorizontal
@@ -246,7 +246,7 @@ const FormLayoutsCollapsible = () => {
           <Typography>Payment Method</Typography>
         </AccordionSummary>
         <Divider />
-        <AccordionDetails className='!pbs-6'>
+        <AccordionDetails className='pbs-6!'>
           <Grid container spacing={6}>
             <Grid size={{ xs: 12, md: 6 }}>
               <Grid container spacing={6}>
@@ -257,8 +257,18 @@ const FormLayoutsCollapsible = () => {
                     value={paymentMethod}
                     onChange={e => setPaymentMethod(e.target.value)}
                   >
-                    <FormControlLabel value='credit' control={<Radio />} label='Credit/Debit/ATM Card' />
-                    <FormControlLabel value='cash' control={<Radio />} label='Cash on Delivery' />
+                    <FormControlLabel
+                      value='credit'
+                      control={<Radio />}
+                      label='Credit/Debit/ATM Card'
+                      className='text-textPrimary'
+                    />
+                    <FormControlLabel
+                      value='cash'
+                      control={<Radio />}
+                      label='Cash on Delivery'
+                      className='text-textPrimary'
+                    />
                   </RadioGroup>
                 </Grid>
                 {paymentMethod === 'credit' ? (

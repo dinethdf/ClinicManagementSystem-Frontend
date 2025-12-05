@@ -145,7 +145,7 @@ const DefaultSuggestions = ({ setOpen }: { setOpen: (value: boolean) => void }) 
                   className='flex items-center overflow-x-hidden cursor-pointer gap-2 hover:text-primary focus-visible:text-primary focus-visible:outline-0'
                   onClick={() => setOpen(false)}
                 >
-                  {item.icon && <i className={classnames(item.icon, 'flex text-xl')} />}
+                  {item.icon && <i className={classnames(item.icon, 'flex text-xl shrink-0')} />}
                   <p className='text-[15px] leading-[1.4667] truncate'>{item.label}</p>
                 </Link>
               </li>

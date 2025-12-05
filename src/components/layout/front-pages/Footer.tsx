@@ -1,7 +1,7 @@
 'use client'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
@@ -176,18 +176,18 @@ const Footer = ({ mode }: { mode: Mode }) => {
             <span>{`© ${new Date().getFullYear()}, Made with `}</span>
             <span>{`❤️`}</span>
             <span>{` by `}</span>
-            <Link href='https://pixinvent.com/' target='_blank' className='font-medium text-white'>
-              Pixinvent
+            <Link href='https:// D D.com/' target='_blank' className='font-medium text-white'>
+               D D
             </Link>
           </Typography>
           <div className='flex gap-1.5 items-center'>
-            <IconButton component={Link} size='small' href='https://github.com/pixinvent' target='_blank'>
+            <IconButton component={Link} size='small' href='https://github.com/ D D' target='_blank'>
               <i className='tabler-brand-github-filled text-white text-lg' />
             </IconButton>
-            <IconButton component={Link} size='small' href='https://www.facebook.com/pixinvents/' target='_blank'>
+            <IconButton component={Link} size='small' href='https://www.facebook.com/ D Ds/' target='_blank'>
               <i className='tabler-brand-facebook-filled text-white text-lg' />
             </IconButton>
-            <IconButton component={Link} size='small' href='https://x.com/pixinvents' target='_blank'>
+            <IconButton component={Link} size='small' href='https://x.com/ D Ds' target='_blank'>
               <i className='tabler-brand-twitter-filled text-white text-lg' />
             </IconButton>
             <IconButton

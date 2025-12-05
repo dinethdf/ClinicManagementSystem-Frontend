@@ -8,7 +8,7 @@ import { useForm, Controller } from 'react-hook-form'
 
 import { valibotResolver } from '@hookform/resolvers/valibot'
 
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Dialog from '@mui/material/Dialog'
 import Button from '@mui/material/Button'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -48,7 +48,7 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
     reset,
     formState: { errors }
   } = useForm<Patient>({
-    resolver: valibotResolver(validationSchema),
+    resolver: valibotResolver(validationSchema) as any,
     defaultValues: {}
   })
 

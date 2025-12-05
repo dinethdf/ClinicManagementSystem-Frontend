@@ -1,24 +1,24 @@
 import { redirect } from 'next/navigation'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
-import DashboardHeader from '@/views/apps/clinic-app/dashboard/DashboardHeader'
-import StatisticsAdminAnalysisCard from '@/views/apps/clinic-app/dashboard/StatisticsAdminAnalysisCard'
+import DashboardHeader from '@/views/clinic-app/dashboard/DashboardHeader'
+import StatisticsAdminAnalysisCard from '@/views/clinic-app/dashboard/StatisticsAdminAnalysisCard'
 
-// import LineChartProfit from '@views/apps/clinic-app/dashboard/LineChartProfit'
-// import RadialBarChart from '@views/apps/clinic-app/dashboard/RadialBarChart'
-// import DonutChartGeneratedLeads from '@views/apps/clinic-app/dashboard/DonutChartGeneratedLeads'
+// import LineChartProfit from '@views/clinic-app/dashboard/LineChartProfit'
+// import RadialBarChart from '@views/clinic-app/dashboard/RadialBarChart'
+// import DonutChartGeneratedLeads from '@views/clinic-app/dashboard/DonutChartGeneratedLeads'
 
-import RevenueReport from '@views/apps/clinic-app/dashboard/RevenueReport'
-import ShedulesByDoctorListTable from '@/views/apps/clinic-app/dashboard/ShedulesByDoctorListTable'
+import RevenueReport from '@views/clinic-app/dashboard/RevenueReport'
+import ShedulesByDoctorListTable from '@/views/clinic-app/dashboard/ShedulesByDoctorListTable'
 
-// import EarningReports from '@views/apps/clinic-app/dashboard/EarningReports'
-// import PopularProducts from '@views/apps/clinic-app/dashboard/PopularProducts'
-// import Orders from '@views/apps/clinic-app/dashboard/Orders'
-// import Transactions from '@views/apps/clinic-app/dashboard/Transactions'
+// import EarningReports from '@views/clinic-app/dashboard/EarningReports'
+// import PopularProducts from '@views/clinic-app/dashboard/PopularProducts'
+// import Orders from '@views/clinic-app/dashboard/Orders'
+// import Transactions from '@views/clinic-app/dashboard/Transactions'
 
-import SpecializationSummaryChart from '@/views/apps/clinic-app/dashboard/SpecializationSummaryChart'
+import SpecializationSummaryChart from '@/views/clinic-app/dashboard/SpecializationSummaryChart'
 
 // Data & Auth Imports
 // import { getInvoiceData } from '@/app/server/actions'
@@ -26,12 +26,12 @@ import { verifyToken } from '@/libs/verifyToken'
 
 const DashboardClinics = async () => {
   const { valid, payload } = await verifyToken()
-  
+  console.log(payload)
   if (!valid) {
     redirect('/login') 
   }
 
-console.log(payload)
+
 
   const userRole = payload?.role || 'GUEST'
 

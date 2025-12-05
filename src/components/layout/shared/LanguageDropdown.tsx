@@ -45,6 +45,10 @@ const languageData: LanguageDataType[] = [
   {
     langCode: 'si',
     langName: 'Sinhala'
+  },
+  {
+    langCode: 'other',
+    langName: 'Other'
   }
 ]
 
@@ -79,7 +83,7 @@ const LanguageDropdown = () => {
         disablePortal
         placement='bottom-start'
         anchorEl={anchorRef.current}
-        className='min-is-[160px] !mbs-3 z-[1]'
+        className='min-is-40 mbs-3! z-1'
       >
         {({ TransitionProps, placement }) => (
           <Fade

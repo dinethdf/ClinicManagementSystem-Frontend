@@ -19,7 +19,7 @@ import type { CalendarOptions } from '@fullcalendar/core'
 import type { AddEventType, CalendarColors, CalendarType } from '@/types/apps/calendarTypes'
 
 // Slice Imports
-import { filterEvents, selectedEvent, updateEvent } from '@/libs/redux-store/slices/calendar'
+import { filterEvents, selectedEvent, updateEvent } from '@/redux-store/slices/calendar'
 
 type CalenderProps = {
   calendarStore: CalendarType
@@ -57,7 +57,7 @@ const Calendar = (props: CalenderProps) => {
   } = props
 
   // Refs
-  const calendarRef = useRef()
+  const calendarRef = useRef(null)
 
   // Hooks
   const theme = useTheme()

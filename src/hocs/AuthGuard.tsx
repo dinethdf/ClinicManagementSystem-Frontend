@@ -3,7 +3,7 @@
 
 // Type Imports
 import type { Locale } from '@configs/i18n'
-import type { ChildrenType } from '@/@core/typesDef'
+import type { ChildrenType } from '@core/types'
 
 // Component Imports
 import AuthRedirect from '@/components/AuthRedirect'

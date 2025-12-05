@@ -4,7 +4,7 @@
 import { useState } from 'react'
 
 // MUI Imports
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
@@ -26,7 +26,7 @@ const Address = () => {
         <form>
           <Grid container spacing={6}>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField fullWidth label='Company Name' variant='outlined' placeholder='Pixinvent' />
+              <CustomTextField fullWidth label='Company Name' variant='outlined' placeholder=' D D' />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <CustomTextField fullWidth label='Billing Email' variant='outlined' placeholder='john.doe@example.com' />
