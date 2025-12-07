@@ -49,6 +49,7 @@ const initialData: Patient = {
   ethnicity: '',
   gender: '',
   maritalStatus: '',
+  bloodGroup: '', // <--- Added here
   nic: '',
   dob: null,
   guardian: null,
@@ -119,6 +120,7 @@ const AccountDetails = () => {
     reset,
     handleSubmit,
     setValue,
+    clearErrors,
     formState: { errors }
   } = useForm<Patient>({
     resolver: valibotResolver(validationSchema) as any,
@@ -138,7 +140,6 @@ const AccountDetails = () => {
         hideProgressBar: false,
         className: 'custom-toast'
       })
-
     } catch (error) {
       toast.error(`${error}`, {
         autoClose: false,
@@ -146,6 +147,7 @@ const AccountDetails = () => {
 
       })
   }
+   setIsLoading(false) 
 }
 
   const selectGuardian = (guardian:Guardian) =>{
@@ -158,8 +160,21 @@ const AccountDetails = () => {
        setValue("mobileNo", guardian.mobileNo)
        setValue("landNo", guardian?.landNo || "")
        setValue("guardian", guardian || null)
+      clearErrors('guardian')
+  } 
+  
+  const resetGuardian = () =>{
+      
+       setValue("nic", '')
+       setValue("address", '')
+       setValue("city", '')
+       setValue("district", '')
+       setValue("email", '')
+       setValue("mobileNo", '')
+       setValue("landNo", '')
+       setValue("guardian", null)
                     
-  }     
+  }   
 
   return (
     <Card>
@@ -328,7 +343,36 @@ const AccountDetails = () => {
                 )}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+
+            {/* --- Blood Group Added Here --- */}
+            <Grid size={{ xs: 12, sm: 2 }}>
+              <Controller
+                name='bloodGroup'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    select
+                    fullWidth
+                    label='Blood Group'
+                    placeholder='Select Blood Group'
+                    {...(errors.bloodGroup && { error: true, helperText: errors.bloodGroup.message })}
+                  >
+                    <MenuItem value=''>Select Blood Group</MenuItem>
+                    <MenuItem value='A+'>A+</MenuItem>
+                    <MenuItem value='A-'>A-</MenuItem>
+                    <MenuItem value='B+'>B+</MenuItem>
+                    <MenuItem value='B-'>B-</MenuItem>
+                    <MenuItem value='AB+'>AB+</MenuItem>
+                    <MenuItem value='AB-'>AB-</MenuItem>
+                    <MenuItem value='O+'>O+</MenuItem>
+                    <MenuItem value='O-'>O-</MenuItem>
+                  </CustomTextField>
+                )}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
                 name='dob'
                 control={control}
@@ -350,6 +394,10 @@ const AccountDetails = () => {
                         const m = today.getMonth() - bday.getMonth()
 
                         if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--
+                      }
+
+                      if(isUnderAge &&  age > 18){
+                          resetGuardian()
                       }
 
                       setIsUnderAge(age < 18)

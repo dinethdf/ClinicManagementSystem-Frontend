@@ -27,17 +27,10 @@ async createPatientDetails(patientData: Patient): Promise<any> {
       const response: any = await apiClient.post<Patient>('/api/patient/details/staff', {
         ...patientData,
         guardian: patientData.guardian,
-        patientAuthId: 1,
-        bloodGroup: 'ab-',
-        registrationDate: '2025-09-30T10:30:00',
+        patientAuthId: null,
+        // bloodGroup: 'ab-',
         profileImg: 'https://example.com/images/john.png',
-        isActive: true,
-        isApproved: false,
-        insuranceId: null,
-        createdDate: '2025-09-30T10:30:00',
-        createdBy: 'admin',
-        updatedDate: '2025-09-30T10:30:00',
-        updatedBy: 'admin'
+        insuranceId: null
       })
 
       return response.data
@@ -133,6 +126,19 @@ async updatePatient(id: string, patientData: Partial<Patient>): Promise<any> {
     throw new Error(error.response?.data?.defaultMessage || 'Failed to update patient')
   }
 }
+
+async togglePatientStatus(id: string): Promise<any> {
+  try {
+    // ⚠️ Add the empty object {} as the second argument
+    const response = await apiClient.patch(`/api/patient/status/${id}`, {})
+    
+    return response.data
+  } catch (error: any) {
+    console.error('Toggle status failed:', error)
+    throw new Error(error.response?.data?.defaultMessage || 'Failed to toggle status')
+  }
+}
+
 }
 
 export const patientService = new PatientService()

@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useAuth } from '@/contexts/ClientAuthContextProvider'
+
 
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -97,6 +99,8 @@ const columnHelper = createColumnHelper<DoctorResponseDTO>()
 const DoctorsListTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+
+  const user = useAuth()
 
   // 1. SELECT FROM DOCTOR REDUCER
   const {
@@ -262,6 +266,7 @@ const DoctorsListTable = () => {
               <MenuItem value='50'>50</MenuItem> 
               <MenuItem value='100'>100</MenuItem>
             </CustomTextField>
+         {user?.role === "ADMIN" &&
             <Button
               variant='contained'
               color='primary'
@@ -271,6 +276,7 @@ const DoctorsListTable = () => {
             >
               Add Doctor
             </Button>
+            }
           </div>
         </CardContent>
         

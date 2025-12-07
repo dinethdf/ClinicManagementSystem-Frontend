@@ -20,7 +20,7 @@ const SecurityTab = dynamic(() => import('@views/clinic-app/patient/details/pati
 const NotificationsTab = dynamic(() => import('@views/clinic-app/patient/details/patient-right/notification'))
 
 const InsuranceOverview = dynamic(
-  () => import('@views/apps/ecommerce/customers/details/customer-right/address-billing')
+  () => import('@views/clinic-app/patient/details/patient-right/address-billing/PaymentMethodCard')
 )
 
 const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
@@ -39,7 +39,7 @@ const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
-        <PatientDetailsHeader patientNo={patientData?.patientNo || 'error'} patientRegDate={patientRegDate} />
+        <PatientDetailsHeader patientNo={patientData?.patientNo || 'error'} patientId={patientData?.id || '0'} patientRegDate={patientRegDate} />
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
         <PatientLeftOverview patientData={patientData} />

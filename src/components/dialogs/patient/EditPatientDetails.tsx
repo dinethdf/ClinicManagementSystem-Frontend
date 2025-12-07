@@ -55,13 +55,13 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
 
   useEffect(() => {
     if (open && patientData) {
-    
       reset({
         ...patientData,
         dob: patientData.dob ? new Date(patientData.dob).toISOString().split('T')[0] : '',
-        gender: patientData.gender?.toString(), 
+        gender: patientData.gender?.toString(),
         ethnicity: patientData.ethnicity?.toString(),
-        maritalStatus: patientData.maritalStatus?.toString()
+        maritalStatus: patientData.maritalStatus?.toString(),
+        bloodGroup: patientData.bloodGroup || '' // Ensure blood group is reset
       } as any)
     }
   }, [open, patientData, reset])
@@ -77,11 +77,12 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
     setIsLoading(true)
     setErrorMessage(null)
 
-    const payload : Patient = {
-        ...data,
-        gender: data.gender,
-        ethnicity: data.ethnicity,
-        maritalStatus: data.maritalStatus
+    const payload: Patient = {
+      ...data,
+      gender: data.gender,
+      ethnicity: data.ethnicity,
+      maritalStatus: data.maritalStatus,
+      bloodGroup: data.bloodGroup
     }
 
     try {
@@ -107,7 +108,7 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
       <DialogCloseButton onClick={handleClose} disableRipple>
         <i className='tabler-x' />
       </DialogCloseButton>
-      
+
       <DialogTitle variant='h4' className='flex gap-2 flex-col text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
         Edit Patient Information
       </DialogTitle>
@@ -116,15 +117,15 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
         <DialogContent className='overflow-visible pbs-0 sm:pli-16'>
           {errorMessage && (
             <Grid size={{ xs: 12 }} className='mb-4'>
-               <Alert severity='error'>{errorMessage}</Alert>
+              <Alert severity='error'>{errorMessage}</Alert>
             </Grid>
           )}
 
           <Grid container spacing={5}>
-            {/* ... Personal Info Section ... */}
+            {/* 1. Personal Info Section */}
             <Grid size={{ xs: 12 }}>
-                <Typography variant='h6' color='primary'>1. Personal Details</Typography>
-                <Divider />
+              <Typography variant='h6' color='primary'>1. Personal Details</Typography>
+              <Divider />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -163,9 +164,11 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
                 )}
               />
             </Grid>
-            
-            {/* 2. UPDATE MENU ITEMS TO USE STRINGS */}
-            <Grid size={{ xs: 12, sm: 4 }}>
+
+            {/* --- UPDATED ROW: Gender, Ethnicity, Marital Status, Blood Group --- */}
+            {/* Adjusted sizes to fit all 4 in one row: 3 + 4 + 3 + 2 = 12 */}
+
+            <Grid size={{ xs: 12, sm: 3 }}>
               <Controller
                 name='gender'
                 control={control}
@@ -178,14 +181,14 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
                     error={!!errors.gender}
                     helperText={errors.gender?.message}
                   >
-                     {/* Values must be strings to match validation schema */}
-                     <MenuItem value="1">Male</MenuItem>
-                     <MenuItem value="2">Female</MenuItem>
-                     <MenuItem value="3">Other</MenuItem>
+                    <MenuItem value="1">Male</MenuItem>
+                    <MenuItem value="2">Female</MenuItem>
+                    <MenuItem value="3">Other</MenuItem>
                   </CustomTextField>
                 )}
               />
             </Grid>
+
             <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
                 name='ethnicity'
@@ -207,7 +210,8 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
                 )}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 4 }}>
+
+            <Grid size={{ xs: 12, sm: 3 }}>
               <Controller
                 name='maritalStatus'
                 control={control}
@@ -229,10 +233,38 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
               />
             </Grid>
 
-            {/* ... Rest of fields (Mobile, Address, etc) remain exactly the same ... */}
+            {/* --- Blood Group Added Here --- */}
+            <Grid size={{ xs: 12, sm: 2 }}>
+              <Controller
+                name='bloodGroup'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    select
+                    fullWidth
+                    label='Blood Group'
+                    // Shortened placeholder to fit sm:2 size
+                    placeholder='Select'
+                    {...(errors.bloodGroup && { error: true, helperText: errors.bloodGroup.message })}
+                  >
+                    <MenuItem value='A+'>A+</MenuItem>
+                    <MenuItem value='A-'>A-</MenuItem>
+                    <MenuItem value='B+'>B+</MenuItem>
+                    <MenuItem value='B-'>B-</MenuItem>
+                    <MenuItem value='AB+'>AB+</MenuItem>
+                    <MenuItem value='AB-'>AB-</MenuItem>
+                    <MenuItem value='O+'>O+</MenuItem>
+                    <MenuItem value='O-'>O-</MenuItem>
+                  </CustomTextField>
+                )}
+              />
+            </Grid>
+
+            {/* 2. Contact Details Section */}
             <Grid size={{ xs: 12 }} className='mt-2'>
-                <Typography variant='h6' color='primary'>2. Contact Details</Typography>
-                <Divider />
+              <Typography variant='h6' color='primary'>2. Contact Details</Typography>
+              <Divider />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -281,7 +313,7 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-               <Controller
+              <Controller
                 name='district'
                 control={control}
                 render={({ field }) => (
@@ -290,9 +322,10 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
               />
             </Grid>
 
+            {/* 3. Emergency Contact Section */}
             <Grid size={{ xs: 12 }} className='mt-2'>
-                <Typography variant='h6' color='primary'>3. Emergency Contact</Typography>
-                <Divider />
+              <Typography variant='h6' color='primary'>3. Emergency Contact</Typography>
+              <Divider />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -322,7 +355,7 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
                 )}
               />
             </Grid>
-             <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='emergencyContactEmail'
                 control={control}

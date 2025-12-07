@@ -10,7 +10,7 @@ import type { ThemeColor } from '@core/types'
 import ConfirmationDialog from '@/components/dialogs/confirmation-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
-const PatientDetailHeader = ({ patientNo, patientRegDate }: { patientNo: string; patientRegDate: string }) => {
+const PatientDetailHeader = ({ patientNo, patientRegDate, patientId }: { patientNo: string; patientRegDate: string; patientId: string }) => {
   // Vars
   const buttonProps = (children: string, color: ThemeColor, variant: ButtonProps['variant']): ButtonProps => ({
     children,

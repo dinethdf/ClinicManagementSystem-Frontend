@@ -1,4 +1,5 @@
-// React Imports
+"use client"
+
 import { useState } from 'react'
 
 // MUI Imports
@@ -19,7 +20,7 @@ import type { IconButtonProps } from '@mui/material/IconButton'
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
-import AddNewCard from '@/components/dialogs/billing-card'
+import AddInsurance from '@/components/dialogs/add-insurance'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 type dataType = {
@@ -30,19 +31,9 @@ type dataType = {
 
 const data: dataType[] = [
   {
-    typeOfCard: 'Mastercard',
+    typeOfCard: 'ABC Company',
     isDefaultCard: true,
     expiryDate: 'Apr 2028'
-  },
-  {
-    typeOfCard: 'American Express',
-    isDefaultCard: false,
-    expiryDate: 'Jan 2025'
-  },
-  {
-    typeOfCard: 'Visa',
-    isDefaultCard: false,
-    expiryDate: 'Nov 2030'
   }
 ]
 
@@ -70,9 +61,9 @@ const CustomerAddress = (props: dataType) => {
   // Hooks
   const theme = useTheme()
 
-  const mastercard = '/images/apps/ecommerce/mastercard.png'
-  const americanExpress = '/images/apps/ecommerce/american-express.png'
-  const visa = '/images/apps/ecommerce/visa.png'
+  // const mastercard = '/images/apps/ecommerce/mastercard.png'
+  // const americanExpress = '/images/apps/ecommerce/american-express.png'
+  // const visa = '/images/apps/ecommerce/visa.png'
 
   return (
     <>
@@ -92,20 +83,20 @@ const CustomerAddress = (props: dataType) => {
           </IconButton>
           <div className='flex items-center gap-4'>
             <div className='flex justify-center items-center bg-[#F6F8FA] rounded-sm is-[50px] bs-[30px]'>
-              <img
+              {/* <img
                 src={
                   typeOfCard === 'Mastercard' ? mastercard : typeOfCard === 'American Express' ? americanExpress : visa
                 }
                 alt={typeOfCard}
                 height={typeOfCard === 'Mastercard' ? 19 : typeOfCard === 'American Express' ? 16 : 12}
-              />
+              /> */}
             </div>
             <div className='flex flex-col items-start gap-1'>
               <div className='flex flex-wrap items-center gap-x-2 gap-y-1'>
                 <Typography color='text.primary' className='font-medium'>
                   {typeOfCard}
                 </Typography>
-                {isDefaultCard && <Chip variant='tonal' color='success' label='Default Card' size='small' />}
+                {/* {isDefaultCard && <Chip variant='tonal' color='success' label='Default Card' size='small' />} */}
               </div>
               <Typography>Expires {expiryDate}</Typography>
             </div>
@@ -115,7 +106,7 @@ const CustomerAddress = (props: dataType) => {
           <OpenDialogOnElementClick
             element={IconButton}
             elementProps={iconButtonProps}
-            dialog={AddNewCard}
+            dialog={AddInsurance}
             dialogProps={{ data: editCardData }}
           />
           <IconButton>
@@ -124,7 +115,7 @@ const CustomerAddress = (props: dataType) => {
           <OptionMenu
             iconClassName='text-textSecondary'
             iconButtonProps={{ size: 'medium' }}
-            options={['Set as Default Card']}
+            options={['Set as Main Insurance']}
           />
         </div>
       </div>
@@ -138,14 +129,12 @@ const CustomerAddress = (props: dataType) => {
                   <Typography variant='body2'>Number</Typography>
                   <Typography variant='body2'>Expires</Typography>
                   <Typography variant='body2'>Type</Typography>
-                  <Typography variant='body2'>Issuer</Typography>
-                  <Typography variant='body2'>ID</Typography>
                 </div>
               </Grid>
               <Grid size={{ xs: 8 }}>
                 <div className='flex flex-col gap-1'>
                   <Typography variant='body2' color='text.primary' className='font-medium'>
-                    Violet Mendoza
+                    Test User
                   </Typography>
                   <Typography variant='body2' color='text.primary' className='font-medium'>
                     **** 4487
@@ -156,17 +145,11 @@ const CustomerAddress = (props: dataType) => {
                   <Typography variant='body2' color='text.primary' className='font-medium'>
                     {typeOfCard}
                   </Typography>
-                  <Typography variant='body2' color='text.primary' className='font-medium'>
-                    VICBANK
-                  </Typography>
-                  <Typography variant='body2' color='text.primary' className='font-medium'>
-                    DH73DJ8
-                  </Typography>
                 </div>
               </Grid>
             </Grid>
           </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
+          {/* <Grid size={{ xs: 12, md: 6 }}>
             <Grid container>
               <Grid size={{ xs: 4 }}>
                 <div className='flex flex-col gap-1'>
@@ -205,7 +188,7 @@ const CustomerAddress = (props: dataType) => {
                 </div>
               </Grid>
             </Grid>
-          </Grid>
+          </Grid> */}
         </Grid>
       </Collapse>
     </>
@@ -223,8 +206,8 @@ const PaymentMethod = () => {
   return (
     <Card>
       <CardHeader
-        title='Payment Methods'
-        action={<OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={AddNewCard} />}
+        title='Insurances'
+        action={<OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={AddInsurance} />}
         className='flex-wrap gap-4'
       />
       <CardContent>
