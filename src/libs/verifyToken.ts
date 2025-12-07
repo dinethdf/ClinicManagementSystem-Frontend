@@ -1,11 +1,6 @@
 import "server-only";
 import { cookies } from 'next/headers';
 
-/**
- * Verify JWT token using HMAC SHA-256 and a Base64-encoded secret.
- * Returns an object with `valid` and `payload` or `error`.
- */
-
 export async function verifyToken(): Promise<{
   valid: boolean
   payload?: any
@@ -30,9 +25,6 @@ export async function verifyToken(): Promise<{
   try {
     const payload = JSON.parse(atob(payloadB64))
 
-    // This is tha part tocke viryfy this the Secret key in back end for now this is not Need After requrement check that later
-
-    // // Convert secret from Base64 to ArrayBuffer
     const secretKey = await crypto.subtle.importKey(
       'raw',
       Uint8Array.from(atob(secretBase64), c => c.charCodeAt(0)),
@@ -41,22 +33,17 @@ export async function verifyToken(): Promise<{
       ['verify']
     )
 
-    // // Generate the data string (header.payload)
     const data = new TextEncoder().encode(`${headerB64}.${payloadB64}`)
 
-    // // Decode the JWT signature from Base64URL to Uint8Array
     const signature: BufferSource = base64UrlToBufferSource(signatureB64)
 
-    // // Verify signature using Web Crypto API
     const isValid = await crypto.subtle.verify('HMAC', secretKey, signature, data)
 
     if (!isValid) {
       return { valid: false, error: '❌ Invalid token: Signature verification failed.' }
     }
 
-    // Check expiration
-    // console.log('Tocken Verifu authentication.ts')
-    // console.log(payload)
+    console.log('Tocken Verification')
     const now = Math.floor(Date.now() / 1000)
 
     if (payload.exp && payload.exp < now) {
