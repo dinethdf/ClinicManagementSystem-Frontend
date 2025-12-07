@@ -11,6 +11,8 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import type { getDictionary } from '@/utils/getDictionary'
 import type { VerticalMenuContextProps } from '@menu/components/vertical-menu/Menu'
 
+import { useAuth } from '@/contexts/ClientAuthContextProvider'
+
 // Component Imports
 import { Menu, SubMenu, MenuItem, MenuSection } from '@menu/vertical-menu'
 import CustomChip from '@core/components/mui/Chip'
@@ -52,6 +54,9 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
   const verticalNavOptions = useVerticalNav()
   const params = useParams()
 
+  const user = useAuth()
+  const role = user?.role
+
   // Vars
   const { isBreakpointReached, transitionDuration } = verticalNavOptions
   const { lang: locale } = params
@@ -81,40 +86,14 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
         renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
-        <SubMenu
-          label={dictionary['navigation'].dashboards}
-          icon={<i className='tabler-smart-home' />}
-          suffix={<CustomChip label='5' size='small' color='error' round='true' />}
-        >
-          <MenuItem href={`/${locale}/dashboards/crm`}>{dictionary['navigation'].crm}</MenuItem>
-          <MenuItem href={`/${locale}/dashboards/analytics`}>{dictionary['navigation'].analytics}</MenuItem>
-          <MenuItem href={`/${locale}/dashboards/ecommerce`}>{dictionary['navigation'].eCommerce}</MenuItem>
-          <MenuItem href={`/${locale}/dashboards/academy`}>{dictionary['navigation'].academy}</MenuItem>
-          <MenuItem href={`/${locale}/dashboards/logistics`}>{dictionary['navigation'].logistics}</MenuItem>
-        </SubMenu>
-        <SubMenu label={dictionary['navigation'].frontPages} icon={<i className='tabler-files' />}>
-          <MenuItem href='/front-pages/landing-page' target='_blank'>
-            {dictionary['navigation'].landing}
-          </MenuItem>
-          <MenuItem href='/front-pages/pricing' target='_blank'>
-            {dictionary['navigation'].pricing}
-          </MenuItem>
-          <MenuItem href='/front-pages/payment' target='_blank'>
-            {dictionary['navigation'].payment}
-          </MenuItem>
-          <MenuItem href='/front-pages/checkout' target='_blank'>
-            {dictionary['navigation'].checkout}
-          </MenuItem>
-          <MenuItem href='/front-pages/help-center' target='_blank'>
-            {dictionary['navigation'].helpCenter}
-          </MenuItem>
-        </SubMenu>
 
           {/* Hospital Management */}
 
+
+        {/* Admin Nav Bar*/}
+          {role === 'ADMIN' && (
           <SubMenu label={dictionary['navigation'].clinic} icon={<i className='tabler-shopping-cart' />}>
             <MenuItem href={`/${locale}/clinic`}>{dictionary['navigation'].dashboard}</MenuItem>
-
             <SubMenu label={dictionary['navigation'].patient}>
               <MenuItem href={`/${locale}/clinic/patient/list`}>{dictionary['navigation'].patientlist}</MenuItem>
               <MenuItem href={`/${locale}/clinic/patient/register`}>{dictionary['navigation'].patientAdd}</MenuItem>
@@ -192,41 +171,149 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
               </SubMenu>          
               
             </SubMenu>
-            <SubMenu label={dictionary['navigation'].products}>
-              <MenuItem href={`/${locale}/apps/ecommerce/products/list`}>{dictionary['navigation'].list}</MenuItem>
-              <MenuItem href={`/${locale}/apps/ecommerce/products/add`}>{dictionary['navigation'].add}</MenuItem>
-              <MenuItem href={`/${locale}/apps/ecommerce/products/category`}>
-                {dictionary['navigation'].category}
-              </MenuItem>
-            </SubMenu>
-            <SubMenu label={dictionary['navigation'].orders}>
-              <MenuItem href={`/${locale}/apps/ecommerce/orders/list`}>{dictionary['navigation'].list}</MenuItem>
-              <MenuItem
-                href={`/${locale}/apps/ecommerce/orders/details/5434`}
-                exactMatch={false}
-                activeUrl='/apps/ecommerce/orders/details'
-              >
-                {dictionary['navigation'].details}
-              </MenuItem>
-            </SubMenu>
-            <SubMenu label={dictionary['navigation'].customers}>
-              <MenuItem href={`/${locale}/apps/ecommerce/customers/list`}>{dictionary['navigation'].list}</MenuItem>
-              <MenuItem
-                href={`/${locale}/apps/ecommerce/customers/details/879861`}
-                exactMatch={false}
-                activeUrl='/apps/ecommerce/customers/details'
-              >
-                {dictionary['navigation'].details}
-              </MenuItem>
-            </SubMenu>
-            <MenuItem href={`/${locale}/apps/ecommerce/manage-reviews`}>
-              {dictionary['navigation'].manageReviews}
-            </MenuItem>
-            <MenuItem href={`/${locale}/apps/ecommerce/referrals`}>{dictionary['navigation'].referrals}</MenuItem>
-            <MenuItem href={`/${locale}/apps/ecommerce/settings`}>{dictionary['navigation'].settings}</MenuItem>
           </SubMenu>
-          
-                  
+          )}
+
+        {/* Staff Nav Bar*/}
+          {role === 'STAFF' && (
+          <SubMenu label={dictionary['navigation'].clinic} icon={<i className='tabler-shopping-cart' />}>
+            <MenuItem href={`/${locale}/clinic`}>{dictionary['navigation'].dashboard}</MenuItem>
+            <SubMenu label={dictionary['navigation'].patient}>
+              <MenuItem href={`/${locale}/clinic/patient/list`}>{dictionary['navigation'].patientlist}</MenuItem>
+              <MenuItem href={`/${locale}/clinic/patient/register`}>{dictionary['navigation'].patientAdd}</MenuItem>
+              <MenuItem
+                href={`/${locale}/clinic/patient/details`}
+                exactMatch={false}
+                disabled
+                activeUrl='/clinic/patient/details'
+              >
+                {dictionary['navigation'].details}
+              </MenuItem>
+            </SubMenu>
+            <SubMenu label={dictionary['navigation'].doctor}>
+              <MenuItem href={`/${locale}/clinic/doctors/list`}>{dictionary['navigation'].doctorList}</MenuItem>
+              <MenuItem
+                href={`/${locale}/clinic/doctors/view`}
+                exactMatch={false}
+                disabled
+                activeUrl='/clinic/doctors/view'
+              >
+                {dictionary['navigation'].details}
+              </MenuItem>              
+            </SubMenu>            
+            <SubMenu label={dictionary['navigation'].appoinmentShedule}>
+              <MenuItem href={`/${locale}/clinic/appoinment-shedule/list`}>
+                {dictionary['navigation'].appoinmentSheduleList}
+              </MenuItem>
+              <MenuItem
+                href={`/${locale}/clinic/appoinment-shedule/details`}
+                exactMatch={false}
+                disabled
+                activeUrl='/clinic/appoinment-shedule/details'
+              >
+                {dictionary['navigation'].details}
+              </MenuItem>               
+            </SubMenu>           
+
+            <SubMenu label={dictionary['navigation'].appoinments}>
+              <MenuItem href={`/${locale}/clinic/appoinment/list`}>{dictionary['navigation'].appoinmentList}</MenuItem>
+              <MenuItem href={`/${locale}/clinic/appoinment/create`}>
+                {dictionary['navigation'].appoinmentCreate}
+              </MenuItem>
+              <MenuItem
+                href={`/${locale}/clinic/appoinment/details/`}
+                exactMatch={false}
+                disabled
+                activeUrl='/clinic/appoinment/details'
+              >
+                {dictionary['navigation'].details}
+              </MenuItem>              
+            </SubMenu>
+          </SubMenu>
+          )}          
+
+        {/* Doctor Nav Bar*/}
+          {role === 'DOCTOR' && (
+          <SubMenu label={dictionary['navigation'].clinic} icon={<i className='tabler-shopping-cart' />}>
+            <MenuItem href={`/${locale}/clinic`}>{dictionary['navigation'].dashboard}</MenuItem>
+            <SubMenu label={dictionary['navigation'].doctor}>
+              <MenuItem
+                href={`/${locale}/clinic/doctors/view`}
+                exactMatch={false}
+                disabled
+                activeUrl='/clinic/doctors/view'
+              >
+                {dictionary['navigation'].details}
+              </MenuItem>              
+            </SubMenu>            
+            <SubMenu label={dictionary['navigation'].appoinmentShedule}>
+              <MenuItem href={`/${locale}/clinic/appoinment-shedule/list`}>
+                {dictionary['navigation'].appoinmentSheduleList}
+              </MenuItem>
+              <MenuItem
+                href={`/${locale}/clinic/appoinment-shedule/details`}
+                exactMatch={false}
+                disabled
+                activeUrl='/clinic/appoinment-shedule/details'
+              >
+                {dictionary['navigation'].details}
+              </MenuItem>               
+            </SubMenu>           
+
+            <SubMenu label={dictionary['navigation'].appoinments}>
+              <MenuItem href={`/${locale}/clinic/appoinment/list`}>{dictionary['navigation'].appoinmentList}</MenuItem>
+              <MenuItem
+                href={`/${locale}/clinic/appoinment/details/`}
+                exactMatch={false}
+                disabled
+                activeUrl='/clinic/appoinment/details'
+              >
+                {dictionary['navigation'].details}
+              </MenuItem>              
+            </SubMenu>
+          </SubMenu>
+          )}            
+  
+          <SubMenu label={"Public"} icon={<i className='tabler-shopping-cart' />}>
+            <MenuItem href={`/${locale}/book-appointment`}>{"Booking"}</MenuItem>
+          </SubMenu>
+        
+        
+        
+        
+        
+        
+        
+        
+        <SubMenu
+          label={dictionary['navigation'].dashboards}
+          icon={<i className='tabler-smart-home' />}
+          suffix={<CustomChip label='5' size='small' color='error' round='true' />}
+        >
+          <MenuItem href={`/${locale}/dashboards/crm`}>{dictionary['navigation'].crm}</MenuItem>
+          <MenuItem href={`/${locale}/dashboards/analytics`}>{dictionary['navigation'].analytics}</MenuItem>
+          <MenuItem href={`/${locale}/dashboards/ecommerce`}>{dictionary['navigation'].eCommerce}</MenuItem>
+          <MenuItem href={`/${locale}/dashboards/academy`}>{dictionary['navigation'].academy}</MenuItem>
+          <MenuItem href={`/${locale}/dashboards/logistics`}>{dictionary['navigation'].logistics}</MenuItem>
+        </SubMenu>
+        <SubMenu label={dictionary['navigation'].frontPages} icon={<i className='tabler-files' />}>
+          <MenuItem href='/front-pages/landing-page' target='_blank'>
+            {dictionary['navigation'].landing}
+          </MenuItem>
+          <MenuItem href='/front-pages/pricing' target='_blank'>
+            {dictionary['navigation'].pricing}
+          </MenuItem>
+          <MenuItem href='/front-pages/payment' target='_blank'>
+            {dictionary['navigation'].payment}
+          </MenuItem>
+          <MenuItem href='/front-pages/checkout' target='_blank'>
+            {dictionary['navigation'].checkout}
+          </MenuItem>
+          <MenuItem href='/front-pages/help-center' target='_blank'>
+            {dictionary['navigation'].helpCenter}
+          </MenuItem>
+        </SubMenu>    
+
         <MenuSection label={dictionary['navigation'].appsPages}>
           <SubMenu label={dictionary['navigation'].eCommerce} icon={<i className='tabler-shopping-cart' />}>
             <MenuItem href={`/${locale}/apps/ecommerce/dashboard`}>{dictionary['navigation'].dashboard}</MenuItem>

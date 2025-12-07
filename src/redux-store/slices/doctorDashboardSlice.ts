@@ -98,7 +98,6 @@ export const doctorDashboardSlice = createSlice({
         if (action.payload) {
           state.schedules = action.payload as any
           state.totalSchedules = action.payload.totalElements
-          console.log(action.payload)
         }
       })
       .addCase(fetchDoctorSchedules.rejected, (state, action) => {

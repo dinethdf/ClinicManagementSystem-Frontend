@@ -8,10 +8,13 @@ export interface Patient {
   fullName: string
   ethnicity: string
   gender: string
-  maritalStatus: string
+  maritalStatus: string | number
   nic: string
   dob: string | null | undefined
   guardian: Guardian | null
+  bloodGroup:string
+
+  profileImg?:string
 
   address: string
   city: string

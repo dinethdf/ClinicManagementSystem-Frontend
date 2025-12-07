@@ -49,6 +49,7 @@ const initialData: Patient = {
   ethnicity: '',
   gender: '',
   maritalStatus: '',
+  bloodGroup: '', // <--- Added here
   nic: '',
   dob: null,
   guardian: null,
@@ -127,7 +128,7 @@ const AccountDetails = () => {
   })
 
   const handelFormSubmit = async (data: Patient) => {
-    // setIsLoading(true) 
+    setIsLoading(true) 
     
     try {  
       const response = await patientService.createPatientDetails(data)
@@ -146,6 +147,7 @@ const AccountDetails = () => {
 
       })
   }
+   setIsLoading(false) 
 }
 
   const selectGuardian = (guardian:Guardian) =>{
@@ -341,7 +343,36 @@ const AccountDetails = () => {
                 )}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+
+            {/* --- Blood Group Added Here --- */}
+            <Grid size={{ xs: 12, sm: 2 }}>
+              <Controller
+                name='bloodGroup'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    select
+                    fullWidth
+                    label='Blood Group'
+                    placeholder='Select Blood Group'
+                    {...(errors.bloodGroup && { error: true, helperText: errors.bloodGroup.message })}
+                  >
+                    <MenuItem value=''>Select Blood Group</MenuItem>
+                    <MenuItem value='A+'>A+</MenuItem>
+                    <MenuItem value='A-'>A-</MenuItem>
+                    <MenuItem value='B+'>B+</MenuItem>
+                    <MenuItem value='B-'>B-</MenuItem>
+                    <MenuItem value='AB+'>AB+</MenuItem>
+                    <MenuItem value='AB-'>AB-</MenuItem>
+                    <MenuItem value='O+'>O+</MenuItem>
+                    <MenuItem value='O-'>O-</MenuItem>
+                  </CustomTextField>
+                )}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
                 name='dob'
                 control={control}

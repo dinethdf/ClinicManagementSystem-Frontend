@@ -129,7 +129,7 @@ const RevenueReport = () => {
       },
       padding: {
         left: -6,
-        right: -11,
+        right: -6,
         bottom: -11
       }
     },
@@ -237,8 +237,7 @@ const RevenueReport = () => {
                 </>
               )}
             </div>
-            
-            <Button variant='contained'>Download Report</Button>
+          
           </CardContent>
         </Grid>
       </Grid>
