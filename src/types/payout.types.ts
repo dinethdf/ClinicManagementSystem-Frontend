@@ -21,3 +21,24 @@ export type PaymentSuccessResponse = {
   totalProcessedAmount: number
   message: string
 }
+
+// types/financial.types.ts
+
+export interface PayoutSummaryDTO {
+  payoutId: number;
+  finalPayableAmount: number;
+  status: 'PAID' | 'PENDING';
+  totalFee: number;
+  scheduleId: number;
+  scheduleDate: string;
+  doctorName: string;
+}
+
+export interface PayoutSearchResponse {
+  success: boolean;
+  data: {
+    content: PayoutSummaryDTO[];
+    totalPages: number;
+    totalElements: number;
+  };
+}

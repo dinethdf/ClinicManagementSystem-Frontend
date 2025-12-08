@@ -13,3 +13,14 @@ export type FinancialScheduleItem = {
   netClinicProfit: number
   totalPaidByPatient: number
 }
+
+export interface AppointmentFinancialDTO {
+  appointmentId: number;
+  queueNo: number;
+  patientName: string;
+  paymentStatus: string;
+  baseDoctorFee: number;
+  doctorDiscountAmount: number;
+  netDoctorPayout: number;
+  totalPaidByPatient: number;
+}

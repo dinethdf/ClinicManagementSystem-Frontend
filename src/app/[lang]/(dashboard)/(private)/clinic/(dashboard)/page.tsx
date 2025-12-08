@@ -57,10 +57,7 @@ const DashboardClinics = async () => {
 
       {/* --- DOCTOR VIEW (Also visible to Admin) --- */}
       {(userRole === 'DOCTOR') && (
-        <Grid size={{ xs: 12, lg: 12 }}>
-           {/* The code for this table is ONLY downloaded if this block renders */}
-          <ShedulesByDoctorListTable doctorId={doctorId} />
-        </Grid>
+       redirect('/doctor')
       )}
 
       {/* --- PATIENT VIEW --- */}
