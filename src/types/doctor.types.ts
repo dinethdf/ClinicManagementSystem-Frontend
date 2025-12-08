@@ -54,6 +54,7 @@ export interface DoctorScheduleDTO {
   registeredPatientCount: number
   maxPatientCount: number
   isActive?: boolean
+  status?:string
 }
 
 // Payload for updating
@@ -138,4 +139,13 @@ export interface ScheduleFilterParams {
   doctorName?: string
   specialization?: string
   date?: string // ISO Date string YYYY-MM-DD
+}
+
+
+export interface ScheduleAnalyticsDTO {
+  total: number;
+  completed: number;
+  booked: number;
+  pendingPayment: number;
+  cancelled: number;
 }

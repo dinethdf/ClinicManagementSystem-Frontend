@@ -1,19 +1,17 @@
 'use server';
 
 import { http, ApiError } from '@/services/api.config.server';
-import type { PayoutBillDTO, BulkPaymentRequest, PaymentSuccessResponse } from '@/types/payout.types';
+import { AppointmentFinancialDTO } from '@/types/financial.types';
+import type { PayoutBillDTO, BulkPaymentRequest, PaymentSuccessResponse, PayoutSearchResponse } from '@/types/payout.types';
 
-/**
- * Fetch list of pending payouts.
- * Optional: Filter by doctorId
- */
+
 export async function getPendingPayouts(doctorId?: string) {
   try {
     const url = doctorId 
       ? `/api/payouts/doctor/pending?doctorId=${doctorId}` 
       : `/api/payouts/doctor/pending`;
 
-    // http.get automatically unwraps response.data based on your config
+    
     const data = await http.get<PayoutBillDTO[]>(url);
 
     return { success: true, data };
@@ -28,9 +26,7 @@ export async function getPendingPayouts(doctorId?: string) {
   }
 }
 
-/**
- * Process bulk payments for selected bills.
- */
+
 export async function processBulkPayment(payload: BulkPaymentRequest) {
   try {
     const response = await http.post<PaymentSuccessResponse>('/api/payouts/doctor/pay-bulk', payload);
@@ -39,7 +35,7 @@ export async function processBulkPayment(payload: BulkPaymentRequest) {
 
   } catch (err) {
     if (err instanceof ApiError) {
-      // This handles the 409 Conflict messages like "Schedule #3 is already paid"
+  
       return { success: false, error: { message: err.message, details: err.details } };
     }
 
@@ -48,9 +44,6 @@ export async function processBulkPayment(payload: BulkPaymentRequest) {
   }
 }
 
-/**
- * Manually generate a bill for a specific schedule.
- */
 export async function generateBill(scheduleId: number) {
   try {
     const response = await http.post<any>(`/api/payouts/doctor/generate-bill/${scheduleId}`, {});
@@ -64,5 +57,44 @@ export async function generateBill(scheduleId: number) {
 
     console.error('Unexpected error in generateBill:', err);
     return { success: false, error: { message: 'An unknown server error occurred.' } };
+  }
+}
+
+
+export async function getDoctorSelfPayouts( page: number = 0) {
+  try {
+    const query = new URLSearchParams({
+      page: page.toString(),
+      size: '50'
+    });
+
+    const data = await http.get<PayoutSearchResponse['data']>(
+      `/api/payouts/doctor/my-payouts?${query.toString()}`
+    );
+
+    return { success: true, data };
+
+  } catch (err) {
+    console.error('Failed to fetch payouts:', err);
+
+    return { success: false, data: { content: [], totalPages: 0, totalElements: 0 } };
+  }
+}
+
+export async function getFinancialScheduleDetails(scheduleId: number) {
+  try {
+    const data = await http.get<AppointmentFinancialDTO[]>(
+      `/api/financials/schedule/${scheduleId}/by-doctor`
+    );
+
+    return data;
+
+  } catch (err) {
+    if (err instanceof ApiError) {
+       console.error(`API Error fetching details (${err.status}):`, err.message);
+    } else {
+       console.error('Unexpected error fetching details:', err);
+    }
+    return [];
   }
 }

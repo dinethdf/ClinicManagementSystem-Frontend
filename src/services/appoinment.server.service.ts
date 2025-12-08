@@ -38,19 +38,20 @@ export async function createAppointment(
 }
 
 
-export async function getAppointmentsPagable(page: number) {
+export async function getAppointmentsListByShedule(sheduleId: number) {
    try {
       const cookieStore = await cookies()
       const token = cookieStore.get('accessToken')?.value
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/schedules/${page}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        cache: 'no-store'
-      })
+      const res = await http.get(`api/appointments/schedule/${sheduleId}`);
+      // const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/appointments/schedule/${sheduleId}`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     ...(token ? { Authorization: `Bearer ${token}` } : {})
+      //   },
+      //   cache: 'no-store'
+      // })
 
       console.log("API call in server " )
 
@@ -61,6 +62,8 @@ export async function getAppointmentsPagable(page: number) {
       }
 
       const json = await res.json()
+
+      console.log(json)
 
       return json.data
     } catch (error) {

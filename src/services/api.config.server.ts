@@ -69,8 +69,9 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
   }
 
   const json = await res.json();
-  
-  return json.data;
+
+  return json.data !== undefined ? json.data : json; 
+
 }
 
 export const http = {
