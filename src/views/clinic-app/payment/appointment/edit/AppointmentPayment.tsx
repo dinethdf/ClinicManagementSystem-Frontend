@@ -109,7 +109,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
     <>
       <Grid size={{ xs: 12, md: 9 }}>
         <Card>
-          <CardContent className='sm:!p-12'>
+          <CardContent className='sm:p-12!'>
             <Grid container spacing={6}>
               {/* --- Header Section --- */}
               <Grid size={{ xs: 12 }}>

@@ -183,3 +183,19 @@ export async function checkAppointmentStatus(scheduleId: number, patientId: numb
     return { success: false, error: { message: 'Failed to check appointment status.' } };
   }
 }
+
+export async function cancelAppointment(appointmentId: number, reason: string) {
+  try {
+    // We now pass the dynamic 'reason' to the backend
+    const response = await http.post(`/api/appointments/cancel/${appointmentId}`, { reason });
+
+    return { success: true, message: response?.message || 'Appointment Cancelled & Refund Recorded.' };
+
+  } catch (err) {
+    if (err instanceof ApiError) {
+       return { success: false, error: { message: err.message, details: err.details } };
+    }
+    console.error('Unexpected error in cancelAppointment:', err);
+    return { success: false, error: { message: 'An unknown server error occurred.' } };
+  }
+}
