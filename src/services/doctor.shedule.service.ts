@@ -1,4 +1,4 @@
-import type { DoctorScheduleDTO, ScheduleFilterParams, UpdateScheduleDTO } from '@/types/doctor.types';
+import type { DoctorScheduleDTO, ScheduleAnalyticsDTO, ScheduleFilterParams, UpdateScheduleDTO } from '@/types/doctor.types';
 import { apiClient } from './api.config'
 
 interface ApiResponse<T> {
@@ -28,6 +28,19 @@ async getDoctorSchedulesByDoctor(id: number): Promise<DoctorScheduleDTO[]> {
     throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch guardian data');
   }
 }
+
+async getScheduleAnalytics(scheduleId: number): Promise<ScheduleAnalyticsDTO> {
+    try {
+      const response = await apiClient.get<ApiResponse<ScheduleAnalyticsDTO>>(
+        `/api/appointments/schedule/${scheduleId}/analytics`
+      );
+      
+      return response.data.data;
+    } catch (error: any) {
+      // Consistent error handling
+      throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch analytics');
+    }
+  }
 
 async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorScheduleDTO[]> {
   try {

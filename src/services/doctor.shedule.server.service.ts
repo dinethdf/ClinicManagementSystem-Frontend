@@ -259,3 +259,37 @@ export const verifyOtp = async (mobileNo: string, otp: string) => {
         throw error;
     }
 };
+
+export async function validateScheduleOwnership(doctorId: number, scheduleId: number): Promise<boolean> {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('accessToken')?.value
+
+    if (!token) return false;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/schedules/validate-owner?doctorId=${doctorId}&scheduleId=${scheduleId}`, 
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        cache: 'no-store'
+      }
+    )
+
+    if (!res.ok) {
+      console.error('Validation failed:', res.status)
+      return false
+    }
+
+    const json = await res.json()
+    
+    return json.data === true
+
+  } catch (error) {
+    console.error('Server-side ownership validation failed:', error)
+    return false
+  }
+}

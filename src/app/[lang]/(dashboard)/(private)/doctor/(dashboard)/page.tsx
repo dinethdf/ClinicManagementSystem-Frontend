@@ -1,27 +1,20 @@
 import { redirect } from 'next/navigation'
-import dynamic from 'next/dynamic' // 👈 Import this
+import dynamic from 'next/dynamic' 
 
+// MUI Imports
+import Grid from '@mui/material/Grid' // Using your specified import
 
-import Grid from '@mui/material/Grid'
-
+// Component Imports
 import DashboardHeader from '@/views/clinic-app/dashboard/DashboardHeader'
+import TodaySessionsCard from '@/views/clinic-app/dashboard/TodaySessionsCard'
 
 
 import { verifyToken } from '@/libs/verifyToken'
 
 
-const StatisticsAdminAnalysisCard = dynamic(() => import('@/views/clinic-app/dashboard/StatisticsAdminAnalysisCard'), {
-  loading: () => <p>Loading Stats...</p>
-})
-
-const RevenueReport = dynamic(() => import('@/views/clinic-app/dashboard/RevenueReport'))
-
-const SpecializationSummaryChart = dynamic(() => import('@/views/clinic-app/dashboard/SpecializationSummaryChart'))
-
 const ShedulesByDoctorListTable = dynamic(() => import('@/views/clinic-app/dashboard/ShedulesByDoctorListTable'), {
   loading: () => <p>Loading Schedule...</p>
 })
-
 
 const DashboardClinics = async () => {
   const { valid, payload } = await verifyToken()
@@ -31,46 +24,28 @@ const DashboardClinics = async () => {
   }
 
   const userRole = payload.role || 'GUEST'
-
   const doctorId = payload.userDetailsId || 0 
 
   return (
     <Grid container spacing={6}>
+      {/* Header */}
       <Grid size={{ xs: 12 }}>
         <DashboardHeader user={payload} />
       </Grid>
 
-      {/* --- ADMIN VIEW --- */}
-      {userRole === 'ADMIN' && (
-        <>
-          <Grid size={{ xs: 12, md: 12 }}>
-            <StatisticsAdminAnalysisCard />
-          </Grid>
-          <Grid size={{ xs: 12, md: 8 }}>
-            <RevenueReport />
-          </Grid>       
-          <Grid size={{ xs: 12, md: 4 }}>
-            <SpecializationSummaryChart />
-          </Grid>
-        </>
-      )}
-
-      {/* --- DOCTOR VIEW (Also visible to Admin) --- */}
+      {/* --- DOCTOR VIEW --- */}
       {(userRole === 'DOCTOR') && (
-        <Grid size={{ xs: 12, lg: 12 }}>
-           {/* The code for this table is ONLY downloaded if this block renders */}
-          <ShedulesByDoctorListTable doctorId={doctorId} />
-        </Grid>
-      )}
+        <>
+            {/* 1. TODAY'S ACTION AREA */}
+            <Grid size={{ xs: 12 }}>
+                <TodaySessionsCard doctorId={doctorId} />
+            </Grid>
 
-      {/* --- PATIENT VIEW --- */}
-      {userRole === 'PATIENT' && (
-         <Grid size={{ xs: 12 }}>
-             {/* You can create a dynamic component for patients here too */}
-             <div className="p-4 bg-white rounded shadow">
-                <h3>Patient Dashboard Coming Soon</h3>
-             </div>
-         </Grid>
+            {/* 2. UPCOMING LIST */}
+            <Grid size={{ xs: 12, lg: 12 }}>
+               <ShedulesByDoctorListTable doctorId={doctorId} />
+            </Grid>
+        </>
       )}
     </Grid>
   )
