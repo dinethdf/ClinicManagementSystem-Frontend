@@ -42,6 +42,7 @@ import { getScheduleList } from '@/services/doctor.shedule.server.service'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
+import { encodeHideValue } from '@/utils/encode'
 
 // --- Types ---
 export interface ScheduleDTO {
@@ -128,7 +129,7 @@ const ScheduleListTable = () => {
         header: 'Ref #',
         cell: ({ row }) => (
           <Link
-            href={getLocalizedUrl(`/clinic/appoinment-shedule/details/${row.original.id}`, locale as Locale)}
+            href={getLocalizedUrl(`clinic/financial/doctor-payment/details/${encodeHideValue(row.original.id)}`, locale as Locale)}
             className='font-medium text-primary hover:underline'
           >
             #{row.original.id}

@@ -93,6 +93,8 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
       const res = await checkAppointmentStatus(Number(scheduleId), selectedPatient.id)
        
       if (res.success && res.data) {
+        console.log("Appoinemnt details")
+        console.log(res.data)
            setAppointmentInfo(res.data)
        } else {
            setError(res.error?.message || "Patient has no appointment in this schedule.")
@@ -159,9 +161,6 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
       </Card>
   )
 
-  // ==========================================
-  // VIEW 1: SEARCH DASHBOARD
-  // ==========================================
   if (viewState === 'SEARCH') {
     return (
       <div className='flex flex-col gap-6 animate-in fade-in duration-500'>
@@ -336,7 +335,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
         {/* Right: Prescription */}
         <Grid size={{ xs: 12, md: 8, lg: 9 }}>
              <PrescriptionManager 
-                appointmentId={Number(appointmentInfo?.id || 0)} 
+                appointmentId={Number(appointmentInfo?.appointmentId || 0)} 
                 onConsultationComplete={handleReset} 
              />
         </Grid>

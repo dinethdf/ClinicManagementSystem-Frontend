@@ -78,6 +78,7 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
         items: items
     }
 
+    console.log(payload)
     const res = await createPrescription(payload)
 
     if (res.success) {
