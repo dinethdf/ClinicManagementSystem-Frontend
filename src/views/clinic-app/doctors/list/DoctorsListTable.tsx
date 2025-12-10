@@ -248,12 +248,23 @@ const DoctorsListTable = () => {
       </Typography>
       <Card>
         <CardContent className='flex justify-between flex-wrap max-sm:flex-col sm:items-center gap-4'>
-          <DebouncedInput
+          {/* <DebouncedInput
             value={searchQuery}
             onChange={handleSearch}
             placeholder='Search Doctors (min 3 chars)'
             className='max-sm:is-full'
-          />
+          /> */}
+           {user?.role === "ADMIN" &&
+            <Button
+              variant='contained'
+              color='primary'
+              className='max-sm:is-full'
+              startIcon={<i className='tabler-plus' />}
+              onClick={() => router.push('/en/clinic/doctors/register')}
+            >
+              Add Doctor
+            </Button>
+            }
           <div className='flex max-sm:flex-col items-start sm:items-center gap-4 max-sm:is-full'>
             <CustomTextField
               select
@@ -266,17 +277,7 @@ const DoctorsListTable = () => {
               <MenuItem value='50'>50</MenuItem> 
               <MenuItem value='100'>100</MenuItem>
             </CustomTextField>
-         {user?.role === "ADMIN" &&
-            <Button
-              variant='contained'
-              color='primary'
-              className='max-sm:is-full'
-              startIcon={<i className='tabler-plus' />}
-              onClick={() => router.push('/en/clinic/doctors/register')}
-            >
-              Add Doctor
-            </Button>
-            }
+        
           </div>
         </CardContent>
         

@@ -143,7 +143,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
 
   const finishSchedule = () => {
       // Navigate to the schedule list or summary page
-      router.push('/clinic/schedule/list') 
+     router.push(`/doctor/schedule/${scheduleId}/finish`)
   }
 
   // --- RENDER HELPERS ---

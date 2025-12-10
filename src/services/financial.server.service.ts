@@ -26,3 +26,37 @@ export async function getFinancialSchedule(scheduleId: number) {
     return null;
   }
 }
+
+export interface PayoutBillResponse {
+    payoutId: number;
+    scheduleId: number;
+    totalFee: number;
+    totalDiscounts: number;
+    finalPayable: number;
+    status: string;
+    message: string;
+}
+
+export async function generateScheduleBill(scheduleId: number) {
+  try {
+
+    console.log(scheduleId)
+    const response = await http.post<PayoutBillResponse>(`/api/payouts/doctor/generate-bill/${scheduleId}`, {});
+    
+    return { success: true, data: response };
+
+  } catch (err) {
+    if (err instanceof ApiError) {
+       // Return the specific error code/message from backend
+       return { 
+           success: false, 
+           error: { 
+               message: err.message, 
+               code: err.details?.errorCode || 'UNKNOWN',
+               status: err.status 
+           } 
+       };
+    }
+    return { success: false, error: { message: 'Network error occurred.' } };
+  }
+}

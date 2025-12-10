@@ -9,7 +9,7 @@ class DoctorAnalysisService {
     try {
       
       const response = await apiClient.get<DoctorScheduleApiResponse>(
-        `/api/schedules/by-doctor/${doctorId}`
+        `/api/schedules/by-doctor/${doctorId}?includeInactive=true`
       )
       
       return response.data.data
