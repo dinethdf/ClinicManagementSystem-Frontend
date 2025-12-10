@@ -111,9 +111,7 @@ const DoctorAccountDetails = () => {
       // Ensure you have this service method created
       const response = await doctorService.createDoctor(apiPayload)
 
-      console.log('✅ Doctor created successfully:', response)
-      
-      // Redirect to doctor view or list
+
       router.replace(`/en/clinic/doctors/list`) 
       reset()
       

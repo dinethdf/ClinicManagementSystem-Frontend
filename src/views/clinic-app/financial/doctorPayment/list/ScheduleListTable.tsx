@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 // Next Imports
 import Link from 'next/link'
@@ -9,292 +9,300 @@ import { useParams } from 'next/navigation'
 
 // MUI Imports
 import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import Checkbox from '@mui/material/Checkbox'
+import CardHeader from '@mui/material/CardHeader'
 import Chip from '@mui/material/Chip'
+import IconButton from '@mui/material/IconButton'
 import TablePagination from '@mui/material/TablePagination'
-import MenuItem from '@mui/material/MenuItem'
+import Typography from '@mui/material/Typography'
+import CircularProgress from '@mui/material/CircularProgress'
+import LinearProgress from '@mui/material/LinearProgress'
 
 // Third-party Imports
-import classnames from 'classnames'
-import { rankItem } from '@tanstack/match-sorter-utils'
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel
 } from '@tanstack/react-table'
-import type { ColumnDef, FilterFn } from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 
 // Type Imports
-import type { ScheduleListTypes } from '@/types/doctor.types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
+import TableFilters from './TableFilters'
 import CustomAvatar from '@core/components/mui/Avatar'
-
-// import OptionMenu from '@core/components/option-menu'
-import CustomTextField from '@core/components/mui/TextField'
-import TablePaginationComponent from '@components/TablePaginationComponent'
+import OptionMenu from '@core/components/option-menu'
 
 // Util Imports
-import { getInitials } from '@/utils/getInitials'
 import { getLocalizedUrl } from '@/utils/i18n'
-import { encodeHideValue } from '@/utils/encode' // Assuming you have this to match your decodeHideValue
+
+// Service Imports
+import { getScheduleList } from '@/services/doctor.shedule.server.service'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
-// Filter Logic
-const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
-  const itemRank = rankItem(row.getValue(columnId), value)
-  
-  addMeta({ itemRank })
-  
-  return itemRank.passed
+// --- Types ---
+export interface ScheduleDTO {
+  id: number
+  doctorId: number
+  doctorName: string
+  specialization: string
+  scheduleDate: string
+  startTime: string
+  endTime: string
+  doctorFee: number
+  clinicFee: number
+  maxPatientCount: number
+  registeredPatientCount: number
+  status: string
 }
 
 // Column Helper
-const columnHelper = createColumnHelper<ScheduleListTypes>()
+const columnHelper = createColumnHelper<ScheduleDTO>()
 
-const ScheduleListTable = ({ scheduleData }: { scheduleData?: ScheduleListTypes[] }) => {
-  // States
-  const [rowSelection, setRowSelection] = useState({})
-  const [data] = useState(scheduleData || [])
-  const [globalFilter, setGlobalFilter] = useState('')
+const ScheduleListTable = () => {
+  // --- States ---
+  const [data, setData] = useState<ScheduleDTO[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [totalCount, setTotalCount] = useState<number>(0)
+  
+  // Pagination State (Server Side)
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
+  
+  // Filter State
+  const [filters, setFilters] = useState({
+    doctorId: '',
+    specialization: '',
+    date: ''
+  })
 
   // Hooks
   const { lang: locale } = useParams()
 
-  const columns = useMemo<ColumnDef<ScheduleListTypes, any>[]>(
-    () => [
-      {
-        id: 'select',
-        header: ({ table }) => (
-          <Checkbox
-            {...{
-              checked: table.getIsAllRowsSelected(),
-              indeterminate: table.getIsSomeRowsSelected(),
-              onChange: table.getToggleAllRowsSelectedHandler()
-            }}
-          />
-        ),
-        cell: ({ row }) => (
-          <Checkbox
-            {...{
-              checked: row.getIsSelected(),
-              disabled: !row.getCanSelect(),
-              indeterminate: row.getIsSomeSelected(),
-              onChange: row.getToggleSelectedHandler()
-            }}
-          />
+  // --- Fetch Data Effect ---
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true)
+
+      try {
+        const res = await getScheduleList(
+            pagination.pageIndex, 
+            pagination.pageSize, 
+            filters.doctorId, 
+            filters.specialization, 
+            filters.date
         )
-      },
+
+        if (res && res.content) {
+          setData(res.content)
+          setTotalCount(res.totalElements)
+        } else {
+            setData([])
+            setTotalCount(0)
+        }
+      } catch (error) {
+        console.error('Failed to fetch schedules', error)
+        setData([])
+        setTotalCount(0)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [pagination.pageIndex, pagination.pageSize, filters])
+
+  // Status Styling Map
+  const scheduleStatusObj: { [key: string]: { title: string; color: 'success' | 'info' | 'error' | 'warning' | 'primary' | 'secondary' } } = {
+    ACTIVE: { title: 'Active', color: 'success' },     
+    COMPLETED: { title: 'Completed', color: 'info' },    
+    CANCELLED: { title: 'Cancelled', color: 'error' }  
+  }
+
+  // --- Columns Definition ---
+  const columns = useMemo<ColumnDef<ScheduleDTO, any>[]>(
+    () => [
       columnHelper.accessor('id', {
-        header: 'Schedule ID',
+        header: 'Ref #',
         cell: ({ row }) => (
-          <Typography
-            component={Link}
-            href={getLocalizedUrl(`/en/clinic/financial/doctor-payment/details/${encodeHideValue(row.original.id)}`, locale as Locale)}
-            color='primary.main'
-            className='font-medium'
-          >{`#${row.original.id}`}</Typography>
+          <Link
+            href={getLocalizedUrl(`/clinic/appoinment-shedule/details/${row.original.id}`, locale as Locale)}
+            className='font-medium text-primary hover:underline'
+          >
+            #{row.original.id}
+          </Link>
         )
       }),
+
       columnHelper.accessor('doctorName', {
         header: 'Doctor',
         cell: ({ row }) => (
-          <div className='flex items-center gap-3'>
+          <div className='flex items-center gap-4'>
             <CustomAvatar skin='light' color='primary' size={34}>
-               {getInitials(row.original.doctorName)}
+               {row.original.doctorName.charAt(0)}
             </CustomAvatar>
             <div className='flex flex-col'>
-              <Typography color='text.primary' className='font-medium'>
+              <Typography className='font-medium' color='text.primary'>
                 {row.original.doctorName}
               </Typography>
-              <Typography variant='body2'>{row.original.specialization}</Typography>
+              <Typography variant='caption'>{row.original.specialization}</Typography>
             </div>
           </div>
         )
       }),
+
       columnHelper.accessor('scheduleDate', {
         header: 'Date & Time',
         cell: ({ row }) => (
           <div className='flex flex-col'>
-             <Typography color='text.primary' className='font-medium'>
-                {new Date(row.original.scheduleDate).toDateString()}
+             <Typography className='font-medium'>
+                {row.original.scheduleDate}
              </Typography>
-             <Typography variant='body2'>
-                {row.original.timeRange}
+             <Typography variant='body2' color='text.disabled'>
+                {row.original.startTime.substring(0, 5)} - {row.original.endTime.substring(0, 5)}
              </Typography>
           </div>
         )
       }),
-      columnHelper.accessor('registeredPatientCount', {
+
+      columnHelper.accessor('maxPatientCount', {
         header: 'Capacity',
         cell: ({ row }) => {
-            const isFull = row.original.registeredPatientCount >= row.original.maxPatientCount;
+            const percentage = (row.original.registeredPatientCount / row.original.maxPatientCount) * 100
+            const isFull = row.original.registeredPatientCount >= row.original.maxPatientCount
             
             return (
-                <div className='flex flex-col gap-1'>
-                    <div className='flex items-center gap-2'>
-                         <Typography className='font-medium' color={isFull ? 'error.main' : 'text.primary'}>
-                            {row.original.registeredPatientCount}
-                         </Typography>
-                         <Typography variant='body2'>/</Typography>
-                         <Typography variant='body2'>{row.original.maxPatientCount}</Typography>
+                <div className='flex flex-col gap-1 w-[100px]'>
+                    <div className='flex justify-between'>
+                        <Typography variant='caption'>{row.original.registeredPatientCount} / {row.original.maxPatientCount}</Typography>
+                        <Typography variant='caption' color={isFull ? 'error' : 'text.primary'}>{percentage.toFixed(0)}%</Typography>
                     </div>
-                     {/*
-                    <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                            className={`h-full ${isFull ? 'bg-red-500' : 'bg-primary-500'}`} 
-                            style={{ width: `${(row.original.registeredCount / row.original.maxCount) * 100}%` }}
-                        />
-                    </div> */}
+                    <LinearProgress 
+                        variant="determinate" 
+                        value={percentage} 
+                        color={isFull ? 'error' : 'primary'}
+                        className='h-1.5 rounded'
+                    />
                 </div>
             )
         }
       }),
-      columnHelper.accessor('isActive', {
-        header: 'Status',
+
+      columnHelper.accessor('doctorFee', {
+        header: 'Total Fee',
         cell: ({ row }) => (
-          <Chip
-            label={row.original.isActive ? 'Active' : 'Inactive'}
-            color={row.original.isActive ? 'success' : 'secondary'}
-            variant='tonal'
-            size='small'
-          />
+             <Typography>
+                LKR {(row.original.doctorFee + row.original.clinicFee).toFixed(2)}
+             </Typography>
         )
       }),
+
+      columnHelper.accessor('status', {
+        header: 'Status',
+        cell: ({ row }) => {
+          const status = row.original.status;
+          const statusConfig = scheduleStatusObj[status] || { title: status, color: 'primary' };
+
+          return (
+            <Chip
+              label={statusConfig.title}
+              variant='tonal'
+              color={statusConfig.color}
+              size='small'
+            />
+          )
+        }
+      }),
+
       columnHelper.accessor('id', {
-        id: 'action',
-        header: 'Action',
+        id: 'actions',
+        header: 'Actions',
         cell: ({ row }) => (
           <div className='flex items-center'>
-            <Button 
-                component={Link}
-                href={getLocalizedUrl(`/clinic/financial/doctor-payment/details/${encodeHideValue(row.original.id)}`, locale as Locale)}
-                size="small" 
-                variant="tonal" 
-                endIcon={<i className='tabler-arrow-right' />}
-            >
-                Financials
-            </Button>
+            <IconButton size='small'>
+              <i className='tabler-edit text-textSecondary' />
+            </IconButton>
+            <OptionMenu
+              iconButtonProps={{ size: 'medium' }}
+              iconClassName='text-textSecondary'
+              options={[
+                { text: 'View Details', icon: 'tabler-eye', href: getLocalizedUrl(`/clinic/appoinment-shedule/details/${row.original.id}`, locale as Locale) },
+                { text: 'Cancel Schedule', icon: 'tabler-ban', menuItemProps: { className: 'text-error' } }
+              ]}
+            />
           </div>
         ),
         enableSorting: false
       })
     ],
-    [locale]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   )
 
   const table = useReactTable({
-    data: data as ScheduleListTypes[],
+    data,
     columns,
-    filterFns: {
-      fuzzy: fuzzyFilter
-    },
-    state: {
-      rowSelection,
-      globalFilter
-    },
-    initialState: {
-      pagination: {
-        pageSize: 10
-      }
-    },
-    enableRowSelection: true,
-    globalFilterFn: fuzzyFilter,
-    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    state: { pagination },
+    onPaginationChange: setPagination,
+    pageCount: Math.ceil(totalCount / pagination.pageSize),
+    filterFns: {} as any
   })
 
   return (
     <Card>
-      <CardContent className='flex justify-between max-sm:flex-col sm:items-center gap-4'>
-        <CustomTextField
-          value={globalFilter ?? ''}
-          onChange={e => setGlobalFilter(e.target.value)}
-          placeholder='Search Schedule'
-          className='sm:is-auto'
-        />
-        <div className='flex items-center max-sm:flex-col gap-4 max-sm:is-full is-auto'>
-          <CustomTextField
-            select
-            value={table.getState().pagination.pageSize}
-            onChange={e => table.setPageSize(Number(e.target.value))}
-            className='is-[70px] max-sm:is-full'
-          >
-            <MenuItem value='10'>10</MenuItem>
-            <MenuItem value='25'>25</MenuItem>
-            <MenuItem value='50'>50</MenuItem>
-          </CustomTextField>
-        </div>
-      </CardContent>
-      <div className='overflow-x-auto'>
-        <table className={tableStyles.table}>
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th key={header.id}>
-                    {header.isPlaceholder ? null : (
-                      <div
-                        className={classnames({
-                          'flex items-center': header.column.getIsSorted(),
-                          'cursor-pointer select-none': header.column.getCanSort()
-                        })}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {{
-                          asc: <i className='tabler-chevron-up text-xl' />,
-                          desc: <i className='tabler-chevron-down text-xl' />
-                        }[header.column.getIsSorted() as 'asc' | 'desc'] ?? null}
-                      </div>
+      <CardHeader title='Schedule Management' />
+      <TableFilters onFilterChange={setFilters} />
+      
+      {isLoading && <div className='w-full p-4 flex justify-center'><CircularProgress /></div>}
+
+      {!isLoading && (
+        <>
+            <div className='overflow-x-auto'>
+                <table className={tableStyles.table}>
+                <thead>
+                    {table.getHeaderGroups().map(headerGroup => (
+                    <tr key={headerGroup.id}>
+                        {headerGroup.headers.map(header => (
+                        <th key={header.id}>
+                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                        </th>
+                        ))}
+                    </tr>
+                    ))}
+                </thead>
+                <tbody>
+                    {table.getRowModel().rows.length === 0 ? (
+                        <tr>
+                            <td colSpan={columns.length} className='text-center p-4'>No schedules found</td>
+                        </tr>
+                    ) : (
+                        table.getRowModel().rows.map(row => (
+                        <tr key={row.id}>
+                            {row.getVisibleCells().map(cell => (
+                            <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                            ))}
+                        </tr>
+                        ))
                     )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length} className='text-center'>
-                  No schedules available
-                </td>
-              </tr>
-            ) : (
-              table.getRowModel().rows.map(row => (
-                <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                  {row.getVisibleCells().map(cell => (
-                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                  ))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      <TablePagination
-        component={() => <TablePaginationComponent table={table} />}
-        count={table.getFilteredRowModel().rows.length}
-        rowsPerPage={table.getState().pagination.pageSize}
-        page={table.getState().pagination.pageIndex}
-        onPageChange={(_, page) => {
-          table.setPageIndex(page)
-        }}
-      />
+                </tbody>
+                </table>
+            </div>
+
+            <TablePagination
+                component="div"
+                count={totalCount}
+                rowsPerPage={pagination.pageSize}
+                page={pagination.pageIndex}
+                onPageChange={(_, page) => setPagination(prev => ({ ...prev, pageIndex: page }))}
+                onRowsPerPageChange={e => setPagination({ pageIndex: 0, pageSize: Number(e.target.value) })}
+                rowsPerPageOptions={[10, 25, 50]}
+            />
+        </>
+      )}
     </Card>
   )
 }

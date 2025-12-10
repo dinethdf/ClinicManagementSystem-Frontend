@@ -23,10 +23,6 @@ import type {Doctor, DoctorSchedule, DoctorScheduleDTO } from '@/types/doctor.ty
 import { doctorService } from '@/services/doctor.service';
 
 const SheduleInformation = ({role}: { role: string }) => {
-
-  console.log(role)
-
-  // Initialize React Hook Form
   
   const methods = useForm<DoctorSchedule>({
     defaultValues: {

@@ -132,8 +132,7 @@ const AccountDetails = () => {
     
     try {  
       const response = await patientService.createPatientDetails(data)
-      
-      console.log('✅ Patient created successfully:', response)
+
       router.replace(`details/${response?.data?.id ? response?.data?.id : 'error'}`)
       reset()
       toast.success(`${response?.message} - ${response?.data.patientNo}`, {
