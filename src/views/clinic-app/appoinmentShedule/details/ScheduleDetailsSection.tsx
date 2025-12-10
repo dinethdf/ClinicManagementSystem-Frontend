@@ -48,8 +48,16 @@ const ScheduleDetailsSection = ({ scheduleData }: { scheduleData?: DoctorSchedul
                 {`${scheduleData?.startTime} - ${scheduleData?.endTime}`}
               </Typography>
               <Chip 
-                label={scheduleData?.isActive ? 'Active Session' : 'Inactive'} 
-                color={scheduleData?.isActive ? 'success' : 'error'} 
+                label={
+                  scheduleData?.status === 'ACTIVE' ? 'Active Session' : 
+                  scheduleData?.status === 'COMPLETED' ? 'Completed' : 
+                  scheduleData?.status === 'CANCELLED' ? 'Cancelled' : scheduleData?.status
+                } 
+                color={
+                  scheduleData?.status === 'ACTIVE' ? 'success' : 
+                  scheduleData?.status === 'COMPLETED' ? 'info' : 
+                  scheduleData?.status === 'CANCELLED' ? 'error' : 'default'
+                } 
                 variant='tonal' 
                 size="small" 
                 className="mt-2" 

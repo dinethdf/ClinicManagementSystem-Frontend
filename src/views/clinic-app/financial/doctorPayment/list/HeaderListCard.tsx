@@ -45,7 +45,7 @@ const HeaderListCard = () => {
 
   return (
     
-       <Typography variant='h5'>Schedule List</Typography>
+       <Typography variant='h5'>Doctor Schedule List</Typography>
 
   )
 }

@@ -13,7 +13,6 @@ async getPatients({ page, pageSize, search }: GetPatientsParams): Promise<Pagina
        }
      })
      
-     console.log("api call patienet pagination")
      
      return response.data
    } catch (error: any) {
@@ -90,7 +89,6 @@ async getPatientBySearch(
   }
 
 async getPatientById(id: string): Promise<Patient | null> {
-    console.log('run get pat')
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/patients/${id}`, {

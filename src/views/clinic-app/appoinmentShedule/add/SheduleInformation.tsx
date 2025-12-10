@@ -23,10 +23,6 @@ import type {Doctor, DoctorSchedule, DoctorScheduleDTO } from '@/types/doctor.ty
 import { doctorService } from '@/services/doctor.service';
 
 const SheduleInformation = ({role}: { role: string }) => {
-
-  console.log(role)
-
-  // Initialize React Hook Form
   
   const methods = useForm<DoctorSchedule>({
     defaultValues: {
@@ -54,18 +50,18 @@ const onSubmit = async (data: DoctorSchedule) => {
     startTime: schedule.startTime,
     endTime: schedule.endTime,
     doctorFee: Number(schedule.doctorFee),
-    clinicFee: Number(schedule.clinicFee),     // Ensure it's a number
-    maxPatientCount: Number(schedule.maxPatientCount), // Ensure it's a number
+    clinicFee: Number(schedule.clinicFee),   
+    maxPatientCount: Number(schedule.maxPatientCount), 
     registeredPatientCount:0
   }));
   
   try {
 
     await doctorService.createBatchSchedules(payload);
+    reset();
     
     toast.success("Schedules published successfully!");
     
-    reset();
 
   } catch (error:any) {
     toast.error(error.message || "An unknown error occurred.");

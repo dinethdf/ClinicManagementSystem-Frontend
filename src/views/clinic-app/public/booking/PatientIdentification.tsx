@@ -135,7 +135,6 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
 
       setLoading(true); setErrorMsg(''); setSuccessMsg('');
       
-      console.log(isOtpSent);
 
       try {
           const res = await verifyOtp(mobileToVerify, otp) 
@@ -181,7 +180,6 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
               payload.mobileNo = existingPatient.mobileNo
               payload.email = existingPatient.email 
           } else {
-            console.log(regForm)
             
             if(!regForm.firstName || !regForm.lastName || !regForm.dob || !regForm.nic) {
                 

@@ -26,7 +26,6 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
   const router = useRouter()
   const [openCancelDialog, setOpenCancelDialog] = useState(false)
 
-  // Handle Cancel Logic
   const handleCancelConfirm = async (reason?: string) => {
     // 1. Call the Server Action with the selected reason
     const finalReason = reason || "No reason provided";
@@ -119,16 +118,17 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
         </CardContent>
       </Card>
 
-      <ConfirmationDialog
+<ConfirmationDialog
         open={openCancelDialog}
         setOpen={setOpenCancelDialog}
         type='cancel-appointment'
         onConfirm={handleCancelConfirm}
-        // Pass Payment Info to Dialog
+        // Updated Payment Details Passing
         paymentDetails={{
-            amount: 3500, // Replace with appointmentData.amount if available
-            status: appointmentData.status === 'PENDING_PAYMENT' ? 'Unpaid' : 'Paid',
-            method: 'Cash/Card'
+            invoiceStatus: appointmentData.invoiceStatus,          // e.g. 'PAID', 'UNPAID'
+            invoiceFinalAmount: appointmentData.invoiceFinalAmount, // The amount paid
+            doctorFee: appointmentData.doctorFee,
+            clinicFee: appointmentData.clinicFee
         }}
       />
     </>

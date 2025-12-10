@@ -53,8 +53,6 @@ export async function getAppointmentsListByShedule(sheduleId: number) {
       //   cache: 'no-store'
       // })
 
-      console.log("API call in server " )
-
       if (!res.ok) {
         console.error('Failed to fetch patient:', res.status, res.statusText)
 
@@ -62,8 +60,6 @@ export async function getAppointmentsListByShedule(sheduleId: number) {
       }
 
       const json = await res.json()
-
-      console.log(json)
 
       return json.data
     } catch (error) {
