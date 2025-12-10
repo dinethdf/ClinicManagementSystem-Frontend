@@ -106,7 +106,7 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
       columnHelper.accessor('queuePosition', {
         header: 'Queue',
         cell: ({ row }) => (
-           <Avatar variant="rounded" sx={{ bgcolor: 'primary.light', color: 'primary.main', width: 30, height: 30, fontSize: '0.875rem', fontWeight: 'bold' }}>
+           <Avatar variant="rounded" sx={{ color: 'primary.main', width: 30, height: 30, fontSize: '0.875rem', fontWeight: 'bold' }}>
               {row.original.queuePosition}
            </Avatar>
         )
@@ -146,7 +146,7 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
         header: 'Action',
         cell: ({ row }) => (
           <Link
-            href={getLocalizedUrl(`/apps/appointments/details/${row.original.id}`, locale as Locale)}
+            href={getLocalizedUrl(`/en/clinic/appoinment/details/${row.original.id}`, locale as Locale)}
             className='text-primary hover:underline text-sm font-medium'
           >
             View

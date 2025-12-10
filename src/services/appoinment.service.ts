@@ -9,14 +9,12 @@ class AppointmentService {
    */
   async getAppointmentsByPatientId(patientId: string): Promise<PatientAppointmentDTO[]> {
     try {
-      // We expect ApiResponse<PatientAppointmentDTO[]> from the backend
+
       const response = await apiClient.get<ApiResponse<PatientAppointmentDTO[]>>(
         `/api/appointments/patient/${patientId}`
       )
       
-      console.log(`API call: Fetch appointments for patient ${patientId}`)
-      
-      // The controller wraps the list in a 'data' field inside ApiResponse
+
       return response.data.data 
     } catch (error: any) {
       // Standard error handling matching your PatientService

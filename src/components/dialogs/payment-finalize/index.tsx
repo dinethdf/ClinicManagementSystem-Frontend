@@ -152,7 +152,6 @@ const PaymentFinalizer = ({ open, setOpen, finalTotal, invoiceId, discounts, pat
           patientMobileNo: patientMobileNo
       };
 
-      console.log("Submitting Payment:", paymentPayload);
 
       // 4. CALL THE SERVER ACTION
       const result = await processInvoicePayment(paymentPayload);

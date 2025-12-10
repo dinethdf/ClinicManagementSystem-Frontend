@@ -70,7 +70,7 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
       const response = await patientService.getGuardianForChildPatient(data.nicNo, data.guardianName)
 
       setGuardianList(response) // Populate the list with API data
-      console.log('✅ Guardians found:', response)
+
     } catch (error) {
       setGuardianList([]) // Clear list on error
       setSearchedBoxMessage('No guardians found matching your search.')

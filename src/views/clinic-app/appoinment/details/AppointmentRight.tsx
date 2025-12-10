@@ -15,6 +15,7 @@ import Divider from '@mui/material/Divider'
 import CustomTabList from '@core/components/mui/TabList'
 
 import type { AppointmentDetailDTO } from '@/types/appoinments.types'
+import { Chip } from '@mui/material'
 
 const AppointmentRight = ({ appointmentData }: { appointmentData: AppointmentDetailDTO }) => {
   const [activeTab, setActiveTab] = useState('overview')
@@ -64,23 +65,63 @@ const AppointmentRight = ({ appointmentData }: { appointmentData: AppointmentDet
                 </CardContent>
             </Card>
 
-            {/* Financial Breakdown */}
+          {/* Financial Breakdown */}
             <Card className='mb-6'>
-                <CardHeader title="Financial Breakdown" />
+                <CardHeader 
+                    title="Financial Breakdown" 
+                    action={
+                        <Chip
+                            label={appointmentData.invoiceStatus} 
+                            color={appointmentData.invoiceStatus === 'PAID' ? 'success' : appointmentData.invoiceStatus === 'CANCELLED' ? 'error' : 'warning'} 
+                            size='small' 
+                            variant='tonal'
+                            className='font-bold'
+                        />
+                    }
+                />
                 <Divider />
-                 <CardContent>
+                <CardContent>
+                    {/* Base Fees */}
                     <div className='flex justify-between mb-2'>
-                        <Typography>Doctor Fee</Typography>
+                        <Typography color='text.secondary'>Doctor Fee</Typography>
                         <Typography>LKR {appointmentData.doctorFee.toFixed(2)}</Typography>
                     </div>
                     <div className='flex justify-between mb-2'>
-                        <Typography>Clinic Fee</Typography>
+                        <Typography color='text.secondary'>Clinic Fee</Typography>
                         <Typography>LKR {appointmentData.clinicFee.toFixed(2)}</Typography>
                     </div>
+
+                    <Divider className='my-2 border-dashed' />
+   
+                    <div className='flex justify-between mb-2'>
+                        <Typography className='font-medium'>Subtotal</Typography>
+                        <Typography className='font-medium'>
+                            LKR {(appointmentData.doctorFee + appointmentData.clinicFee).toFixed(2)}
+                        </Typography>
+                    </div>
+
+                    {appointmentData.invoiceTotalDiscount > 0 && (
+                        <div className='flex justify-between mb-2 text-red-500'>
+                            <Typography color='error' variant='body2'>Discount Applied</Typography>
+                            <Typography color='error' variant='body2'>
+                                - LKR {appointmentData.invoiceTotalDiscount.toFixed(2)}
+                            </Typography>
+                        </div>
+                    )}
+
                     <Divider className='my-2' />
-                    <div className='flex justify-between'>
-                        <Typography className='font-bold'>Total</Typography>
-                        <Typography className='font-bold'>LKR {(appointmentData.doctorFee + appointmentData.clinicFee).toFixed(2)}</Typography>
+
+                    {/* Final Amount */}
+                    <div className='flex justify-between items-center'>
+                        <div className='flex flex-col'>
+                            <Typography className='font-bold text-lg text-primary'>Final Amount</Typography>
+                            <Typography variant='caption' color='text.disabled'>
+                                {appointmentData.invoiceStatus === 'PAID' ? 'Paid by Patient' : 'To be Paid'}
+                            </Typography>
+                        </div>
+                        <Typography className='font-bold text-xl text-primary'>
+                            LKR {appointmentData.invoiceFinalAmount.toFixed(2)}
+                        </Typography>
                     </div>
                  </CardContent>
             </Card>

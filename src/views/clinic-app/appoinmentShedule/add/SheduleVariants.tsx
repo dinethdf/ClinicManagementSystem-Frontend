@@ -14,7 +14,7 @@ import Button from '@mui/material/Button'
 // Components Imports
 import CustomTextField from '@core/components/mui/TextField'
 import CustomIconButton from '@core/components/mui/IconButton'
-import AppReactDatepicker from '@/libs/styles/AppReactDatepicker' // Assuming this is your datepicker path
+import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 // Types Imports
 import type { DoctorSchedule, ScheduleSlot } from '@/types/doctor.types'
@@ -25,61 +25,53 @@ const SheduleVariants = () => {
     formState: { errors }
   } = useFormContext<DoctorSchedule>()
 
-  // Use RHF's useFieldArray to manage dynamic variants
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: 'schedules'
   })
 
-  // Initialize first variant if empty
   useEffect(() => {
     if (fields.length === 0) {
-      // Updated to use startTime and endTime
       append({ date: '', startTime: '', endTime: '', doctorFee: 0, clinicFee: 0, maxPatientCount: 0, registeredPatientCount: 0 })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [])
 
-  // Handler for Date change
+
   const handleDateChange = (index: number, dateObj: Date | null) => {
     if (!dateObj) return
 
-    // FIX: Get local date components
-    const pad = (num: number) => num.toString().padStart(2, '0') // Re-using pad helper
+    const pad = (num: number) => num.toString().padStart(2, '0')
     const year = dateObj.getFullYear()
-    const month = pad(dateObj.getMonth() + 1) // getMonth() is 0-indexed
+    const month = pad(dateObj.getMonth() + 1) 
     const day = pad(dateObj.getDate())
-    const date = `${year}-${month}-${day}` // Creates 'YYYY-MM-DD' in local time
+    const date = `${year}-${month}-${day}`
 
-    // Use update to set only the date
+ 
     update(index, {
-      ...(fields[index] as ScheduleSlot), // Cast field to your type
+      ...(fields[index] as ScheduleSlot),
       date
     })
   }
 
-  // --- NEW: Handler for Start Time change ---
   const handleStartTimeChange = (index: number, dateObj: Date | null) => {
     if (!dateObj) return
 
-    const time = dateObj.toTimeString().split(' ')[0].slice(0, 5) // 'HH:MM'
+    const time = dateObj.toTimeString().split(' ')[0].slice(0, 5)
 
-    // Use update to set only the startTime
     update(index, {
-      ...(fields[index] as ScheduleSlot), // Cast field to your type
+      ...(fields[index] as ScheduleSlot), 
       startTime: time
     })
   }
 
-  // --- NEW: Handler for End Time change ---
   const handleEndTimeChange = (index: number, dateObj: Date | null) => {
     if (!dateObj) return
 
-    const time = dateObj.toTimeString().split(' ')[0].slice(0, 5) // 'HH:MM'
+    const time = dateObj.toTimeString().split(' ')[0].slice(0, 5)
 
-    // Use update to set only the endTime
     update(index, {
-      ...(fields[index] as ScheduleSlot), // Cast field to your type
+      ...(fields[index] as ScheduleSlot), 
       endTime: time
     })
   }
@@ -91,7 +83,6 @@ const SheduleVariants = () => {
         <Grid container spacing={6}>
           {fields.map((item, index) => (
             <Grid key={item.id} container spacing={4} className='repeater-item mbe-4'>
-              {/* 1. Date Component (Unchanged) */}
               <Grid size={{ xs: 12, md: 3 }}>
                 <Controller
                   name={`schedules.${index}.date`}
@@ -102,8 +93,6 @@ const SheduleVariants = () => {
                       id={`date-picker-${index}`}
                       dateFormat='MM/dd/yyyy'
                       autoComplete="off"
-                      
-                      // Correctly handle local date string for 'selected'
                       selected={field.value ? new Date(`${field.value}T00:00:00`) : null}
                       onChange={date => handleDateChange(index, date)}
                       customInput={
@@ -119,7 +108,6 @@ const SheduleVariants = () => {
                 />
               </Grid>
 
-              {/* 2. Start Time Component */}
               <Grid size={{ xs: 12, md: 1.5 }}>
                 <Controller
                   name={`schedules.${index}.startTime`}
@@ -132,8 +120,8 @@ const SheduleVariants = () => {
                       timeFormat='HH:mm'
                       timeIntervals={15}
                       id={`start-time-picker-${index}`}
-                      dateFormat='h:mm aa'
-                      autoComplete="off"
+                      dateFormat='HH:mm'
+                      autoComplete="true"
                       selected={field.value ? new Date(`1970-01-01T${field.value}`) : null}
                       onChange={date => handleStartTimeChange(index, date)}
                       customInput={
@@ -163,7 +151,7 @@ const SheduleVariants = () => {
                       timeFormat='HH:mm'
                       timeIntervals={15}
                       id={`end-time-picker-${index}`}
-                      dateFormat='h:mm aa'
+                      dateFormat='HH:mm'
                       autoComplete="off"
                       selected={field.value ? new Date(`1970-01-01T${field.value}`) : null}
                       onChange={date => handleEndTimeChange(index, date)}

@@ -10,14 +10,14 @@ import type { ScheduleListTypes } from '@/types/doctor.types'
 import HeaderListCard from './HeaderListCard' // You can use your existing one or a new one
 import ScheduleListTable from './ScheduleListTable'
 
-const ScheduleList = ({ scheduleData }: { scheduleData?: ScheduleListTypes[] }) => {
+const ScheduleList = () => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
         <HeaderListCard /> 
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <ScheduleListTable scheduleData={scheduleData} />
+        <ScheduleListTable />
       </Grid>
     </Grid>
   )
