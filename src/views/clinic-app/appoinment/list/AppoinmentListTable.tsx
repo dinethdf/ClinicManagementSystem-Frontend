@@ -2,9 +2,7 @@
 
 // React Imports
 import { useState, useEffect, useMemo } from 'react'
-
 import Link from 'next/link'
-
 import { useParams } from 'next/navigation'
 
 // MUI Imports
@@ -14,6 +12,13 @@ import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import TablePagination from '@mui/material/TablePagination'
 import CircularProgress from '@mui/material/CircularProgress'
+import Grid from '@mui/material/Grid' // Updated Grid import
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
+
+import CustomTextField from '@core/components/mui/TextField'
+
+import type { TextFieldProps } from '@mui/material/TextField'
 
 // TanStack Table Imports
 import {
@@ -36,6 +41,9 @@ import { getAppointmentList } from '@/services/appoinment.server.service'
 import OptionMenu from '@core/components/option-menu'
 import { getLocalizedUrl } from '@/utils/i18n'
 import tableStyles from '@core/styles/table.module.css'
+import { InputAdornment } from '@mui/material'
+import PatientSelectDialogBox from '@/components/dialogs/patient-select'
+import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick'
 
 const appointmentStatusObj: { [key: string]: { color: ThemeColor; label: string } } = {
   Booked: { color: 'primary', label: 'Booked' },
@@ -58,16 +66,43 @@ const AppointmentListTable = () => {
   
   const [totalCount, setTotalCount] = useState(0)
 
+  // State for Filters
+  const [filters, setFilters] = useState({
+      patientId: '',
+      patientName: '',
+      scheduleId: '',
+      startDate: '',
+      endDate: ''
+  })
+
+  // Temporary state for inputs before applying
+  const [tempFilters, setTempFilters] = useState({
+      patientId: '',
+      patientName: '',
+      scheduleId: '',
+      startDate: '',
+      endDate: ''
+  })
+
   const { lang: locale } = useParams()
 
-  // Fetch Data when pagination state changes
+  // Fetch Data
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true)
     
       try {
-        // API call using current page index and page size
-        const res = await getAppointmentList(pagination.pageIndex, pagination.pageSize)
+        // Prepare params, converting empty strings to undefined if needed
+        const params = {
+            page: pagination.pageIndex,
+            size: pagination.pageSize,
+            patientId: filters.patientId ? Number(filters.patientId) : undefined,
+            scheduleId: filters.scheduleId ? Number(filters.scheduleId) : undefined,
+            startDate: filters.startDate || undefined,
+            endDate: filters.endDate || undefined
+        }
+
+        const res = await getAppointmentList(params)
         
         if (res) {
           setData(res.content)
@@ -84,7 +119,19 @@ const AppointmentListTable = () => {
     }
 
     loadData()
-  }, [pagination.pageIndex, pagination.pageSize])
+  }, [pagination.pageIndex, pagination.pageSize, filters]) // Trigger fetch when filters change
+
+  const handleApplyFilters = () => {
+      setPagination(prev => ({ ...prev, pageIndex: 0 })) // Reset to page 1
+      setFilters(tempFilters)
+  }
+
+  const handleResetFilters = () => {
+      const reset = { patientId: '', patientName: '', scheduleId: '', startDate: '', endDate: '' }
+      setTempFilters(reset)
+      setFilters(reset)
+      setPagination(prev => ({ ...prev, pageIndex: 0 }))
+  }
 
   const columns = useMemo<ColumnDef<AppointmentListDTO, any>[]>(
     () => [
@@ -186,14 +233,90 @@ const AppointmentListTable = () => {
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPagination({
       pageSize: parseInt(event.target.value, 10),
-      pageIndex: 0 // Reset to first page when changing size
+      pageIndex: 0 
     })
+  }
+  const textFieldProps: TextFieldProps = {
+    fullWidth: true,
+    label: 'Patient',
+    placeholder: 'Select Patient',
+    value: tempFilters.patientName,
+    size:"small",
+    InputProps: {
+      readOnly: true,
+      startAdornment: (
+        <InputAdornment position='start'>
+          <i className='tabler-user' />
+        </InputAdornment>
+      )
+    },
+    inputProps: { style: { cursor: 'pointer' } },
   }
 
   return (
     <Card>
-      <CardContent className='flex justify-between items-center gap-4'>
-        <Typography variant='h5'>Appointment List</Typography>
+      <CardContent>
+        <div className='flex justify-between items-center gap-4 mb-4'>
+            <Typography variant='h5'>Appointment List</Typography>
+        </div>
+
+        {/* --- FILTERS SECTION --- */}
+        <Grid container spacing={4} className='mb-6'>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                  
+                    <OpenDialogOnElementClick
+                      element={TextField }
+                      elementProps={textFieldProps}
+                      dialog={PatientSelectDialogBox}
+                      dialogProps={{
+                      onSelectPatient: (patient:any)=>{
+                        setTempFilters({...tempFilters, patientId: patient.id, patientName:(patient.firstName + " " +patient.lastName)})
+                      }
+                      }}
+                    />   
+
+            </Grid>
+            {/* <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <TextField 
+                    label="Schedule ID" 
+                    fullWidth 
+                    size="small"
+                    value={tempFilters.scheduleId}
+                    onChange={(e) => setTempFilters({...tempFilters, scheduleId: e.target.value})}
+                />
+            </Grid> */}
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <TextField 
+                    label="Start Date" 
+                    type="date" 
+                    fullWidth 
+                    size="small" 
+                    InputLabelProps={{ shrink: true }}
+                    value={tempFilters.startDate}
+                    onChange={(e) => setTempFilters({...tempFilters, startDate: e.target.value})}
+                />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <TextField 
+                    label="End Date" 
+                    type="date" 
+                    fullWidth 
+                    size="small" 
+                    InputLabelProps={{ shrink: true }}
+                    value={tempFilters.endDate}
+                    onChange={(e) => setTempFilters({...tempFilters, endDate: e.target.value})}
+                />
+            </Grid>
+            
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} className="flex justify-end gap-2">
+                <Button variant="outlined" color="secondary" onClick={handleResetFilters}>
+                    Reset
+                </Button>
+                <Button variant="contained" onClick={handleApplyFilters}>
+                    Apply Filters
+                </Button>
+            </Grid>
+        </Grid>
       </CardContent>
       
       {isLoading ? (
@@ -213,21 +336,24 @@ const AppointmentListTable = () => {
               ))}
             </thead>
             <tbody>
-              {table.getRowModel().rows.map(row => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map(cell => (
-                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                  ))}
-                </tr>
-              ))}
+              {table.getRowModel().rows.length === 0 ? (
+                 <tr>
+                    <td colSpan={columns.length} className='text-center p-4'>No appointments found</td>
+                 </tr>
+              ) : (
+                  table.getRowModel().rows.map(row => (
+                    <tr key={row.id}>
+                      {row.getVisibleCells().map(cell => (
+                        <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                      ))}
+                    </tr>
+                  ))
+              )}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* Standard MUI Pagination. 
-        This is safer than nesting the custom component unless you are 100% sure of its props.
-      */}
       <TablePagination
         component="div"
         count={totalCount}
