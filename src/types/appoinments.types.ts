@@ -82,6 +82,10 @@ export type AppointmentDetailDTO = {
   doctorFee: number
   clinicFee: number
   scheduleId: number
+  
+  invoiceTotalDiscount: number
+  invoiceFinalAmount: number
+  invoiceStatus: string
 
   createdDate: string
   createdBy: string

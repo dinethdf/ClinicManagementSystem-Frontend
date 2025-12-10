@@ -31,7 +31,7 @@ import type { Locale } from '@configs/i18n'
 import TableFilters from './TableFilters'
 import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
-import TablePaginationComponent from '@components/TablePaginationComponent'
+// import TablePaginationComponent from '@components/TablePaginationComponent' // Not needed for standard MUI pagination
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
@@ -55,7 +55,7 @@ export interface ScheduleDTO {
   clinicFee: number
   maxPatientCount: number
   registeredPatientCount: number
-  isActive: boolean
+  status: string
 }
 
 // Column Helper
@@ -112,6 +112,11 @@ const ScheduleListTable = () => {
     fetchData()
   }, [pagination.pageIndex, pagination.pageSize, filters])
 
+  const scheduleStatusObj: { [key: string]: { title: string; color: 'success' | 'info' | 'error' | 'warning' | 'primary' | 'secondary' } } = {
+    ACTIVE: { title: 'Active', color: 'success' },     
+    COMPLETED: { title: 'Completed', color: 'info' },    
+    CANCELLED: { title: 'Cancelled', color: 'error' }  
+  }
 
   const columns = useMemo<ColumnDef<ScheduleDTO, any>[]>(
     () => [
@@ -188,21 +193,27 @@ const ScheduleListTable = () => {
              </Typography>
         )
       }),
-      columnHelper.accessor('isActive', {
-        header: 'Status',
-        cell: ({ row }) => (
-          <Chip
-            label={row.original.isActive ? 'Active' : 'Inactive'}
-            variant='tonal'
-            color={row.original.isActive ? 'success' : 'error'}
-            size='small'
-          />
-        )
+      columnHelper.accessor('status', {
+              header: 'Status',
+              cell: ({ row }) => {
+                const status = row.original.status;
+                
+                const statusConfig = scheduleStatusObj[status] || { title: status, color: 'primary' };
+
+                return (
+                  <Chip
+                    label={statusConfig.title}
+                    variant='tonal'
+                    color={statusConfig.color}
+                    size='small'
+                  />
+                )
+              }
       }),
       columnHelper.accessor('id', {
         id: 'actions',
         header: 'Actions',
-        cell: () => (
+        cell: ({ row }) => ( // Fixed: added { row } destructuring to access row data if needed
         
         <div className='flex items-center'>
             <IconButton size='small'>
@@ -212,7 +223,7 @@ const ScheduleListTable = () => {
               iconButtonProps={{ size: 'medium' }}
               iconClassName='text-textSecondary'
               options={[
-                { text: 'View Details', icon: 'tabler-eye' },
+                { text: 'View Details', icon: 'tabler-eye', href: getLocalizedUrl(`/clinic/appoinment-shedule/details/${row.original.id}`, locale as Locale) },
                 { text: 'Cancel Schedule', icon: 'tabler-ban', menuItemProps: { className: 'text-error' } }
               ]}
             />
@@ -228,7 +239,7 @@ const ScheduleListTable = () => {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    manualPagination: true, // IMPORTANT: Tells TanStack we handle pagination server-side
+    manualPagination: true,
     state: { pagination },
     onPaginationChange: setPagination,
     pageCount: Math.ceil(totalCount / pagination.pageSize),
@@ -240,17 +251,6 @@ const ScheduleListTable = () => {
       <CardHeader title='Schedule Management' />
       <TableFilters onFilterChange={setFilters} />
       
-      {/* <div className='flex justify-end p-4 gap-2'>
-            <Button
-              variant='contained'
-              component={Link}
-              href={getLocalizedUrl('/clinic/schedule/add', locale as Locale)}
-              startIcon={<i className='tabler-plus' />}
-            >
-              Add Schedule
-            </Button>
-      </div> */}
-
       {isLoading && <div className='w-full p-4 flex justify-center'><CircularProgress /></div>}
 
       {!isLoading && (
@@ -286,13 +286,15 @@ const ScheduleListTable = () => {
                 </table>
             </div>
 
+            {/* FIXED PAGINATION */}
             <TablePagination
-                component={() => <TablePaginationComponent table={table as any} />}
+                component="div"
                 count={totalCount}
                 rowsPerPage={pagination.pageSize}
                 page={pagination.pageIndex}
                 onPageChange={(_, page) => setPagination(prev => ({ ...prev, pageIndex: page }))}
                 onRowsPerPageChange={e => setPagination({ pageIndex: 0, pageSize: Number(e.target.value) })}
+                rowsPerPageOptions={[10, 25, 50]} // Required for dropdown to work
             />
         </>
       )}
