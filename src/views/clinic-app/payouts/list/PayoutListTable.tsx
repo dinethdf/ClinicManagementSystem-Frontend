@@ -1,16 +1,19 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 
-// MUI
+// MUI Imports
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
-import Checkbox from '@mui/material/Checkbox'
+import TablePagination from '@mui/material/TablePagination'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
+import IconButton from '@mui/material/IconButton'
 
 // TanStack Table
 import {
@@ -20,89 +23,102 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 
-import type { PayoutBillDTO } from '@/types/payout.types'
-// UPDATE: Import specific function
-import { getPendingPayouts } from '@/services/payout.server.service'
-import tableStyles from '@core/styles/table.module.css'
+import type { PayoutBillDTO } from '@/types/payout.types' // Ensure this type has scheduleId
 
-// Component
-import PaymentConfirmationDialog from './PaymentConfirmationDialog'
+// Service & Utils
+import { getDoctorPayoutsList } from '@/services/payout.server.service'
+import { getLocalizedUrl } from '@/utils/i18n'
+import { encodeHideValue } from '@/utils/encode' // Import your encoder
+import type { Locale } from '@configs/i18n'
+import tableStyles from '@core/styles/table.module.css'
 
 const columnHelper = createColumnHelper<PayoutBillDTO>()
 
 const PayoutListTable = () => {
+  // --- States ---
   const [data, setData] = useState<PayoutBillDTO[]>([])
   const [loading, setLoading] = useState(true)
-  const [errorMsg, setErrorMsg] = useState<string | null>(null) // Added Error State
-  const [rowSelection, setRowSelection] = useState({})
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
   
-  // Dialog State
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  // Pagination State
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
+  const [totalCount, setTotalCount] = useState(0)
 
-  // Fetch Data
+  // Hooks
+  const { lang: locale } = useParams()
+
+  // --- Fetch Data ---
   const loadData = async () => {
     setLoading(true)
     setErrorMsg(null)
     
-    // UPDATE: New Service Pattern handling
-    const res = await getPendingPayouts() 
-    
-    if (res.success && res.data) {
-        setData(res.data)
-    } else {
+    try {
+      // Pass the current pagination state to the service
+      const res: any = await getDoctorPayoutsList({
+          page: pagination.pageIndex,
+          size: pagination.pageSize,
+      }) 
+      if (res.content) {     
+        setData(res.content)          
+        setTotalCount(res.totalElements) 
+      } else {
         setData([])
-        // Optional: Set error message if needed, or just leave empty table
+        setTotalCount(0)
         if (res.error) setErrorMsg(res.error.message)
+      }
+    } catch (error) {
+        console.error("Failed to load payouts", error)
+        setErrorMsg("Failed to connect to server.")
+    } finally {
+        setLoading(false)
     }
-
-    setLoading(false)
-    setRowSelection({}) // Reset selection on reload
   }
 
+  // Reload when pagination changes
   useEffect(() => {
     loadData()
-  }, [])
+  }, [pagination.pageIndex, pagination.pageSize])
 
-  // Calculate Totals for Selection
-  const selectedRows = Object.keys(rowSelection).map(index => data[Number(index)])
-  const totalSelectedAmount = selectedRows.reduce((sum, row) => sum + (row?.finalPayableAmount || 0), 0)
-  const selectedIds = selectedRows.map(row => row?.payoutId).filter(id => id !== undefined)
 
+  // --- Columns ---
   const columns = useMemo(() => [
-      // Checkbox Column
-      {
-        id: 'select',
-        header: ({ table }: any) => (
-          <Checkbox
-            checked={table.getIsAllRowsSelected()}
-            indeterminate={table.getIsSomeRowsSelected()}
-            onChange={table.getToggleAllRowsSelectedHandler()}
-          />
-        ),
-        cell: ({ row }: any) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            disabled={!row.getCanSelect()}
-            indeterminate={row.getIsSomeSelected()}
-            onChange={row.getToggleSelectedHandler()}
-          />
-        ),
-      },
       columnHelper.accessor('payoutId', {
         header: 'Bill ID',
-        cell: info => <span className='text-primary font-medium'>#{info.getValue()}</span>
+        cell: info => <span className='font-mono text-gray-500'>#{info.getValue()}</span>
       }),
+      
+      // NEW: Schedule ID Column with Link
+      columnHelper.accessor('scheduleId', {
+        header: 'Schedule Ref',
+        cell: ({ row }) => {
+            const id = row.original.scheduleId;
+            const encodedId = encodeHideValue(id); // Use your encoder
+            const linkUrl = getLocalizedUrl(`/clinic/financial/doctor-payment/details/${encodedId}`, locale as Locale);
+
+            return (
+                <Link href={linkUrl} className='flex items-center gap-1 group'>
+                    <span className='font-bold text-primary group-hover:underline'>#{id}</span>
+                    <i className='tabler-external-link text-[10px] text-gray-400 group-hover:text-primary transition-colors' />
+                </Link>
+            )
+        }
+      }),
+
       columnHelper.accessor('doctorName', {
         header: 'Doctor',
         cell: info => <Typography className='font-medium'>{info.getValue()}</Typography>
       }),
+      
       columnHelper.accessor('scheduleDate', {
         header: 'Schedule Date',
+        cell: info => <Typography variant='body2'>{info.getValue()}</Typography>
       }),
+      
       columnHelper.accessor('totalFee', {
         header: 'Total Collections',
         cell: info => `LKR ${info.getValue().toFixed(2)}`
       }),
+      
       columnHelper.accessor('finalPayableAmount', {
         header: 'Payable',
         cell: info => (
@@ -111,35 +127,68 @@ const PayoutListTable = () => {
             </Typography>
         )
       }),
+      
       columnHelper.accessor('status', {
         header: 'Status',
-        cell: info => <Chip label={info.getValue()} color='warning' variant='tonal' size='small' />
+        cell: info => {
+            const status = info.getValue();
+            const color = status === 'PAID' ? 'success' : status === 'PENDING' ? 'warning' : 'default';
+            return <Chip label={status} color={color as any} variant='tonal' size='small' />
+        }
       }),
-    ], [])
+
+      // Optional: Explicit View Action Button
+      columnHelper.display({
+        id: 'actions',
+        header: 'Action',
+        cell: ({ row }) => (
+            <IconButton 
+                component={Link} 
+                href={getLocalizedUrl(`/clinic/financial/doctor-payment/details/${encodeHideValue(row.original.scheduleId)}`, locale as Locale)}
+                color='secondary'
+                size='small'
+            >
+                <i className='tabler-eye' />
+            </IconButton>
+        )
+      })
+    ], [locale])
 
   const table = useReactTable({
     data,
     columns,
-    state: { rowSelection },
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
+    manualPagination: true, // Important for server-side pagination
+    state: { pagination },
+    onPaginationChange: setPagination, // Not used directly by MUI but good for TanStack state
     filterFns: {} as any
    })
+
+  // --- Handlers for MUI Pagination ---
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPagination(prev => ({ ...prev, pageIndex: newPage }))
+  }
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPagination({
+      pageSize: parseInt(event.target.value, 10),
+      pageIndex: 0 
+    })
+  }
 
   return (
     <Card>
       <CardHeader 
-        title="Pending Doctor Payouts" 
+        title="Doctor Payout History" 
         action={
-            <Button variant='contained' onClick={loadData} startIcon={<i className='tabler-refresh'/>}>
+            <Button variant='outlined' onClick={loadData} startIcon={<i className='tabler-refresh'/>}>
                 Refresh
             </Button>
         }
       />
       
       {loading ? (
-         <div className='flex justify-center p-10'><CircularProgress /></div>
+         <div className='flex justify-center p-12'><CircularProgress /></div>
       ) : errorMsg ? (
          <div className='p-6'><Alert severity='error'>{errorMsg}</Alert></div>
       ) : (
@@ -159,10 +208,10 @@ const PayoutListTable = () => {
                 </thead>
                 <tbody>
                     {table.getRowModel().rows.length === 0 ? (
-                        <tr><td colSpan={7} className='text-center p-4'>No pending bills found.</td></tr>
+                        <tr><td colSpan={columns.length} className='text-center p-4'>No payouts found.</td></tr>
                     ) : (
                         table.getRowModel().rows.map(row => (
-                        <tr key={row.id} className={row.getIsSelected() ? 'bg-primary/5' : ''}>
+                        <tr key={row.id}>
                             {row.getVisibleCells().map(cell => (
                             <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                             ))}
@@ -173,36 +222,18 @@ const PayoutListTable = () => {
                 </table>
             </div>
 
-            {/* Sticky Footer Action Bar */}
-            <div className='p-4 border-t flex justify-between items-center bg-gray-50'>
-                <Typography>
-                    Selected: <strong>{Object.keys(rowSelection).length}</strong> bills
-                </Typography>
-                <div className='flex items-center gap-4'>
-                    <Typography variant='h6'>
-                        Total: <span className='text-primary'>LKR {totalSelectedAmount.toFixed(2)}</span>
-                    </Typography>
-                    <Button 
-                        variant='contained' 
-                        color='success'
-                        disabled={selectedIds.length === 0}
-                        onClick={() => setIsDialogOpen(true)}
-                        startIcon={<i className='tabler-cash' />}
-                    >
-                        Process Payment
-                    </Button>
-                </div>
-            </div>
+            {/* Pagination Controls */}
+            <TablePagination
+                component="div"
+                count={totalCount}
+                page={pagination.pageIndex}
+                onPageChange={handleChangePage}
+                rowsPerPage={pagination.pageSize}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={[5, 10, 25, 50]}
+            />
         </>
       )}
-
-      <PaymentConfirmationDialog 
-        open={isDialogOpen} 
-        setOpen={setIsDialogOpen}
-        selectedIds={selectedIds}
-        totalAmount={totalSelectedAmount}
-        onSuccess={loadData}
-      />
     </Card>
   )
 }

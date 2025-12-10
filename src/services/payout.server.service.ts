@@ -5,6 +5,42 @@ import { AppointmentFinancialDTO } from '@/types/financial.types';
 import type { PayoutBillDTO, BulkPaymentRequest, PaymentSuccessResponse, PayoutSearchResponse } from '@/types/payout.types';
 
 
+// Define interface for parameters
+interface GetPayoutsParams {
+  page: number;
+  size: number;
+  status?: string;    // 'PENDING' | 'PAID'
+  startDate?: string; // 'YYYY-MM-DD'
+  endDate?: string;   // 'YYYY-MM-DD'
+}
+
+export async function getDoctorPayoutsList(params: GetPayoutsParams) {
+  try {
+   
+    const query = new URLSearchParams({
+      page: params.page.toString(),
+      size: params.size.toString()
+    });
+
+    if (params.status) query.append('status', params.status);
+    if (params.startDate) query.append('startDate', params.startDate);
+    if (params.endDate) query.append('endDate', params.endDate);
+
+   
+    const response = await http.get<any>(`/api/payouts/doctor/list?${query.toString()}`);
+    return response; 
+
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { success: false, error: { message: err.message, details: err.details } };
+    }
+    
+    console.error('Unexpected error in getDoctorPayoutsList:', err);
+    return { success: false, error: { message: 'An unknown server error occurred.' } };
+  }
+}
+
+
 export async function getPendingPayouts(doctorId?: string) {
   try {
     const url = doctorId 

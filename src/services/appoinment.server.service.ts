@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 
 import { http, ApiError } from '@/services/api.config.server';
 
-import type { AppointmentApiResponse, AppointmentDetailDTO, AppointmentStatusDTO } from '@/types/appoinments.types';
+import type { AppointmentApiResponse, AppointmentDetailDTO, AppointmentStatusDTO, GetAppointmentListParams } from '@/types/appoinments.types';
 
 
 
@@ -104,7 +104,6 @@ export async function getAppointmentInvoiceview(appintmentId: number) {
 export async function processInvoicePayment(payload: any) {
   
   try {
-    // This calls POST http://localhost:8080/api/payments/
     const response = await http.post('/api/payments/appointment/pay', payload);
     
     return { success: true, data: response };
@@ -122,21 +121,33 @@ export async function processInvoicePayment(payload: any) {
 }
 
 
-export async function getAppointmentList(page: number = 0, size: number = 10): Promise<AppointmentApiResponse | null> {
+export async function getAppointmentList(params: GetAppointmentListParams): Promise<AppointmentApiResponse | null> {
   try {
-    const data = await http.get<AppointmentApiResponse>(`/api/appointments/list?page=${page}&size=${size}`);
+    // 1. Create URLSearchParams with mandatory pagination fields
+    const query = new URLSearchParams({
+      page: params.page.toString(),
+      size: params.size.toString()
+    })
+
+    // 2. Conditionally append optional filters if they exist
+    if (params.patientId) query.append('patientId', params.patientId.toString())
+    if (params.scheduleId) query.append('scheduleId', params.scheduleId.toString())
+    if (params.startDate) query.append('startDate', params.startDate)
+    if (params.endDate) query.append('endDate', params.endDate)
+
+    // 3. Make the API call with the constructed query string
+    const data = await http.get<AppointmentApiResponse>(`/api/appointments/list?${query.toString()}`)
     
-    return data;
+    return data
 
   } catch (err) {
-
     if (err instanceof ApiError) {
-      console.error(`API Error fetching list (Status ${err.status}):`, err.message);
+      console.error(`API Error fetching list (Status ${err.status}):`, err.message)
     } else {
-      console.error('Unexpected error fetching appointment list:', err);
+      console.error('Unexpected error fetching appointment list:', err)
     }
 
-    return null; 
+    return null
   }
 }
 

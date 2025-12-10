@@ -38,7 +38,6 @@ export const fetchDoctorSchedules = createAsyncThunk(
     try {
       
       const response = await doctorAnalysisService.getDoctorSchedules(doctorId)
-      
       return response
     } catch (err: any) {
       

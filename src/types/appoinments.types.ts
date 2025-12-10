@@ -136,3 +136,12 @@ export type AppointmentStatusDTO = {
   status: string
   createdDate: string
 }
+
+export interface GetAppointmentListParams {
+  page: number
+  size: number
+  patientId?: number
+  scheduleId?: number
+  startDate?: string
+  endDate?: string
+}

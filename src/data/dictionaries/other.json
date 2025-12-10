@@ -37,6 +37,9 @@
     "appoinmentCat": "Appoinment Category",
     "financial": "Financial",
 
+    "payOuts": "Clinic Payments",
+    "pending": "Doctor Pending",
+
     "products": "Products",
     "list": "List",
     "add": "Add",

@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo } from 'react'
 
 import Link from 'next/link'
 
+import { useParams } from 'next/navigation'
+
 
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -51,6 +53,9 @@ import CustomTextField from '@core/components/mui/TextField'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
+import { getLocalizedUrl } from '@/utils/i18n'
+import { encodeHideValue } from '@/utils/encode'
+import type { Locale } from '@/configs/i18n'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -110,6 +115,8 @@ const columnHelper = createColumnHelper<ScheduleDTO>()
 const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
   // -- Hooks --
   const dispatch = useDispatch<AppDispatch>()
+
+    const { lang: locale } = useParams()
   
   // -- Redux State --
   const { schedules, scheduleStatus } = useSelector((state: RootState) => state.doctorDashboard)
@@ -176,7 +183,7 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
         cell: ({ row }) => (
           <Typography
             component={Link}
-            href={`/doctor/consultation/${row.original.id}`}
+            href={getLocalizedUrl(`clinic/financial/doctor-payment/details/${encodeHideValue(row.original.id)}`, locale as Locale)}
             color='primary.main'
           >{`#${row.original.id}`}</Typography>
         )
@@ -199,22 +206,33 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
             </Typography>
         )
       }),
-      columnHelper.accessor('isActive', {
+      columnHelper.accessor('status', {
         header: 'Status',
         cell: ({ row }) => {
-            const isActive = row.original.isActive
-            
+            const status = row.original.status
+
+         
+            const statusConfig: any = {
+                ACTIVE: { color: 'success', icon: 'tabler-check', label: 'Active' },
+                COMPLETED: { color: 'info', icon: 'tabler-circle-check', label: 'Completed' },
+                CANCELLED: { color: 'error', icon: 'tabler-alert-circle', label: 'Cancelled' },
+            }
+
+            const config = statusConfig[status] || statusConfig.INACTIVE
+
             return (
                 <Chip 
-                    label={isActive ? 'Active' : 'Inactive'} 
-                    color={isActive ? 'success' : 'secondary'} 
+                    label={config.label} 
+                    color={config.color} 
                     variant="tonal" 
                     size="small" 
-                    icon={<i className={isActive ? 'tabler-check' : 'tabler-x'} />}
+                    icon={<i className={config.icon} />}
+                    className='uppercase text-[10px] font-bold' // Added styling for a professional look
                 />
             )
         }
-      }),
+    }),
+    
       columnHelper.accessor('registeredPatientCount', {
         header: 'Capacity',
         cell: ({ row }) => (
@@ -232,10 +250,10 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
           <div className='flex items-center'>
             <IconButton>
               <Link
-                href={`/apps/schedules/edit/${row.original.id}`} // Adjust URL
+                href={`/doctor/schedule/${row.original.id}/finish`} 
                 className='flex'
               >
-                <i className='tabler-pencil text-textSecondary' />
+                <i className='tabler-check text-textSecondary' />
               </Link>
             </IconButton>
             <OptionMenu
@@ -243,7 +261,7 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
               iconClassName='text-textSecondary'
               options={[
                 {
-                  text: 'View Patients',
+                  text: 'Complete Shedule',
                   icon: 'tabler-users',
                   menuItemProps: { className: 'flex items-center gap-2 text-textSecondary' }
                 },
@@ -292,7 +310,7 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
 
   return (
     <Card>
-      <CardContent className='flex justify-between flex-wrap items-start gap-4'>
+      {/* <CardContent className='flex justify-between flex-wrap items-start gap-4'>
         <div className='flex items-center justify-between gap-4'>
           <div className='flex items-center gap-2'>
             <Typography className='hidden sm:block'>Show</Typography>
@@ -308,7 +326,7 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
               <MenuItem value='50'>50</MenuItem>
             </CustomTextField>
           </div>
-          <Button
+        <Button
             variant='contained'
             component={Link}
             startIcon={<i className='tabler-plus' />}
@@ -341,7 +359,7 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
             <MenuItem value='CANCELLED'>Cancelled</MenuItem>
           </CustomTextField>
         </div>
-      </CardContent>
+      </CardContent> */}
       
       <div className='overflow-x-auto'>
         <table className={tableStyles.table}>
@@ -410,7 +428,7 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
       </div>
       
       <TablePagination
-        component={() => <TablePaginationComponent table={table} />}
+        component={() => <TablePaginationComponent table={table as any}  />}
         count={table.getFilteredRowModel().rows.length}
         rowsPerPage={table.getState().pagination.pageSize}
         page={table.getState().pagination.pageIndex}

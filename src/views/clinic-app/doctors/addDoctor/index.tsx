@@ -26,7 +26,7 @@ const AccountSettings = ({ tabContentList }: { tabContentList: { [key: string]: 
 
   return (
     <TabContext value={'account'}>
-      <GoBack title={'Add Patient'} description={' Register a new patient in your clinic.'} />
+      <GoBack title={'Add Doctor'} description={''} />
       <Grid container spacing={6}>
         {/* 
         // Commented For now After mure requrement Use this
