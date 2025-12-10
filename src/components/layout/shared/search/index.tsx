@@ -224,7 +224,7 @@ const NavSearch = () => {
           <div className='whitespace-nowrap select-none text-textDisabled'>Search ⌘K</div>
         </div>
       )}
-      <CommandDialog open={open} onOpenChange={setOpen}>
+      {/* <CommandDialog open={open} onOpenChange={setOpen}>
         <div className='flex items-center justify-between border-be pli-4 plb-3 gap-2'>
           <Title hidden />
           <Description hidden />
@@ -265,7 +265,7 @@ const NavSearch = () => {
           )}
         </CommandList>
         <CommandFooter />
-      </CommandDialog>
+      </CommandDialog> */}
     </>
   )
 }
