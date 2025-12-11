@@ -4,7 +4,7 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 
 // Type Imports
-import type { CardStatsHorizontalWithAvatarProps } from '@/types/pages/widgetTypes'
+import type { CardStatsHorizontalWithAvatarProps } from '@/other/pages/widgetTypes'
 
 // Components Imports
 import CustomAvatar from '@core/components/mui/Avatar'

@@ -2,7 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // Type Imports
-import type { Email, EmailState } from '@/types/apps/emailTypes'
+import type { Email, EmailState } from '@/other/apps/emailTypes'
 
 // Data Imports
 import { db } from '@/fake-db/apps/email'

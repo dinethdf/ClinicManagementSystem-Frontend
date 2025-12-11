@@ -2,7 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // Type Imports
-import type { ColumnType, TaskType } from '@/types/apps/kanbanTypes'
+import type { ColumnType, TaskType } from '@/other/apps/kanbanTypes'
 
 // Data Imports
 import { db } from '@/fake-db/apps/kanban'

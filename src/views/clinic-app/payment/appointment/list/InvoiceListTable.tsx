@@ -40,7 +40,7 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
 import type { ThemeColor } from '@core/types'
-import type { InvoiceType } from '@/types/apps/invoiceTypes'
+import type { InvoiceType } from '@/other/apps/invoiceTypes'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports

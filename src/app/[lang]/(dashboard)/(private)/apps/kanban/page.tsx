@@ -2,7 +2,7 @@
 import classnames from 'classnames'
 
 // Component Imports
-import KanbanBoard from '@views/apps/kanban/KanbanBoard'
+import KanbanBoard from '@/other/views/apps/kanban/KanbanBoard'
 
 // Util Imports
 import { commonLayoutClasses } from '@layouts/utils/layoutClasses'

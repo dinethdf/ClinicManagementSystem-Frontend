@@ -1,5 +1,5 @@
 // Type Imports
-import type { ProfileHeaderType, DataType } from '@/types/pages/profileTypes'
+import type { ProfileHeaderType, DataType } from '@/other/pages/profileTypes'
 
 type DB = {
   users: DataType

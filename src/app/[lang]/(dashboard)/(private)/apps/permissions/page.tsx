@@ -1,5 +1,5 @@
 // Component Imports
-import Permissions from '@views/apps/permissions'
+import Permissions from '@/other/views/apps/permissions'
 
 // Data Imports
 import { getPermissionsData } from '@/app/server/actions'

@@ -1,5 +1,5 @@
 // Component Imports
-import Roles from '@views/apps/roles'
+import Roles from '@/other/views/apps/roles'
 
 // Data Imports
 import { getUserData } from '@/app/server/actions'

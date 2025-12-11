@@ -8,7 +8,7 @@ import CardContent from '@mui/material/CardContent'
 import classnames from 'classnames'
 
 // Type Import
-import type { CardStatsVerticalProps } from '@/types/pages/widgetTypes'
+import type { CardStatsVerticalProps } from '@/other/pages/widgetTypes'
 
 // Component Import
 import CustomAvatar from '@core/components/mui/Avatar'

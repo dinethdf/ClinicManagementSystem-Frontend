@@ -14,7 +14,7 @@ import { useTheme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Type Imports
-import type { PricingPlanType } from '@/types/pages/pricingTypes'
+import type { PricingPlanType } from '@/other/pages/pricingTypes'
 
 // Component Imports
 import PlanDetails from './PlanDetails'

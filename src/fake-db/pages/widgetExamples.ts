@@ -1,4 +1,4 @@
-import type { CardStatsType } from '@/types/pages/widgetTypes'
+import type { CardStatsType } from '@/other/pages/widgetTypes'
 
 export const db: CardStatsType = {
   statsHorizontalWithAvatar: [

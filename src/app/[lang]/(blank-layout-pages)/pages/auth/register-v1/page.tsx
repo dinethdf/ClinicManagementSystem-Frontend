@@ -1,5 +1,5 @@
 // Component Imports
-import RegisterV1 from '@views/pages/auth/RegisterV1'
+import RegisterV1 from '@/other/views/pages/auth/RegisterV1'
 
 const RegisterV1Page = () => {
   return (

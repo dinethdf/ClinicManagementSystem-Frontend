@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid'
 import Divider from '@mui/material/Divider'
 
 // Type Imports
-import type { InvoiceType } from '@/types/apps/invoiceTypes'
+import type { InvoiceType } from '@/other/apps/invoiceTypes'
 
 // Component Imports
 import Logo from '@components/layout/shared/Logo'

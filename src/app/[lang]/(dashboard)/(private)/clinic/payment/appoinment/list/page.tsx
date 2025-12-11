@@ -2,7 +2,7 @@
 import Grid from '@mui/material/Grid'
 
 // Component Imports
-import InvoiceList from '@views/apps/invoice/list'
+import InvoiceList from '@/other/views/apps/invoice/list'
 
 // Data Imports
 import { getInvoiceData } from '@/app/server/actions'

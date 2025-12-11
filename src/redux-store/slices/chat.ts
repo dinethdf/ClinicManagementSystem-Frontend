@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
 // Type Imports
-import type { StatusType } from '@/types/apps/chatTypes'
+import type { StatusType } from '@/other/apps/chatTypes'
 
 // Data Imports
 import { db } from '@/fake-db/apps/chat'

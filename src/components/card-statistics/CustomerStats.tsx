@@ -5,7 +5,7 @@ import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
 
 // Type Imports
-import type { CardStatsCustomerStatsProps } from '@/types/pages/widgetTypes'
+import type { CardStatsCustomerStatsProps } from '@/other/pages/widgetTypes'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'

@@ -5,11 +5,11 @@ import { redirect } from 'next/navigation'
 import Grid from '@mui/material/Grid'
 
 // Type Imports
-import type { InvoiceType } from '@/types/apps/invoiceTypes'
+import type { InvoiceType } from '@/other/apps/invoiceTypes'
 
 // Component Imports
-import EditCard from '@views/apps/invoice/edit/EditCard'
-import EditActions from '@views/apps/invoice/edit/EditActions'
+import EditCard from '@/other/views/apps/invoice/edit/EditCard'
+import EditActions from '@/other/views/apps/invoice/edit/EditActions'
 
 // Data Imports
 import { getInvoiceData } from '@/app/server/actions'

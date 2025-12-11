@@ -2,17 +2,17 @@
 import Grid from '@mui/material/Grid'
 
 // Components Imports
-import CongratulationsJohn from '@views/apps/ecommerce/dashboard/Congratulations'
-import StatisticsCard from '@views/apps/ecommerce/dashboard/StatisticsCard'
-import LineChartProfit from '@views/apps/ecommerce/dashboard/LineChartProfit'
-import RadialBarChart from '@views/apps/ecommerce/dashboard/RadialBarChart'
-import DonutChartGeneratedLeads from '@views/apps/ecommerce/dashboard/DonutChartGeneratedLeads'
-import RevenueReport from '@views/apps/ecommerce/dashboard/RevenueReport'
-import EarningReports from '@views/apps/ecommerce/dashboard/EarningReports'
-import PopularProducts from '@views/apps/ecommerce/dashboard/PopularProducts'
-import Orders from '@views/apps/ecommerce/dashboard/Orders'
-import Transactions from '@views/apps/ecommerce/dashboard/Transactions'
-import InvoiceListTable from '@views/apps/ecommerce/dashboard/InvoiceListTable'
+import CongratulationsJohn from '@/other/views/apps/ecommerce/dashboard/Congratulations'
+import StatisticsCard from '@/other/views/apps/ecommerce/dashboard/StatisticsCard'
+import LineChartProfit from '@/other/views/apps/ecommerce/dashboard/LineChartProfit'
+import RadialBarChart from '@/other/views/apps/ecommerce/dashboard/RadialBarChart'
+import DonutChartGeneratedLeads from '@/other/views/apps/ecommerce/dashboard/DonutChartGeneratedLeads'
+import RevenueReport from '@/other/views/apps/ecommerce/dashboard/RevenueReport'
+import EarningReports from '@/other/views/apps/ecommerce/dashboard/EarningReports'
+import PopularProducts from '@/other/views/apps/ecommerce/dashboard/PopularProducts'
+import Orders from '@/other/views/apps/ecommerce/dashboard/Orders'
+import Transactions from '@/other/views/apps/ecommerce/dashboard/Transactions'
+import InvoiceListTable from '@/other/views/apps/ecommerce/dashboard/InvoiceListTable'
 
 // Data Imports
 import { getInvoiceData } from '@/app/server/actions'

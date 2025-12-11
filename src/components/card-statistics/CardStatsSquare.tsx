@@ -4,7 +4,7 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 
 // Types Imports
-import type { CardStatsSquareProps } from '@/types/pages/widgetTypes'
+import type { CardStatsSquareProps } from '@/other/pages/widgetTypes'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
