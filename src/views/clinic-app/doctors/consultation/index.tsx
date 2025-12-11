@@ -93,9 +93,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
       const res = await checkAppointmentStatus(Number(scheduleId), selectedPatient.id)
        
       if (res.success && res.data) {
-        console.log("Appoinemnt details")
-        console.log(res.data)
-           setAppointmentInfo(res.data)
+        setAppointmentInfo(res.data)
        } else {
            setError(res.error?.message || "Patient has no appointment in this schedule.")
        }
