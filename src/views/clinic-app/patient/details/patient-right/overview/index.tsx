@@ -7,28 +7,7 @@ import PatientAppoinmentsListTable from './PatientAppoinments'
 
 import ActivityTimeline from './ActivityTimeline'
 
-/* const getStatisticsData = async () => {
-  // Varsd
-  const res = await fetch(`${process.env.API_URL}/pages/widget-examples`)
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch statistics data')
-  }
-
-  return res.json()
-} */
-
-
-/* const getEcommerceData = async () => {
-  // Vars
-  const res = await fetch(`${process.env.API_URL}/apps/ecommerce`)
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch ecommerce data')
-  }
-
-  return res.json()
-} */
 
 const Overview = async ({ patientId }: { patientId?: string }) => {
   // Vars
@@ -60,10 +39,10 @@ const Overview = async ({ patientId }: { patientId?: string }) => {
         <CustomerStatisticsCard customerStatData={constodata.customerStats} />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <ActivityTimeline/>
+        <PatientAppoinmentsListTable patientId = {patientId ? patientId : "0"} />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <PatientAppoinmentsListTable patientId = {patientId ? patientId : "0"} />
+        <ActivityTimeline/>
       </Grid>
     </Grid>
   )
