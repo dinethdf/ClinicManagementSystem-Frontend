@@ -288,11 +288,10 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
         
         
         
-        
-        
-        
-        
-        <SubMenu
+         { false && (
+
+          <>
+                  <SubMenu
           label={dictionary['navigation'].dashboards}
           icon={<i className='tabler-smart-home' />}
           suffix={<CustomChip label='5' size='small' color='error' round='true' />}
@@ -598,6 +597,15 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
             <MenuItem disabled>{dictionary['navigation'].disabledMenu}</MenuItem>
           </SubMenu>
         </MenuSection>
+          
+          
+          </>
+
+         )}
+        
+        
+        
+
       </Menu>
       {/* <Menu
         popoutMenuOffset={{ mainAxis: 23 }}
