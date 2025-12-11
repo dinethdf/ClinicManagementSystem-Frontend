@@ -54,7 +54,7 @@ const ActivityTimeline = () => {
                 <Typography variant='caption'>12 min ago</Typography>
               </div>
               <Typography className='mbe-2'>Appoinment #45 Test Result</Typography>
-              <div className='flex items-center gap-2.5 is-fit rounded bg-actionHover plb-[5px] pli-2.5'>
+              <div className='flex items-center gap-2.5 is-fit rounded bg-actionHover py-[5px] pli-2.5'>
                 <img height={20} alt='invoice.pdf' src='/images/icons/pdf-document.png' />
                 <Typography className='font-medium'>patient_bl_test_2234.pdf</Typography>
               </div>
