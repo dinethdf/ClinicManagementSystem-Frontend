@@ -1,39 +1,27 @@
 // Next Imports
 import { redirect } from 'next/navigation'
 
-// Type Imports
-
 // Component Imports
 import CustomerDetails from '@/views/clinic-app/patient/details'
 
-// Data Imports
-
-import { PatientServerSideService } from '@/services/patient.server.service'
-
+// Service Imports (Updated)
+import { getPatientById } from '@/services/patient.server.service'
 
 const CustomerDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params
 
-  // Vars
-  // const data = await getEcommerceData()
+  // 1. Call the new function
+  const res = await getPatientById(params.id)
 
-  const patient = await PatientServerSideService.getPatientById(params.id)
-
-  if (!patient) {
-    redirect('/clinic/patient/list')
-    console.log('Error')
+  // 2. Check success flag instead of checking if object is null
+  if (!res.success || !res.data) {
+    console.error("Patient not found or API error:", res.error)
+    redirect('/clinic/patient/list') // Redirect on failure
   }
 
-  // else{
-  //   // console.log("patient",patient);
-  // }
-  // const filteredData = data?.customerData.filter((item: Customer) =>item.customerId === "879861")[0]
+  const patient = res.data
 
-  if (!patient) {
-    redirect('/not-found')
-  }
-
-  return patient ? <CustomerDetails patientData={patient} /> : null
+  return <CustomerDetails patientData={patient} />
 }
 
 export default CustomerDetailsPage
