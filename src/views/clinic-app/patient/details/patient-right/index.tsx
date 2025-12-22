@@ -27,6 +27,12 @@ const CustomerRight = ({ tabContentList }: { tabContentList: { [key: string]: Re
           <Grid size={{ xs: 12 }}>
             <CustomTabList onChange={handleChange} variant='scrollable' pill='true'>
               <Tab icon={<i className='tabler-user' />} value='overview' label='Overview' iconPosition='start' />
+            <Tab 
+                icon={<i className='tabler-id' />} 
+                value='identity' 
+                label='Identity Card' 
+                iconPosition='start' 
+              />
               <Tab
                 icon={<i className='tabler-brand-revolut' />}
                 value='insurance'
