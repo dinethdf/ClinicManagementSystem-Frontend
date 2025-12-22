@@ -23,13 +23,16 @@ const InsuranceOverview = dynamic(
   () => import('@views/clinic-app/patient/details/patient-right/address-billing/PaymentMethodCard')
 )
 
+const PatientIdTab = dynamic(() => import('@views/clinic-app/patient/details/patient-right/patient-card/PatientIdTab'))
+
 const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
   // Vars
   const tabContentList = (): { [key: string]: ReactElement } => ({
     overview: <OverViewTab patientId={patientData.id} />,
     security: <SecurityTab />,
     insurance: <InsuranceOverview />,
-    notifications: <NotificationsTab />
+    notifications: <NotificationsTab />,
+    identity: <PatientIdTab patientData={patientData} />
   })
 
   const patientRegDate = patientData?.registrationDate
