@@ -43,6 +43,7 @@ export const getPublicSchedulesList = async ({ page, size, date, specialization,
   const params = new URLSearchParams({
     page: page.toString(),
     size: size.toString(),
+    clinicId: `${process.env.NEXT_PUBLIC_CLINIC_ID}`,
   });
   
   if (date) params.append('date', date);

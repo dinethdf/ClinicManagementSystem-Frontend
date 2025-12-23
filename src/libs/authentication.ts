@@ -26,7 +26,8 @@ const loginUser = async (email: string, password: string): Promise<LoginResult> 
     const response = await axios.post<LoginResponse>(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/userSignIn`, {
       username: email,
       password: password,
-      loginType: 'USER'
+      loginType: 'USER',
+      clinicId: process.env.NEXT_PUBLIC_CLINIC_ID
     })
 
     return { success: true, message: 'Login successful', data: response.data }
