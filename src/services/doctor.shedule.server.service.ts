@@ -133,7 +133,10 @@ export const bookPublicAppointment = async (payload: PublicBookingRequest) => {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/public/book-public`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({
+                  ...payload,
+                  clinicId: process.env.NEXT_PUBLIC_CLINIC_ID
+              })
         });
 
         const data = await res.json();
@@ -216,7 +219,8 @@ export const sendOtp = async (mobileNo: string, email: string) => {
             },
             body: JSON.stringify({
                 mobileNo,
-                email
+                email,
+                clinicId:process.env.NEXT_PUBLIC_CLINIC_ID
             })
         });
         
@@ -244,7 +248,8 @@ export const verifyOtp = async (mobileNo: string, otp: string) => {
             },
             body: JSON.stringify({
                 mobileNo,
-                otp
+                otp,
+                clinicId:process.env.NEXT_PUBLIC_CLINIC_ID
             })
         });
 

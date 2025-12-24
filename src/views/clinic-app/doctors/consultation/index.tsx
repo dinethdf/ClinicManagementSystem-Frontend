@@ -209,7 +209,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
   }
 
   const finishSchedule = () => {
-     router.push(`/clinic/doctor/schedule/${scheduleId}/finish`)
+     router.push(`/doctor/schedule/${scheduleId}/finish`)
   }
 
   // --- COMPACT STAT CARD ---
