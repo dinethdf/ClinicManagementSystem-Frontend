@@ -9,7 +9,7 @@ import DashboardHeader from '@/views/clinic-app/dashboard/DashboardHeader'
 
 import { verifyToken } from '@/libs/verifyToken'
 
-import InvoiceListTable from '@/views/clinic-app/dashboard/AppoinmentUpcomming'
+import AppoinmentUpcomming from '@/views/clinic-app/dashboard/AppoinmentUpcomming'
 import QuickActionStaff from '@/views/clinic-app/dashboard/QuickActionStaff'
 
 
@@ -56,7 +56,7 @@ const DashboardClinics = async () => {
            <QuickActionStaff />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
-           <InvoiceListTable />
+           <AppoinmentUpcomming />
           </Grid>            
         </>
       )}
@@ -70,7 +70,7 @@ const DashboardClinics = async () => {
            <QuickActionStaff />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
-           <InvoiceListTable />
+           <AppoinmentUpcomming />
           </Grid>       
         </>
       )}
