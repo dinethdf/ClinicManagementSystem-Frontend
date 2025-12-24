@@ -158,7 +158,7 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
         cell: ({ row }) => (
           <Typography
             component={Link}
-            href={getLocalizedUrl(`/apps/appointments/details/${row.original.appointmentId}`, locale as Locale)}
+            href={getLocalizedUrl(`/clinic/appoinment/details/${row.original.appointmentId}`, locale as Locale)}
             color='primary.main'
             className='font-medium'
           >
@@ -229,7 +229,7 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
                 {
                   text: 'View Details',
                   icon: 'tabler-eye',
-                  href: getLocalizedUrl(`/apps/appointments/view/${row.original.appointmentId}`, locale as Locale),
+                  href: getLocalizedUrl(`/clinic/appoinment/details/${row.original.appointmentId}`, locale as Locale),
                   linkProps: { className: 'flex items-center is-full plb-1.5 pli-4' }
                 }
               ]}

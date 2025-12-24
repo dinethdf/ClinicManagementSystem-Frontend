@@ -105,7 +105,7 @@ const PatientIdCard = ({ patient, barcodeString }: PatientIdCardProps) => {
              {company.logoUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img 
-                    src={company.logoUrl} 
+                    src={'/images/avatars/common.png'} 
                     alt="Clinic Logo" 
                     style={{ 
                         width: '100%', 
