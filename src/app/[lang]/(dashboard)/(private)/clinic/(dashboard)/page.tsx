@@ -9,6 +9,9 @@ import DashboardHeader from '@/views/clinic-app/dashboard/DashboardHeader'
 
 import { verifyToken } from '@/libs/verifyToken'
 
+import InvoiceListTable from '@/views/clinic-app/dashboard/AppoinmentUpcomming'
+import QuickActionStaff from '@/views/clinic-app/dashboard/QuickActionStaff'
+
 
 const StatisticsAdminAnalysisCard = dynamic(() => import('@/views/clinic-app/dashboard/StatisticsAdminAnalysisCard'), {
   loading: () => <p>Loading Stats...</p>
@@ -18,9 +21,6 @@ const RevenueReport = dynamic(() => import('@/views/clinic-app/dashboard/Revenue
 
 const SpecializationSummaryChart = dynamic(() => import('@/views/clinic-app/dashboard/SpecializationSummaryChart'))
 
-const ShedulesByDoctorListTable = dynamic(() => import('@/views/clinic-app/dashboard/ShedulesByDoctorListTable'), {
-  loading: () => <p>Loading Schedule...</p>
-})
 
 
 const DashboardClinics = async () => {
@@ -52,8 +52,29 @@ const DashboardClinics = async () => {
           <Grid size={{ xs: 12, md: 4 }}>
             <SpecializationSummaryChart />
           </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+           <QuickActionStaff />
+          </Grid>
+          <Grid size={{ xs: 12, md: 8 }}>
+           <InvoiceListTable />
+          </Grid>            
         </>
       )}
+      
+      { userRole === 'STAFF' && (
+        <>
+          <Grid size={{ xs: 12, md: 12 }}>
+            <StatisticsAdminAnalysisCard />
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+           <QuickActionStaff />
+          </Grid>
+          <Grid size={{ xs: 12, md: 8 }}>
+           <InvoiceListTable />
+          </Grid>       
+        </>
+      )}
+
 
       {/* --- DOCTOR VIEW (Also visible to Admin) --- */}
       {(userRole === 'DOCTOR') && (

@@ -303,7 +303,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
         
         
         
-         { false && (
+         { true && (
 
           <>
                   <SubMenu
