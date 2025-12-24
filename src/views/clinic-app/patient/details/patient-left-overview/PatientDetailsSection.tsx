@@ -66,11 +66,10 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
             <div className='flex flex-col items-center text-center gap-1'>
                 <Typography variant='h5' className='font-bold'>{patientData?.fullName}</Typography>
                 <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography variant="body2" color="text.secondary">ID: #{patientData?.patientNo}</Typography>
                     {patientData?.isActive ? (
-                        <Chip label='Active' color='success' size='small' variant="tonal" sx={{ height: 20, fontSize: '0.75rem' }} />
+                        <Chip label='Active' color='success' size='medium' variant="tonal" sx={{ height: 30, fontSize: '0.9rem' }} />
                     ) : (
-                        <Chip label='Inactive' color='error' size='small' variant="tonal" sx={{ height: 20, fontSize: '0.75rem' }} />
+                        <Chip label='Inactive' color='error' size='medium' variant="tonal" sx={{ height: 30, fontSize: '0.9rem' }} />
                     )}
                 </Stack>
             </div>

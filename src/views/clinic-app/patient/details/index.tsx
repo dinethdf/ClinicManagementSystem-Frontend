@@ -17,7 +17,7 @@ import PatientRight from './patient-right'
 
 const OverViewTab = dynamic(() => import('@views/clinic-app/patient/details/patient-right/overview'))
 const SecurityTab = dynamic(() => import('@views/clinic-app/patient/details/patient-right/security'))
-const NotificationsTab = dynamic(() => import('@views/clinic-app/patient/details/patient-right/notification'))
+const Analysis = dynamic(() => import('@/views/clinic-app/patient/details/patient-right/analysis'))
 
 const InsuranceOverview = dynamic(
   () => import('@views/clinic-app/patient/details/patient-right/address-billing/PaymentMethodCard')
@@ -31,23 +31,25 @@ const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
     overview: <OverViewTab patientId={patientData.id} />,
     security: <SecurityTab />,
     insurance: <InsuranceOverview />,
-    notifications: <NotificationsTab />,
+    analysis: <Analysis patientId={Number(patientData?.id) || 0} />,
     identity: <PatientIdTab patientData={patientData} />
   })
-
-  const patientRegDate = patientData?.registrationDate
-    ? new Date(patientData.registrationDate).toISOString().split('T')[0]
-    : 'Not Found'
 
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
-        <PatientDetailsHeader patientNo={patientData?.patientNo || 'error'} patientId={patientData?.id || '0'} patientRegDate={patientRegDate} />
+        <PatientDetailsHeader 
+            patientId={patientData.id || ''}
+            firstName={patientData.firstName} 
+            lastName={patientData.lastName} 
+            patientNo={patientData.patientNo || ''}
+            registrationDate={patientData.registrationDate}
+        />
       </Grid>
-      <Grid size={{ xs: 12, md: 4 }}>
+      <Grid size={{ xs: 12, md: 3.5 }}>
         <PatientLeftOverview patientData={patientData} />
       </Grid>
-      <Grid size={{ xs: 12, md: 8 }}>
+      <Grid size={{ xs: 12, md: 8.5 }}>
         <PatientRight tabContentList={tabContentList()} />
       </Grid>
     </Grid>

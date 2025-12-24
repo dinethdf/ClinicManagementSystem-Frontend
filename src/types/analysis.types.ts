@@ -61,3 +61,38 @@ export interface DoctorScheduleApiResponse {
     number: number 
   }
 }
+
+export interface PatientAnalysisData {
+  attendance: {
+    total: number
+    completed: number
+    cancelled: number
+    noshow: number
+    lastVisit: string
+  }
+  financials: {
+    totalBilled: number
+    totalPaid: number
+    totalDue: number
+  }
+  nextAppointment: {
+    scheduleDate: string
+    startTime: string
+    doctorName: string
+  } | null
+  preferredDoctor: {
+    doctorName: string
+    visitCount: number
+  } | null
+  recentHistory: Array<{
+    scheduleDate: string
+    status: string
+    doctorName: string
+  }>
+}
+
+export interface PatientAnalysisResponse {
+  success: boolean
+  message: string
+  data: PatientAnalysisData
+}

@@ -146,12 +146,21 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
                 )}
               />
             </Grid>
+            <Grid size={{ xs: 12, sm: 12 }}>
+              <Controller
+                name='fullName'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField {...field} fullWidth label='Full Name' error={!!errors.fullName} helperText={errors.fullName?.message} />
+                )}
+              />
+            </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='nic'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='NIC' disabled error={!!errors.nic} helperText={errors.nic?.message} />
+                  <CustomTextField {...field} fullWidth label='NIC' error={!!errors.nic} helperText={errors.nic?.message} />
                 )}
               />
             </Grid>

@@ -13,10 +13,10 @@ import ProjectsTable from './ProjectsTables'
 const ProfileTab = ({ data }: { data?: ProfileTabType }) => {
   return (
     <Grid container spacing={6}>
-      <Grid size={{ xs: 12, md: 5, lg: 4 }}>
+      <Grid size={{ xs: 12, md: 4, lg: 3.5 }}>
         <AboutOverview data={data} />
       </Grid>
-      <Grid size={{ xs: 12, md: 7, lg: 8 }}>
+      <Grid size={{ xs: 12, md: 8, lg: 8.5 }}>
         <Grid container spacing={6}>
           <Grid size={{ xs: 12 }}>
             <ActivityTimeline />
