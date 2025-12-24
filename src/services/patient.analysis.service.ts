@@ -5,7 +5,6 @@ class PatientAnalysisService {
 
   async getPatientAnalysis(patientId: number | string): Promise<PatientAnalysisResponse['data'] | null> {
 
-    console.log("call Patien anysisi in FE")
     try {
       const response = await apiClient.get<PatientAnalysisResponse>(
         `/api/patient-analysis/${patientId}`
