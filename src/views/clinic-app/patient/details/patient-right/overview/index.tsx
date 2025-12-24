@@ -38,12 +38,12 @@ const Overview = async ({ patientId }: { patientId?: string }) => {
       <Grid size={{ xs: 12 }}>
         <PatientAppoinmentsListTable patientId = {patientId ? patientId : "0"} />
       </Grid>
-      <Grid size={{ xs: 12 }}>
+      {/* <Grid size={{ xs: 12 }}>
         <CustomerStatisticsCard customerStatData={constodata.customerStats} />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <ActivityTimeline/>
-      </Grid>
+      </Grid> */}
     </Grid>
   )
 }
