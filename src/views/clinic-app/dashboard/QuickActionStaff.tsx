@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import Link from 'next/link' // <--- Import Link
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -11,7 +13,14 @@ import Typography from '@mui/material/Typography'
 // Component Imports
 import PatientSelectorDialog from '@/components/dialogs/patient/PatientSelectorDialog'
 
+// Utils
+import { getLocalizedUrl } from '@/utils/i18n'
+import type { Locale } from '@configs/i18n'
+
 const QuickActionStaff = () => {
+
+  const router = useRouter()
+  const { lang: locale } = useParams()
   
   // --- STATE MANAGEMENT ---
   const [openDialog, setOpenDialog] = useState(false)
@@ -21,14 +30,12 @@ const QuickActionStaff = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
         const target = e.target as HTMLElement;
-        // Don't trigger if user is typing in an input
         const isInputActive = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 
-        // If SPACE is pressed and dialog is NOT open
         if (e.code === 'Space' && !isInputActive && !openDialog) {
-            e.preventDefault(); // Prevent scrolling
-            setInitialTab('2'); // Set to Barcode Tab
-            setOpenDialog(true); // Open Dialog
+            e.preventDefault(); 
+            setInitialTab('2'); 
+            setOpenDialog(true); 
         }
     };
 
@@ -37,17 +44,16 @@ const QuickActionStaff = () => {
   }, [openDialog]);
 
   // --- HANDLERS ---
-  
-  // Handle manual click on "Find Patient" button
   const handleOpenSearch = () => {
-      setInitialTab('1'); // Default to Search tab on click
+      setInitialTab('1');
       setOpenDialog(true);
   }
 
-  // Handle data received from dialog
   const handlePatientSelected = (patientData: any) => {
-      console.log("PARENT RECEIVED DATA:", patientData);
-      // Logic: router.push(...) or state update
+     if (patientData?.id) {
+         const url = getLocalizedUrl(`/clinic/patient/details/${patientData.id}`, locale as Locale)
+         router.push(url)
+     }
   }
 
   return (
@@ -72,13 +78,13 @@ const QuickActionStaff = () => {
 
             {/* Buttons */}
             
-            {/* BUTTON 1: Find Patient */}
+            {/* BUTTON 1: Find Patient (Opens Modal) */}
             <Button 
                 variant='contained' 
                 size='large' 
                 fullWidth 
                 startIcon={<i className='tabler-user-search' />}
-                onClick={handleOpenSearch} // Manually handle click
+                onClick={handleOpenSearch} 
             >
                 Find Patient
             </Button>
@@ -87,7 +93,10 @@ const QuickActionStaff = () => {
                 Press (Space) to Quick Scan
             </div>
 
+            {/* BUTTON 2: Register Patient (Navigate) */}
             <Button 
+                component={Link} // Use Link component
+                href={getLocalizedUrl('/clinic/patient/register', locale as Locale)} // Set URL
                 variant='tonal' 
                 color='primary' 
                 size='large' 
@@ -96,7 +105,10 @@ const QuickActionStaff = () => {
                 Register Patient
             </Button>
 
+            {/* BUTTON 3: New Appointment (Navigate) */}
             <Button 
+                component={Link} // Use Link component
+                href={getLocalizedUrl('/clinic/appoinment/create', locale as Locale)} // Set URL
                 variant='outlined' 
                 size='large' 
                 startIcon={<i className='tabler-calendar-plus' />}
@@ -106,12 +118,11 @@ const QuickActionStaff = () => {
           </CardContent>
         </Card>
 
-        {/* DIALOG COMPONENT - Rendered at root but controlled by state */}
         <PatientSelectorDialog 
             open={openDialog} 
             setOpen={setOpenDialog} 
             onPatientSelect={handlePatientSelected}
-            initialTab={initialTab} // Pass the tab state
+            initialTab={initialTab} 
         />
     </>
   )
