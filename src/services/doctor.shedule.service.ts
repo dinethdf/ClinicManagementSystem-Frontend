@@ -80,7 +80,8 @@ async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorSchedule
       
       queryParams.append('page', params.page.toString())
       queryParams.append('size', params.size.toString())
-      queryParams.append('sort', 'scheduleDate,asc') // Optional: enforce sort
+      queryParams.append('sort', 'scheduleDate,asc')
+      queryParams.append('clinicId', `${process.env.NEXT_PUBLIC_CLINIC_ID}`)
 
       if (params.doctorName) queryParams.append('doctorName', params.doctorName)
       if (params.specialization) queryParams.append('specialization', params.specialization)
