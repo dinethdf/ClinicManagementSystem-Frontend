@@ -7,6 +7,18 @@ import type { PublicBookingRequest } from '@/types/public-booking.types';
 
 // import { http, ApiError } from '@/services/api.config.server';
 
+interface PaginatedResponse {
+  success: boolean;
+  message: string;
+  data: {
+    content: DoctorScheduleDTO[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  } | null;
+}
+
 export async function getSchedulesList() {
   try {
     const cookieStore = await cookies()
@@ -61,12 +73,23 @@ export const getPublicSchedulesList = async ({ page, size, date, specialization,
   return data.data; 
 }
 
-export async function getSchedulesByDoctorId(doctorId: string): Promise<DoctorScheduleDTO[]> {
+export async function getSchedulesByDoctorId(
+  doctorId: string, 
+  page: number = 0, 
+  size: number = 10
+): Promise<PaginatedResponse> {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get('accessToken')?.value
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/schedules/by-doctor/${doctorId}`, {
+    // Added page, size, and sort parameters to the URL
+    const queryParams = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        sort: 'scheduleDate,desc'
+    });
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/schedules/by-doctor/${doctorId}?${queryParams.toString()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -76,21 +99,19 @@ export async function getSchedulesByDoctorId(doctorId: string): Promise<DoctorSc
     })
 
     if (!res.ok) {
-      
       console.error('Failed to fetch doctor schedules:', res.status, res.statusText)
-      
-      return []
+      // Return a consistent error structure instead of empty array
+      return { success: false, message: `Failed to fetch: ${res.statusText}`, data: null }
     }
 
     const json = await res.json()
 
-    return json.data || []
+    // Return the full JSON so the component can access .success, .data.content, and .data.totalElements
+    return json
 
-  } catch (error) {
-    
+  } catch (error: any) {
     console.error('Server-side get doctor schedules failed:', error)
-    
-    return []
+    return { success: false, message: error.message || 'Server error', data: null }
   }
 }
 
@@ -142,11 +163,10 @@ export const bookPublicAppointment = async (payload: PublicBookingRequest) => {
         const data = await res.json();
         
         if (!res.ok) {
-            // Throw the specific error message from backend (e.g. "SCHEDULE_FULL")
-            throw new Error(data.message || 'Booking failed');
+            const errorMessage = data.defaultMessage || data.message || 'Booking failed. Please try again.';
+            throw new Error(errorMessage);
         }
-
-        return data; // Returns { code: 200, data: <appointmentId>, message: "..." }
+        return data; 
     } catch (error) {
         throw error;
     }
@@ -156,8 +176,10 @@ export const checkPatientAvailability = async (query: string) => {
 
     const isNic = query.toLowerCase().includes('v') || query.length > 10;
     const param = isNic ? `nic=${query}` : `mobileNo=${query}`;
+    const clinicId = `clinicId=${process.env.NEXT_PUBLIC_CLINIC_ID}`;
+
     
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/public/check-patient?${param}`, { cache: 'no-store' });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/public/check-patient?${param}&${clinicId}`, { cache: 'no-store' });
     
     return res.json();
 }
