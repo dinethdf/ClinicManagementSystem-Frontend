@@ -179,6 +179,12 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
   const handleStartConsultation = async () => {
     if(!processingPatient?.id) return;
 
+    // --- VALIDATION: Prevent starting if payment is pending ---
+    if (appointmentInfo?.status === 'PENDING_PAYMENT') {
+        setError("Cannot start consultation: Payment is Pending.")
+        return
+    }
+
     setLoading(true)
     const res = await getConsultationPatientDetails(processingPatient.id)
     if(res.success && res.data) {
@@ -409,6 +415,15 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
                                 <Typography variant='subtitle1' className='font-bold text-gray-700'>Standard</Typography>
                             </div>
                         </div>
+
+                        {/* --- VALIDATION WARNING UI --- */}
+                        {appointmentInfo.status === 'PENDING_PAYMENT' && (
+                            <Alert severity="error" className="w-full font-bold">
+                                <Typography variant="subtitle2" color="error" fontWeight={700}>
+                                    Cannot Start: Payment is Pending
+                                </Typography>
+                            </Alert>
+                        )}
                     </div>
                  )}
             </DialogContent>
@@ -421,7 +436,8 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
                     fullWidth 
                     startIcon={<i className='tabler-stethoscope' />}
                     onClick={handleStartConsultation} 
-                    disabled={loading}
+                    // --- DISABLE IF PAYMENT PENDING ---
+                    disabled={loading || appointmentInfo?.status !== 'BOOKED'}
                     autoFocus 
                 >
                     Start (Enter)
