@@ -7,6 +7,9 @@ import ScheduleSelection from './ScheduleSelection'
 import PatientIdentification from './PatientIdentification'
 import type { PublicScheduleDTO } from '@/types/public-booking.types'
 
+import ChatBot from './ChatBot'
+
+
 // MUI Icons (Optional, or keep your class based icons)
 // import { IconCheck } from '@tabler/icons-react' 
 
@@ -82,6 +85,8 @@ const PublicBookingWizard = () => {
             onSubmitBooking={handleBookingSuccess} // Pass the new handler
          />
        )}
+
+        <ChatBot />
     </div>
   )
 }
