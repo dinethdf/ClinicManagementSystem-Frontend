@@ -84,6 +84,9 @@ export const http = {
   put: <T = any>(endpoint: string, body: any): Promise<T> =>
     apiFetch(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
 
+  patch: <T = any>(endpoint: string): Promise<T> =>
+    apiFetch(endpoint, { method: 'PATCH' }),  
+
   delete: <T = any>(endpoint: string): Promise<T> =>
     apiFetch(endpoint, { method: 'DELETE' }),
 };
