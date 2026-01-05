@@ -294,7 +294,34 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
             </SubMenu> */}
             
           </SubMenu>
-          )}            
+          )}          
+
+{/* Patient Nav Bar */}
+        { true && (
+          <SubMenu label={dictionary['navigation'].patientPortal || 'Patient Portal'} icon={<i className='tabler-user-heart' />}>
+            
+            <MenuItem href={`/${locale}/patient/dashboard`} icon={<i className='tabler-layout-dashboard' />}>
+              {dictionary['navigation'].dashboard || 'Dashboard'}
+            </MenuItem>
+
+            <MenuItem href={`/${locale}/patient/appointments`} icon={<i className='tabler-calendar-time' />}>
+              {dictionary['navigation'].appointments || 'My Appointments'}
+            </MenuItem>
+
+            <MenuItem href={`/${locale}/patient/medical-records`} icon={<i className='tabler-clipboard-heart' />}>
+              {dictionary['navigation'].medicalRecords || 'Medical Records'}
+            </MenuItem>
+
+            <MenuItem href={`/${locale}/patient/billing`} icon={<i className='tabler-receipt-2' />}>
+              {dictionary['navigation'].billing || 'Billing & Insurance'}
+            </MenuItem>
+
+            <MenuItem href={`/${locale}/patient/family`} icon={<i className='tabler-users-group' />}>
+              {dictionary['navigation'].family || 'Family Profiles'}
+            </MenuItem>
+
+          </SubMenu>
+        )}            
   
           <SubMenu label={"Public"} icon={<i className='tabler-shopping-cart' />}>
             <MenuItem href={`/${locale}/book-appointment`}>{"Booking"}</MenuItem>
