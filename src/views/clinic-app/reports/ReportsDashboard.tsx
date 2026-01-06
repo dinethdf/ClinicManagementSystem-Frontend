@@ -9,15 +9,16 @@ import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementCli
 import ReportTriggerCard from './components/ReportTriggerCard' // Use the one from previous answer
 
 // Dialog Imports
-import RevenueReportDialog from '@/components/dialogs/report-dialog/RevenueReportDialog'
-import AppointmentReportDialog from '@/components/dialogs/report-dialog/AppointmentReportDialog'
-import PatientHealthReportDialog from '@/components/dialogs/report-dialog/PatientHealthReportDialog'
+import RevenueReportDialog from '@/components/dialogs/report-dialog/admin-report/RevenueReportDialog'
+import AppointmentReportDialog from '@/components/dialogs/report-dialog/admin-report/AppointmentReportDialog'
+import PatientHealthReportDialog from '@/components/dialogs/report-dialog/admin-report/PatientHealthReportDialog'
+import SessionSummaryReportDialog from '@/components/dialogs/report-dialog/admin-report/SessionSummaryReportDialog'
 
 const ReportsDashboard = () => {
   return (
     <div className='flex flex-col gap-6'>
        <div className='mb-4'>
-          <Typography variant='h4' fontWeight={700} color='primary'>Reports & Analytics</Typography>
+          <Typography variant='h4' fontWeight={700} color='primary'>Reports & Analytics | Administrator</Typography>
           <Typography variant='body2' color='text.secondary'>Select a category to generate detailed reports.</Typography>
        </div>
 
@@ -38,7 +39,22 @@ const ReportsDashboard = () => {
              />
           </Grid>
 
-          {/* 2. Appointment Report */}
+      {/* 2. Session Financials Report */}
+       <Grid size={{ xs: 12, md: 4 }}>
+             <OpenDialogOnElementClick
+                element={ReportTriggerCard}
+                elementProps={{
+                  title: 'Doctor Session Financials',
+                  subtitle: 'Doctor schedule earnings and session summary.',
+                  icon: 'tabler-report-money',
+                  color: 'info'
+                }}
+                 dialog={SessionSummaryReportDialog}
+                dialogProps={{}}
+             />
+          </Grid>
+
+          {/* 3. Appointment Report */}
           <Grid size={{ xs: 12, md: 4 }}>
              <OpenDialogOnElementClick
                 element={ReportTriggerCard}
@@ -53,7 +69,7 @@ const ReportsDashboard = () => {
              />
           </Grid>
 
-          {/* 3. Patient Health Report */}
+          {/* 4. Patient Health Report */}
           <Grid size={{ xs: 12, md: 4 }}>
              <OpenDialogOnElementClick
                 element={ReportTriggerCard}
