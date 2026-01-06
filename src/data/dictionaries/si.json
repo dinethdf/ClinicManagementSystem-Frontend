@@ -44,7 +44,14 @@
     "payOuts": "Clinic Payments",
     "pending": "Doctor Pending",
 
-    
+    "patientPortal": "Patient Portal",
+    "appointments": "My Appointments",
+    "medicalRecords": "Medical Records",
+    "billing": "Billing & Insurance",
+    "family": "Family Profiles",
+
+    "reports": "Reports",
+
     "category": "ප්‍රවර්ගය",
     "orders": "ඇණවුම්",
     "details": "විස්තර",
