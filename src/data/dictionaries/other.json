@@ -40,6 +40,14 @@
     "payOuts": "Clinic Payments",
     "pending": "Doctor Pending",
 
+    "patientPortal": "Patient Portal",    
+    "appointments": "My Appointments",
+    "medicalRecords": "Medical Records",
+    "billing": "Billing & Insurance",
+    "family": "Family Profiles",
+
+    "reports": "Reports",
+
     "products": "Products",
     "list": "List",
     "add": "Add",

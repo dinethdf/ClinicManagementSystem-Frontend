@@ -36,6 +36,14 @@
     "appoinmentList": "Appoinment List",
     "appoinmentCat": "Appoinment Category",
     "financial": "Financial",
+    
+    "patientPortal": "Patient Portal",
+    "appointments": "My Appointments",
+    "medicalRecords": "Medical Records",
+    "billing": "Billing & Insurance",
+    "family": "Family Profiles",
+
+    "reports": "Reports",
 
     "payOuts": "Clinic Payments",
     "pending": "Doctor Pending",
