@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react' // Added useEffect
+import { useState, useMemo, useEffect } from 'react' // Removed unused imports
 import { useRouter } from 'next/navigation'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -44,81 +44,63 @@ const PatientListTable = () => {
   const isLoading = status === 'loading'
 
   // --- LOCAL STATE ---
-  const [filters, setFilters] = useState({ patientNo: '', fullName: '', nic: '' })
+  // Initialize 'searchParam' here so the inputs are controlled
+  const [filters, setFilters] = useState({ searchParam: '', patientNo: '', fullName: '', nic: '' })
   const [sorting, setSorting] = useState<SortingState>({ sortBy: 'createdDate', sortOrder: 'desc' })
 
-  const activeFilterCount = Object.values(filters).filter(Boolean).length
+  // Calculate active filters (excluding default empty ones)
+  const activeFilterCount = Object.values(filters).filter(val => val !== '').length
 
-  // --- 1. INITIAL FETCH (FIXED) ---
-  // This ensures data loads when you refresh the page
+  // --- INITIAL FETCH ---
   useEffect(() => {
     dispatch(fetchPatients({ 
         page: currentPage || 1, 
         pageSize: pageSize || 10,
-        search: searchQuery,
-        // Pass initial local state defaults
-// ASdd hear lator
-        // patientNo: '',
-        // name: '',
-        // nic: '',
-        // sort: 'createdDate,desc'
-
+        search: searchQuery // Load with current redux state (persists on back navigation)
     }))
-  }, [dispatch, pageSize, currentPage]) // Dependencies ensure it keeps sync if these change externally
+  }, [dispatch, pageSize, currentPage]) 
 
   // --- CONFIGURATION ---
   const filterConfigs: FilterConfig[] = [
     { key: 'searchParam', label: 'Search', type: 'text', isSortable: true },
-    // { key: 'fullName', label: 'Patient Name', type: 'text', isSortable: true },
-    // { key: 'nic', label: 'NIC Number', type: 'text', isSortable: false },
-    // {
-    //   key: 'reportTrigger',
-    //   label: 'Reports',
-    //   type: 'custom',
-    //   render: () => (
-    //      <OpenDialogOnElementClick
-    //         element={Button}
-    //         elementProps={{
-    //            variant: 'outlined', color: 'info', fullWidth: true,
-    //            children: 'View Session Report',
-    //            startIcon: <i className='tabler-file-analytics' />
-    //         }}
-    //         dialog={SessionSummaryReportDialog}
-    //         dialogProps={{}}
-    //      />
-    //   )
-    // }
+    // Add other filters back if needed
   ]
 
   // --- HANDLERS ---
   const handleApplyFilters = (newFilters: any, newSorting?: SortingState) => {
     setFilters(newFilters)
-    setSearchQuery(newFilters)
+    
+    // 1. Get the new search value from the dialog form
+    const newSearchValue = newFilters.searchParam || ''
+
+    // 2. Dispatch to update Redux Store (so UI stays synced)
+    dispatch(setSearchQuery(newSearchValue))
+
     if (newSorting) setSorting(newSorting)
 
-      console.log(newFilters)
+    // 3. Dispatch Fetch with the NEW value (not the stale 'searchQuery' variable)
     dispatch(fetchPatients({ 
       page: 1, 
       pageSize, 
-      search: searchQuery,
-      // patientNo: newFilters.patientNo,
-      // name: newFilters.fullName,
-      // nic: newFilters.nic,
-      // sort: newSorting ? `${newSorting.sortBy},${newSorting.sortOrder}` : undefined
+      search: newSearchValue // <--- USE NEW VALUE HERE
     }))
   }
 
   const handlePaginationChange = (meta: PaginationState) => {
+    // 1. Handle Page Size Change
     if (meta.pageSize !== pageSize) {
         dispatch(setPageSize(meta.pageSize))
+        // setPageSize action might not trigger fetch automatically depending on your slice, 
+        // so we can explicitly fetch page 1 with new size here if needed.
     }
     
-    if (meta.pageIndex !== (currentPage - 1)) {
+    // 2. Handle Page Index Change
+    // Only fetch if page changed OR if we just changed size (logic depends on your reducer)
+    if (meta.pageIndex !== (currentPage - 1) || meta.pageSize !== pageSize) {
         dispatch(fetchPatients({ 
             page: meta.pageIndex + 1, 
             pageSize: meta.pageSize,
-            search: searchQuery,
-         
+            search: searchQuery // Here we CAN use searchQuery because it hasn't changed in this event
         }))
     }
   }
@@ -204,7 +186,7 @@ const PatientListTable = () => {
       filterComponent={
         <div className='flex flex-wrap justify-between items-center gap-4 p-5'>
            
-           {/* Left: Global Search */}
+           {/* Left: Filter & Search Trigger */}
           <div className='flex items-center gap-3'>
            
             <OpenDialogOnElementClick
@@ -213,7 +195,7 @@ const PatientListTable = () => {
                       variant: 'tonal',
                       color: activeFilterCount > 0 ? 'primary' : 'secondary',
                       startIcon: <Badge badgeContent={activeFilterCount} color="error"><i className='tabler-filter' /></Badge>,
-                      children: "Filters",
+                      children: "Filters & Search",
                       className: "px-6"
                   }}
                   dialog={TableFilterDialog}
@@ -224,32 +206,23 @@ const PatientListTable = () => {
                       onApply: handleApplyFilters
                   }}
               />
+              
               <TextField 
                   select size="small" value={pageSize} 
-                  onChange={(e) => dispatch(setPageSize(Number(e.target.value)))}
+                  onChange={(e) => {
+                      // Handle Page Size change directly here if you want instant update
+                      dispatch(setPageSize(Number(e.target.value)))
+                      dispatch(fetchPatients({ page: 1, pageSize: Number(e.target.value), search: searchQuery }))
+                  }}
                   className='w-[75px]'
               >
                   {[5, 10, 25, 50, 100].map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
               </TextField>
-              {/* <TextField
-                fullWidth
-                size='small'
-                placeholder='Search Patients...'
-                value={searchQuery}
-                onChange={(e) => dispatch(setSearchQuery(e.target.value))}
-                InputProps={{
-                   startAdornment: <InputAdornment position="start"><i className='tabler-search' /></InputAdornment>,
-                   endAdornment: searchQuery && (
-                     <IconButton size="small" onClick={() => dispatch(setSearchQuery(''))}><i className='tabler-x' /></IconButton>
-                   )
-                }}
-              /> */}
 
            </div>
 
            {/* Right: Actions */}
            <div className='flex items-center gap-3'>
-      
               <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>
                   Export
               </Button>
