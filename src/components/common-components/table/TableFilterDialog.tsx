@@ -13,7 +13,6 @@ import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import InputAdornment from '@mui/material/InputAdornment'
 
 // Types
 import { FilterConfig, SortingState } from './TableTypes'
@@ -24,14 +23,11 @@ interface Props {
   filtersConfig: FilterConfig[]
   appliedFilters: any
   onApply: (filters: any, sorting?: SortingState) => void
-  
-  // Sorting (Optional)
   sorting?: SortingState
 }
 
 const TableFilterDialog = ({ open, setOpen, filtersConfig, appliedFilters, onApply, sorting }: Props) => {
   
-  // Local State (Temp values before applying)
   const [localFilters, setLocalFilters] = useState(appliedFilters)
   const [localSorting, setLocalSorting] = useState<SortingState | undefined>(sorting)
 
@@ -49,7 +45,10 @@ const TableFilterDialog = ({ open, setOpen, filtersConfig, appliedFilters, onApp
 
   const handleReset = () => {
     const resetState: any = {}
-    filtersConfig.forEach(f => resetState[f.key] = '')
+    filtersConfig.forEach(f => {
+        // Don't reset 'custom' types usually, but clear inputs
+        if(f.type !== 'custom') resetState[f.key] = ''
+    })
     setLocalFilters(resetState)
     setLocalSorting(sorting ? { sortBy: 'createdDate', sortOrder: 'desc' } : undefined)
   }
@@ -62,21 +61,25 @@ const TableFilterDialog = ({ open, setOpen, filtersConfig, appliedFilters, onApp
   return (
     <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
       <DialogTitle className='flex justify-between items-center pb-2'>
-        <Typography variant='h5'>Filter & Sort</Typography>
+        {/* FIX: component="div" prevents the <h5> inside <h2> error */}
+        <Typography variant='h5' component="div">Filter & Sort</Typography>
         <IconButton onClick={() => setOpen(false)} size='small'>
           <i className='tabler-x' />
         </IconButton>
       </DialogTitle>
       
       <DialogContent dividers className='flex flex-col gap-6 p-6'>
-        <Grid container spacing={4}>
+        <Grid container spacing={4} alignItems="center">
           
           {/* --- 1. DYNAMIC FILTERS --- */}
           {filtersConfig.map((filter) => (
             <Grid key={filter.key} size={filter.gridSize || { xs: 12, sm: 6 }}>
-               {/* Custom Render (e.g., your nested Dialog triggers) */}
+               {/* Custom Render (Report Button) */}
                {filter.type === 'custom' && filter.render ? (
-                  filter.render(localFilters, handleChange)
+                  // We render the custom component directly here
+                  <div className="w-full">
+                    {filter.render(localFilters, handleChange)}
+                  </div>
                ) : filter.type === 'select' ? (
                   <TextField
                     select
