@@ -67,7 +67,7 @@ class DoctorService {
     search?: string
   }): Promise<ApiResponse<PaginatedResponse<any>>> {
     try {
-      const response = await apiClient.get<ApiResponse<PaginatedResponse<any>>>(
+      const response = await apiClient.get<PaginatedResponse<any>>(
         '/api/doctor/list',
         {
           params: {
@@ -77,8 +77,7 @@ class DoctorService {
           }
         }
       )
-
-      return response.data
+      return response.data.data
     } catch (error: any) {
       throw new Error(
         error.response?.data?.defaultMessage || 'Failed to fetch doctor list'

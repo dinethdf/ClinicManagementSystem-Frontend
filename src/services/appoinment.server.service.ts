@@ -121,12 +121,17 @@ export async function processInvoicePayment(payload: any) {
 }
 
 
-export async function getAppointmentList(params: GetAppointmentListParams): Promise<AppointmentApiResponse | null> {
+export const getAppointmentList = async (params: any) => {
   try {
+    // FIX: The common table sends 'pageSize', but your API/URL logic might need 'size'.
+    // We explicitly check for params.pageSize and fallback to params.size or default 10.
+    const page = params.page || 1
+    const size = params.pageSize || params.size || 10
+
     // 1. Create URLSearchParams with mandatory pagination fields
     const query = new URLSearchParams({
-      page: params.page.toString(),
-      size: params.size.toString()
+      page: page.toString(),
+      size: size.toString()
     })
 
     // 2. Conditionally append optional filters if they exist
@@ -135,19 +140,15 @@ export async function getAppointmentList(params: GetAppointmentListParams): Prom
     if (params.startDate) query.append('startDate', params.startDate)
     if (params.endDate) query.append('endDate', params.endDate)
 
-    // 3. Make the API call with the constructed query string
-    const data = await http.get<AppointmentApiResponse>(`/api/appointments/list?${query.toString()}`)
+    // 3. Make the API call
+    const response = await http.get<AppointmentApiResponse>(`/api/appointments/list?${query.toString()}`)
     
-    return data
+    return response
 
   } catch (err) {
-    if (err instanceof ApiError) {
-      console.error(`API Error fetching list (Status ${err.status}):`, err.message)
-    } else {
-      console.error('Unexpected error fetching appointment list:', err)
-    }
-
-    return null
+    console.error("Unexpected error fetching appointment list:", err)
+    // Return null or empty structure so the table doesn't crash
+    return { content: [], totalElements: 0 }
   }
 }
 

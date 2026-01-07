@@ -10,13 +10,14 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
 import Badge from '@mui/material/Badge'
-import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton' // Added
+import Tooltip from '@mui/material/Tooltip'       // Added
 
 // TanStack
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 
 // Custom Hooks & Components
-import { useCommonTable } from '@/hooks/useCommonTable' // Import the hook we made
+import { useCommonTable } from '@/hooks/useCommonTable' 
 import TableFilterDialog from './TableFilterDialog'
 import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick'
 import tableStyles from '@core/styles/table.module.css'
@@ -26,10 +27,10 @@ import { CardHeader, Divider } from '@mui/material'
 interface Props<T> {
   tableId: string
   title?: string
-  fetchDataFunction: (params: any) => Promise<any> // Service function
+  fetchDataFunction: (params: any) => Promise<any>
   columns: any[]
   filterConfig?: FilterConfig[]
-  actionComponent?: React.ReactNode // Export/Add buttons
+  actionComponent?: React.ReactNode 
 }
 
 const CommonServerTable = <T extends object>({ 
@@ -65,8 +66,14 @@ const CommonServerTable = <T extends object>({
     filterFns: {} as any
   })
 
-  // --- HANDLERS ---
-  const activeFilterCount = Object.values(filters).filter(Boolean).length
+  // --- LOGIC ---
+  // Count how many filters have values (excluding empty strings)
+  const activeFilterCount = Object.values(filters).filter(val => val !== '' && val !== null && val !== undefined).length
+
+  // Handler: Instantly clear all filters but keep sorting
+  const handleClearFilters = () => {
+    onFilterChange({}, sorting)
+  }
 
   return (
     <Card>
@@ -75,16 +82,20 @@ const CommonServerTable = <T extends object>({
       {title && <Divider />}
       {/* TOOLBAR */}
       <div className='flex flex-wrap justify-between items-center gap-4 p-5 border-b'>
-         {/* Left: Filters */}
+         
+         {/* Left Side: Filters & Page Size */}
          <div className='flex items-center gap-3'>
+            
+            {/* 1. FILTER BUTTON */}
             {filterConfig && (
               <OpenDialogOnElementClick
                   element={Button}
                   elementProps={{
                       variant: 'tonal',
+                      // Highlight button if filters are active
                       color: activeFilterCount > 0 ? 'primary' : 'secondary',
                       startIcon: <Badge badgeContent={activeFilterCount} color="error"><i className='tabler-filter' /></Badge>,
-                      children: "Filters & Search",
+                      children: "Filters",
                       className: "px-6"
                   }}
                   dialog={TableFilterDialog}
@@ -92,14 +103,29 @@ const CommonServerTable = <T extends object>({
                       filtersConfig: filterConfig,
                       appliedFilters: filters,
                       sorting: sorting,
-                      onApply: onFilterChange // Hook handles the dispatch
+                      onApply: onFilterChange
                   }}
               />
             )}
             
-            {/* Page Size */}
+            {/* 2. CLEAR BUTTON (Visible only if filters are active) */}
+            {activeFilterCount > 0 && (
+                <Tooltip title="Clear all filters">
+                    <IconButton 
+                        onClick={handleClearFilters} 
+                        color="error" 
+                        size="small"
+                        className="border border-red-200 bg-red-50 hover:bg-red-100"
+                    >
+                        <i className='tabler-filter-off' />
+                    </IconButton>
+                </Tooltip>
+            )}
+            
+            {/* 3. PAGE SIZE */}
             <TextField 
-                select size="small" 
+                select 
+                size="small" 
                 value={pagination.pageSize} 
                 onChange={(e) => onPageChange({ pageIndex: 0, pageSize: Number(e.target.value) })}
                 className='w-[75px]'
@@ -133,7 +159,7 @@ const CommonServerTable = <T extends object>({
             </thead>
             <tbody>
               {table.getRowModel().rows.length === 0 ? (
-                 <tr><td colSpan={columns.length} className='text-center p-4'>No records found</td></tr>
+                 <tr><td colSpan={columns.length} className='text-center p-8 text-gray-500'>No records found</td></tr>
               ) : (
                  table.getRowModel().rows.map(row => (
                     <tr key={row.id}>
