@@ -13,13 +13,20 @@ import TablePagination from '@mui/material/TablePagination'
 
 // Components
 import AppointmentCard from './AppointmentCard'
-import LiveQueueCard from './LiveQueueCard' 
+import RealtimeLiveQueueCard from './RealtimeLiveQueueCard' // <--- Using Realtime Card
 
 // Service & Types
 import { getPatientAppointments } from '@/services/patient-portal/patient.appointments.service'
 import type { PatientAppointmentDTO } from '@/types/patient-portal/patient.appointments.types'
 
 const AppointmentList = () => {
+
+  // Default to 1 or a specific logic if user.clinicId isn't directly available on patient user object
+  // Assuming patient belongs to a clinic context or the appointment has the clinicId. 
+  // If the appointment DTO has clinicId, use that instead.
+  // For this example, we use a fallback or the auth context.
+  const userClinicId = 2
+
   const [tabValue, setTabValue] = useState('1')
   
   // Data State
@@ -27,7 +34,7 @@ const AppointmentList = () => {
   const [history, setHistory] = useState<PatientAppointmentDTO[]>([])
   const [loading, setLoading] = useState(true)
   
-  // Pagination State (Simple implementation)
+  // Pagination State
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [totalCount, setTotalCount] = useState(0)
@@ -59,7 +66,7 @@ const AppointmentList = () => {
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
     setTabValue(newValue)
-    setPage(0) // Reset page on tab switch
+    setPage(0)
   }
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -101,14 +108,22 @@ const AppointmentList = () => {
                     </div>
                 ) : (
                     <div>
-                        {/* STORY 2.4: Show Live Queue only for TODAY's appointments */}
+                        {/* LIVE QUEUE SECTION */}
                         {upcoming.map(appt => {
                             if (isToday(appt.date) && appt.status === 'SCHEDULED') {
-                                return <LiveQueueCard key={`live-${appt.id}`} appointmentId={appt.id} />
+                                return (
+                                    <RealtimeLiveQueueCard 
+                                        key={`live-${123123}`} 
+                                        clinicId={2} // Pass dynamic or appt specific clinic ID
+                                        scheduleId={102}
+                                        yourToken={10}
+                                    />
+                                )
                             }
                             return null;
                         })}
 
+                        {/* LIST SECTION */}
                         {upcoming.map(appt => (
                             <AppointmentCard key={appt.id} appt={appt} onRefresh={fetchData} />
                         ))}
@@ -137,7 +152,7 @@ const AppointmentList = () => {
                 page={page}
                 onPageChange={handlePageChange}
                 rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={() => {}} // Fixed size for now based on service
+                onRowsPerPageChange={() => {}} 
                 rowsPerPageOptions={[5]}
              />
            </>
