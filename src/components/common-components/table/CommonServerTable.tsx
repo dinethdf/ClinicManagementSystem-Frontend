@@ -1,6 +1,5 @@
 'use client'
 
-// MUI
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
@@ -8,14 +7,12 @@ import TablePagination from '@mui/material/TablePagination'
 import CircularProgress from '@mui/material/CircularProgress'
 import Divider from '@mui/material/Divider'
 
-// TanStack Table
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
 
-// Utils
 import tableStyles from '@core/styles/table.module.css'
 import { CommonTableProps } from './TableTypes'
 
@@ -27,27 +24,20 @@ const CommonServerTable = <T extends object>({
   pagination,
   onPaginationChange,
   filterComponent,
-  title,
-  actionComponent
+  title
 }: CommonTableProps<T>) => {
 
-  // Initialize TanStack Table
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    
     manualPagination: true, 
-    manualFiltering: true, // Add this: Tells table we handle filtering outside (API)
-    manualSorting: true,   // Add this: Tells table we handle sorting outside (API)
-
-    state: {
-      pagination
-    },
+    manualFiltering: true,
+    manualSorting: true,
+    state: { pagination },
     filterFns: {} as any, 
   })
 
-  // Handlers for MUI Pagination
   const handleChangePage = (_: unknown, newPage: number) => {
     onPaginationChange({ ...pagination, pageIndex: newPage })
   }
@@ -61,27 +51,18 @@ const CommonServerTable = <T extends object>({
 
   return (
     <Card>
-      {/* Header Section */}
-      {(title || actionComponent) && (
-         <CardHeader 
-            title={title} 
-            action={actionComponent} 
-         />
-      )}
-      
-      {/* Dynamic Filters Section */}
-      {filterComponent && (
-         <>
-           {filterComponent}
-           <Divider />
-         </>
-      )}
+      {/* Title only (Actions are now inside filterComponent) */}
+      {title && <CardHeader title={title} className="pb-2" />}
+      {title && <Divider />}
 
-      {/* Table Section */}
+      {/* Filters & Toolbar */}
+      {filterComponent}
+      
+      {/* Table */}
       {isLoading ? (
         <div className='p-12 flex justify-center'><CircularProgress /></div>
       ) : (
-        <div className='overflow-x-auto'>
+        <div className='overflow-x-auto border-t'>
           <table className={tableStyles.table}>
             <thead>
               {table.getHeaderGroups().map(headerGroup => (
@@ -97,8 +78,11 @@ const CommonServerTable = <T extends object>({
             <tbody>
               {table.getRowModel().rows.length === 0 ? (
                  <tr>
-                    <td colSpan={columns.length} className='text-center p-6'>
-                       <Typography color="textSecondary">No records found</Typography>
+                    <td colSpan={columns.length} className='text-center p-8'>
+                       <div className="flex flex-col items-center gap-2 opacity-50">
+                          <i className="tabler-database-off text-3xl"/>
+                          <Typography>No records found</Typography>
+                       </div>
                     </td>
                  </tr>
               ) : (
@@ -115,7 +99,6 @@ const CommonServerTable = <T extends object>({
         </div>
       )}
 
-      {/* Pagination Section */}
       <TablePagination
         component="div"
         count={totalCount}

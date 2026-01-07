@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 
 // --- FILTER TYPES ---
+// Added 'custom' to allow you to inject your Dialog Trigger
 export type FilterType = 'text' | 'select' | 'date' | 'custom'
 
 export interface FilterOption {
@@ -15,26 +16,24 @@ export interface FilterConfig {
   type: FilterType
   placeholder?: string
   
-  // Grid size for responsive layout (e.g., xs: 12, md: 4)
+  // Grid size for responsive layout
   gridSize?: { xs?: number; sm?: number; md?: number; lg?: number }
   
   // For 'select' type
   options?: FilterOption[]
   
-  // Render custom component (like DateRange or Dialog Trigger)
+  // NEW: This allows you to render ANY component (like your OpenDialogOnElementClick)
   render?: (currentValues: any, onChange: (key: string, val: any) => void) => ReactNode
 
-  // NEW: Allow this field to be used for sorting?
   isSortable?: boolean
 }
 
-// --- SORTING TYPES ---
+// ... (Keep the rest of your types: SortingState, PaginationState, CommonTableProps as they were)
 export interface SortingState {
   sortBy: string
   sortOrder: 'asc' | 'desc'
 }
 
-// --- TABLE TYPES ---
 export interface PaginationState {
   pageIndex: number
   pageSize: number
@@ -47,15 +46,9 @@ export interface CommonTableProps<T> {
   isLoading: boolean
   pagination: PaginationState
   onPaginationChange: (newPagination: PaginationState) => void
-  
-  // Sorting Props
   sorting?: SortingState
   onSortingChange?: (newSorting: SortingState) => void
-
-  // The Filter Component (We will pass CommonTableFilters here)
   filterComponent?: ReactNode
-  
-  // Header Actions
   title?: string
   actionComponent?: ReactNode
 }
