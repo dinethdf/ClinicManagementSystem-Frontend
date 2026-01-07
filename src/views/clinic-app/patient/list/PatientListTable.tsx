@@ -1,190 +1,145 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-
+import { useState, useMemo, useEffect } from 'react' // Added useEffect
 import { useRouter } from 'next/navigation'
-
 import { useDispatch, useSelector } from 'react-redux'
 
 // MUI Imports
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import Checkbox from '@mui/material/Checkbox'
-import TablePagination from '@mui/material/TablePagination'
-import type { TextFieldProps } from '@mui/material/TextField'
-import MenuItem from '@mui/material/MenuItem'
 import Chip from '@mui/material/Chip'
+import Checkbox from '@mui/material/Checkbox'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import Badge from '@mui/material/Badge'
 
+// TanStack Table
+import { createColumnHelper } from '@tanstack/react-table'
 
-import classnames from 'classnames'
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
-import type { ColumnDef } from '@tanstack/react-table'
-
+// Redux & Services
 import type { RootState, AppDispatch } from '@/redux-store'
+import { fetchPatients, setPageSize, setSearchQuery } from '@/redux-store/slices/patientSlice'
 
-import { fetchPatients, setPageSize, setSearchQuery, resetSearchQuery } from '@/redux-store/slices/patientSlice'
+// Common Components
+import CommonServerTable from '@/components/common-components/table/CommonServerTable'
+import { FilterConfig, SortingState, PaginationState } from '@/components/common-components/table/TableTypes'
+import TableFilterDialog from '@/components/common-components/table/TableFilterDialog'
 
+// Custom Dialog Components
+import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick'
 
+// Custom Components
 import CustomAvatar from '@core/components/mui/Avatar'
-import CustomTextField from '@core/components/mui/TextField'
-
-
 import { getInitials } from '@/utils/getInitials'
-
-
 import type { PatientResponceDTO } from '@/types/patient.types'
-
-import tableStyles from '@core/styles/table.module.css'
-
-
-// const formatDate = (dateString: string | null | undefined) => {
-//   if (!dateString) {
-  
-//     return 'N/A'
-//   }
-  
-//   try {
-   
-//     const date = new Date(dateString)
-    
-//     const options: Intl.DateTimeFormatOptions = {
-//       day: '2-digit',
-//       month: 'short',
-//       year: 'numeric'
-//     }
-
-//     return date.toLocaleDateString('en-US', options)
-//   } catch (error) {
-
-//     return 'Invalid Date'
-//   }
-// }
-
-const DebouncedInput = ({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  ...props
-}: {
-  value: string | number
-  onChange: (value: string | number) => void
-  debounce?: number
-} & Omit<TextFieldProps, 'onChange'>) => {
-  const [value, setValue] = useState(initialValue)
-  const isInitialMount = useRef(true);
-
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
-  useEffect(() => {
-    
-    if (isInitialMount.current) {
-   
-      isInitialMount.current = false;
-    
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      onChange(value)
-    }, debounce)
-
-    return () => clearTimeout(timeout)
-  }, [value, onChange, debounce])
-
-  return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
-}
 
 const columnHelper = createColumnHelper<PatientResponceDTO>()
 
 const PatientListTable = () => {
+  const dispatch = useDispatch<AppDispatch>()
+  const router = useRouter()
 
-  const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
- 
-  const {
-    data: patients, 
-    status,
-    currentPage = 1, 
-    pageSize = 10,
-    totalItems = 0,
-    totalPages = 1,
-    searchQuery = ''
-  } = useSelector((state: RootState) => state.patientReducer)
+  // Redux State
+  const { data: patients, status, currentPage, pageSize, totalItems, searchQuery } = useSelector((state: RootState) => state.patientReducer)
+  const isLoading = status === 'loading'
 
-  // --- Local State ---
-  const [rowSelection, setRowSelection] = useState({})
+  // --- LOCAL STATE ---
+  const [filters, setFilters] = useState({ patientNo: '', fullName: '', nic: '' })
+  const [sorting, setSorting] = useState<SortingState>({ sortBy: 'createdDate', sortOrder: 'desc' })
 
+  const activeFilterCount = Object.values(filters).filter(Boolean).length
+
+  // --- 1. INITIAL FETCH (FIXED) ---
+  // This ensures data loads when you refresh the page
   useEffect(() => {
-    
-    const promise = dispatch(fetchPatients({ 
-        page: currentPage, 
-        pageSize, 
-        search: searchQuery 
-    }));
-  
-    return () => {
-        promise.abort(); 
-    };
-  }, [dispatch, pageSize, currentPage, searchQuery]);
+    dispatch(fetchPatients({ 
+        page: currentPage || 1, 
+        pageSize: pageSize || 10,
+        search: searchQuery,
+        // Pass initial local state defaults
+// ASdd hear lator
+        // patientNo: '',
+        // name: '',
+        // nic: '',
+        // sort: 'createdDate,desc'
 
+    }))
+  }, [dispatch, pageSize, currentPage]) // Dependencies ensure it keeps sync if these change externally
 
-  const handleSearch = useCallback((value: string | number) => {
-   
-    const query = String(value)
-    
-    if (query.length >= 3) {
-      dispatch(setSearchQuery(query))
-    
-    } else {
-    
-      if (searchQuery !== '') {
-    
-        dispatch(resetSearchQuery())
-      }
+  // --- CONFIGURATION ---
+  const filterConfigs: FilterConfig[] = [
+    { key: 'searchParam', label: 'Search', type: 'text', isSortable: true },
+    // { key: 'fullName', label: 'Patient Name', type: 'text', isSortable: true },
+    // { key: 'nic', label: 'NIC Number', type: 'text', isSortable: false },
+    // {
+    //   key: 'reportTrigger',
+    //   label: 'Reports',
+    //   type: 'custom',
+    //   render: () => (
+    //      <OpenDialogOnElementClick
+    //         element={Button}
+    //         elementProps={{
+    //            variant: 'outlined', color: 'info', fullWidth: true,
+    //            children: 'View Session Report',
+    //            startIcon: <i className='tabler-file-analytics' />
+    //         }}
+    //         dialog={SessionSummaryReportDialog}
+    //         dialogProps={{}}
+    //      />
+    //   )
+    // }
+  ]
+
+  // --- HANDLERS ---
+  const handleApplyFilters = (newFilters: any, newSorting?: SortingState) => {
+    setFilters(newFilters)
+    setSearchQuery(newFilters)
+    if (newSorting) setSorting(newSorting)
+
+      console.log(newFilters)
+    dispatch(fetchPatients({ 
+      page: 1, 
+      pageSize, 
+      search: searchQuery,
+      // patientNo: newFilters.patientNo,
+      // name: newFilters.fullName,
+      // nic: newFilters.nic,
+      // sort: newSorting ? `${newSorting.sortBy},${newSorting.sortOrder}` : undefined
+    }))
+  }
+
+  const handlePaginationChange = (meta: PaginationState) => {
+    if (meta.pageSize !== pageSize) {
+        dispatch(setPageSize(meta.pageSize))
     }
-  }, [dispatch, searchQuery])
-
-  const handlePageSizeChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-   
-    const newPageSize = Number(e.target.value)
     
-    dispatch(setPageSize(newPageSize)) 
+    if (meta.pageIndex !== (currentPage - 1)) {
+        dispatch(fetchPatients({ 
+            page: meta.pageIndex + 1, 
+            pageSize: meta.pageSize,
+            search: searchQuery,
+         
+        }))
+    }
   }
 
-  const handlePageChange = (_: unknown, newPage: number) => {
-    dispatch(fetchPatients({ page: newPage + 1, pageSize, search: searchQuery }))
-  }
-
-  const columns = useMemo<ColumnDef<PatientResponceDTO, any>[]>(
-    () => [
+  // --- COLUMNS ---
+  const columns = useMemo(() => [
       {
         id: 'select',
-        header: ({ table }) => (
+        header: ({ table }: any) => (
           <Checkbox
-            {...{
-              checked: table.getIsAllRowsSelected(),
-              indeterminate: table.getIsSomeRowsSelected(),
-              onChange: table.getToggleAllRowsSelectedHandler()
-            }}
+            checked={table.getIsAllRowsSelected()}
+            indeterminate={table.getIsSomeRowsSelected()}
+            onChange={table.getToggleAllRowsSelectedHandler()}
           />
         ),
-        cell: ({ row }) => (
+        cell: ({ row }: any) => (
           <Checkbox
-            {...{
-              checked: row.getIsSelected(),
-              disabled: !row.getCanSelect(),
-              indeterminate: row.getIsSomeSelected(),
-              onChange: row.getToggleSelectedHandler()
-            }}
+            checked={row.getIsSelected()}
+            disabled={!row.getCanSelect()}
+            indeterminate={row.getIsSomeSelected()}
+            onChange={row.getToggleSelectedHandler()}
           />
         )
       },
@@ -199,17 +154,17 @@ const PatientListTable = () => {
       columnHelper.accessor('fullName', {
         header: 'Patient Name',
         cell: ({ row }) => (
-          <div className='flex items-center gap-3'>
+          <div 
+            className='flex items-center gap-3 cursor-pointer group'
+            onClick={() => router.push(`/en/clinic/patient/details/${row.original.id}`)}
+          >
             <CustomAvatar skin='light' size={34} color='primary'>
               {getInitials(row.original.fullName)}
             </CustomAvatar>
             <div className='flex flex-col items-start'>
-              <Typography className='font-medium hover:text-primary cursor-pointer' color='text.primary'>
+              <Typography className='font-medium group-hover:text-primary transition-colors' color='text.primary'>
                 {row.original.fullName}
               </Typography>
-              {/* <Typography variant='body2'>
-                DOB: {formatDate(row.original.dob)}
-              </Typography> */}
             </div>
           </div>
         )
@@ -229,133 +184,87 @@ const PatientListTable = () => {
             label={row.original.isActive ? 'Active' : 'Inactive'}
             color={row.original.isActive ? 'success' : 'secondary'}
             size='small'
+            variant='tonal'
           />
         )
       })
-    ],
-    []
-  )
-
-  // --- Table Instance ---
-  const table = useReactTable({
-    data: (patients as PatientResponceDTO[]) || [],
-    columns,
-    pageCount: totalPages || 1, 
-    rowCount: totalItems || 0,
-    state: {
-      rowSelection,
-      pagination: {
-        pageIndex: (currentPage || 1) - 1, 
-        pageSize: pageSize || 10 
-      }
-    },
-    manualPagination: true,
-    manualFiltering: true, 
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    getCoreRowModel: getCoreRowModel(),
-    filterFns: {} as any,
-  })
+  ], [router])
 
   return (
-    <>
-      <Typography variant='h3' gutterBottom>
-        Patient List
-      </Typography>
-      <Card>
-        <CardContent className='flex justify-between flex-wrap max-sm:flex-col sm:items-center gap-4'>
-          <DebouncedInput
-            value={searchQuery}
-            onChange={handleSearch}
-            placeholder='Search Patients (min 3 chars)'
-            className='max-sm:is-full'
-          />
-          <div className='flex max-sm:flex-col items-start sm:items-center gap-4 max-sm:is-full'>
-            <CustomTextField
-              select
-              value={pageSize || 10} 
-              onChange={handlePageSizeChange}
-              className='is-full sm:is-[90px]'
-            >
-              <MenuItem value='10'>10</MenuItem>
-              <MenuItem value='25'>25</MenuItem>
-              <MenuItem value='50'>50</MenuItem> 
-              <MenuItem value='100'>100</MenuItem>
-            </CustomTextField>
-            <Button
-              variant='contained'
-              color='primary'
-              className='max-sm:is-full'
-              onClick={()=> {
-                   router.push(`/en/clinic/patient/register`);
-              }}
-              startIcon={<i className='tabler-plus' />}
-            >
-              Add Patient
-            </Button>
-          </div>
-        </CardContent>
-        
-        <div className='overflow-x-auto'>
-          <table className={tableStyles.table}>
-            <thead>
-              {table.getHeaderGroups().map(headerGroup => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map(header => (
-                    <th key={header.id}>
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {status === 'loading' ? (
-                <tr>
-                  <td colSpan={columns.length} className='text-center p-4'>
-                    Loading...
-                  </td>
-                </tr>
-              ) : table.getRowModel().rows.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length} className='text-center p-4'>
-                    No patients found
-                  </td>
-                </tr>
-              ) : (
-                table.getRowModel().rows.map(row => (
-                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })} style={{ cursor: 'pointer' }}
-                      onClick={(e) => {
-                          
-                        const target = e.target as HTMLElement;
-                        
-                        if (target.closest('.MuiCheckbox-root') || target.closest('button') || target.closest('input')) {
-                        
-                          return;
-                          }
-                    
-                          router.push(`/en/clinic/patient/details/${row.original.id}`);
-                  }}>
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                    ))}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+    <CommonServerTable
+      title="Patient List"
+      data={patients || []}
+      columns={columns}
+      totalCount={totalItems}
+      isLoading={isLoading}
+      
+      pagination={{ pageIndex: (currentPage || 1) - 1, pageSize: pageSize || 10 }}
+      onPaginationChange={handlePaginationChange}
 
-        <TablePagination
-          component='div'
-          count={totalItems || 0} 
-          rowsPerPage={pageSize || 10} 
-          page={(currentPage || 1) - 1} 
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handlePageSizeChange} 
-        />
-      </Card>
-    </>
+      filterComponent={
+        <div className='flex flex-wrap justify-between items-center gap-4 p-5'>
+           
+           {/* Left: Global Search */}
+          <div className='flex items-center gap-3'>
+           
+            <OpenDialogOnElementClick
+                  element={Button}
+                  elementProps={{
+                      variant: 'tonal',
+                      color: activeFilterCount > 0 ? 'primary' : 'secondary',
+                      startIcon: <Badge badgeContent={activeFilterCount} color="error"><i className='tabler-filter' /></Badge>,
+                      children: "Filters",
+                      className: "px-6"
+                  }}
+                  dialog={TableFilterDialog}
+                  dialogProps={{
+                      filtersConfig: filterConfigs,
+                      appliedFilters: filters,
+                      sorting: sorting,
+                      onApply: handleApplyFilters
+                  }}
+              />
+              <TextField 
+                  select size="small" value={pageSize} 
+                  onChange={(e) => dispatch(setPageSize(Number(e.target.value)))}
+                  className='w-[75px]'
+              >
+                  {[5, 10, 25, 50, 100].map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+              </TextField>
+              {/* <TextField
+                fullWidth
+                size='small'
+                placeholder='Search Patients...'
+                value={searchQuery}
+                onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+                InputProps={{
+                   startAdornment: <InputAdornment position="start"><i className='tabler-search' /></InputAdornment>,
+                   endAdornment: searchQuery && (
+                     <IconButton size="small" onClick={() => dispatch(setSearchQuery(''))}><i className='tabler-x' /></IconButton>
+                   )
+                }}
+              /> */}
+
+           </div>
+
+           {/* Right: Actions */}
+           <div className='flex items-center gap-3'>
+      
+              <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>
+                  Export
+              </Button>
+
+              <Button 
+                  variant='contained' 
+                  onClick={() => router.push(`/en/clinic/patient/register`)}
+                  startIcon={<i className='tabler-plus' />}
+              >
+                  Add Patient
+              </Button>
+           </div>
+        </div>
+      }
+    />
   )
 }
 

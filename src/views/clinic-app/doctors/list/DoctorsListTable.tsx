@@ -1,105 +1,47 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-
+import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-
 import { useDispatch, useSelector } from 'react-redux'
-
 import { useAuth } from '@/contexts/ClientAuthContextProvider'
 
-
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
+// MUI Imports
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import Checkbox from '@mui/material/Checkbox'
-import TablePagination from '@mui/material/TablePagination'
-import type { TextFieldProps } from '@mui/material/TextField'
-import MenuItem from '@mui/material/MenuItem'
 import Chip from '@mui/material/Chip'
+import Checkbox from '@mui/material/Checkbox'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import InputAdornment from '@mui/material/InputAdornment'
+import IconButton from '@mui/material/IconButton'
+import Badge from '@mui/material/Badge'
+import Tooltip from '@mui/material/Tooltip'
 
-import classnames from 'classnames'
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
-import type { ColumnDef } from '@tanstack/react-table'
+// TanStack Table
+import { createColumnHelper } from '@tanstack/react-table'
 
+// Redux & Services
 import type { RootState, AppDispatch } from '@/redux-store'
-import { fetchDoctors, setPageSize, setSearchQuery, resetSearchQuery } from '@/redux-store/slices/doctorSlice'
+import { fetchDoctors, setPageSize, setSearchQuery } from '@/redux-store/slices/doctorSlice'
 
-import CustomTextField from '@core/components/mui/TextField'
+// Common Components
+import CommonServerTable from '@/components/common-components/table/CommonServerTable'
+import { FilterConfig, SortingState, PaginationState } from '@/components/common-components/table/TableTypes'
+import TableFilterDialog from '@/components/common-components/table/TableFilterDialog'
 
-// Define your Doctor Type here based on your JSON response
-// You likely have this in a separate file like '@/types/doctor.types'
-export interface DoctorResponseDTO {
-  id: number
-  firstName: string
-  lastName: string
-  email: string
-  mobileNo: string
-  city: string | null
-  nic: string
-  dob: string
-  nameWithInitials: string
-  slmcNumber: string
-  specialization: {
-    id: number
-    name: string
-    note: string
-  }
-  qualification: string
-  experienceYears: number
-  profileImg: string | null
-}
+// Custom Dialog Helper
+import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick'
 
-import tableStyles from '@core/styles/table.module.css'
-
-// Helper for debounced input
-const DebouncedInput = ({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  ...props
-}: {
-  value: string | number
-  onChange: (value: string | number) => void
-  debounce?: number
-} & Omit<TextFieldProps, 'onChange'>) => {
-  const [value, setValue] = useState(initialValue)
-  const isInitialMount = useRef(true);
-
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
-  useEffect(() => {
-   
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      
-      return;
-    }
-    
-    const timeout = setTimeout(() => {
-      onChange(value)
-    }, debounce)
-   
-    return () => clearTimeout(timeout)
-  }, [value, onChange, debounce])
-
-  return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
-}
+// Type Imports
+// Assuming DoctorResponseDTO is in your types folder as referenced in your original code
+// If not, keep the interface definition here.
+import type { DoctorResponseDTO } from '@/types/doctor.types' 
 
 const columnHelper = createColumnHelper<DoctorResponseDTO>()
 
 const DoctorsListTable = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
-
+  const dispatch = useDispatch<AppDispatch>()
+  const router = useRouter()
   const user = useAuth()
 
   // 1. SELECT FROM DOCTOR REDUCER
@@ -109,88 +51,133 @@ const DoctorsListTable = () => {
     currentPage = 1, 
     pageSize = 10,
     totalItems = 0,
-    totalPages = 1,
     searchQuery = ''
-  } = useSelector((state: RootState) => state.doctorReducer) // Changed to doctorReducer
+  } = useSelector((state: RootState) => state.doctorReducer)
 
-  const [rowSelection, setRowSelection] = useState({})
+  const isLoading = status === 'loading'
 
+  // --- LOCAL STATE ---
+  const [filters, setFilters] = useState({ name: '', specialization: '' })
+  const [sorting, setSorting] = useState<SortingState>({ sortBy: 'createdDate', sortOrder: 'desc' })
+
+  // Calculate active filters count
+  const activeFilterCount = Object.values(filters).filter(Boolean).length
+
+  // --- INITIAL DATA LOAD ---
   useEffect(() => {
-    const promise = dispatch(fetchDoctors({ 
-        page: currentPage, 
-        pageSize, 
-        search: searchQuery 
-    }));
-    
-    return () => {
-      promise.abort(); 
-    };
-  }, [dispatch, pageSize, currentPage, searchQuery]);
+    dispatch(fetchDoctors({ 
+        page: currentPage || 1, 
+        pageSize: pageSize || 10,
+        search: searchQuery,
+        // Pass initial local state defaults if your API supports them
+        // name: '',
+        // specialization: '',
+        // sort: 'createdDate,desc'
+    }))
+  }, [dispatch, pageSize, currentPage])
 
-  const handleSearch = useCallback((value: string | number) => {
-    
-    const query = String(value)
+  // --- CONFIGURATION ---
   
-    if (query.length >= 3) {
-      dispatch(setSearchQuery(query))
-    } else {
-      if (searchQuery !== '') {
-        dispatch(resetSearchQuery())
-      }
+  // Specialization Options
+  const specializationOptions = [
+    { label: 'General Practitioner', value: 'General Practitioner' },
+    { label: 'Dermatologist', value: 'Dermatologist' },
+    { label: 'Orthopedic Surgeon', value: 'Orthopedic Surgeon' },
+    { label: 'Cardiologist', value: 'Cardiologist' },
+    { label: 'Endocrinologist', value: 'Endocrinologist' },
+    { label: 'Nephrologist', value: 'Nephrologist' },
+    { label: 'Neurologist', value: 'Neurologist' },
+    { label: 'Surgeon', value: 'Surgeon' },
+    { label: 'Ophthalmologist', value: 'Ophthalmologist' },
+    { label: 'Dental Surgeon', value: 'Dental Surgeon' },
+  ]
+
+  const filterConfigs: FilterConfig[] = [
+    { 
+      key: 'name', 
+      label: 'Doctor Name', 
+      type: 'text', 
+      placeholder: 'Search by Name',
+      isSortable: true,
+      gridSize: { xs: 12, sm: 6 }
+    },
+    { 
+      key: 'specialization', 
+      label: 'Specialization', 
+      type: 'select', 
+      options: specializationOptions,
+      isSortable: true,
+      gridSize: { xs: 12, sm: 6 }
     }
-  }, [dispatch, searchQuery])
+  ]
 
-  const handlePageSizeChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-   
-    const newPageSize = Number(e.target.value)
+  // --- HANDLERS ---
+  const handleApplyFilters = (newFilters: any, newSorting?: SortingState) => {
+    setFilters(newFilters)
+    if (newSorting) setSorting(newSorting)
+
+    dispatch(fetchDoctors({ 
+      page: 1, 
+      pageSize, 
+      search: searchQuery,
+      // Map filters to API params (Ensure your thunk/service handles these)
+      // name: newFilters.name,
+      // specialization: newFilters.specialization,
+      // sort: newSorting ? `${newSorting.sortBy},${newSorting.sortOrder}` : undefined
+    }))
+  }
+
+  const handlePaginationChange = (meta: PaginationState) => {
+    if (meta.pageSize !== pageSize) {
+        dispatch(setPageSize(meta.pageSize))
+    }
     
-    dispatch(setPageSize(newPageSize)) 
+    if (meta.pageIndex !== (currentPage - 1)) {
+        dispatch(fetchDoctors({ 
+            page: meta.pageIndex + 1, 
+            pageSize: meta.pageSize,
+            search: searchQuery,
+            // name: filters.name,
+            // specialization: filters.specialization,
+            // sort: `${sorting.sortBy},${sorting.sortOrder}`
+        }))
+    }
   }
 
-  const handlePageChange = (_: unknown, newPage: number) => {
-    dispatch(fetchDoctors({ page: newPage + 1, pageSize, search: searchQuery }))
-  }
-
-  // 2. UPDATE COLUMNS FOR DOCTOR DATA
-  const columns = useMemo<ColumnDef<DoctorResponseDTO, any>[]>(
-    () => [
+  // --- COLUMNS ---
+  const columns = useMemo(() => [
       {
         id: 'select',
-        header: ({ table }) => (
+        header: ({ table }: any) => (
           <Checkbox
-            {...{
-              checked: table.getIsAllRowsSelected(),
-              indeterminate: table.getIsSomeRowsSelected(),
-              onChange: table.getToggleAllRowsSelectedHandler()
-            }}
+            checked={table.getIsAllRowsSelected()}
+            indeterminate={table.getIsSomeRowsSelected()}
+            onChange={table.getToggleAllRowsSelectedHandler()}
           />
         ),
-        cell: ({ row }) => (
+        cell: ({ row }: any) => (
           <Checkbox
-            {...{
-              checked: row.getIsSelected(),
-              disabled: !row.getCanSelect(),
-              indeterminate: row.getIsSomeSelected(),
-              onChange: row.getToggleSelectedHandler()
-            }}
+            checked={row.getIsSelected()}
+            disabled={!row.getCanSelect()}
+            indeterminate={row.getIsSomeSelected()}
+            onChange={row.getToggleSelectedHandler()}
           />
         )
       },
       columnHelper.accessor('nameWithInitials', {
         header: 'Doctor Name',
         cell: ({ row }) => (
-          <div className='flex items-center gap-3'>
-            {/* <CustomAvatar src={row.original.profileImg} skin='light' size={34} color='primary'>
-              {getInitials(row.original.firstName + ' ' + row.original.lastName)}
-            </CustomAvatar> */}
-            <div className='flex flex-col items-start'>
-              <Typography className='font-medium hover:text-primary cursor-pointer' color='text.primary'>
-                {row.original.firstName} {row.original.lastName}
-              </Typography>
-              <Typography variant='caption' color='text.secondary'>
-                {row.original.qualification}
-              </Typography>
-            </div>
+          <div className='flex flex-col items-start'>
+            <Typography 
+                className='font-medium hover:text-primary cursor-pointer' 
+                color='text.primary'
+                onClick={() => router.push(`/en/clinic/doctors/view/${row.original.id}`)}
+            >
+              {row.original.firstName} {row.original.lastName}
+            </Typography>
+            <Typography variant='caption' color='text.secondary'>
+              {row.original.qualification}
+            </Typography>
           </div>
         )
       }),
@@ -216,133 +203,102 @@ const DoctorsListTable = () => {
       columnHelper.accessor('experienceYears', {
         header: 'Experience',
         cell: ({ row }) => <Typography>{row.original.experienceYears} Years</Typography>
-      })
-    ],
-    []
-  )
-
-  const table = useReactTable({
-    data: (doctors as DoctorResponseDTO[]) || [],
-    columns,
-    pageCount: totalPages || 1, 
-    rowCount: totalItems || 0,
-    state: {
-      rowSelection,
-      pagination: {
-        pageIndex: (currentPage || 1) - 1, 
-        pageSize: pageSize || 10 
+      }),
+      // --- EDIT ACTION COLUMN ---
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }: any) => (
+          <Tooltip title="View/Edit Details">
+            <IconButton 
+                size="small" 
+                onClick={() => router.push(`/en/clinic/doctors/view/${row.original.id}`)}
+                color="primary"
+            >
+                <i className='tabler-edit' />
+            </IconButton>
+          </Tooltip>
+        )
       }
-    },
-    manualPagination: true,
-    manualFiltering: true, 
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    getCoreRowModel: getCoreRowModel(),
-    filterFns: {} as any,
-  })
+  ], [router])
 
   return (
-    <>
-      <Typography variant='h3' gutterBottom>
-        Doctor List
-      </Typography>
-      <Card>
-        <CardContent className='flex justify-between flex-wrap max-sm:flex-col sm:items-center gap-4'>
-          {/* <DebouncedInput
-            value={searchQuery}
-            onChange={handleSearch}
-            placeholder='Search Doctors (min 3 chars)'
-            className='max-sm:is-full'
-          /> */}
-           {user?.role === "ADMIN" &&
-            <Button
-              variant='contained'
-              color='primary'
-              className='max-sm:is-full'
-              startIcon={<i className='tabler-plus' />}
-              onClick={() => router.push('/en/clinic/doctors/register')}
-            >
-              Add Doctor
-            </Button>
-            }
-          <div className='flex max-sm:flex-col items-start sm:items-center gap-4 max-sm:is-full'>
-            <CustomTextField
-              select
-              value={pageSize || 10} 
-              onChange={handlePageSizeChange}
-              className='is-full sm:is-[90px]'
-            >
-              <MenuItem value='10'>10</MenuItem>
-              <MenuItem value='25'>25</MenuItem>
-              <MenuItem value='50'>50</MenuItem> 
-              <MenuItem value='100'>100</MenuItem>
-            </CustomTextField>
-        
-          </div>
-        </CardContent>
-        
-        <div className='overflow-x-auto'>
-          <table className={tableStyles.table}>
-            <thead>
-              {table.getHeaderGroups().map(headerGroup => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map(header => (
-                    <th key={header.id}>
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {status === 'loading' ? (
-                <tr>
-                  <td colSpan={columns.length} className='text-center p-4'>
-                    Loading...
-                  </td>
-                </tr>
-              ) : table.getRowModel().rows.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length} className='text-center p-4'>
-                    No doctors found
-                  </td>
-                </tr>
-              ) : (
-               
-                table.getRowModel().rows.map(row => (
-                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })} style={{ cursor: 'pointer' }}
-                      onClick={(e) => {
+    <CommonServerTable
+      title="Doctor List"
+      data={doctors || []}
+      columns={columns}
+      totalCount={totalItems}
+      isLoading={isLoading}
+      
+      pagination={{ pageIndex: (currentPage || 1) - 1, pageSize: pageSize || 10 }}
+      onPaginationChange={handlePaginationChange}
 
-                        const target = e.target as HTMLElement;
+      // --- TOOLBAR ---
+      filterComponent={
+        <div className='flex flex-wrap justify-between items-center gap-4 p-5'>
+           
+           {/* Left: Global Search */}
+           <div className='flex-1 min-w-[200px] max-w-sm'>
+              <TextField
+                fullWidth
+                size='small'
+                placeholder='Search Doctors...'
+                value={searchQuery}
+                onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+                InputProps={{
+                   startAdornment: <InputAdornment position="start"><i className='tabler-search' /></InputAdornment>,
+                   endAdornment: searchQuery && (
+                     <IconButton size="small" onClick={() => dispatch(setSearchQuery(''))}><i className='tabler-x' /></IconButton>
+                   )
+                }}
+              />
+           </div>
 
-                        if (target.closest('.MuiCheckbox-root') || target.closest('button') || target.closest('input')) {
-                          
-                            return;
-                          }
-                          
-                          router.push(`/en/clinic/doctors/view/${row.original.id}`);
-                  }}>
-                    {row.getVisibleCells().map(cell => (
-                      
-                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                    ))}
-                  </tr>
-                ))
+           {/* Right: Actions */}
+           <div className='flex items-center gap-3'>
+              
+              {/* Filter Popup Trigger */}
+              <OpenDialogOnElementClick
+                  element={Button}
+                  elementProps={{
+                      variant: 'tonal',
+                      color: activeFilterCount > 0 ? 'primary' : 'secondary',
+                      startIcon: <Badge badgeContent={activeFilterCount} color="error"><i className='tabler-filter' /></Badge>,
+                      children: "Filters",
+                      className: "px-6"
+                  }}
+                  dialog={TableFilterDialog}
+                  dialogProps={{
+                      filtersConfig: filterConfigs,
+                      appliedFilters: filters,
+                      sorting: sorting,
+                      onApply: handleApplyFilters
+                  }}
+              />
+
+              {/* Page Size Selector */}
+              <TextField 
+                  select size="small" value={pageSize} 
+                  onChange={(e) => dispatch(setPageSize(Number(e.target.value)))}
+                  className='w-[75px]'
+              >
+                  {[10, 25, 50, 100].map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+              </TextField>
+
+              {/* Add Doctor Button (Admin Only) */}
+              {user?.role === "ADMIN" && (
+                <Button 
+                    variant='contained' 
+                    onClick={() => router.push('/en/clinic/doctors/register')}
+                    startIcon={<i className='tabler-plus' />}
+                >
+                    Add Doctor
+                </Button>
               )}
-            </tbody>
-          </table>
+           </div>
         </div>
-
-        <TablePagination
-          component='div'
-          count={totalItems || 0} 
-          rowsPerPage={pageSize || 10} 
-          page={(currentPage || 1) - 1} 
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handlePageSizeChange} 
-        />
-      </Card>
-    </>
+      }
+    />
   )
 }
 
