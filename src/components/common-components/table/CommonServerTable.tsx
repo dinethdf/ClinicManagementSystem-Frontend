@@ -1,68 +1,124 @@
 'use client'
 
+import { useState } from 'react'
+
+// Imports
 import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
-import Typography from '@mui/material/Typography'
 import TablePagination from '@mui/material/TablePagination'
 import CircularProgress from '@mui/material/CircularProgress'
-import Divider from '@mui/material/Divider'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import Badge from '@mui/material/Badge'
+import Typography from '@mui/material/Typography'
 
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
+// TanStack
+import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 
+// Custom Hooks & Components
+import { useCommonTable } from '@/hooks/useCommonTable' // Import the hook we made
+import TableFilterDialog from './TableFilterDialog'
+import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick'
 import tableStyles from '@core/styles/table.module.css'
-import { CommonTableProps } from './TableTypes'
+import { FilterConfig } from './TableTypes'
+import { CardHeader, Divider } from '@mui/material'
 
-const CommonServerTable = <T extends object>({
-  data,
-  columns,
-  totalCount,
-  isLoading,
-  pagination,
-  onPaginationChange,
-  filterComponent,
-  title
-}: CommonTableProps<T>) => {
+interface Props<T> {
+  tableId: string
+  title?: string
+  fetchDataFunction: (params: any) => Promise<any> // Service function
+  columns: any[]
+  filterConfig?: FilterConfig[]
+  actionComponent?: React.ReactNode // Export/Add buttons
+}
 
+const CommonServerTable = <T extends object>({ 
+  tableId, 
+  title, 
+  fetchDataFunction, 
+  columns, 
+  filterConfig, 
+  actionComponent 
+}: Props<T>) => {
+
+  // --- CONNECT TO REDUX VIA HOOK ---
+  const { 
+    data, 
+    totalItems, 
+    isLoading, 
+    pagination, 
+    filters, 
+    sorting, 
+    onPageChange, 
+    onFilterChange 
+  } = useCommonTable(tableId, fetchDataFunction, { 
+  })
+
+  // --- TANSTACK SETUP ---
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    manualPagination: true, 
-    manualFiltering: true,
-    manualSorting: true,
+    manualPagination: true,
     state: { pagination },
-    filterFns: {} as any, 
+    pageCount: Math.ceil(totalItems / pagination.pageSize),
+    filterFns: {} as any
   })
 
-  const handleChangePage = (_: unknown, newPage: number) => {
-    onPaginationChange({ ...pagination, pageIndex: newPage })
-  }
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onPaginationChange({
-      pageSize: parseInt(event.target.value, 10),
-      pageIndex: 0
-    })
-  }
+  // --- HANDLERS ---
+  const activeFilterCount = Object.values(filters).filter(Boolean).length
 
   return (
     <Card>
-      {/* Title only (Actions are now inside filterComponent) */}
-      {title && <CardHeader title={title} className="pb-2" />}
-      {title && <Divider />}
 
-      {/* Filters & Toolbar */}
-      {filterComponent}
-      
-      {/* Table */}
+    {  title && <CardHeader title={title} className="pb-2" />}
+      {title && <Divider />}
+      {/* TOOLBAR */}
+      <div className='flex flex-wrap justify-between items-center gap-4 p-5 border-b'>
+         {/* Left: Filters */}
+         <div className='flex items-center gap-3'>
+            {filterConfig && (
+              <OpenDialogOnElementClick
+                  element={Button}
+                  elementProps={{
+                      variant: 'tonal',
+                      color: activeFilterCount > 0 ? 'primary' : 'secondary',
+                      startIcon: <Badge badgeContent={activeFilterCount} color="error"><i className='tabler-filter' /></Badge>,
+                      children: "Filters & Search",
+                      className: "px-6"
+                  }}
+                  dialog={TableFilterDialog}
+                  dialogProps={{
+                      filtersConfig: filterConfig,
+                      appliedFilters: filters,
+                      sorting: sorting,
+                      onApply: onFilterChange // Hook handles the dispatch
+                  }}
+              />
+            )}
+            
+            {/* Page Size */}
+            <TextField 
+                select size="small" 
+                value={pagination.pageSize} 
+                onChange={(e) => onPageChange({ pageIndex: 0, pageSize: Number(e.target.value) })}
+                className='w-[75px]'
+            >
+                {[5, 10, 25, 50, 100].map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+            </TextField>
+         </div>
+
+         {/* Right: Actions (passed from parent) */}
+         <div className='flex items-center gap-3'>
+            {actionComponent}
+         </div>
+      </div>
+
+      {/* TABLE */}
       {isLoading ? (
         <div className='p-12 flex justify-center'><CircularProgress /></div>
       ) : (
-        <div className='overflow-x-auto border-t'>
+        <div className='overflow-x-auto'>
           <table className={tableStyles.table}>
             <thead>
               {table.getHeaderGroups().map(headerGroup => (
@@ -77,14 +133,7 @@ const CommonServerTable = <T extends object>({
             </thead>
             <tbody>
               {table.getRowModel().rows.length === 0 ? (
-                 <tr>
-                    <td colSpan={columns.length} className='text-center p-8'>
-                       <div className="flex flex-col items-center gap-2 opacity-50">
-                          <i className="tabler-database-off text-3xl"/>
-                          <Typography>No records found</Typography>
-                       </div>
-                    </td>
-                 </tr>
+                 <tr><td colSpan={columns.length} className='text-center p-4'>No records found</td></tr>
               ) : (
                  table.getRowModel().rows.map(row => (
                     <tr key={row.id}>
@@ -99,13 +148,14 @@ const CommonServerTable = <T extends object>({
         </div>
       )}
 
+      {/* PAGINATION */}
       <TablePagination
         component="div"
-        count={totalCount}
+        count={totalItems}
         page={pagination.pageIndex}
-        onPageChange={handleChangePage}
+        onPageChange={(_, page) => onPageChange({ ...pagination, pageIndex: page })}
         rowsPerPage={pagination.pageSize}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        onRowsPerPageChange={(e) => onPageChange({ pageIndex: 0, pageSize: parseInt(e.target.value, 10) })}
         rowsPerPageOptions={[5, 10, 25, 50]}
       />
     </Card>
