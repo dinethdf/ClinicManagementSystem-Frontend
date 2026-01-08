@@ -7,9 +7,8 @@ import Typography from '@mui/material/Typography'
 import LinearProgress from '@mui/material/LinearProgress'
 import Chip from '@mui/material/Chip'
 import Skeleton from '@mui/material/Skeleton'
-import Alert from '@mui/material/Alert'
 
-// Hook Import (Use the one created previously)
+// Hook Import
 import { useRealtimeSchedule } from '@/hooks/useRealtimeSchedule'
 
 interface Props {
@@ -34,7 +33,7 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
   )
 
   // 3. Error or No Data State
-  if (error || !schedule) return null; // Or return a specific error card if preferred
+  if (error || !schedule) return null; 
 
   // 4. Status Logic
   const currentToken = schedule.currentServing || 0
@@ -42,19 +41,18 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
   const isFinished = schedule.scheduleStatus === 'FINISHED'
   
   // Calculate Progress
-  // If not started, progress is 0. If serving > your token, progress is 100%.
   const progress = !isStarted ? 0 : Math.min((currentToken / yourToken) * 100, 100)
   
   // People Ahead Calculation
   const peopleAhead = yourToken - currentToken
 
-  // Dynamic Background Colors based on status
+  // Dynamic Background Colors
   const getBgColor = () => {
-      if (isFinished) return 'bg-gray-700'; // Dark for finished
-      if (!isStarted) return 'bg-orange-500'; // Orange for waiting to start
-      if (peopleAhead === 0) return 'bg-green-600 animate-pulse'; // Green pulsing if it's your turn
-      if (peopleAhead < 0) return 'bg-blue-800'; // Blue if passed
-      return 'bg-primary'; // Default Primary
+      if (isFinished) return 'bg-gray-700'; 
+      if (!isStarted) return 'bg-orange-500'; 
+      if (peopleAhead === 0) return 'bg-green-600 animate-pulse'; 
+      if (peopleAhead < 0) return 'bg-blue-800'; 
+      return 'bg-primary'; 
   }
 
   return (

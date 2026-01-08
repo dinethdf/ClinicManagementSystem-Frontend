@@ -1,28 +1,39 @@
-export interface PortalStats {
-  upcomingAppointments: number;
-  pendingLabReports: number;
-  completedVisits: number;
-  totalSpent: number;
+export interface Financials {
+  totalBilled: number
+  totalPaid: number
+  totalDue: number
 }
 
-export interface PortalAppointmentDTO {
-  id: number;
-  doctorName: string;
-  specialization: string;
-  doctorImage?: string;
-  date: string; // ISO String
-  time: string;
-  queueNo: number;
-  status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'PENDING_PAYMENT';
-  clinicName: string;
-  location: string;
-  ticketPrice: number;
+export interface HistoryItem {
+  scheduleDate: string
+  status: string
+  doctorName: string
 }
 
-export interface PortalLabReportDTO {
-  id: number;
-  testName: string;
-  date: string;
-  status: 'PENDING' | 'READY';
-  downloadUrl?: string;
+export interface NextAppointment {
+  scheduleDate: string
+  startTime: string
+  doctorName: string
+}
+
+export interface Attendance {
+  total: number
+  completed: number
+  cancelled: number
+  noshow: number
+  lastVisit: string
+}
+
+export interface PreferredDoctor {
+  doctorName: string
+  visitCount: number
+}
+
+// The main response object
+export interface PatientAnalysisResponse {
+  financials: Financials
+  recentHistory: HistoryItem[]
+  nextAppointment: NextAppointment | null
+  attendance: Attendance
+  preferredDoctor: PreferredDoctor
 }
