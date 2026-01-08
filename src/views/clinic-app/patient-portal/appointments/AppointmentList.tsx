@@ -1,147 +1,224 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 
-// MUI
+// MUI Imports
 import Tab from '@mui/material/Tab'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-import TablePagination from '@mui/material/TablePagination'
+import Typography from '@mui/material/Typography'
+import Chip from '@mui/material/Chip'
 
-// Components
-import AppointmentCard from './AppointmentCard'
-import LiveQueueCard from './LiveQueueCard' 
+// TanStack Table Imports
+import { createColumnHelper } from '@tanstack/react-table'
+
+// Component Imports
+import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable'
+import OptionMenu from '@core/components/option-menu'
+
+import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick' // Import this
+import AppointmentDetailsDialog from './AppointmentDetailsDialog' // Import new dialog
 
 // Service & Types
-import { getPatientAppointments } from '@/services/patient-portal/patient.appointments.service'
+import { patientAppointmentService } from '@/services/patient-portal/patient.appointments.service'
 import type { PatientAppointmentDTO } from '@/types/patient-portal/patient.appointments.types'
 
-const AppointmentList = () => {
-  const [tabValue, setTabValue] = useState('1')
-  
-  // Data State
-  const [upcoming, setUpcoming] = useState<PatientAppointmentDTO[]>([])
-  const [history, setHistory] = useState<PatientAppointmentDTO[]>([])
-  const [loading, setLoading] = useState(true)
-  
-  // Pagination State (Simple implementation)
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(5)
-  const [totalCount, setTotalCount] = useState(0)
+// Utils
+import { getLocalizedUrl } from '@/utils/i18n'
+import type { Locale } from '@configs/i18n'
+import type { ThemeColor } from '@core/types'
 
-  // Fetch Data Function
-  const fetchData = async () => {
+// --- Configuration ---
+const columnHelper = createColumnHelper<any>()
+
+type StatusType = {
+  color: ThemeColor
+  label: string
+}
+
+const appointmentStatusObj: { [key: string]: StatusType } = {
+  PENDING: { color: 'warning', label: 'Pending' },
+  SCHEDULED: { color: 'primary', label: 'Scheduled' },
+  COMPLETED: { color: 'success', label: 'Completed' },
+  CANCELLED: { color: 'error', label: 'Cancelled' },
+  NOSHOW: { color: 'secondary', label: 'No Show' }
+}
+
+const AppointmentList = () => {
+  // State
+  const [tabValue, setTabValue] = useState('1') // '1' = Upcoming, '2' = History
+  const [data, setData] = useState<PatientAppointmentDTO[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const { lang: locale } = useParams()
+
+  // --- Fetch Data ---
+  const fetchData = useCallback(async () => {
     setLoading(true)
+    setError(null)
     try {
-      const type = tabValue === '1' ? 'UPCOMING' : 'HISTORY';
-      const res = await getPatientAppointments(type, page);
+      const requestType = tabValue === '1' ? 'UPCOMING' : 'HISTORY'
       
-      if(type === 'UPCOMING') {
-          setUpcoming(res.data.content);
-      } else {
-          setHistory(res.data.content);
-      }
-      setTotalCount(res.data.totalElements);
-    } catch (err) {
+      const result = await patientAppointmentService.getPatientAppointments(requestType)
+      setData(result)
+      
+    } catch (err: any) {
       console.error(err)
+      setError('Failed to load appointments. Please try again.')
     } finally {
       setLoading(false)
     }
-  }
+  }, [tabValue])
 
-  // Refetch when Tab or Page changes
   useEffect(() => { 
       fetchData() 
-  }, [tabValue, page])
+  }, [fetchData])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
     setTabValue(newValue)
-    setPage(0) // Reset page on tab switch
   }
 
-  const handlePageChange = (_: unknown, newPage: number) => {
-    setPage(newPage)
+  // --- Action: Cancel Appointment ---
+  const handleCancel = async (id: number) => {
+      if(!window.confirm('Are you sure you want to cancel this appointment?')) return;
+
+      try {
+          await patientAppointmentService.cancelAppointment(id);
+          fetchData();
+      } catch (error: any) {
+          alert(error || "Failed to cancel");
+      }
   }
 
-  // Helper to check if an appointment is "Today" for the Live Queue
-  const isToday = (dateString: string) => {
-      const d = new Date(dateString);
-      const today = new Date();
-      return d.getDate() === today.getDate() && 
-             d.getMonth() === today.getMonth() && 
-             d.getFullYear() === today.getFullYear();
-  }
+  // --- Column Definitions ---
+  const columns = useMemo(() => [
+      columnHelper.accessor('appointmentId', {
+        header: 'Reference',
+        cell: ({ row }) => (
+          // REPLACED Link with OpenDialogOnElementClick
+          <OpenDialogOnElementClick
+              element={Typography}
+              elementProps={{
+                  children: `#${row.original.appointmentId}`,
+                  className: 'font-medium cursor-pointer text-primary hover:underline',
+                  component: 'span' // Render as span to avoid p nesting issues if any
+              }}
+              dialog={AppointmentDetailsDialog}
+              dialogProps={{
+                  appointmentId: row.original.appointmentId // Pass ID to dialog
+              }}
+          />
+        )
+      }),
+    columnHelper.accessor('scheduleDate', {
+      header: 'Date & Time',
+      cell: ({ row }) => (
+        <div className='flex flex-col'>
+          <Typography className='font-medium' color='text.primary'>
+            {row.original.scheduleDate}
+          </Typography>
+          <Typography variant='caption' color='text.disabled'>
+            {row.original.startTime}
+          </Typography>
+        </div>
+      )
+    }),
+    columnHelper.accessor('doctorName', {
+      header: 'Doctor',
+      cell: ({ row }) => (
+        <div className='flex flex-col'>
+          <Typography color='text.primary' className='font-medium'>
+             {row.original.doctorName}
+          </Typography>
+          <Typography variant='caption' color='text.disabled'>
+             {row.original.specialization}
+          </Typography>
+        </div>
+      )
+    }),
+    columnHelper.accessor('queuePosition', {
+        header: 'Queue No',
+        cell: ({ row }) => (
+            <div className='flex justify-center'>
+                 <span className='font-bold text-lg text-blue-600 bg-blue-50 px-2 rounded'>
+                    {row.original.queuePosition}
+                 </span>
+            </div>
+        )
+    }),
+    columnHelper.accessor('status', {
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = appointmentStatusObj[row.original.status] || { color: 'secondary', label: row.original.status }
+        return <Chip label={status.label} color={status.color} size='small' variant="tonal" />
+      }
+    }),
+    columnHelper.accessor('appointmentId', {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <OptionMenu
+          iconButtonProps={{ size: 'medium' }}
+          iconClassName='text-textSecondary'
+          options={[
+            {
+              text: 'View Details',
+              icon: 'tabler-eye',
+              href: getLocalizedUrl(`/patient/appointments/${row.original.appointmentId}`, locale as Locale)
+            },
+            ...(row.original.status !== 'CANCELLED' && row.original.status !== 'COMPLETED' ? [{
+                text: 'Cancel',
+                icon: 'tabler-circle-x', 
+                menuItemProps: { 
+                    onClick: () => handleCancel(row.original.appointmentId),
+                    className: 'text-error hover:bg-red-50' 
+                }
+            }] : [])
+          ]}
+        />
+      ),
+      enableSorting: false
+    })
+  ], [locale, fetchData])
 
   return (
     <div className='animate-in fade-in slide-in-from-bottom-4 duration-500'>
       <TabContext value={tabValue}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <TabList onChange={handleTabChange} aria-label="Appointment Tabs" variant="fullWidth">
+          <TabList onChange={handleTabChange} aria-label="Appointment Tabs">
             <Tab label="Upcoming" value="1" icon={<i className='tabler-calendar-time'/>} iconPosition="start" />
             <Tab label="History" value="2" icon={<i className='tabler-history'/>} iconPosition="start" />
           </TabList>
         </Box>
 
-        {loading ? (
-           <div className='flex flex-col items-center justify-center p-10 gap-2'>
-               <CircularProgress />
-               <span className='text-gray-500 text-sm'>Loading appointments...</span>
-           </div>
-        ) : (
-           <>
-             {/* --- UPCOMING TAB --- */}
-             <TabPanel value="1" className='p-0'>
-                {upcoming.length === 0 ? (
-                    <div className='text-center p-10 opacity-50 bg-gray-50 rounded-lg border-2 border-dashed'>
-                        <i className='tabler-calendar-off text-4xl mb-2'/>
-                        <p>No upcoming appointments.</p>
-                    </div>
-                ) : (
-                    <div>
-                        {/* STORY 2.4: Show Live Queue only for TODAY's appointments */}
-                        {upcoming.map(appt => {
-                            if (isToday(appt.date) && appt.status === 'SCHEDULED') {
-                                return <LiveQueueCard key={`live-${appt.id}`} appointmentId={appt.id} />
-                            }
-                            return null;
-                        })}
+        {/* --- UPCOMING TAB --- */}
+        <TabPanel value="1" className='p-0'>
 
-                        {upcoming.map(appt => (
-                            <AppointmentCard key={appt.id} appt={appt} onRefresh={fetchData} />
-                        ))}
-                    </div>
-                )}
-             </TabPanel>
+            <SimpleCommonTable 
+                data={data}
+                columns={columns}
+                isLoading={loading}
+                error={error}
+                searchPlaceholder="Search upcoming appointments..."
+            />
+        </TabPanel>
 
-             {/* --- HISTORY TAB --- */}
-             <TabPanel value="2" className='p-0'>
-                {history.length === 0 ? (
-                    <div className='text-center p-10 opacity-50 bg-gray-50 rounded-lg border-2 border-dashed'>
-                        <i className='tabler-history-off text-4xl mb-2'/>
-                        <p>No past appointments found.</p>
-                    </div>
-                ) : (
-                    history.map(appt => (
-                        <AppointmentCard key={appt.id} appt={appt} isHistory onRefresh={fetchData} />
-                    ))
-                )}
-             </TabPanel>
-             
-             {/* Pagination Control */}
-             <TablePagination
-                component="div"
-                count={totalCount}
-                page={page}
-                onPageChange={handlePageChange}
-                rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={() => {}} // Fixed size for now based on service
-                rowsPerPageOptions={[5]}
-             />
-           </>
-        )}
+        {/* --- HISTORY TAB --- */}
+        <TabPanel value="2" className='p-0'>
+            <SimpleCommonTable 
+                data={data}
+                columns={columns}
+                isLoading={loading}
+                error={error}
+                searchPlaceholder="Search past appointments..."
+            />
+        </TabPanel>
+
       </TabContext>
     </div>
   )

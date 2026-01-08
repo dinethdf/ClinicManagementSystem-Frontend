@@ -31,3 +31,36 @@ export interface RebookRequestDTO {
   previousDoctorId: number;
   patientId: number;
 }
+
+export interface AppointmentDetailsDTO {
+  id: number
+  status: string
+  queuePosition: number
+  note: string
+  createdDate: string
+  
+  // Doctor
+  doctorId: number
+  doctorName: string
+  specialization: string
+  
+  // Schedule
+  scheduleId: number
+  scheduleDate: string
+  startTime: string
+  endTime: string
+  
+  // Patient
+  patientId: number
+  patientName: string
+  patientNo: string
+  patientMobile: string
+  patientNic: string
+  
+  // Financials
+  doctorFee: number
+  clinicFee: number
+  invoiceFinalAmount: number
+  invoiceTotalDiscount: number
+  invoiceStatus: string
+}

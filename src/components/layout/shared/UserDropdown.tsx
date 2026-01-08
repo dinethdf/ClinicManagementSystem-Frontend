@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react' // Added useEffect
 import type { MouseEvent } from 'react'
 
 // Next Imports
@@ -21,10 +21,6 @@ import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 
-// Third-party Imports
-// import { signOut, useSession } from 'next-auth/react'
-// import { useSession } from 'next-auth/react'
-
 // Type Imports
 import type { Locale } from '@configs/i18n'
 
@@ -33,7 +29,7 @@ import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
-import { logoutAndRedirect } from '@/libs/authentication'
+import { logoutAndRedirect, getUserDetails, UserStorageData } from '@/libs/authentication'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -48,17 +44,21 @@ const BadgeContentSpan = styled('span')({
 const UserDropdown = () => {
   // States
   const [open, setOpen] = useState(false)
+  const [userData, setUserData] = useState<UserStorageData | null>(null) // <--- New State for User Data
 
   // Refs
   const anchorRef = useRef<HTMLDivElement>(null)
 
   // Hooks
   const router = useRouter()
-
-  // const { data: session } = useSession()
-  const { data: session } = '' as any // reemove this after addin use session
   const { settings } = useSettings()
   const { lang: locale } = useParams()
+
+  // --- FETCH USER DATA ON MOUNT ---
+  useEffect(() => {
+    const data = getUserDetails()
+    setUserData(data)
+  }, [])
 
   const handleDropdownOpen = () => {
     !open ? setOpen(true) : setOpen(false)
@@ -78,17 +78,10 @@ const UserDropdown = () => {
 
   const handleUserLogout = async () => {
     try {
-      // Sign out from the app
-      // await signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })
       await logoutAndRedirect()
-
-      //  <AuthRedirect lang={locale} />
       router.replace('/login')
     } catch (error) {
       console.error(error)
-
-      // Show above error in a toast like following
-      // toastService.error((err as Error).message)
     }
   }
 
@@ -103,8 +96,8 @@ const UserDropdown = () => {
       >
         <Avatar
           ref={anchorRef}
-          alt={session?.user?.name || 'Dineth dd'}
-          src={session?.user?.image || '/images/avatars/1.png'}
+          alt={userData?.userName || 'User'} // <--- Updated
+          src={userData?.userImg || '/images/avatars/1.png'} // <--- Updated
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
         />
@@ -115,7 +108,7 @@ const UserDropdown = () => {
         disablePortal
         placement='bottom-end'
         anchorEl={anchorRef.current}
-        className='min-is-[240px] !mbs-3 z-[1]'
+        className='min-is-60 mbs-3! z-1'
       >
         {({ TransitionProps, placement }) => (
           <Fade
@@ -128,24 +121,22 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
-                    <Avatar alt={session?.user?.name || 'DD'} src={session?.user?.image || '/images/avatars/1.png'} />
+                    <Avatar 
+                        alt={userData?.userName || 'User'} 
+                        src={userData?.userImg || '/images/avatars/1.png'} 
+                    />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
-                        {session?.user?.name || 'Dineth Dilshan'}
+                        {userData?.userName || 'Clinic User'} {/* <--- Updated */}
                       </Typography>
-                      <Typography variant='caption'>{session?.user?.email || 'dineth@gmail.com'}</Typography>
+                      <Typography variant='caption'>{userData?.userEmail || ''}</Typography> {/* <--- Updated */}
                     </div>
                   </div>
+                  
                   <Divider className='mlb-1' />
-                  {/* <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/pages/user-profile')}>
-                    <i className='tabler-user' />
-                    <Typography color='text.primary'>My Profile</Typography>
-                  </MenuItem>
-                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/pages/account-settings')}>
-                    <i className='tabler-settings' />
-                    <Typography color='text.primary'>Settings</Typography>
-                  </MenuItem> */}
-
+                  
+                  {/* Keep your existing menu items logic here if needed */}
+                  
                   <div className='flex items-center plb-2 pli-3'>
                     <Button
                       fullWidth
