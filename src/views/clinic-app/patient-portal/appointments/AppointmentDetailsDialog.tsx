@@ -21,8 +21,32 @@ import RealtimeLiveQueueCard from './RealtimeLiveQueueCard'
 
 // Service
 import { patientAppointmentService } from '@/services/patient-portal/patient.appointments.service'
-import { AppointmentDetailsDTO } from '@/types/patient-portal/patient.appointments.types'
 
+// Types
+interface AppointmentDetailsDTO {
+  id: number
+  status: string
+  queuePosition: number
+  note: string
+  createdDate: string
+  doctorId: number
+  doctorName: string
+  specialization: string
+  scheduleId: number
+  scheduleDate: string
+  startTime: string
+  endTime: string
+  patientId: number
+  patientName: string
+  patientNo: string
+  patientMobile: string
+  patientNic: string
+  doctorFee: number
+  clinicFee: number
+  invoiceFinalAmount: number
+  invoiceTotalDiscount: number
+  invoiceStatus: string
+}
 
 interface Props {
   open: boolean
@@ -45,7 +69,6 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
     setLoading(true)
     setError(null)
     try {
-      // Ensure your service returns the full object structure defined above
       const data = await patientAppointmentService.getAppointmentDetails(appointmentId)
       setDetails(data as any) 
     } catch (err) {
@@ -58,28 +81,19 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
 
   const handleClose = () => setOpen(false)
 
-  // Status Color Logic
   const getStatusColor = (status: string) => {
-    const map: any = { 
-        BOOKED: 'primary', 
-        SCHEDULED: 'primary', 
-        COMPLETED: 'success', 
-        CANCELLED: 'error', 
-        PENDING: 'warning' 
-    }
+    const map: any = { BOOKED: 'primary', SCHEDULED: 'primary', COMPLETED: 'success', CANCELLED: 'error', PENDING: 'warning' }
     return map[status] || 'default'
   }
 
-  // Invoice Status Color
   const getInvoiceColor = (status: string) => {
       return status === 'PAID' ? 'success' : 'error'
   }
 
-  // Check if appointment is active for Live Queue
   const isActive = details && ['BOOKED', 'SCHEDULED', 'PENDING'].includes(details.status)
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth='md' fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth='sm' fullWidth>
       <DialogTitle className='flex justify-between items-center bg-gray-50 px-6 py-4 border-b'>
         <div className='flex items-center gap-3'>
              <Typography variant='h5' component='span'>
@@ -108,15 +122,24 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
         ) : error ? (
             <Alert severity="error" className='mt-4'>{error}</Alert>
         ) : details ? (
-            <Grid container spacing={4} className='mt-2'>
+            <Grid container spacing={3} className='mt-2'>
                 
-                {/* --- LEFT COLUMN: DETAILS --- */}
-                <Grid size={{ xs: 12, md: isActive ? 7 : 12 }}>
+                {/* --- SECTION 1: DETAILS --- */}
+                {/* Always full width (xs=12) to stack vertically */}
+                <Grid size={{ xs: 12 }}>
                     <div className='flex flex-col gap-5'>
                         
                         {/* 1. DOCTOR & SCHEDULE CARD */}
-                        <div className='flex flex-col gap-3 p-4 border rounded-xl bg-primary/5 border-primary/20'>
-                             <div className='flex gap-4 items-start'>
+                        <div className='flex flex-col gap-3 p-4 border rounded-xl bg-primary/5 border-primary/20 relative'>
+                             {/* TOKEN BADGE (Absolute Top Right) */}
+                             <div className='absolute top-4 right-4 text-center'>
+                                <Typography variant='caption' className='block uppercase text-[10px] text-primary font-bold'>Token</Typography>
+                                <div className='bg-white text-primary font-extrabold text-2xl h-10 w-10 flex items-center justify-center rounded-full shadow-sm border border-primary/20'>
+                                    {details.queuePosition}
+                                </div>
+                             </div>
+
+                             <div className='flex gap-4 items-start pr-14'>
                                 <Avatar className='bg-white text-primary h-12 w-12 shadow-sm'>
                                     <i className='tabler-stethoscope text-2xl' />
                                 </Avatar>
@@ -209,48 +232,28 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
                                 <Typography variant='body2' className='text-yellow-900'>{details.note}</Typography>
                             </div>
                         )}
-
-                        <Typography variant='caption' color='text.disabled' className='text-center mt-2'>
+                        
+                         <Typography variant='caption' color='text.disabled' className='text-center'>
                             Created on: {new Date(details.createdDate).toLocaleString()}
                         </Typography>
-
                     </div>
                 </Grid>
 
-                {/* --- RIGHT COLUMN: LIVE QUEUE & TOKEN --- */}
+                {/* --- SECTION 2: LIVE QUEUE --- */}
+                {/* Placed below details, taking full width */}
                 {isActive && (
-                    <Grid size={{ xs: 12, md: 5 }}>
-                        <div className='sticky top-4 flex flex-col gap-4 h-full'>
-                            
-                            {/* TOKEN NUMBER */}
-                            <div className='bg-primary text-white p-6 rounded-xl text-center shadow-lg relative overflow-hidden'>
-                                <div className='absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-bl-full'></div>
-                                <Typography variant='body2' className='opacity-90 uppercase tracking-wider font-semibold'>Your Token</Typography>
-                                <Typography variant='h1' fontWeight={800} className='my-2 text-6xl'>
-                                    {details.queuePosition}
-                                </Typography>
-                                <Typography variant='caption' className='bg-black/20 px-2 py-1 rounded'>
-                                    Queue Position
-                                </Typography>
-                            </div>
+                    <Grid size={{ xs: 12 }}>
+                        <Divider className='mb-4'>
+                            <Chip label="LIVE STATUS" size='small' />
+                        </Divider>
 
-                            {/* LIVE QUEUE STATUS */}
-                            <Box className="flex-1 min-h-[300px]">
-                                <Typography variant='h6' className='mb-3 flex items-center gap-2'>
-                                    <span className='relative flex h-3 w-3'>
-                                      <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75'></span>
-                                      <span className='relative inline-flex rounded-full h-3 w-3 bg-red-500'></span>
-                                    </span>
-                                    Live Queue Status
-                                </Typography>
-                                
-                                <RealtimeLiveQueueCard 
-                                    clinicId={2} // Still hardcoded as per instruction
-                                    scheduleId={102} 
-                                    yourToken={details.queuePosition} 
-                                />
-                            </Box>
-                        </div>
+                        <Box className="flex-1">
+                            <RealtimeLiveQueueCard 
+                                clinicId={2} // Hardcoded as per previous instructions
+                                scheduleId={102} 
+                                yourToken={10} 
+                            />
+                        </Box>
                     </Grid>
                 )}
             </Grid>
