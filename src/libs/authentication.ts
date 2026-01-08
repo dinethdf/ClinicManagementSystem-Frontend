@@ -83,3 +83,59 @@ export function logoutAndRedirect() {
 //   }
 // }
 
+// src/utils/user-storage.ts
+
+
+
+export interface UserStorageData {
+  userName: string;
+  userEmail: string;
+  userImg: string;
+  userRole: string;
+}
+
+const USER_STORAGE_KEY = 'userData';
+
+export const saveUserDetails = (data: { 
+  userName: string | null; 
+  userEmail: string | null; 
+  userImg: string | null; 
+  userRole: string | null; 
+}) => {
+  // 1. Check if exists and remove
+  if (localStorage.getItem(USER_STORAGE_KEY)) {
+    localStorage.removeItem(USER_STORAGE_KEY);
+  }
+
+  const safeData: UserStorageData = {
+    userName: data.userName || '',
+    userEmail: data.userEmail || '',
+    userImg: data.userImg || '',
+    userRole: data.userRole || ''
+  };
+
+  try {
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(safeData));
+  } catch (error) {
+    console.error('Error saving user details to localStorage', error);
+  }
+};
+
+
+export const getUserDetails = (): UserStorageData | null => {
+  if (typeof window === 'undefined') return null; 
+
+  const data = localStorage.getItem(USER_STORAGE_KEY);
+  if (!data) return null;
+
+  try {
+    return JSON.parse(data) as UserStorageData;
+  } catch (error) {
+    console.error('Error parsing user details', error);
+    return null;
+  }
+};
+
+export const clearUserDetails = () => {
+  localStorage.removeItem(USER_STORAGE_KEY);
+};

@@ -47,8 +47,9 @@ import { useSettings } from '@core/hooks/useSettings'
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
 
-import { logoutAndRedirect, setLoginCookie } from '@/libs/authentication'
+import { logoutAndRedirect, setLoginCookie, saveUserDetails } from '@/libs/authentication'
 import BackDropFullScreen from '@/components/BackDropFullScreen'
+import data from './../data/searchData';
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -163,7 +164,15 @@ const Login = ({ mode }: { mode: SystemMode }) => {
       const result = await res.json()
 
       if (result && result?.success === true && result?.data?.accessToken && result?.data?.refreshToken) {
+
         await setLoginCookie(result.data.accessToken, result.data.refreshToken)
+
+        saveUserDetails({
+          userName: result.data.userName,
+          userEmail: result.data.userEmail,
+          userImg: result.data.userImg,
+          userRole: result.data.userRole
+        })
 
         const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
 
@@ -212,6 +221,12 @@ const Login = ({ mode }: { mode: SystemMode }) => {
       if (result && result?.success === true && result?.data?.accessToken && result?.data?.refreshToken) {
         await setLoginCookie(result.data.accessToken, result.data.refreshToken)
 
+        saveUserDetails({
+          userName: result.data.userName,
+          userEmail: result.data.userEmail,
+          userImg: result.data.userImg,
+          userRole: result.data.userRole
+        })
         const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
      
         toast.success('Login Successful', {

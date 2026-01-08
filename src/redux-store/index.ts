@@ -11,6 +11,8 @@ import patientReducer from '@/redux-store/slices/patientSlice'
 import doctorReducer from '@/redux-store/slices/doctorSlice'
 import adminDashboardReducer from '@/redux-store/slices/adminDashboardSlice'
 import doctorDashboardReducer from '@/redux-store/slices/doctorDashboardSlice'
+import tableStateReducer from '@/redux-store/slices/tableStateSlice'
+import patientPortalReducer from '@/redux-store/slices/patientPortalSlice'
 
 export const store = configureStore({
   reducer: {
@@ -21,7 +23,9 @@ export const store = configureStore({
     patientReducer,
     doctorReducer,
     adminDashboard: adminDashboardReducer,
-    doctorDashboard: doctorDashboardReducer
+    doctorDashboard: doctorDashboardReducer,
+    tableState: tableStateReducer,
+    patientPortal: patientPortalReducer
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware({ serializableCheck: false })
 })
