@@ -65,9 +65,9 @@ class DoctorService {
     page: number
     pageSize: number
     search?: string
-  }): Promise<ApiResponse<PaginatedResponse<any>>> {
+  }): Promise<PaginatedResponse<any>> {
     try {
-      const response = await apiClient.get<PaginatedResponse<any>>(
+      const response : any = await apiClient.get<PaginatedResponse<any>>(
         '/api/doctor/list',
         {
           params: {
