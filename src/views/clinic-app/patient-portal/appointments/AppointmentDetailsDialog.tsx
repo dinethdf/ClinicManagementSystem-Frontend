@@ -169,7 +169,23 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
                                  </div>
                              </div>
                         </div>
+                {/* --- SECTION 2: LIVE QUEUE --- */}
+                {/* Placed below details, taking full width */}
+                {isActive && (
+                    <Grid size={{ xs: 12 }}>
+                        <Divider className='mb-4'>
+                            <Chip label="LIVE STATUS" size='small' />
+                        </Divider>
 
+                        <Box className="flex-1">
+                            <RealtimeLiveQueueCard 
+                                clinicId={2} // Hardcoded as per previous instructions
+                                scheduleId={102} 
+                                yourToken={10} 
+                            />
+                        </Box>
+                    </Grid>
+                )}
                         {/* 2. PATIENT INFO */}
                         <div>
                              <Typography variant='subtitle2' className='mb-2 font-bold uppercase text-xs text-gray-500'>Patient Details</Typography>
@@ -238,24 +254,6 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
                         </Typography>
                     </div>
                 </Grid>
-
-                {/* --- SECTION 2: LIVE QUEUE --- */}
-                {/* Placed below details, taking full width */}
-                {isActive && (
-                    <Grid size={{ xs: 12 }}>
-                        <Divider className='mb-4'>
-                            <Chip label="LIVE STATUS" size='small' />
-                        </Divider>
-
-                        <Box className="flex-1">
-                            <RealtimeLiveQueueCard 
-                                clinicId={2} // Hardcoded as per previous instructions
-                                scheduleId={102} 
-                                yourToken={10} 
-                            />
-                        </Box>
-                    </Grid>
-                )}
             </Grid>
         ) : null}
       </DialogContent>

@@ -10,7 +10,6 @@ import Chip from '@mui/material/Chip'
 import Skeleton from '@mui/material/Skeleton'
 import Tooltip from '@mui/material/Tooltip'
 import Avatar from '@mui/material/Avatar'
-import Box from '@mui/material/Box'
 import Alert from '@mui/material/Alert'
 
 // Hook Import
@@ -26,7 +25,7 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
   
   const { schedule, loading, error } = useRealtimeSchedule(clinicId, scheduleId)
 
-  // Memoize Appointments for O(1) Lookup
+  // 1. Memoize Appointments for O(1) Lookup
   const appointmentsLookup = useMemo(() => {
     if (!schedule || !schedule.appointments) return {}
 
@@ -41,6 +40,11 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
         return acc
     }, {})
   }, [schedule])
+
+  // 2. Get Sorted List of ALL Valid Token Numbers
+  const allQueueNumbers = useMemo(() => {
+      return Object.keys(appointmentsLookup).map(Number).sort((a, b) => a - b);
+  }, [appointmentsLookup]);
 
   if (loading) return (
     <Card className='mb-4 rounded-xl shadow-sm'>
@@ -60,32 +64,47 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
 
   // Render Queue Stream
   const renderQueueVisualizer = () => {
-    const items = [];
-    // const visibleStart = Math.max(1, currentToken - 1);
-    const visibleStart = currentToken
-    const visibleEnd = Math.min(currentToken + 3, 9999);
+    
+    // Step A: Filter logic based on ACTUAL EXISTING tokens
+    // We want to start showing from the current token (or the one before it if needed)
+    // Here we filter 'allQueueNumbers' to find those >= currentToken
+    const upcomingTokens = allQueueNumbers.filter(t => t >= currentToken);
 
-    for (let i = visibleStart; i <= visibleEnd; i++) {
-        items.push(i);
+    // Step B: Decide how many to show (e.g., next 5 active tokens)
+    // If list is empty (rare), fallback to showing just currentToken
+    let items: (number | string)[] = upcomingTokens.length > 0 
+        ? upcomingTokens.slice(0, 4) 
+        : [currentToken];
+    
+    // Step C: Handle "Your Token" logic if it's not in the visible slice
+    const lastVisibleToken = items[items.length - 1] as number;
+
+    if (yourToken > lastVisibleToken) {
+        // Check if there are HIDDEN tokens between the last visible one and yours
+        const indexOfLast = allQueueNumbers.indexOf(lastVisibleToken);
+        const indexOfYours = allQueueNumbers.indexOf(yourToken);
+        
+        // If there is at least one token in between in the actual list
+        if (indexOfYours > indexOfLast + 1) {
+             items.push('DOTS');
+             items.push(yourToken);
+        } else {
+             // It's the immediate next valid token, just add it
+             items.push(yourToken);
+        }
     }
 
-    if (yourToken > visibleEnd + 1) {
-        items.push('DOTS');
-        items.push(yourToken);
-    } else if (yourToken > visibleEnd) {
-        items.push(yourToken);
-    }
-
+    // Ensure uniqueness
     const uniqueItems = Array.from(new Set(items));
 
     return (
-        // ADJUSTED: Reduced gap to 'gap-2' and padding to 'py-2' for tighter fit
         <div className='flex gap-2 items-center justify-center overflow-x-auto no-scrollbar py-2 px-2 w-full'>
             {uniqueItems.map((item, index) => {
+                // Render Dots
                 if (item === 'DOTS') {
                     return (
                         <div key="dots" className="flex items-center justify-center w-6 h-6 opacity-40 shrink-0">
-                            <span className="text-white text-lg leading-none mt-[-4px]">...</span>
+                            <span className="text-white text-lg leading-none -mt-1">...</span>
                         </div>
                     );
                 }
@@ -96,15 +115,15 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
                 const isCurrent = tokenNum === currentToken;
                 const status = apptData.status;
 
-                // Base Styles
+                // --- STYLING LOGIC ---
                 let bgClass = "bg-white/10 text-white/80"; 
                 let borderClass = "border border-white/5";
-                let sizeClass = "w-9 h-9 text-sm"; // Slightly smaller base size
+                let sizeClass = "w-9 h-9 text-sm"; 
                 let extraStyles = "";
 
-                // --- STATUS COLORS ---
                 if (status === 'COMPLETED') {
-                    bgClass = "bg-[#37ee27] text-[#1c1a2c]";
+                    // Bright Green
+                    bgClass = "bg-[#37ee27] text-[#1c1a2c] font-bold";
                     borderClass = "border border-emerald-500/30";
                 } else if (status === 'CANCELLED') {
                     bgClass = "bg-red-500/20 text-red-100";
@@ -213,7 +232,7 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
             </div>
 
             {/* 2. PROGRESS */}
-            <div className="flex flex-col justify-center items-center px-2 flex-grow-0 min-w-[120px]">
+            <div className="flex flex-col justify-center items-center px-2 grow-0 min-w-[120px]">
                  <div className="bg-[#4f46e5]/40 border border-white/10 rounded-full px-3 py-0.5 mb-2 backdrop-blur-md">
                      <Typography variant='caption' fontWeight={700} className='text-[10px] uppercase text-white'>
                         {peopleAhead > 0 ? `${peopleAhead} Ahead` : peopleAhead === 0 ? 'Your Turn' : 'Passed'}
@@ -230,7 +249,7 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
             </div>
 
             {/* 3. YOUR TOKEN */}
-            <div className="flex-1 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10 relative flex flex-col justify-center items-center min-h-[90px]">
+            <div className="flex-1 bg-linear-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10 relative flex flex-col justify-center items-center min-h-[90px]">
                  <div className="w-full text-right mb-1">
                     <Typography variant='caption' className='text-yellow-300/80 text-[10px] font-bold uppercase tracking-wider'>
                         Your Token
@@ -262,7 +281,7 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
 
         {/* --- QUEUE STREAM --- */}
         <div className='bg-black/20 rounded-xl border border-white/5 overflow-hidden'>
-            <div className='flex justify-between items-center px-3 py-1.5 border-b border-white/5'>
+            <div className='flex justify-between items-center px-3 py-2 border-b border-white/5'>
                 <Typography variant='caption' className='text-white/50 text-[10px] font-bold uppercase tracking-widest'>
                     Queue Stream
                 </Typography>
