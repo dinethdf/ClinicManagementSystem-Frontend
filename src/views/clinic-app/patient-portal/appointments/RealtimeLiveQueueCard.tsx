@@ -7,8 +7,9 @@ import Typography from '@mui/material/Typography'
 import LinearProgress from '@mui/material/LinearProgress'
 import Chip from '@mui/material/Chip'
 import Skeleton from '@mui/material/Skeleton'
+import Alert from '@mui/material/Alert'
 
-// Hook Import
+// Hook Import (Use the one created previously)
 import { useRealtimeSchedule } from '@/hooks/useRealtimeSchedule'
 
 interface Props {
@@ -21,7 +22,7 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
   
   // 1. Connect to Firebase
   const { schedule, loading, error } = useRealtimeSchedule(clinicId, scheduleId)
-
+  console.log(schedule)
   // 2. Loading State
   if (loading) return (
     <Card className='mb-6'>
@@ -33,7 +34,7 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
   )
 
   // 3. Error or No Data State
-  if (error || !schedule) return null; 
+  if (error || !schedule) return null; // Or return a specific error card if preferred
 
   // 4. Status Logic
   const currentToken = schedule.currentServing || 0
@@ -41,18 +42,19 @@ const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
   const isFinished = schedule.scheduleStatus === 'FINISHED'
   
   // Calculate Progress
+  // If not started, progress is 0. If serving > your token, progress is 100%.
   const progress = !isStarted ? 0 : Math.min((currentToken / yourToken) * 100, 100)
   
   // People Ahead Calculation
   const peopleAhead = yourToken - currentToken
 
-  // Dynamic Background Colors
+  // Dynamic Background Colors based on status
   const getBgColor = () => {
-      if (isFinished) return 'bg-gray-700'; 
-      if (!isStarted) return 'bg-orange-500'; 
-      if (peopleAhead === 0) return 'bg-green-600 animate-pulse'; 
-      if (peopleAhead < 0) return 'bg-blue-800'; 
-      return 'bg-primary'; 
+      if (isFinished) return 'bg-gray-700'; // Dark for finished
+      if (!isStarted) return 'bg-orange-500'; // Orange for waiting to start
+      if (peopleAhead === 0) return 'bg-green-600 animate-pulse'; // Green pulsing if it's your turn
+      if (peopleAhead < 0) return 'bg-blue-800'; // Blue if passed
+      return 'bg-primary'; // Default Primary
   }
 
   return (

@@ -1,5 +1,5 @@
 import { apiClient } from '@/services/api.config' // Adjust path if needed
-import type { PatientAppointmentDTO } from '@/types/patient-portal/patient.appointments.types'
+import type { PatientAppointmentDTO, AppointmentDetailsDTO } from '@/types/patient-portal/patient.appointments.types'
 
 // Define the generic response wrapper if you haven't globally
 type ApiResponse<T> = {
@@ -27,6 +27,10 @@ class PatientPortalAppointmentService {
     }
   }
 
+  async getAppointmentDetails(id: number): Promise<AppointmentDetailsDTO> {
+     const response = await apiClient.get(`/api/patient-portal/appointments/details/${id}`)
+     return response.data.data
+  }
   /**
    * Cancel an appointment
    * Returns true if successful, throws error if failed

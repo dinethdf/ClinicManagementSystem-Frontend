@@ -19,7 +19,9 @@ import { createColumnHelper } from '@tanstack/react-table'
 // Component Imports
 import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable'
 import OptionMenu from '@core/components/option-menu'
-import RealtimeLiveQueueCard from './RealtimeLiveQueueCard' // <--- IMPORT THE CARD
+
+import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick' // Import this
+import AppointmentDetailsDialog from './AppointmentDetailsDialog' // Import new dialog
 
 // Service & Types
 import { patientAppointmentService } from '@/services/patient-portal/patient.appointments.service'
@@ -95,19 +97,24 @@ const AppointmentList = () => {
 
   // --- Column Definitions ---
   const columns = useMemo(() => [
-    columnHelper.accessor('appointmentId', {
-      header: 'Reference',
-      cell: ({ row }) => (
-        <Typography 
-            component={Link} 
-            href={getLocalizedUrl(`/patient/appointments/${row.original.appointmentId}`, locale as Locale)}
-            color='primary.main'
-            className='font-medium'
-        >
-            #{row.original.appointmentId}
-        </Typography>
-      )
-    }),
+      columnHelper.accessor('appointmentId', {
+        header: 'Reference',
+        cell: ({ row }) => (
+          // REPLACED Link with OpenDialogOnElementClick
+          <OpenDialogOnElementClick
+              element={Typography}
+              elementProps={{
+                  children: `#${row.original.appointmentId}`,
+                  className: 'font-medium cursor-pointer text-primary hover:underline',
+                  component: 'span' // Render as span to avoid p nesting issues if any
+              }}
+              dialog={AppointmentDetailsDialog}
+              dialogProps={{
+                  appointmentId: row.original.appointmentId // Pass ID to dialog
+              }}
+          />
+        )
+      }),
     columnHelper.accessor('scheduleDate', {
       header: 'Date & Time',
       cell: ({ row }) => (
@@ -191,14 +198,6 @@ const AppointmentList = () => {
 
         {/* --- UPCOMING TAB --- */}
         <TabPanel value="1" className='p-0'>
-            {/* HARDCODED LIVE QUEUE CARD 
-               Only visible in Upcoming tab 
-            */}
-            <RealtimeLiveQueueCard 
-               clinicId={2} 
-               scheduleId={102} 
-               yourToken={15} 
-            />
 
             <SimpleCommonTable 
                 data={data}
