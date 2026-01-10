@@ -11,24 +11,34 @@ import AuthRedirect from '@/components/AuthRedirect'
 import { verifyToken } from '@/libs/verifyToken'
 import ClientAuthContextProvider from '@/contexts/ClientAuthContextProvider'
 
-export default async function AuthGuard({ children, locale }: ChildrenType & { locale: Locale }) {
+// Add notAllowedRoles to props
+interface Props extends ChildrenType {
+  locale: Locale
+  notAllowedRoles?: string[] // e.g. ['PATIENT']
+}
 
+export default async function AuthGuard({ children, locale, notAllowedRoles }: Props) {
   const user = await verifyToken()
 
+  // 1. Check if logged in
   if (!user.valid) {
     return <AuthRedirect lang={locale} />
   }
 
   const { role, userName, sub } = user.payload
+
+  if (notAllowedRoles && notAllowedRoles.includes(role)) {
+    console.log(`User role ${role} is not allowed this Route.`)
+    if (role === 'PATIENT') {
+      return(<AuthRedirect lang={locale}/>)}
+    else{<AuthRedirect lang={locale} />}
+   }
+
   const essentialUserInfo = { role, userName, sub }
 
   return (
-    <>
-      {user?.valid ? (
-        <ClientAuthContextProvider userData={essentialUserInfo || null}>{children}</ClientAuthContextProvider>
-      ) : (
-        <AuthRedirect lang={locale} />
-      )}
-    </>
+    <ClientAuthContextProvider userData={essentialUserInfo || null}>
+      {children}
+    </ClientAuthContextProvider>
   )
 }

@@ -36,7 +36,22 @@ const loginUser = async (email: string, password: string): Promise<LoginResult> 
   }
 }
 
-export { loginUser }
+const loginPatient = async (email: string, password: string): Promise<LoginResult> => {
+  try {
+    const response = await axios.post<LoginResponse>(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/patientSignIn`, {
+      username: email,
+      password: password,
+      loginType: 'PATIENT',
+      clinicId: process.env.NEXT_PUBLIC_CLINIC_ID
+    })
+
+    return { success: true, message: 'Login successful', data: response.data }
+  } catch (error: any) {
+    return { success: false, message: error.response.data }
+  }
+}
+
+export { loginPatient, loginUser}
 
 export const setLoginCookie = (access: string, refresh: string) => {
   setSiteCookie('accessToken', access, 7)

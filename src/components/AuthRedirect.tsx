@@ -6,21 +6,23 @@ import { redirect, usePathname } from 'next/navigation'
 // Type Imports
 import type { Locale } from '@configs/i18n'
 
-// Config Imports
-import themeConfig from '@configs/themeConfig'
-
-// Util Imports
-import { getLocalizedUrl } from '@/utils/i18n'
-
 const AuthRedirect = ({ lang }: { lang: Locale }) => {
-  const pathname = usePathname()
+  const pathname = usePathname() || ''
 
-  // ℹ️ Bring me `lang`
-  const redirectUrl = `/${lang}/login?redirectTo=${pathname}`
-  const login = `/${lang}/login`
-  const homePage = getLocalizedUrl(themeConfig.homePageUrl, lang)
+  // 1. Check if the user is trying to access a Clinic route
+  if (pathname.includes('/clinic')) {
+    return redirect(`/${lang}/login/clinic?redirectTo=${pathname}`)
+  }
 
-  return redirect(pathname === login ? login : pathname === homePage ? login : redirectUrl)
+  // 2. Check if the user is trying to access a Patient route
+  // (Assuming "other type" refers to patient routes)
+  if (pathname.includes('/patient')) {
+    return redirect(`/${lang}/login/patient?redirectTo=${pathname}`)
+  }
+
+  // 3. Else: Redirect to Home Page (http://localhost:3000/en/)
+  // This handles cases where the route is neither clinic nor patient specific
+  return redirect(`/${lang}`)
 }
 
 export default AuthRedirect
