@@ -10,6 +10,7 @@ import AuthRedirect from '@/components/AuthRedirect'
 
 import { verifyToken } from '@/libs/verifyToken'
 import ClientAuthContextProvider from '@/contexts/ClientAuthContextProvider'
+import NotAuthorizedGoBack from '@/views/NotAuthorizedGoBack'
 
 // Add notAllowedRoles to props
 interface Props extends ChildrenType {
@@ -30,7 +31,7 @@ export default async function AuthGuard({ children, locale, notAllowedRoles }: P
   if (notAllowedRoles && notAllowedRoles.includes(role)) {
     console.log(`User role ${role} is not allowed this Route.`)
     if (role === 'PATIENT') {
-      return(<AuthRedirect lang={locale}/>)}
+      return( <NotAuthorizedGoBack mode={"light"} />) }
     else{<AuthRedirect lang={locale} />}
    }
 
