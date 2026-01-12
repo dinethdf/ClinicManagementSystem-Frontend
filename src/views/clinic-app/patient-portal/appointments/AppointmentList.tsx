@@ -191,8 +191,7 @@ const AppointmentList = () => {
       <TabContext value={tabValue}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
           <TabList onChange={handleTabChange} aria-label="Appointment Tabs">
-            <Tab label="Upcoming" value="1" icon={<i className='tabler-calendar-time'/>} iconPosition="start" />
-            <Tab label="History" value="2" icon={<i className='tabler-history'/>} iconPosition="start" />
+            <Tab label="My Appoinments" value="1" icon={<i className='tabler-calendar-time'/>} iconPosition="start" />
           </TabList>
         </Box>
 
@@ -205,17 +204,6 @@ const AppointmentList = () => {
                 isLoading={loading}
                 error={error}
                 searchPlaceholder="Search upcoming appointments..."
-            />
-        </TabPanel>
-
-        {/* --- HISTORY TAB --- */}
-        <TabPanel value="2" className='p-0'>
-            <SimpleCommonTable 
-                data={data}
-                columns={columns}
-                isLoading={loading}
-                error={error}
-                searchPlaceholder="Search past appointments..."
             />
         </TabPanel>
 

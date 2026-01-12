@@ -145,7 +145,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email: data.email.trim(), password: data.password.trim() })
+        body: JSON.stringify({ email: data.email.trim(), password: data.password.trim(), type: "clinic" })
       })
 
 
@@ -202,7 +202,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email: email.trim(), password: password.trim() })
+        body: JSON.stringify({ email: email.trim(), password: password.trim(), type: "clinic" })
       })
 
       // Handle non-OK response

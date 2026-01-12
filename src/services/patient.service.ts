@@ -125,6 +125,18 @@ async updatePatient(id: string, patientData: Partial<Patient>): Promise<any> {
   }
 }
 
+async updatePatientBySelf(id: string, patientData: Partial<Patient>): Promise<any> {
+  try {
+    const response = await apiClient.put(`/api/patient-portal/account-settings/details/self/${id}`, patientData)
+    
+    return response.data
+  } catch (error: any) {
+    console.error('Update failed:', error)
+   
+    throw new Error(error.response?.data?.defaultMessage || 'Failed to update patient')
+  }
+}
+
 async togglePatientStatus(id: string): Promise<any> {
   try {
     // ⚠️ Add the empty object {} as the second argument

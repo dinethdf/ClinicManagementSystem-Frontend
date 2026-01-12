@@ -172,7 +172,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
         <OpenDialogOnElementClick 
             element={Button} 
             elementProps={buttonProps} 
-            dialogProps={{patientData}} 
+            dialogProps={{patientData, bySelf: false }} 
             dialog={EditPatientDetails} 
         />
         <OpenDialogOnElementClick

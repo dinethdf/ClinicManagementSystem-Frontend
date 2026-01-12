@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from 'react' // Added useEffect
 import type { MouseEvent } from 'react'
 
 // Next Imports
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, usePathname } from 'next/navigation'
 
 // MUI Imports
 import { styled } from '@mui/material/styles'
@@ -54,6 +54,8 @@ const UserDropdown = () => {
   const { settings } = useSettings()
   const { lang: locale } = useParams()
 
+   const pathname = usePathname() || ''
+
   // --- FETCH USER DATA ON MOUNT ---
   useEffect(() => {
     const data = getUserDetails()
@@ -79,7 +81,13 @@ const UserDropdown = () => {
   const handleUserLogout = async () => {
     try {
       await logoutAndRedirect()
-      router.replace('/login')
+
+    if (pathname.includes('/clinic')) {
+      router.replace('/login/clinic')
+    }else{
+      router.replace('/login/patient')
+    }      
+
     } catch (error) {
       console.error(error)
     }

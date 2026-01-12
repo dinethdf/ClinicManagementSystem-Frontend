@@ -303,7 +303,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
         { true && (
           <SubMenu label={dictionary['navigation'].patientPortal || 'Patient Portal'} icon={<i className='tabler-user-heart' />}>
             
-            <MenuItem href={`/${locale}/patient/dashboard`} icon={<i className='tabler-layout-dashboard' />}>
+            <MenuItem href={`/${locale}/patient`} icon={<i className='tabler-layout-dashboard' />}>
               {dictionary['navigation'].dashboard || 'Dashboard'}
             </MenuItem>
 
