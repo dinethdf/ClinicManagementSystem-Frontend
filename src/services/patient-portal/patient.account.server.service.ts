@@ -7,7 +7,7 @@ export async function getPatientDetails(patientId: number | string) {
   try {
     // 1. http.get returns the parsed data directly.
     // Since your API response doesn't have a "data" wrapper, 'res' IS the patient object.
-    const patientData = await http.get(`/api/patient/details/staff/${patientId}`);
+    const patientData = await http.get(`/api/patient-portal/account-settings/fill-details`);
 
     // 2. Return it directly (Casting to your type helps TypeScript)
     return patientData as PatientType;

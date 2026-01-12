@@ -5,21 +5,26 @@ import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import type { ButtonProps } from '@mui/material/Button' // Import ButtonProps
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
+import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import EditPatientDetails from '@/components/dialogs/patient/EditPatientDetails'
 
 // Types
-import type { PatientType } from '@/types/patient-portal/patientTypes'
+import type { PatientType } from '@/types/patient-portal/patientTypes' // Check your path matches
 
 // Helper to map gender ID to text
 const getGender = (id: number) => (id === 1 ? 'Male' : id === 2 ? 'Female' : 'Other')
 
 const PatientInfoCard = ({ patientData }: { patientData: PatientType }) => {
   
-  const handleEditClick = () => {
-    // Hardcoded action for now
-    console.log("Open Edit Dialog for:", patientData.id)
+  // Define properties for the button
+  const buttonProps: ButtonProps = {
+    variant: 'contained',
+    fullWidth: true,
+    children: 'Edit Details'
   }
 
   return (
@@ -104,9 +109,13 @@ const PatientInfoCard = ({ patientData }: { patientData: PatientType }) => {
           </div>
         </div>
 
-        <Button variant='contained' onClick={handleEditClick}>
-            Edit Details
-        </Button>
+        {/* Edit Button with Dialog Trigger */}
+        <OpenDialogOnElementClick 
+            element={Button} 
+            elementProps={buttonProps} 
+            dialogProps={{ patientData, bySelf: true }}
+            dialog={EditPatientDetails} 
+        />
 
       </CardContent>
     </Card>

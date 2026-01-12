@@ -33,9 +33,13 @@ type EditPatientDetailsProps = {
   open: boolean
   setOpen: (open: boolean) => void
   patientData?: Patient
+  bySelf : boolean 
 }
 
-const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsProps) => {
+const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDetailsProps) => {
+
+  console.log("byself")
+  console.log(bySelf)
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -86,7 +90,11 @@ const EditPatientDetails = ({ open, setOpen, patientData }: EditPatientDetailsPr
     }
 
     try {
-      await patientService.updatePatient(String(patientData.id), payload)
+      if (bySelf){
+        await patientService.updatePatientBySelf(String(patientData.id), payload)
+      }else{
+        await patientService.updatePatient(String(patientData.id), payload)
+      }
       router.refresh()
       handleClose()
     } catch (error: any) {
