@@ -9,8 +9,6 @@ class PatientPortalService {
       const response = await apiClient.get<any>(
         '/api/patient-portal/overall-analysis/all'
       )
-      console.log(response.data.data)
-      // Assuming your ApiResponse wrapper has a 'data' field containing the Map
       return response.data.data 
     } catch (error) {
       console.error('Failed to fetch patient analysis:', error)
