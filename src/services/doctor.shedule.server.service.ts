@@ -186,25 +186,28 @@ export const checkPatientAvailability = async (query: string) => {
 
 export async function getScheduleList(
   page: number, 
-  size: number, 
-  doctorId?: string, 
+  pageSize: number, 
+  doctorName?: string, 
   specialization?: string, 
   date?: string
 ) {
+
+  console.log(pageSize)
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get('accessToken')?.value
 
     // Construct Query Parameters
     const params = new URLSearchParams({
-      page: page.toString(),
-      size: size.toString(),
+      page: (page - 1).toString(),
+      size: pageSize.toString(),
     });
 
-    if (doctorId) params.append('doctorId', doctorId);
+    if (doctorName) params.append('doctorName', doctorName);
     if (specialization) params.append('specialization', specialization);
     if (date) params.append('date', date);
 
+console.log(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/schedules?${params.toString()}`)
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/schedules?${params.toString()}`, {
       method: 'GET',
       headers: {
@@ -222,7 +225,6 @@ export async function getScheduleList(
     }
 
     const json = await res.json()
-
     return json.data 
 
   } catch (error) {

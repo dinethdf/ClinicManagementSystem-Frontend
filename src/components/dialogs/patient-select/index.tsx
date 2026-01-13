@@ -40,8 +40,8 @@ type DialogBoxProps = {
 type FormValues = {
   patientNo: string
   nicNo: string
-  mobileNo: string
-  patientName: string
+//   mobileNo: string
+//   patientName: string
 }
 
 const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxProps) => {
@@ -61,8 +61,8 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
     defaultValues: {
       patientNo: '',
       nicNo: '',
-      mobileNo: '',
-      patientName: ''
+    //   mobileNo: '',
+    //   patientName: ''
     },
     mode: 'onChange'
   })
@@ -91,15 +91,15 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
       // 1. Get values safely
       const pNo = formValues.patientNo?.trim() || ''
       const nic = formValues.nicNo?.trim() || ''
-      const name = formValues.patientName?.trim() || ''
-      const mobile = formValues.mobileNo?.trim() || ''
+    //   const name = formValues.patientName?.trim() || ''
+    //   const mobile = formValues.mobileNo?.trim() || ''
 
       // 2. Validate Length
       const shouldSearch = 
         pNo.length >= 2 || 
-        nic.length >= 3 || 
-        name.length >= 3 || 
-        mobile.length >= 3;
+        nic.length >= 3  ;
+        // name.length >= 3 || 
+        // mobile.length >= 3;
 
       if (shouldSearch) {
         setIsLoading(true)
@@ -110,8 +110,8 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
           const response = await patientService.getPatientBySearch(
              pNo || undefined, 
              nic || undefined, 
-             name || undefined, 
-             mobile || undefined
+            //  name || undefined, 
+            //  mobile || undefined
           )
 
           setPatientList(response || [])
@@ -130,7 +130,8 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
           setIsLoading(false)
         }
       } else {
-        if(pNo === '' && nic === '' && name === '' && mobile === '') {
+        // if(pNo === '' && nic === '' && name === '' && mobile === '') {
+        if(pNo === '' && nic === '') {
             setPatientList([])
             setSearchedBoxMessage('Start typing to search...')
             setIsError(false)
@@ -149,9 +150,9 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
   const handleReset = () => {
     reset({
       patientNo: '',
-      nicNo: '',
-      mobileNo: '',
-      patientName: ''
+      nicNo: ''
+    //   mobileNo: '',
+    //   patientName: ''
     })
     setSearchedBoxMessage('Start typing to search...')
     setPatientList([])
@@ -201,7 +202,7 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
             <Grid container spacing={2} alignItems="center">
                 
                 {/* Patient No (2 Cols) */}
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <Controller
                         name='patientNo'
                         control={control}
@@ -211,7 +212,7 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
                             inputRef={patientNoInputRef} 
                             fullWidth
                             size="small"
-                            placeholder='No (P..)'
+                            placeholder='Patient No'
                             autoComplete="off"
                             sx={{ bgcolor: 'background.paper' }}
                             InputProps={{
@@ -223,7 +224,8 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
                 </Grid>
 
                 {/* Name (3 Cols) */}
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              
+                {/* <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <Controller
                         name='patientName'
                         control={control}
@@ -240,10 +242,10 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
                         />
                         )}
                     />
-                </Grid>
+                </Grid> */}
 
                 {/* NIC (2 Cols) */}
-                <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 5 }}>
                     <Controller
                         name='nicNo'
                         control={control}
@@ -263,7 +265,8 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
                 </Grid>
 
                 {/* Mobile (3 Cols) */}
-                <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+             
+                {/* <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                     <Controller
                         name='mobileNo'
                         control={control}
@@ -280,7 +283,7 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
                         />
                         )}
                     />
-                </Grid>
+                </Grid> */}
 
                 {/* CREATE BUTTON (2 Cols) */}
                 <Grid size={{ xs: 12, sm: 12, md: 2 }}>
