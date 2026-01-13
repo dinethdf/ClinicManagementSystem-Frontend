@@ -41,24 +41,32 @@ export async function getDoctorPayoutsList(params: GetPayoutsParams) {
 }
 
 
-export async function getPendingPayouts(doctorId?: string) {
+export async function getPendingPayouts(
+    page: number = 0, 
+    size: number = 10, 
+    doctorId?: string
+) {
   try {
-    const url = doctorId 
-      ? `/api/payouts/doctor/pending?doctorId=${doctorId}` 
-      : `/api/payouts/doctor/pending`;
+    const queryParams = new URLSearchParams({
+        page: (page - 1).toString(),
+        size: size.toString()
+    })
 
-    
-    const data = await http.get<PayoutBillDTO[]>(url);
+    if (doctorId) {
+        queryParams.append('doctorId', doctorId)
+    }
 
-    return { success: true, data };
+    const url = `/api/payouts/doctor/pending?${queryParams.toString()}`
+    const response = await http.get<{ content: PayoutBillDTO[], totalElements: number }>(url)
+    return { success: true, data: response }
 
   } catch (err) {
     if (err instanceof ApiError) {
-      return { success: false, error: { message: err.message, details: err.details } };
+      return { success: false, error: { message: err.message, details: err.details } }
     }
     
-    console.error('Unexpected error in getPendingPayouts:', err);
-    return { success: false, error: { message: 'An unknown server error occurred.' } };
+    console.error('Unexpected error in getPendingPayouts:', err)
+    return { success: false, error: { message: 'An unknown server error occurred.' } }
   }
 }
 

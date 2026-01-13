@@ -10,6 +10,7 @@ import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress' // 1. Import Loader
 
 // Components Imports
 import CustomTextField from '@core/components/mui/TextField'
@@ -22,11 +23,11 @@ import type { DoctorSchedule } from '@/types/doctor.types'
 const SheduleVariants = () => {
   const {
     control,
-    setValue, // 1. Get setValue here
-    formState: { errors }
+    setValue,
+    formState: { errors, isSubmitting } // 2. Extract isSubmitting
   } = useFormContext<DoctorSchedule>()
 
-  const { fields, append, remove } = useFieldArray({ // 2. Removed 'update' as it is not needed here
+  const { fields, append, remove } = useFieldArray({
     control,
     name: 'schedules'
   })
@@ -37,35 +38,25 @@ const SheduleVariants = () => {
     }
   }, [])
 
-  // 3. Updated Handler: Uses setValue to target specific field ONLY
   const handleDateChange = (index: number, dateObj: Date | null) => {
     if (!dateObj) return
-
     const pad = (num: number) => num.toString().padStart(2, '0')
     const year = dateObj.getFullYear()
     const month = pad(dateObj.getMonth() + 1)
     const day = pad(dateObj.getDate())
     const date = `${year}-${month}-${day}`
-
-    // This updates strictly the date, leaving doctorFee/clinicFee intact
     setValue(`schedules.${index}.date`, date, { shouldValidate: true })
   }
 
-  // 4. Updated Handler
   const handleStartTimeChange = (index: number, dateObj: Date | null) => {
     if (!dateObj) return
-
     const time = dateObj.toTimeString().split(' ')[0].slice(0, 5)
-
     setValue(`schedules.${index}.startTime`, time, { shouldValidate: true })
   }
 
-  // 5. Updated Handler
   const handleEndTimeChange = (index: number, dateObj: Date | null) => {
     if (!dateObj) return
-
     const time = dateObj.toTimeString().split(' ')[0].slice(0, 5)
-
     setValue(`schedules.${index}.endTime`, time, { shouldValidate: true })
   }
 
@@ -76,6 +67,7 @@ const SheduleVariants = () => {
         <Grid container spacing={6}>
           {fields.map((item, index) => (
             <Grid key={item.id} container spacing={4} className='repeater-item mbe-4'>
+
               <Grid size={{ xs: 12, md: 3 }}>
                 <Controller
                   name={`schedules.${index}.date`}
@@ -86,7 +78,6 @@ const SheduleVariants = () => {
                       id={`date-picker-${index}`}
                       dateFormat='MM/dd/yyyy'
                       autoComplete="off"
-                      // Safely parse string to date
                       selected={field.value ? new Date(`${field.value}T00:00:00`) : null}
                       onChange={date => handleDateChange(index, date)}
                       customInput={
@@ -166,10 +157,7 @@ const SheduleVariants = () => {
                 <Controller
                   name={`schedules.${index}.doctorFee`}
                   control={control}
-                  rules={{
-                    required: 'Price is required',
-                    min: { value: 1, message: 'Price must be > 0' }
-                  }}
+                  rules={{ required: 'Required', min: 1 }}
                   render={({ field }) => (
                     <CustomTextField
                       label='Doctor Fee'
@@ -180,7 +168,6 @@ const SheduleVariants = () => {
                       value={field.value === 0 ? '' : field.value}
                       onChange={e => field.onChange(Number(e.target.value))}
                       error={!!errors?.schedules?.[index]?.doctorFee}
-                      helperText={errors?.schedules?.[index]?.doctorFee?.message}
                     />
                   )}
                 />
@@ -190,10 +177,7 @@ const SheduleVariants = () => {
                 <Controller
                   name={`schedules.${index}.clinicFee`}
                   control={control}
-                  rules={{
-                    required: 'Price is required',
-                    min: { value: 1, message: 'Price must be > 0' }
-                  }}
+                  rules={{ required: 'Required', min: 1 }}
                   render={({ field }) => (
                     <CustomTextField
                       label='Clinic Fee'
@@ -214,13 +198,10 @@ const SheduleVariants = () => {
                 <Controller
                   name={`schedules.${index}.maxPatientCount`}
                   control={control}
-                  rules={{
-                    required: 'Max patient count is required',
-                    min: { value: 1, message: 'Must be at least 1' }
-                  }}
+                  rules={{ required: 'Required', min: 1 }}
                   render={({ field }) => (
                     <CustomTextField
-                      label='Max Patient Count'
+                      label='Max Count'
                       type='number'
                       fullWidth
                       placeholder='Enter Count'
@@ -228,7 +209,6 @@ const SheduleVariants = () => {
                       value={field.value === 0 ? '' : field.value}
                       onChange={e => field.onChange(Number(e.target.value))}
                       error={!!errors?.schedules?.[index]?.maxPatientCount}
-                      helperText={errors?.schedules?.[index]?.maxPatientCount?.message}
                     />
                   )}
                 />
@@ -250,13 +230,20 @@ const SheduleVariants = () => {
               Add Another Option
             </Button>
           </Grid>
+          
           <Grid size={{ xs: 12 }}>
             <div className='flex flex-wrap max-sm:flex-col gap-4'>
-              <Button variant='tonal' color='secondary' type='button'>
+              <Button variant='tonal' color='secondary' type='button' disabled={isSubmitting}>
                 Discard
               </Button>
-              <Button variant='contained' type='submit'>
-                Publish
+              {/* 3. Updated Publish Button with Loading State */}
+              <Button 
+                variant='contained' 
+                type='submit'
+                disabled={isSubmitting} // Disables click
+                startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null} // Shows loader
+              >
+                {isSubmitting ? 'Publishing...' : 'Publish'}
               </Button>
             </div>
           </Grid>
