@@ -135,25 +135,6 @@ const ScheduleListTable = ({
             if (isFull) return <Chip label='Full' color='warning' size='small' variant='tonal' />
             return <Chip label='Open' color='success' size='small' variant='tonal' />
         }
-      }),
-      columnHelper.accessor('id', {
-        header: 'Action',
-        cell: ({ row }) => {
-            const isFull = row.original.registeredPatientCount >= row.original.maxPatientCount
-            const isClosed = row.original.status !== 'ACTIVE' && row.original.isActive === false
-            const isDisabled = isFull || isClosed
-            return (
-                <div className='flex items-center'>
-                    <Button 
-                        variant='contained' size='small' color={isDisabled ? 'secondary' : 'primary'}
-                        disabled={isDisabled} onClick={() => row.original.id && onBookNow(row.original.id)}
-                        startIcon={!isDisabled ? <i className='tabler-bookmark' /> : null}
-                    >
-                        {isFull ? 'Waitlist' : 'Book'}
-                    </Button>
-                </div>
-            )
-        }
       })
     ],
     [onBookNow]
@@ -212,7 +193,7 @@ const PublicScheduleManager = () => {
   const [totalRows, setTotalRows] = useState(0)
   
   // Pagination
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 8 })
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 5 })
   const [filters, setFilters] = useState({ doctorName: '', specialization: '', date: '' })
 
   const fetchSchedules = useCallback(async () => {
