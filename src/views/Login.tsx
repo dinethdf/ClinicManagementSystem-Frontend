@@ -138,7 +138,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     setIsLoading(true)
     setErrorState(null) // Clear previous errors
-
+console.log("start Run func fe api call")
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login-next`, {
         method: 'POST',
