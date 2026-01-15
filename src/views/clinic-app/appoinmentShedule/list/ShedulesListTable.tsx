@@ -67,7 +67,6 @@ const ScheduleListTable = () => {
       label: 'Doctor Name', 
       type: 'text', 
       placeholder: 'Search Doctor',
-      isSortable: true, // ✅ Sorting Enabled
       gridSize: { xs: 12, sm: 4 }
     },
     { 
@@ -75,7 +74,6 @@ const ScheduleListTable = () => {
       label: 'Specialization', 
       type: 'select', 
       options: specializationOptions,
-      isSortable: true, // ✅ Sorting Enabled
       gridSize: { xs: 12, sm: 4 }
     },
     {
@@ -83,7 +81,6 @@ const ScheduleListTable = () => {
       label: 'Schedule Date',
       type: 'date', 
       placeholder: 'Select Date',
-      isSortable: true, // ✅ Sorting Enabled
       gridSize: { xs: 12, sm: 4 }
     }
   ]
