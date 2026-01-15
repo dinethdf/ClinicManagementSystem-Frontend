@@ -7,21 +7,16 @@ import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
-import Divider from '@mui/material/Divider'
 
 // Types
-import { FilterConfig, SortingState } from './TableTypes'
+import { FilterConfig } from './TableTypes'
 
 interface Props {
-  // Filter Props
+  // Filter Props (For inline filters - usually optional if using the Dialog)
   filtersConfig: FilterConfig[]
   filterState: any 
   onFilterChange: (newFilters: any) => void
   
-  // Sorting Props
-  sorting?: SortingState
-  onSortingChange?: (newSorting: SortingState) => void
-
   // Search Props (Bottom Left)
   searchConfig?: {
     value: string
@@ -37,8 +32,6 @@ const CommonTableFilters = ({
   filtersConfig, 
   filterState, 
   onFilterChange, 
-  sorting,
-  onSortingChange,
   searchConfig,
   actionComponent 
 }: Props) => {
@@ -57,13 +50,11 @@ const CommonTableFilters = ({
   return (
     <CardContent className='flex flex-col gap-6 p-6'>
       
-      {/* --- ROW 1: FILTERS & SORTING --- */}
-      {(filtersConfig.length > 0 || sorting) && (
+      {/* --- ROW 1: INLINE FILTERS (If any are meant to be shown directly) --- */}
+      {/* Note: If you moved all filters to the Dialog, this section might be empty or removed */}
+      {filtersConfig.length > 0 && (
         <Grid container spacing={4}>
-          
-          {/* 1. Dynamic Filters */}
           {filtersConfig.map((filter) => (
-            // FIX: Using 'size' prop for Grid v2
             <Grid 
               key={filter.key} 
               size={filter.gridSize || { xs: 12, sm: 6, md: 3 }}
@@ -76,7 +67,6 @@ const CommonTableFilters = ({
                   label={filter.label}
                   value={filterState[filter.key] || ''}
                   onChange={(e) => handleChange(filter.key, e.target.value)}
-                  // Clear 'X' Icon
                   InputProps={{
                     endAdornment: filterState[filter.key] ? (
                       <InputAdornment position="end" className="mr-5">
@@ -117,40 +107,8 @@ const CommonTableFilters = ({
               )}
             </Grid>
           ))}
-
-          {/* 2. Sorting Controls (Optional) */}
-          {sorting && onSortingChange && (
-             // FIX: Using 'size' prop for Grid v2
-             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <div className="flex gap-2">
-                   <TextField
-                      select
-                      fullWidth
-                      size='small'
-                      label="Sort By"
-                      value={sorting.sortBy}
-                      onChange={(e) => onSortingChange({ ...sorting, sortBy: e.target.value })}
-                   >
-                      {filtersConfig.filter(f => f.isSortable).map(f => (
-                         <MenuItem key={f.key} value={f.key}>{f.label}</MenuItem>
-                      ))}
-                      {/* Default Sort Option */}
-                      <MenuItem value="createdDate">Date Created</MenuItem>
-                   </TextField>
-                   <IconButton 
-                      onClick={() => onSortingChange({ ...sorting, sortOrder: sorting.sortOrder === 'asc' ? 'desc' : 'asc' })}
-                      className='border rounded-md'
-                   >
-                      <i className={sorting.sortOrder === 'asc' ? 'tabler-sort-ascending' : 'tabler-sort-descending'} />
-                   </IconButton>
-                </div>
-             </Grid>
-          )}
         </Grid>
       )}
-
-      {/* Divider */}
-      {(filtersConfig.length > 0 || sorting) && <Divider />}
 
       {/* --- ROW 2: TOOLBAR (Search & Actions) --- */}
       <div className='flex flex-wrap justify-between items-center gap-4'>

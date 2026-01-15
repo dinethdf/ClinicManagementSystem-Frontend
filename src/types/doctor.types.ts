@@ -149,3 +149,45 @@ export interface ScheduleAnalyticsDTO {
   pendingPayment: number;
   cancelled: number;
 }
+
+export interface GetDoctorsParams {
+  page: number
+  pageSize: number
+    name?: string
+    mobile?: string
+    slmc?: string
+    specialization?: string
+  sort?: string
+}
+
+export interface DoctorCreateDTO {
+  firstName: string
+  lastName: string
+  nameWithInitials: string
+  gender: number
+  nic: string
+  dob: string | null
+  address: string
+  city: string
+  district: string
+  email: string
+  mobileNo: string
+  registrationDate: string
+  profileImg?: string | null
+  isApproved: boolean
+  slmcNumber: string
+  specialization: {
+    id: string
+  }
+  qualification: string
+  experienceYears: string
+  availabilityStatus: string
+}
+
+interface PaginatedResponse<T> {
+  content: T[]
+  totalElements: number
+  totalPages: number
+  size: number
+  number: number
+}

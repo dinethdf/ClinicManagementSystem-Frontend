@@ -104,9 +104,14 @@ export interface PaginatedPatientResponse<T> {
 
 
 export interface GetPatientsParams {
-  page: number    
+  page: number
   pageSize: number
-  search?: string
+    patientNo?: string
+    nic?: string
+    mobile?: string
+    name?: string
+
+  sort?: string
 }
 
 export interface PatientHistory {

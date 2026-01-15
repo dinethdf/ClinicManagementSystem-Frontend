@@ -25,10 +25,15 @@ export interface FilterConfig {
   // NEW: This allows you to render ANY component (like your OpenDialogOnElementClick)
   render?: (currentValues: any, onChange: (key: string, val: any) => void) => ReactNode
 
-  isSortable?: boolean
+  // isSortable?: boolean
 }
 
-// ... (Keep the rest of your types: SortingState, PaginationState, CommonTableProps as they were)
+// ✅ NEW INTERFACE
+export interface SortingConfig {
+  key: string
+  label: string
+}
+
 export interface SortingState {
   sortBy: string
   sortOrder: 'asc' | 'desc'
