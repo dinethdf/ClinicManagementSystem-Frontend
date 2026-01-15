@@ -180,7 +180,7 @@ const CommonServerTable = <T extends object>({
                   onChange={(e) => onPageChange({ pageIndex: 0, pageSize: Number(e.target.value) })}
                   className='w-[75px]'
               >
-                  {[5, 10, 25, 50, 100].map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+                  {[5, 10, 25, 50].map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
               </TextField>
           </div>
 

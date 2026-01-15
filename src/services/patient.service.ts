@@ -4,22 +4,27 @@ import { apiClient } from './api.config'
 class PatientService {
 
 async getPatients({ page, pageSize, search }: GetPatientsParams): Promise<PaginatedPatientResponse<PatientResponceDTO>> {
-   try {
-     const response = await apiClient.get<PaginatedPatientResponse<PatientResponceDTO>>('/api/patient/list', {
-       params: {
-         page: page - 1,
-         size: pageSize, 
-         search: search 
-       }
-     })
-     
-     
-     return response.data
-   } catch (error: any) {
-    
-    throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch patient list')
-   }
-}
+  console.log("params" ) 
+  console.log(page ) 
+  console.log(pageSize ) 
+  console.log(search ) 
+
+  try {
+       const response = await apiClient.get<any>('/api/patient/list', { // Change generic to any or Wrapper Type
+         params: {
+           page: page - 1 , //  CommonTable  send 1-based
+           size: pageSize, 
+           search: search 
+         }
+       })
+
+       console.log(response.data.data)
+       return response.data.data 
+
+     } catch (error: any) {
+       throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch patient list')
+     }
+  }
 
 async createPatientDetails(patientData: Patient): Promise<any> {
     try {

@@ -35,24 +35,14 @@ const PatientListTable = () => {
 
   // 2. Define Columns
   const columns = useMemo(() => [
-    {
-        id: 'select',
-        header: ({ table }: any) => (
-          <Checkbox
-            checked={table.getIsAllRowsSelected()}
-            indeterminate={table.getIsSomeRowsSelected()}
-            onChange={table.getToggleAllRowsSelectedHandler()}
-          />
-        ),
-        cell: ({ row }: any) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            disabled={!row.getCanSelect()}
-            indeterminate={row.getIsSomeSelected()}
-            onChange={row.getToggleSelectedHandler()}
-          />
-        )
-      },
+    columnHelper.accessor('id', {
+      header: 'Id #',
+      cell: ({ row }) => (
+       <p>
+          {row.original.id}
+      </p>
+      )
+    }),
       columnHelper.accessor('patientNo', {
         header: 'Patient No',
         cell: ({ row }) => <Typography color='primary'>{row.original.patientNo || 'N/A'}</Typography>
@@ -62,10 +52,10 @@ const PatientListTable = () => {
         cell: ({ row }) => (
           <div className='flex items-center gap-3 cursor-pointer' onClick={() => router.push(`/en/clinic/patient/details/${row.original.id}`)}>
             <CustomAvatar skin='light' size={34} color='primary'>
-              {getInitials(row.original.fullName)}
+              {getInitials(row.original.firstName + " " +row.original.lastName )}
             </CustomAvatar>
             <Typography className='font-medium hover:text-primary transition-colors' color='text.primary'>
-              {row.original.fullName}
+              {row.original.firstName + " " +row.original.lastName}
             </Typography>
           </div>
         )
