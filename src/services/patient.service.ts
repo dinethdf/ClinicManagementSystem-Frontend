@@ -1,25 +1,33 @@
+import {ApiResponse} from '@/types/common.type'
 import type { Patient, Guardian, PatientResponceDTO, GetPatientsParams, PaginatedPatientResponse } from '../types/patient.types'
 import { apiClient } from './api.config'
 
 class PatientService {
 
-async getPatients({ page, pageSize, search }: GetPatientsParams): Promise<PaginatedPatientResponse<PatientResponceDTO>> {
-   try {
-     const response = await apiClient.get<PaginatedPatientResponse<PatientResponceDTO>>('/api/patient/list', {
-       params: {
-         page: page - 1,
-         size: pageSize, 
-         search: search 
-       }
-     })
-     
-     
-     return response.data
-   } catch (error: any) {
-    
-    throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch patient list')
-   }
-}
+async getPatients({ page, pageSize, sort, ...filters }: GetPatientsParams): Promise<PaginatedPatientResponse<PatientResponceDTO>> {
+  try {
+    console.log("Call thje api For patient")
+      const response = await apiClient.get<ApiResponse<PaginatedPatientResponse<PatientResponceDTO>>>('/api/patient/list', {
+        params: {
+          page: page - 1, // API is 0-based, Table is 1-based
+          size: pageSize,
+          
+          // Map specific filters to backend @RequestParam
+          patientNo: filters?.patientNo || undefined,
+          nic: filters?.nic || undefined,
+          mobile: filters?.mobile || undefined,
+          name: filters?.name || undefined,
+          
+          sort: sort
+        }
+      })
+
+      return response.data.data 
+
+    } catch (error: any) {
+      throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch patient list')
+    }
+  }
 
 async createPatientDetails(patientData: Patient): Promise<any> {
     try {

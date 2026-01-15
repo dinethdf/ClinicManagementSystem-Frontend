@@ -17,10 +17,9 @@ import { createColumnHelper } from '@tanstack/react-table'
 
 // Common Components
 import CommonServerTable from '@/components/common-components/table/CommonServerTable'
-import { FilterConfig } from '@/components/common-components/table/TableTypes'
+import { FilterConfig, SortingConfig } from '@/components/common-components/table/TableTypes' // 1. Import SortingConfig
 
 // Service & Types
-// IMPORTANT: Ensure this service exists and has the getDoctors function matching the signature
 import { doctorService } from '@/services/doctor.service' 
 import type { DoctorResponseDTO } from '@/types/doctor.types' 
 
@@ -46,11 +45,10 @@ const DoctorsListTable = () => {
 
   const filterConfigs: FilterConfig[] = [
     { 
-      key: 'name', // Maps to 'searchParam' or 'name' in your service
+      key: 'name', 
       label: 'Doctor Name', 
       type: 'text', 
       placeholder: 'Search by Name',
-      isSortable: true,
       gridSize: { xs: 12, sm: 6 }
     },
     { 
@@ -58,31 +56,49 @@ const DoctorsListTable = () => {
       label: 'Specialization', 
       type: 'select', 
       options: specializationOptions,
-      isSortable: true,
       gridSize: { xs: 12, sm: 6 }
     }
   ]
 
-  // --- 2. COLUMNS DEFINITION ---
+  // --- 2. CONFIGURATION: SORTING (New) ---
+  const sortingConfig: SortingConfig[] = [
+    { key: 'id', label: 'ID' },
+    { key: 'firstName', label: 'First Name' },
+    { key: 'lastName', label: 'Last Name' },
+    { key: 'slmcNumber', label: 'SLMC Number' },
+    { key: 'specialization', label: 'Specialization' },
+    { key: 'createdDate', label: 'Date Created' }
+  ]
+
+  // --- 3. SERVICE WRAPPER (New) ---
+  // Maps generic table params -> Specific Doctor Service params
+  // const fetchDoctorsWrapper = async (params: any) => {
+
+  //   const filters = {
+  //     name: params.filters?.name,
+  //     specialization: params.filters?.specialization
+  //   }
+
+  //   console.log("params")
+  //   console.log(params)
+  //   const sort = params.sort || 'id,desc'
+
+  //   return await doctorService.getDoctorList({
+  //       page: params.page,
+  //       pageSize: params.limit, // Maps 'limit' to 'pageSize'
+  //       filters: filters,
+  //       sort: sort
+  //   })
+  // }
+
+  // --- 4. COLUMNS DEFINITION ---
   const columns = useMemo(() => [
-      {
-        id: 'select',
-        header: ({ table }: any) => (
-          <Checkbox
-            checked={table.getIsAllRowsSelected()}
-            indeterminate={table.getIsSomeRowsSelected()}
-            onChange={table.getToggleAllRowsSelectedHandler()}
-          />
-        ),
-        cell: ({ row }: any) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            disabled={!row.getCanSelect()}
-            indeterminate={row.getIsSomeSelected()}
-            onChange={row.getToggleSelectedHandler()}
-          />
-        )
-      },
+    
+    columnHelper.accessor('id', {
+      header: 'Id #',
+      cell: ({ row }) => <Typography variant='body2'>#{row.original.id}</Typography>
+    }),
+
       columnHelper.accessor('nameWithInitials', {
         header: 'Doctor Name',
         cell: ({ row }) => (
@@ -142,22 +158,22 @@ const DoctorsListTable = () => {
 
   return (
     <CommonServerTable
-      // 1. Unique ID for Redux Persistence
+      // Unique ID for Redux Persistence
       tableId="doctor-list-table"
       
       title="Doctor List"
       
-      // 2. Direct Service Function (No manual useEffect/Dispatch needed)
+      // Use Wrapper instead of direct service
       fetchDataFunction={doctorService.getDoctorList}
       
       columns={columns}
       filterConfig={filterConfigs}
+      sortingConfig={sortingConfig} // Pass Sorting Config
       
-      // 3. Action Buttons
       actionComponent={
         <>
           <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>
-             Export
+              Export
           </Button>
 
           {user?.role === "ADMIN" && (

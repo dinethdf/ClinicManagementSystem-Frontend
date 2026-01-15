@@ -15,18 +15,27 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
 // Types
-import { FilterConfig, SortingState } from './TableTypes'
+import { FilterConfig, SortingConfig, SortingState } from './TableTypes'
 
 interface Props {
   open: boolean
   setOpen: (open: boolean) => void
   filtersConfig: FilterConfig[]
+  sortingConfig: SortingConfig[] // ✅ NEW PROP
   appliedFilters: any
   onApply: (filters: any, sorting?: SortingState) => void
   sorting?: SortingState
 }
 
-const TableFilterDialog = ({ open, setOpen, filtersConfig, appliedFilters, onApply, sorting }: Props) => {
+const TableFilterDialog = ({ 
+    open, 
+    setOpen, 
+    filtersConfig, 
+    sortingConfig, // ✅ Destructure 
+    appliedFilters, 
+    onApply, 
+    sorting 
+}: Props) => {
   
   const [localFilters, setLocalFilters] = useState(appliedFilters)
   const [localSorting, setLocalSorting] = useState<SortingState | undefined>(sorting)
@@ -46,11 +55,11 @@ const TableFilterDialog = ({ open, setOpen, filtersConfig, appliedFilters, onApp
   const handleReset = () => {
     const resetState: any = {}
     filtersConfig.forEach(f => {
-        // Don't reset 'custom' types usually, but clear inputs
-        if(f.type !== 'custom') resetState[f.key] = ''
+       if(f.type !== 'custom') resetState[f.key] = ''
     })
     setLocalFilters(resetState)
-    setLocalSorting(sorting ? { sortBy: 'createdDate', sortOrder: 'desc' } : undefined)
+    // Reset Sorting to first option if available, or undefined
+    setLocalSorting(sortingConfig.length > 0 ? { sortBy: sortingConfig[0].key, sortOrder: 'desc' } : undefined)
   }
 
   const handleApply = () => {
@@ -61,7 +70,6 @@ const TableFilterDialog = ({ open, setOpen, filtersConfig, appliedFilters, onApp
   return (
     <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
       <DialogTitle className='flex justify-between items-center pb-2'>
-        {/* FIX: component="div" prevents the <h5> inside <h2> error */}
         <Typography variant='h5' component="div">Filter & Sort</Typography>
         <IconButton onClick={() => setOpen(false)} size='small'>
           <i className='tabler-x' />
@@ -73,10 +81,8 @@ const TableFilterDialog = ({ open, setOpen, filtersConfig, appliedFilters, onApp
           
           {/* --- 1. DYNAMIC FILTERS --- */}
           {filtersConfig.map((filter) => (
-            <Grid key={filter.key} size={filter.gridSize || { xs: 12, sm: 6 }}>
-               {/* Custom Render (Report Button) */}
+              <Grid key={filter.key} size={filter.gridSize || { xs: 12, sm: 6 }}>
                {filter.type === 'custom' && filter.render ? (
-                  // We render the custom component directly here
                   <div className="w-full">
                     {filter.render(localFilters, handleChange)}
                   </div>
@@ -114,7 +120,8 @@ const TableFilterDialog = ({ open, setOpen, filtersConfig, appliedFilters, onApp
           ))}
 
           {/* --- 2. SORTING SECTION --- */}
-          {localSorting && (
+          {/* Only render if sortingConfig is provided and has items */}
+          {sortingConfig && sortingConfig.length > 0 && localSorting && (
             <>
                <Grid size={{ xs: 12 }}>
                   <Typography variant='subtitle2' className='mt-2 mb-1 text-gray-500 uppercase text-xs font-bold'>
@@ -130,10 +137,12 @@ const TableFilterDialog = ({ open, setOpen, filtersConfig, appliedFilters, onApp
                       value={localSorting.sortBy}
                       onChange={(e) => setLocalSorting({ ...localSorting, sortBy: e.target.value })}
                    >
-                      {filtersConfig.filter(f => f.isSortable).map(f => (
-                         <MenuItem key={f.key} value={f.key}>{f.label}</MenuItem>
+                      {/* ✅ MAP OVER NEW sortingConfig PROP */}
+                      {sortingConfig.map(sortOpt => (
+                          <MenuItem key={sortOpt.key} value={sortOpt.key}>
+                              {sortOpt.label}
+                          </MenuItem>
                       ))}
-                      <MenuItem value="createdDate">Date Created</MenuItem>
                    </TextField>
                </Grid>
                
@@ -143,7 +152,7 @@ const TableFilterDialog = ({ open, setOpen, filtersConfig, appliedFilters, onApp
                    >
                        <i className={`text-xl ${localSorting.sortOrder === 'asc' ? 'tabler-sort-ascending' : 'tabler-sort-descending'}`} />
                        <span className='text-sm font-medium'>
-                          {localSorting.sortOrder === 'asc' ? 'Ascending (A-Z)' : 'Descending (Z-A)'}
+                          {localSorting.sortOrder === 'asc' ? 'Ascending' : 'Descending'}
                        </span>
                    </div>
                </Grid>
