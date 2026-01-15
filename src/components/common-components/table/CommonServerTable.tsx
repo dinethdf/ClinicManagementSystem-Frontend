@@ -16,7 +16,7 @@ import CardHeader from '@mui/material/CardHeader'
 import Divider from '@mui/material/Divider'
 import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
-import Collapse from '@mui/material/Collapse' // Added for smooth transition
+import Collapse from '@mui/material/Collapse'
 
 // TanStack
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
@@ -26,14 +26,20 @@ import { useCommonTable } from '@/hooks/useCommonTable'
 import TableFilterDialog from './TableFilterDialog'
 import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick'
 import tableStyles from '@core/styles/table.module.css'
-import { FilterConfig } from './TableTypes'
+
+// Types
+import { FilterConfig, SortingConfig } from './TableTypes'
 
 interface Props<T> {
   tableId: string
   title?: string
   fetchDataFunction: (params: any) => Promise<any>
   columns: any[]
+  
+  // Filter & Sort Props
   filterConfig?: FilterConfig[]
+  sortingConfig?: SortingConfig[] // ✅ NEW PROP
+  
   actionComponent?: React.ReactNode
   
   // --- SELECTION PROPS ---
@@ -48,31 +54,23 @@ const CommonServerTable = <T extends object>({
   fetchDataFunction, 
   columns, 
   filterConfig, 
+  sortingConfig, // ✅ Destructure
   actionComponent,
   enableRowSelection = false,
   onSelectionChange,
   renderSelectionActions
 }: Props<T>) => {
 
-  // --- SELECTION STATE ---
+  // ... [Keep Selection State & Redux Connection exactly the same] ...
   const [rowSelection, setRowSelection] = useState({})
-
-  // --- CONNECT TO REDUX ---
   const { 
-    data, 
-    totalItems, 
-    isLoading, 
-    pagination, 
-    filters, 
-    sorting, 
-    onPageChange, 
-    onFilterChange 
+    data, totalItems, isLoading, pagination, filters, sorting, 
+    onPageChange, onFilterChange 
   } = useCommonTable(tableId, fetchDataFunction, {})
 
-  // --- COLUMN CONFIGURATION ---
+  // ... [Keep Column Config & TanStack Setup exactly the same] ...
   const tableColumns = useMemo(() => {
     if (!enableRowSelection) return columns;
-
     return [
       {
         id: 'select',
@@ -96,63 +94,50 @@ const CommonServerTable = <T extends object>({
     ]
   }, [columns, enableRowSelection]);
 
-  // --- TANSTACK SETUP ---
   const table = useReactTable({
     data,
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
-    state: { 
-      pagination,
-      rowSelection 
-    },
+    state: { pagination, rowSelection },
     pageCount: Math.ceil(totalItems / pagination.pageSize),
     enableRowSelection: enableRowSelection,
     onRowSelectionChange: setRowSelection,
-    getRowId: (row: any) => row.id?.toString() || row.payoutId?.toString() || JSON.stringify(row),
+    getRowId: (row: any) => row.id?.toString() || JSON.stringify(row),
     filterFns: {} as any
   })
 
-  // Get currently selected row objects
   const selectedRows = table.getSelectedRowModel().rows.map(row => row.original)
   const hasSelection = selectedRows.length > 0
 
-  // --- NOTIFY PARENT ---
   useEffect(() => {
-    if (onSelectionChange) {
-      onSelectionChange(selectedRows);
-    }
+    if (onSelectionChange) onSelectionChange(selectedRows);
   }, [rowSelection, data, onSelectionChange]);
 
-  // --- LOGIC ---
   const activeFilterCount = Object.values(filters).filter(val => val !== '' && val !== null && val !== undefined).length
 
   return (
     <Card>
-      
-      {/* ------------------------------------------
-          1. HEADER & STANDARD TOOLBAR (Always Visible)
-      ------------------------------------------- */}
       {title && <CardHeader title={title} className="pb-2" />}
       {title && <Divider />}
       
       <div className='flex flex-wrap justify-between items-center gap-4 p-5'>
-          
-          {/* Left: Filters & Page Size */}
           <div className='flex items-center gap-3'>
-              {filterConfig && (
+              {/* Filter Button */}
+              {(filterConfig || sortingConfig) && (
               <OpenDialogOnElementClick
                   element={Button}
                   elementProps={{
                       variant: 'tonal',
                       color: activeFilterCount > 0 ? 'primary' : 'secondary',
                       startIcon: <Badge badgeContent={activeFilterCount} color="error"><i className='tabler-filter' /></Badge>,
-                      children: "Filters",
+                      children: "Filters & Sort",
                       className: "px-6"
                   }}
                   dialog={TableFilterDialog}
                   dialogProps={{
-                      filtersConfig: filterConfig,
+                      filtersConfig: filterConfig || [],
+                      sortingConfig: sortingConfig || [], // ✅ Pass Sorting Config
                       appliedFilters: filters,
                       sorting: sorting,
                       onApply: onFilterChange
@@ -160,13 +145,12 @@ const CommonServerTable = <T extends object>({
               />
               )}
               
+              {/* Clear Button */}
               {activeFilterCount > 0 && (
                   <Tooltip title="Clear all filters">
                       <IconButton 
                           onClick={() => onFilterChange({}, sorting)} 
-                          color="error" 
-                          size="small"
-                          className="border border-red-200 bg-red-50 hover:bg-red-100"
+                          color="error" size="small" className="border border-red-200 bg-red-50 hover:bg-red-100"
                       >
                           <i className='tabler-filter-off' />
                       </IconButton>
@@ -174,17 +158,14 @@ const CommonServerTable = <T extends object>({
               )}
               
               <TextField 
-                  select 
-                  size="small" 
-                  value={pagination.pageSize} 
+                  select size="small" value={pagination.pageSize} 
                   onChange={(e) => onPageChange({ pageIndex: 0, pageSize: Number(e.target.value) })}
                   className='w-[75px]'
               >
-                  {[5, 10, 25, 50, 100].map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+                  {[5, 10, 25, 50].map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
               </TextField>
           </div>
 
-          {/* Right: Standard Actions (Add, Export, etc.) */}
           <div className='flex items-center gap-3'>
               {actionComponent}
           </div>
@@ -192,12 +173,9 @@ const CommonServerTable = <T extends object>({
 
       <Divider />
 
-      {/* ------------------------------------------
-          2. SELECTION TOOLBAR (Conditional)
-      ------------------------------------------- */}
-      <Collapse in={hasSelection && !!renderSelectionActions}>
+      {/* ... [Keep Selection Toolbar & Table Content exactly the same] ... */}
+       <Collapse in={hasSelection && !!renderSelectionActions}>
         <div className='flex flex-wrap justify-between items-center gap-4 p-3 px-5 bg-primary/10 border-b border-primary/20'>
-            {/* Left: Count + Clear */}
             <div className='flex items-center gap-3'>
                 <Typography variant='subtitle1' color='primary' className='font-bold flex items-center gap-2'>
                     <i className='tabler-checkbox text-xl' />
@@ -209,17 +187,12 @@ const CommonServerTable = <T extends object>({
                     </IconButton>
                 </Tooltip>
             </div>
-
-            {/* Right: Selection Actions (Delete, etc.) */}
             <div className='flex items-center gap-3'>
                 {renderSelectionActions && renderSelectionActions(selectedRows)}
             </div>
         </div>
       </Collapse>
 
-      {/* ------------------------------------------
-          3. TABLE CONTENT
-      ------------------------------------------- */}
       {isLoading ? (
         <div className='p-12 flex justify-center'><CircularProgress /></div>
       ) : (
@@ -253,9 +226,6 @@ const CommonServerTable = <T extends object>({
         </div>
       )}
 
-      {/* ------------------------------------------
-          4. PAGINATION
-      ------------------------------------------- */}
       <TablePagination
         component="div"
         count={totalItems}

@@ -9,13 +9,15 @@ import {
   updateTableParams 
 } from '@/redux-store/slices/tableStateSlice'
 
-// Type for the service function (matches your PatientService structure)
-type FetchFunction = (params: { page: number; pageSize: number; search?: string, [key: string]: any }) => Promise<any>
+// Updated type to include 'sort'
+type FetchFunction = (params: { page: number; pageSize: number; sort?: string; search?: string, [key: string]: any }) => Promise<any>
 
 export const useCommonTable = (
   tableId: string,
   fetchFunction: FetchFunction,
-  initialConfig?: { filters?: any; sorting?: any; pageSize?: number }
+  initialConfig?: { filters?: any; sorting?: any; pageSize?: number },
+  // 1. New Optional Argument for Custom Sorting Logic
+  customSortFormatter?: (sortBy: string, sortOrder: string) => string
 ) => {
   const dispatch = useDispatch()
   
@@ -38,30 +40,40 @@ export const useCommonTable = (
 
   // 2. Fetch Data when Params Change
   useEffect(() => {
-    // Only fetch if state is initialized and we are not already loading
+    // (Removed !isLoading check to allow refetching on filter changes even if strictly "loading" wasn't reset perfectly)
     if (tableState && tableState.isInitialized) {
       
       const fetchData = async () => {
         dispatch(setTableLoading({ tableId, isLoading: true }))
         
         try {
+          // --- 2. SORTING LOGIC START ---
+          let sortParam = 'id,asc' // Default fallback
+
+          if (tableState.sorting?.sortBy) {
+             if (customSortFormatter) {
+                 // Use custom formatter if provided (e.g. for legacy APIs)
+                 sortParam = customSortFormatter(tableState.sorting.sortBy, tableState.sorting.sortOrder)
+             } else {
+                 // Standard Format: "field,direction"
+                 sortParam = `${tableState.sorting.sortBy},${tableState.sorting.sortOrder || 'asc'}`
+             }
+          }
+          // --- SORTING LOGIC END ---
+
           // Prepare params for your Service
           const params = {
-            page: tableState.pagination.pageIndex + 1, // API is 1-based
+            page: tableState.pagination.pageIndex, 
             pageSize: tableState.pagination.pageSize,
-            // We map the generic 'filters' object to your service params
-            // If your filter input name is 'searchParam', we map it to 'search'
-            search: tableState.filters['searchParam'] || tableState.filters['search'] || '',
-            ...tableState.filters, // Pass other filters (nic, name) directly
-            sort: `${tableState.sorting.sortBy},${tableState.sorting.sortOrder}`
+            ...tableState.filters, 
+            sort: sortParam 
           }
-
           const response = await fetchFunction(params)
           
           dispatch(setTableData({
             tableId,
-            data: response.content, // Assuming your API returns 'content'
-            totalItems: response.totalElements // Assuming your API returns 'totalElements'
+            data: response.content || [], // Handle potential null content
+            totalItems: response.totalElements || 0
           }))
 
         } catch (error: any) {
@@ -69,19 +81,18 @@ export const useCommonTable = (
         }
       }
 
-      // Debounce or immediate call? For simplicity, we call immediately here.
-      // You can add a check to avoid double-fetching if needed.
       fetchData()
     }
   }, [
-    // Dependencies: Whenever these change in Redux, we refetch
+    // Dependencies
     tableState?.pagination.pageIndex, 
     tableState?.pagination.pageSize, 
     tableState?.filters, 
     tableState?.sorting,
     dispatch, 
     tableId, 
-    fetchFunction
+    fetchFunction,
+    customSortFormatter // Added dependency
   ])
 
   // 3. Helper Functions for UI
@@ -94,10 +105,10 @@ export const useCommonTable = (
   }, [dispatch, tableId])
 
   return {
-    ...tableState, // contains data, loading, pagination, filters, sorting
+    ...tableState,
     onPageChange,
     onFilterChange,
-    // Return safe defaults if state is null (first render)
+    // Safe defaults
     isLoading: tableState?.isLoading ?? true,
     data: tableState?.data || [],
     totalItems: tableState?.totalItems || 0,

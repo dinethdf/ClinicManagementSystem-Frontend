@@ -1,44 +1,7 @@
-import type { DoctorScheduleDTO } from '@/types/doctor.types'
+import type { DoctorCreateDTO, DoctorScheduleDTO, GetDoctorsParams, PaginatedDoctorResponse } from '@/types/doctor.types'
 import { apiClient } from './api.config'
+import { ApiResponse } from '@/types/common.type'
 
-
-export interface DoctorCreateDTO {
-  firstName: string
-  lastName: string
-  nameWithInitials: string
-  gender: number
-  nic: string
-  dob: string | null
-  address: string
-  city: string
-  district: string
-  email: string
-  mobileNo: string
-  registrationDate: string
-  profileImg?: string | null
-  isApproved: boolean
-  slmcNumber: string
-  specialization: {
-    id: string
-  }
-  qualification: string
-  experienceYears: string
-  availabilityStatus: string
-}
-
-interface ApiResponse<T> {
-  success: boolean
-  message: string
-  data: T
-}
-
-interface PaginatedResponse<T> {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-}
 
 class DoctorService {
 
@@ -57,27 +20,29 @@ class DoctorService {
     }
   }
 
-  async getDoctorList({
-    page,
-    pageSize,
-    search
-  }: {
-    page: number
-    pageSize: number
-    search?: string
-  }): Promise<PaginatedResponse<any>> {
+async getDoctorList({ page, pageSize, sort, ...filters}: GetDoctorsParams): Promise<PaginatedDoctorResponse> {
+
+  console.log(filters)
     try {
-      const response : any = await apiClient.get<PaginatedResponse<any>>(
-        '/api/doctor/list',
-        {
-          params: {
-            page: page - 1, // Adjust if backend is 0-indexed
-            size: pageSize,
-            search: search
-          }
+      const response = await apiClient.get<any>('/api/doctor/list', {
+        params: {
+          // Pagination (Spring Boot is 0-based)
+          page: page - 1, 
+          size: pageSize,
+
+          // Specific Filters (Map keys to @RequestParam names)
+          name: filters?.name || undefined,
+          mobile: filters?.mobile || undefined,
+          slmc: filters?.slmc || undefined,
+          specialization: filters?.specialization || undefined,
+
+          // Sorting (e.g., "id,desc")
+          sort: sort
         }
-      )
+      })
+
       return response.data.data
+
     } catch (error: any) {
       throw new Error(
         error.response?.data?.defaultMessage || 'Failed to fetch doctor list'
