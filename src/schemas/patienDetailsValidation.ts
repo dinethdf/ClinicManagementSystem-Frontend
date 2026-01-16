@@ -35,9 +35,25 @@ export const getPatientValidationSchema = (isUnderAge: boolean) => {
     ethnicity: pipe(string(), minLength(1, 'Ethnicity is required')),
     gender: pipe(string(), minLength(1, 'Gender is required')),
     maritalStatus: pipe(string(), minLength(1, 'Marital status is required')),
-    bloodGroup: pipe(string(), minLength(1, 'Blood Group is required')),
+    bloodGroup: string(),
+    weight: pipe(
+      string()
+    ),
+    height: pipe(
+      string()
+    ),        
     dob: pipe(string('Please select your Date of Birth'), minLength(1, 'Please select your Date of Birth')),
-    guradian: optional(string()),
+    guradian: !isUnderAge
+      ? optional(string())
+      : pipe(
+          string()
+        ),     
+    relationshipToGuardian: !isUnderAge
+      ? optional(string())
+      : pipe(
+          string(),
+          minLength(1, 'Relationship is required'),
+        ),     
     nic: isUnderAge
       ? string()
       : pipe(

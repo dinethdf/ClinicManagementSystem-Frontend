@@ -195,6 +195,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // C
         <Divider />
 
         {/* --- PERSONAL DETAILS --- */}
+{/* --- PERSONAL DETAILS --- */}
         <div className='flex flex-col gap-4'>
             <Typography variant='subtitle1' className='uppercase opacity-70 font-bold text-xs'>Personal Details</Typography>
             <ul className='flex flex-col gap-3 p-0 list-none'>
@@ -212,6 +213,18 @@ const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // C
                     <i className='tabler-users text-secondary text-xl' />
                     <Typography variant='body2' className='font-medium' color='text.primary'>Marital Status:</Typography>
                     <Typography color='text.secondary'>{maritalMap[patientData?.maritalStatus as number] || 'N/A'}</Typography>
+                </li>
+                
+                {/* --- NEW FIELDS: Weight & Height --- */}
+                <li className='flex items-center gap-2'>
+                    <i className='tabler-weight text-secondary text-xl' />
+                    <Typography variant='body2' className='font-medium' color='text.primary'>Weight:</Typography>
+                    <Typography color='text.secondary'>{patientData?.weight ? `${patientData.weight} kg` : 'N/A'}</Typography>
+                </li>
+                <li className='flex items-center gap-2'>
+                    <i className='tabler-ruler-2 text-secondary text-xl' />
+                    <Typography variant='body2' className='font-medium' color='text.primary'>Height:</Typography>
+                    <Typography color='text.secondary'>{patientData?.height ? `${patientData.height} cm` : 'N/A'}</Typography>
                 </li>
             </ul>
         </div>

@@ -13,7 +13,6 @@ const CustomerDetailsPage = async (props: { params: Promise<{ id: string }> }) =
   // 1. Call the new function
   const res = await getPatientById(params.id)
 
-  console.log(res.data)
   // 2. Check success flag instead of checking if object is null
   if (!res.success || !res.data) {
     console.error("Patient not found or API error:", res.error)
