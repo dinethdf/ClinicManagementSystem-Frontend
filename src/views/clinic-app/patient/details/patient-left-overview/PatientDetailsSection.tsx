@@ -18,15 +18,13 @@ import EditPatientDetails from '@/components/dialogs/patient/EditPatientDetails'
 import StateChangeDialog from '@/components/dialogs/patient/StateChange'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
-
 // Helper to format dates
 const formatDate = (dateString?: string | null) => {
   if (!dateString) return 'N/A';
   return new Date(dateString).toLocaleDateString();
 };
 
-const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
-
+const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // Changed type to any to support your specific JSON structure for now
 
   const buttonProps: ButtonProps = {
     variant: 'contained',
@@ -47,6 +45,16 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
   const genderMap: Record<string, string> = { "1": "Male", "2": "Female" };
   const maritalMap: Record<number, string> = { 1: "Single", 2: "Married" };
 
+  // --- GUARDIAN LOGIC ---
+  const hasGuardian = patientData?.guardian && patientData?.guardian?.id;
+
+  // Determine which contact info to show (Patient's own OR Guardian's if dependent)
+  const displayMobile = hasGuardian ? patientData.guardian.mobileNo : patientData?.mobileNo;
+  const displayEmail = hasGuardian ? patientData.guardian.email : patientData?.email;
+  // For address, children usually live with guardians, so fallback to guardian address if patient's is missing
+  const displayAddress = patientData?.address || (hasGuardian ? patientData.guardian.address : null);
+  const displayCity = patientData?.city || (hasGuardian ? patientData.guardian.city : null);
+
   return (
     <Card>
       <CardContent className='flex flex-col gap-6'>
@@ -55,21 +63,27 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
         <div className='flex flex-col items-center justify-center gap-4'>
             <div className='relative'>
                 <CustomAvatar 
-                    src={'/images/avatars/common.png'}  // Hear Change that Image After File Upload System
+                    src={'/images/avatars/common.png'} 
                     variant='rounded' 
-                    alt={patientData?.fullName} 
+                    alt={patientData?.firstName} 
                     size={120} 
                     sx={{ borderRadius: '12px' }}
                 />
             </div>
             
             <div className='flex flex-col items-center text-center gap-1'>
-                <Typography variant='h5' className='font-bold'>{patientData?.fullName}</Typography>
+                <Typography variant='h5' className='font-bold'>
+                    {patientData?.firstName} {patientData?.lastName}
+                </Typography>
                 <Stack direction="row" spacing={1} alignItems="center">
                     {patientData?.isActive ? (
                         <Chip label='Active' color='success' size='medium' variant="tonal" sx={{ height: 30, fontSize: '0.9rem' }} />
                     ) : (
                         <Chip label='Inactive' color='error' size='medium' variant="tonal" sx={{ height: 30, fontSize: '0.9rem' }} />
+                    )}
+                    {/* Show Dependent Tag if applicable */}
+                    {hasGuardian && (
+                         <Chip label='Dependent' color='info' size='medium' variant="tonal" sx={{ height: 30, fontSize: '0.9rem' }} />
                     )}
                 </Stack>
             </div>
@@ -80,10 +94,10 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
                     <Typography variant='caption' color='text.secondary'>Blood</Typography>
                     <Typography variant='h6' color='error.main'>{patientData?.bloodGroup || 'N/A'}</Typography>
                 </Box>
-                {/* <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 1.5, bgcolor: 'action.hover', borderRadius: 1, minWidth: 70 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 1.5, bgcolor: 'action.hover', borderRadius: 1, minWidth: 70 }}>
                     <Typography variant='caption' color='text.secondary'>Age</Typography>
                     <Typography variant='h6'>{patientData?.age || 'N/A'}</Typography>
-                </Box> */}
+                </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 1.5, bgcolor: 'action.hover', borderRadius: 1, minWidth: 70 }}>
                     <Typography variant='caption' color='text.secondary'>Gender</Typography>
                     <Typography variant='h6'>{genderMap[String(patientData?.gender)] || 'Other'}</Typography>
@@ -93,9 +107,11 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
 
         <Divider />
 
-        {/* --- CONTACT INFORMATION --- */}
+        {/* --- CONTACT INFORMATION (Smart Display) --- */}
         <div className='flex flex-col gap-4'>
-          <Typography variant='subtitle1' className='uppercase opacity-70 font-bold text-xs'>Contact Information</Typography>
+          <Typography variant='subtitle1' className='uppercase opacity-70 font-bold text-xs'>
+            {hasGuardian ? "Contact Information (Guardian)" : "Contact Information"}
+          </Typography>
           
           <Stack spacing={3}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -104,7 +120,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
                 </CustomAvatar>
                 <div>
                     <Typography variant='body2' color='text.secondary'>Mobile</Typography>
-                    <Typography variant='body1' fontWeight={500}>{patientData?.mobileNo}</Typography>
+                    <Typography variant='body1' fontWeight={500}>{displayMobile || 'N/A'}</Typography>
                 </div>
             </Box>
             
@@ -114,7 +130,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
                 </CustomAvatar>
                 <div>
                     <Typography variant='body2' color='text.secondary'>Email</Typography>
-                    <Typography variant='body1' fontWeight={500}>{patientData?.email}</Typography>
+                    <Typography variant='body1' fontWeight={500}>{displayEmail || 'N/A'}</Typography>
                 </div>
             </Box>
 
@@ -124,11 +140,57 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
                 </CustomAvatar>
                 <div>
                     <Typography variant='body2' color='text.secondary'>Address</Typography>
-                    <Typography variant='body1' fontWeight={500}>{patientData?.address}, {patientData?.city}</Typography>
+                    <Typography variant='body1' fontWeight={500}>
+                        {displayAddress ? `${displayAddress}, ${displayCity || ''}` : 'N/A'}
+                    </Typography>
                 </div>
             </Box>
           </Stack>
         </div>
+
+        {/* --- NEW SECTION: GUARDIAN SPECIFIC DETAILS --- */}
+        {hasGuardian && (
+            <>
+                <Divider />
+                <div className='flex flex-col gap-4'>
+                    <Typography variant='subtitle1' className='uppercase opacity-70 font-bold text-xs'>
+                        Guardian Details
+                    </Typography>
+                    
+                    <Box sx={{ bgcolor: 'primary.lighter', p: 2, borderRadius: 1 }}>
+                        <div className='flex items-center gap-3 mb-3'>
+                            <CustomAvatar 
+                                skin='light' 
+                                color='primary' 
+                                src={patientData.guardian.profileImg} 
+                                size={40}
+                            >
+                                {patientData.guardian.firstName?.charAt(0)}
+                            </CustomAvatar>
+                            <div>
+                                <Typography variant='subtitle2' className='font-bold'>
+                                    {patientData.guardian.firstName} {patientData.guardian.lastName}
+                                </Typography>
+                                <Typography variant='caption' color='text.secondary'>
+                                    {patientData.relationshipToGuardian || 'Parent/Guardian'}
+                                </Typography>
+                            </div>
+                        </div>
+                        
+                        <div className='grid grid-cols-2 gap-2 mt-2'>
+                            <div className='flex flex-col'>
+                                <Typography variant='caption' color='text.secondary'>Guardian NIC</Typography>
+                                <Typography variant='body2' fontWeight={500}>{patientData.guardian.nic || 'N/A'}</Typography>
+                            </div>
+                            <div className='flex flex-col'>
+                                <Typography variant='caption' color='text.secondary'>Landline</Typography>
+                                <Typography variant='body2' fontWeight={500}>{patientData.guardian.landNo || 'N/A'}</Typography>
+                            </div>
+                        </div>
+                    </Box>
+                </div>
+            </>
+        )}
 
         <Divider />
 
@@ -139,7 +201,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: Patient }) => {
                 <li className='flex items-center gap-2'>
                     <i className='tabler-id text-secondary text-xl' />
                     <Typography className='font-medium' color='text.primary'>NIC:</Typography>
-                    <Typography color='text.secondary'>{patientData?.nic}</Typography>
+                    <Typography color='text.secondary'>{patientData?.nic || 'N/A'}</Typography>
                 </li>
                 <li className='flex items-center gap-2'>
                     <i className='tabler-cake text-secondary text-xl' />
