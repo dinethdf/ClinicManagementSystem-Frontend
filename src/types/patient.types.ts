@@ -12,7 +12,10 @@ export interface Patient {
   nic: string
   dob: string | null | undefined
   guardian: Guardian | null
-  bloodGroup:string
+  bloodGroup:string | null
+  relationshipToGuardian :string | null
+  weight: string | null
+  height: string | null
 
   profileImg?:string
 
