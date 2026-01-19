@@ -60,7 +60,7 @@ const PatientListTable = () => {
     columnHelper.accessor('firstName', {
       header: 'Patient Name',
       cell: ({ row }) => (
-        <div className='flex items-center gap-3 cursor-pointer' onClick={() => router.push(`/en/clinic/patient/details/${row.original.id}`)}>
+        <div className='flex items-center gap-3 cursor-pointer' onClick={() => router.push(`/en/clinic/patient/clinical-profile/${row.original.id}`)}>
           <CustomAvatar skin='light' size={34} color='primary'>
             {getInitials(row.original.firstName + " " + row.original.lastName)}
           </CustomAvatar>

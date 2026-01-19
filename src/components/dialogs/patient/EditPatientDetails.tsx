@@ -1,13 +1,12 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-
 import { useForm, Controller } from 'react-hook-form'
-
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import dayjs from 'dayjs'
 
+// MUI Imports
 import Grid from '@mui/material/Grid'
 import Dialog from '@mui/material/Dialog'
 import Button from '@mui/material/Button'
@@ -19,14 +18,19 @@ import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
 import Divider from '@mui/material/Divider'
+import InputAdornment from '@mui/material/InputAdornment'
+import type { TextFieldProps } from '@mui/material/TextField'
 
+// Custom Components
 import DialogCloseButton from '../DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
+import CustomDatePicker from '@/components/custome/DatePickerTextField' // Ensure this path is correct
+import GuardianSelectDialogBox from '@components/dialogs/guardian-select'
+import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
-import type { Patient } from '@/types/patient.types'
-
+// Types & Services
+import type { Patient, Guardian } from '@/types/patient.types'
 import { patientService } from '@/services/patient.service'
-
 import { getPatientValidationSchema } from '@/schemas/patienDetailsValidation'
 
 type EditPatientDetailsProps = {
@@ -38,34 +42,59 @@ type EditPatientDetailsProps = {
 
 const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDetailsProps) => {
 
-  console.log("byself")
-  console.log(bySelf)
+  console.log("Load the components")
+
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  
+  // Logic for Underage check
+  const [isUnderAge, setIsUnderAge] = useState(false)
+  const triggerRef = useRef(null)
 
-  const validationSchema = useMemo(() => getPatientValidationSchema(false), [])
+  // Dynamic Validation Schema
+  const validationSchema = useMemo(() => getPatientValidationSchema(isUnderAge), [isUnderAge])
 
   const {
     control,
     handleSubmit,
     reset,
+    setValue,
+    clearErrors,
     formState: { errors }
   } = useForm<Patient>({
     resolver: valibotResolver(validationSchema) as any,
     defaultValues: {}
   })
 
-
+  // 1. Initialize Form Data on Open
   useEffect(() => {
     if (open && patientData) {
+      // Calculate age logic
+      let isChild = false
+      if (patientData.dob) {
+         const today = new Date()
+         const bday = new Date(patientData.dob)
+         let age = today.getFullYear() - bday.getFullYear()
+         const m = today.getMonth() - bday.getMonth()
+         if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--
+         isChild = age < 18
+      }
+      setIsUnderAge(isChild)
+
       reset({
         ...patientData,
-        dob: patientData.dob ? new Date(patientData.dob).toISOString().split('T')[0] : '',
+        dob: patientData.dob ? patientData.dob : null, // keep date string or object consistent
         gender: patientData.gender?.toString(),
         ethnicity: patientData.ethnicity?.toString(),
         maritalStatus: patientData.maritalStatus?.toString(),
-        bloodGroup: patientData.bloodGroup || '' // Ensure blood group is reset
+        bloodGroup: patientData.bloodGroup || '',
+        
+        // Ensure new fields are mapped
+        weight: patientData.weight || '',
+        height: patientData.height || '',
+        relationshipToGuardian: patientData.relationshipToGuardian || '',
+        guardian: patientData.guardian || null
       } as any)
     }
   }, [open, patientData, reset])
@@ -75,6 +104,31 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
     setErrorMessage(null)
   }
 
+  // 2. Guardian Selection Logic
+  const selectGuardian = (guardian:Guardian) =>{
+       setValue("nic", guardian.nic)
+       setValue("address", guardian.address)
+       setValue("city", guardian.city)
+       setValue("district", guardian.district)
+       setValue("email", guardian.email)
+       setValue("mobileNo", guardian.mobileNo)
+       setValue("landNo", guardian?.landNo || "")
+       setValue("guardian", guardian || null)
+       clearErrors('guardian')
+  } 
+  
+  const resetGuardian = () =>{
+       setValue("nic", '')
+       setValue("address", '')
+       setValue("city", '')
+       setValue("district", '')
+       setValue("email", '')
+       setValue("mobileNo", '')
+       setValue("landNo", '')
+       setValue("guardian", null)
+       setValue("relationshipToGuardian", '') 
+  }   
+
   const onSubmit = async (data: Patient) => {
     if (!patientData?.id) return
 
@@ -83,10 +137,16 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
 
     const payload: Patient = {
       ...data,
+      // Ensure dropdown values are sent correctly
       gender: data.gender,
       ethnicity: data.ethnicity,
       maritalStatus: data.maritalStatus,
-      bloodGroup: data.bloodGroup
+      bloodGroup: data.bloodGroup,
+      
+      // Send new fields
+      weight: data.weight,
+      height: data.height,
+      relationshipToGuardian: data.relationshipToGuardian
     }
 
     try {
@@ -130,16 +190,19 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
           )}
 
           <Grid container spacing={5}>
+            
             {/* 1. Personal Info Section */}
             <Grid size={{ xs: 12 }}>
               <Typography variant='h6' color='primary'>1. Personal Details</Typography>
               <Divider />
             </Grid>
 
+            {/* Names */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='firstName'
                 control={control}
+                rules={{ required: true }}
                 render={({ field }) => (
                   <CustomTextField {...field} fullWidth label='First Name' error={!!errors.firstName} helperText={errors.firstName?.message} />
                 )}
@@ -149,55 +212,77 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               <Controller
                 name='lastName'
                 control={control}
+                rules={{ required: true }}
                 render={({ field }) => (
                   <CustomTextField {...field} fullWidth label='Last Name' error={!!errors.lastName} helperText={errors.lastName?.message} />
                 )}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 12 }}>
-              <Controller
-                name='fullName'
-                control={control}
-                render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Full Name' error={!!errors.fullName} helperText={errors.fullName?.message} />
-                )}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <Controller
-                name='nic'
-                control={control}
-                render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='NIC' error={!!errors.nic} helperText={errors.nic?.message} />
-                )}
-              />
-            </Grid>
+            
+            {/* DOB & Age Logic */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='dob'
                 control={control}
+                rules={{ required: 'Date of Birth is required' }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth type='date' label='Date of Birth' InputLabelProps={{ shrink: true }} error={!!errors.dob} helperText={errors.dob?.message} />
+                  <CustomDatePicker 
+                    {...field}
+                    // Handle Dayjs or String value
+                    value={field.value ? dayjs(field.value) : null}
+                    onChange={newValue => {
+                      let age = 0
+                      if (newValue) {
+                        const today = new Date()
+                        const bday = newValue.toDate()
+                        age = today.getFullYear() - bday.getFullYear()
+                        const m = today.getMonth() - bday.getMonth()
+                        if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--
+                      }
+
+                      if(isUnderAge && age > 18){
+                          resetGuardian()
+                      }
+                      setIsUnderAge(age < 18)
+                      field.onChange(newValue ? newValue.format('YYYY-MM-DD') : null)
+                    }} 
+                    label='Date of Birth' 
+                    openTo='year'
+                    views={['year', 'month', 'day']}
+                    maxDate={dayjs()}
+                    format='YYYY-MM-DD'
+                    slotProps={{ textField: { error: !!errors.dob, helperText: errors.dob?.message } }}
+                  />
                 )}
               />
             </Grid>
 
-            {/* --- UPDATED ROW: Gender, Ethnicity, Marital Status, Blood Group --- */}
-            {/* Adjusted sizes to fit all 4 in one row: 3 + 4 + 3 + 2 = 12 */}
+            {/* NIC - Disabled for Children */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Controller
+                name='nic'
+                control={control}
+                rules={{ required: !isUnderAge }} // Conditional Rule
+                render={({ field }) => (
+                  <CustomTextField 
+                    {...field} 
+                    fullWidth 
+                    label='NIC' 
+                    disabled={isUnderAge} // Disabled logic
+                    error={!!errors.nic} 
+                    helperText={errors.nic?.message} 
+                  />
+                )}
+              />
+            </Grid>
 
-            <Grid size={{ xs: 12, sm: 3 }}>
+            {/* Gender, Ethnicity, Marital Status */}
+            <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
                 name='gender'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    select
-                    fullWidth
-                    label='Gender'
-                    error={!!errors.gender}
-                    helperText={errors.gender?.message}
-                  >
+                  <CustomTextField {...field} select fullWidth label='Gender' error={!!errors.gender} helperText={errors.gender?.message}>
                     <MenuItem value="1">Male</MenuItem>
                     <MenuItem value="2">Female</MenuItem>
                     <MenuItem value="3">Other</MenuItem>
@@ -205,20 +290,12 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 )}
               />
             </Grid>
-
             <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
                 name='ethnicity'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    select
-                    fullWidth
-                    label='Ethnicity'
-                    error={!!errors.ethnicity}
-                    helperText={errors.ethnicity?.message}
-                  >
+                  <CustomTextField {...field} select fullWidth label='Ethnicity' error={!!errors.ethnicity} helperText={errors.ethnicity?.message}>
                     <MenuItem value="0">Sinhala</MenuItem>
                     <MenuItem value="1">Tamil</MenuItem>
                     <MenuItem value="2">Muslims</MenuItem>
@@ -227,20 +304,12 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 )}
               />
             </Grid>
-
-            <Grid size={{ xs: 12, sm: 3 }}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
                 name='maritalStatus'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    select
-                    fullWidth
-                    label='Marital Status'
-                    error={!!errors.maritalStatus}
-                    helperText={errors.maritalStatus?.message}
-                  >
+                  <CustomTextField {...field} select fullWidth label='Marital Status' error={!!errors.maritalStatus} helperText={errors.maritalStatus?.message}>
                     <MenuItem value="1">Single</MenuItem>
                     <MenuItem value="2">Married</MenuItem>
                     <MenuItem value="3">Divorced</MenuItem>
@@ -250,37 +319,117 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               />
             </Grid>
 
-            {/* --- Blood Group Added Here --- */}
-            <Grid size={{ xs: 12, sm: 2 }}>
+            {/* Blood, Height, Weight */}
+            <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
                 name='bloodGroup'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    select
-                    fullWidth
-                    label='Blood Group'
-                    // Shortened placeholder to fit sm:2 size
-                    placeholder='Select'
-                    {...(errors.bloodGroup && { error: true, helperText: errors.bloodGroup.message })}
-                  >
+                  <CustomTextField {...field} select fullWidth label='Blood Group' placeholder='Select' error={!!errors.bloodGroup} helperText={errors.bloodGroup?.message}>
                     <MenuItem value='A+'>A+</MenuItem>
-                    <MenuItem value='A-'>A-</MenuItem>
-                    <MenuItem value='B+'>B+</MenuItem>
-                    <MenuItem value='B-'>B-</MenuItem>
-                    <MenuItem value='AB+'>AB+</MenuItem>
-                    <MenuItem value='AB-'>AB-</MenuItem>
                     <MenuItem value='O+'>O+</MenuItem>
+                    <MenuItem value='B+'>B+</MenuItem>
+                    <MenuItem value='AB+'>AB+</MenuItem>
+                    <MenuItem value='A-'>A-</MenuItem>
                     <MenuItem value='O-'>O-</MenuItem>
+                    <MenuItem value='B-'>B-</MenuItem>
+                    <MenuItem value='AB-'>AB-</MenuItem>
                   </CustomTextField>
                 )}
               />
             </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+                <Controller
+                    name='weight'
+                    control={control}
+                    render={({ field }) => (
+                    <CustomTextField {...field} fullWidth type="number" label='Weight (kg)' placeholder='65' error={!!errors.weight} helperText={errors.weight?.message} />
+                    )}
+                />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+                <Controller
+                    name='height'
+                    control={control}
+                    render={({ field }) => (
+                    <CustomTextField {...field} fullWidth type="number" label='Height (cm)' placeholder='170' error={!!errors.height} helperText={errors.height?.message} />
+                    )}
+                />
+            </Grid>
+
+            {/* --- GUARDIAN & RELATIONSHIP (Visible only if Underage) --- */}
+            {isUnderAge && (
+              <>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                    <Controller
+                    name='guardian'
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => {
+                        const displayValue = field.value && typeof field.value === 'object'
+                            ? `${field.value.firstName} ${field.value.lastName}` : ''          
+
+                        const textFieldProps: TextFieldProps = {
+                            ...field,
+                            fullWidth: true,
+                            label: 'Guardian',
+                            placeholder: 'Select Guardian',
+                            value: displayValue,
+                            InputProps: {
+                                readOnly: true,
+                                startAdornment: (
+                                <InputAdornment position='start'>
+                                    <i className='tabler-user' />
+                                </InputAdornment>
+                                )
+                            },
+                            inputProps: {style: {cursor: 'pointer'}},
+                            error: !!errors.guardian,
+                            helperText: errors.guardian?.message
+                        }
+                        return (
+                        <OpenDialogOnElementClick
+                            element={CustomTextField}
+                            elementProps={textFieldProps}
+                            dialog={GuardianSelectDialogBox}
+                            dialogProps={{
+                                onSelectGuardian: selectGuardian,
+                                triggerRef: triggerRef
+                            }}
+                        />
+                        )
+                    }}
+                    />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6 }}>
+                    <Controller
+                        name='relationshipToGuardian'
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field }) => (
+                        <CustomTextField
+                            {...field}
+                            select
+                            fullWidth
+                            label='Relationship to Guardian'
+                            error={!!errors.relationshipToGuardian} 
+                            helperText={errors.relationshipToGuardian?.message}
+                        >
+                            <MenuItem value='Father'>Father</MenuItem>
+                            <MenuItem value='Mother'>Mother</MenuItem>
+                            <MenuItem value='Grandparent'>Grandparent</MenuItem>
+                            <MenuItem value='Other'>Other</MenuItem>
+                        </CustomTextField>
+                        )}
+                    />
+                </Grid>
+              </>
+            )}
 
             {/* 2. Contact Details Section */}
-            <Grid size={{ xs: 12 }} className='mt-2'>
-              <Typography variant='h6' color='primary'>2. Contact Details</Typography>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant='h6' color='primary' className='mt-4'>2. Contact Details</Typography>
               <Divider />
             </Grid>
 
@@ -288,8 +437,9 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               <Controller
                 name='mobileNo'
                 control={control}
+                rules={{ required: true }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Mobile No' error={!!errors.mobileNo} helperText={errors.mobileNo?.message} />
+                  <CustomTextField {...field} fullWidth label='Mobile No' disabled={isUnderAge} error={!!errors.mobileNo} helperText={errors.mobileNo?.message} />
                 )}
               />
             </Grid>
@@ -298,7 +448,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='landNo'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Land No' error={!!errors.landNo} helperText={errors.landNo?.message} />
+                  <CustomTextField {...field} fullWidth label='Land No' disabled={isUnderAge} error={!!errors.landNo} helperText={errors.landNo?.message} />
                 )}
               />
             </Grid>
@@ -306,8 +456,9 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               <Controller
                 name='email'
                 control={control}
+                rules={{ required: true }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Email' error={!!errors.email} helperText={errors.email?.message} />
+                  <CustomTextField {...field} fullWidth label='Email' disabled={isUnderAge} error={!!errors.email} helperText={errors.email?.message} />
                 )}
               />
             </Grid>
@@ -315,8 +466,9 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               <Controller
                 name='address'
                 control={control}
+                rules={{ required: true }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Address' error={!!errors.address} helperText={errors.address?.message} />
+                  <CustomTextField {...field} fullWidth label='Address' disabled={isUnderAge} error={!!errors.address} helperText={errors.address?.message} />
                 )}
               />
             </Grid>
@@ -325,7 +477,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='city'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='City' error={!!errors.city} helperText={errors.city?.message} />
+                  <CustomTextField {...field} fullWidth label='City' disabled={isUnderAge} error={!!errors.city} helperText={errors.city?.message} />
                 )}
               />
             </Grid>
@@ -334,14 +486,14 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='district'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='District' error={!!errors.district} helperText={errors.district?.message} />
+                  <CustomTextField {...field} fullWidth label='District' disabled={isUnderAge} error={!!errors.district} helperText={errors.district?.message} />
                 )}
               />
             </Grid>
 
             {/* 3. Emergency Contact Section */}
-            <Grid size={{ xs: 12 }} className='mt-2'>
-              <Typography variant='h6' color='primary'>3. Emergency Contact</Typography>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant='h6' color='primary' className='mt-4'>3. Emergency Contact</Typography>
               <Divider />
             </Grid>
 
