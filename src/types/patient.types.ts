@@ -155,3 +155,32 @@ export interface PrescriptionItem {
   instructions?: string
   fulfilled: boolean
 }
+
+// src/types/health.types.ts
+
+// --- DTOs ---
+export interface AllergyDTO {
+  id: number;
+  allergyName: string;
+  notes?: string;
+}
+
+export interface DiseaseDTO {
+  id: number;
+  diseaseName: string;
+  notes?: string;
+}
+
+// --- Requests ---
+export interface AddHealthRecordRequest {
+  name: string; // mapped to allergyName or diseaseName
+  notes?: string;
+}
+
+// --- API Responses ---
+// (Assuming your http helper extracts 'data', but we define wrappers just in case)
+export interface HealthApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
