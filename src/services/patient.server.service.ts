@@ -71,3 +71,28 @@ export async function changePassword(otp: string, newPassword: string, confirmPa
     return { success: false, error: { message: "Failed to update password." } }
   }
 }
+
+
+export async function createPatientLogin(patientId: string) {
+  try {
+    const response = await http.post<{ message: string, data: string }>(`/api/patient/create-login/${patientId}`, {})
+    return { success: true, message: response.data || response.message }
+  } catch (err: any) {
+    // Handle specific API errors
+    if (err instanceof ApiError) {
+      return { 
+        success: false, 
+        message: err.message, 
+        errorCode: err.details // Assuming your ApiError stores the 'errorCode' in details
+      }
+    }
+    
+    // Handle unexpected errors (like 403 Forbidden)
+    console.error("Create Login Error:", err)
+    return { 
+      success: false, 
+      message: err.message || "Failed to create login. Please contact support.",
+      errorCode: 'UNKNOWN_ERROR'
+    }
+  }
+}

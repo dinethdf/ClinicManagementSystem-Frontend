@@ -82,7 +82,7 @@ const UserDropdown = () => {
     try {
       await logoutAndRedirect()
 
-    if (pathname.includes('/clinic')) {
+    if (pathname.includes('/clinic') || pathname.includes('/doctor') || pathname.includes('/staff')) {
       router.replace('/login/clinic')
     }else{
       router.replace('/login/patient')

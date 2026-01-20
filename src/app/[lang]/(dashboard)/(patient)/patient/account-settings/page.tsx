@@ -5,16 +5,13 @@ import PatientView from '@/views/clinic-app/patient-portal/account-settings/Pati
 import { getPatientDetails } from '@/services/patient-portal/patient.account.server.service'
 
 const PatientDetailsPage = async () => {
-  // 1. Use the hardcoded ID 51 as requested
-  const patientId = 51
 
-  // 2. Call the server action directly
-  const patientData = await getPatientDetails(patientId)
+  const patientData = await getPatientDetails()
 
   console.log(patientData)
 
   if (!patientData) {
-    return <div>Error loading patient data (ID: {patientId})</div>
+    return <div>Error loading patient data)</div>
   }
 
   // 3. Pass data to the View
