@@ -37,3 +37,37 @@ export async function getPatientBarcode(patientId: number | string) {
     return { success: false, error: { message: "Failed to generate barcode." } }
   }
 }
+
+const BASE_URL = '/api/auth/patient/password'
+
+export async function requestOtp() {
+  console.log("run func")
+  try {
+    // API returns { success: true, message: "...", data: "..." }
+    const response = await http.post<{ message: string, data: string }>(`${BASE_URL}/request-otp`, {})
+
+    console.log(response)
+    return { success: true, data: response }
+  } catch (err) {
+    if (err instanceof ApiError) {
+      
+      return { success: false, error: { message: err.message } }
+    }
+    console.error("Request OTP Error:", err)
+    return { success: false, error: { message: "Failed to send OTP." } }
+  }
+}
+
+export async function changePassword(otp: string, newPassword: string, confirmPassword: string) {
+  try {
+    const payload = { otp, newPassword, confirmPassword }
+    const response = await http.post<{ message: string, data: string }>(`${BASE_URL}/change`, payload)
+    return { success: true, data: response }
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { success: false, error: { message: err.message } }
+    }
+    console.error("Change Password Error:", err)
+    return { success: false, error: { message: "Failed to update password." } }
+  }
+}
