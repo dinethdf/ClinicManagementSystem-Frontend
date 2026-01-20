@@ -187,11 +187,11 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
               >
                 {dictionary['navigation'].details}
               </MenuItem>              
-            </SubMenu> 
-
-        
-              <MenuItem  href={`/${locale}/clinic/reports`}>{dictionary['navigation'].reports || "Reports"}</MenuItem>  
-        
+            </SubMenu>       
+            <MenuItem  href={`/${locale}/clinic/reports`}>{dictionary['navigation'].reports || "Reports"}</MenuItem>  
+            <MenuItem href={`/${locale}/admin/account-settings`} icon={<i className='tabler-users-group' />}>
+              {dictionary['navigation'].accountSettings || 'Account Settings'}
+            </MenuItem>  
 
           </SubMenu>
           )}
@@ -234,7 +234,10 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
                 activeUrl='/clinic/appoinment-shedule/details'
               >
                 {dictionary['navigation'].details}
-              </MenuItem>               
+              </MenuItem>     
+            <MenuItem href={`/${locale}/staff/account-settings`} icon={<i className='tabler-users-group' />}>
+              {dictionary['navigation'].accountSettings || 'Account Settings'}
+            </MenuItem>            
             </SubMenu>           
 
             <SubMenu label={dictionary['navigation'].appoinments}>
@@ -269,6 +272,9 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
                 {dictionary['navigation'].details}
               </MenuItem>              
             </SubMenu>   
+            <MenuItem href={`/${locale}/doctor/account-settings`} icon={<i className='tabler-users-group' />}>
+              {dictionary['navigation'].accountSettings || 'Account Settings'}
+            </MenuItem>            
 
             {/* <SubMenu label={dictionary['navigation'].appoinmentShedule}>
               <MenuItem href={`/${locale}/clinic/appoinment-shedule/list`}>
@@ -300,7 +306,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
           )}          
 
 {/* Patient Nav Bar */}
-        { true && (
+        { role === 'PATIENT' && (
           <SubMenu label={dictionary['navigation'].patientPortal || 'Patient Portal'} icon={<i className='tabler-user-heart' />}>
             
             <MenuItem href={`/${locale}/patient`} icon={<i className='tabler-layout-dashboard' />}>
@@ -319,9 +325,13 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
               {dictionary['navigation'].billing || 'Billing & Insurance'}
             </MenuItem>
 
-            <MenuItem href={`/${locale}/patient/family`} icon={<i className='tabler-users-group' />}>
-              {dictionary['navigation'].family || 'Family Profiles'}
+            <MenuItem href={`/${locale}/patient/account-settings`} icon={<i className='tabler-users-group' />}>
+              {dictionary['navigation'].accountSettings || 'Account Settings'}
             </MenuItem>
+          
+          {/*<MenuItem href={`/${locale}/patient/family`} icon={<i className='tabler-users-group' />}>
+              {dictionary['navigation'].family || 'Family Profiles'}
+            </MenuItem> */}
 
           </SubMenu>
         )}            

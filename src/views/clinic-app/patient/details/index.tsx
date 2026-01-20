@@ -29,7 +29,7 @@ const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
   // Vars
   const tabContentList = (): { [key: string]: ReactElement } => ({
     overview: <OverViewTab patientId={patientData.id} />,
-    security: <SecurityTab />,
+    security: <SecurityTab patientId={patientData.id}/>,
     insurance: <InsuranceOverview />,
     analysis: <Analysis patientId={Number(patientData?.id) || 0} />,
     identity: <PatientIdTab patientData={patientData} />

@@ -17,7 +17,7 @@ import Button from '@mui/material/Button'
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
 
-const ChangePassword = () => {
+const ChangePassword = ({ patientId }: { patientId?: string }) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false)
