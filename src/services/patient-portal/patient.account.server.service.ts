@@ -3,7 +3,7 @@
 import { http } from '@/services/api.config.server'; // Adjust path if needed
 import type { PatientType } from '@/types/patient-portal/patientTypes';
 
-export async function getPatientDetails(patientId: number | string) {
+export async function getPatientDetails() {
   try {
     // 1. http.get returns the parsed data directly.
     // Since your API response doesn't have a "data" wrapper, 'res' IS the patient object.
