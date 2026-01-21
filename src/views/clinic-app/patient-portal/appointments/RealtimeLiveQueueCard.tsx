@@ -8,293 +8,266 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import Skeleton from '@mui/material/Skeleton'
-import Tooltip from '@mui/material/Tooltip'
 import Avatar from '@mui/material/Avatar'
 import Alert from '@mui/material/Alert'
+import Fade from '@mui/material/Fade'
+import Box from '@mui/material/Box'
 
 // Hook Import
 import { useRealtimeSchedule } from '@/hooks/useRealtimeSchedule'
 
+// Icons (Using Tabler Icons classes directly for consistency)
+const IconUser = () => <i className="tabler-user text-sm" />
+
 interface Props {
-  clinicId: number
   scheduleId: number
   yourToken: number
 }
 
-const RealtimeLiveQueueCard = ({ clinicId, scheduleId, yourToken }: Props) => {
+const RealtimeLiveQueueCard = ({ scheduleId, yourToken }: Props) => {
   
-  const { schedule, loading, error } = useRealtimeSchedule(clinicId, scheduleId)
+  const { schedule, loading, error } = useRealtimeSchedule(scheduleId)
 
-  // 1. Memoize Appointments for O(1) Lookup
-  const appointmentsLookup = useMemo(() => {
-    if (!schedule || !schedule.appointments) return {}
+  // --- 1. SMART CALCULATION LOGIC ---
+  const queueStats = useMemo(() => {
+    if (!schedule || !schedule.appointments) return { peopleAhead: 0, waitingList: [] }
 
+    const currentServing = schedule.currentServing || 0
     const list = Array.isArray(schedule.appointments) 
         ? schedule.appointments 
         : Object.values(schedule.appointments)
 
-    return list.reduce((acc: any, appt: any) => {
-        if (appt && appt.queueNo) {
-            acc[appt.queueNo] = appt
-        }
-        return acc
-    }, {})
-  }, [schedule])
+    const intermediateAppointments = list.filter((appt: any) => {
+        if (!appt) return false
+        return appt.queueNo > currentServing && appt.queueNo < yourToken
+    })
 
-  // 2. Get Sorted List of ALL Valid Token Numbers
-  const allQueueNumbers = useMemo(() => {
-      return Object.keys(appointmentsLookup).map(Number).sort((a, b) => a - b);
-  }, [appointmentsLookup]);
+    const waitingList = intermediateAppointments
+        .filter((appt: any) => appt.status === 'WAITING')
+        .sort((a: any, b: any) => a.queueNo - b.queueNo)
+    
+    return {
+        peopleAhead: waitingList.length,
+        waitingList: waitingList
+    }
+  }, [schedule, yourToken])
+
+
+  // --- 2. RENDER STATES ---
 
   if (loading) return (
-    <Card className='mb-4 rounded-xl shadow-sm'>
-       <CardContent className="p-4">
-          <Skeleton variant="text" width="40%" height={30} />
-          <Skeleton variant="rectangular" height={100} className='mt-3 rounded-lg' />
+    <Card className='mb-6 rounded-xl border-none shadow-sm bg-gray-50'>
+       <CardContent className="p-5">
+          <div className="flex gap-4 mb-6">
+             <Skeleton variant="circular" width={48} height={48} />
+             <div className='flex-1'>
+                <Skeleton variant="text" width="60%" height={24} />
+                <Skeleton variant="text" width="40%" />
+             </div>
+          </div>
+          <div className="flex gap-4">
+             <Skeleton variant="rectangular" height={100} className="flex-1 rounded-xl" />
+             <Skeleton variant="rectangular" height={100} className="flex-1 rounded-xl" />
+          </div>
        </CardContent>
     </Card>
   )
 
   if (error || !schedule) return null;
 
-  const currentToken = schedule.currentServing || 0
+  const currentServing = schedule.currentServing || 0
   const isStarted = schedule.scheduleStatus === 'STARTED'
-  const isFinished = schedule.scheduleStatus === 'FINISHED'
-  const peopleAhead = yourToken - currentToken
+  const { peopleAhead, waitingList } = queueStats
 
-  // Render Queue Stream
-  const renderQueueVisualizer = () => {
-    
-    // Step A: Filter logic based on ACTUAL EXISTING tokens
-    // We want to start showing from the current token (or the one before it if needed)
-    // Here we filter 'allQueueNumbers' to find those >= currentToken
-    const upcomingTokens = allQueueNumbers.filter(t => t >= currentToken);
-
-    // Step B: Decide how many to show (e.g., next 5 active tokens)
-    // If list is empty (rare), fallback to showing just currentToken
-    let items: (number | string)[] = upcomingTokens.length > 0 
-        ? upcomingTokens.slice(0, 4) 
-        : [currentToken];
-    
-    // Step C: Handle "Your Token" logic if it's not in the visible slice
-    const lastVisibleToken = items[items.length - 1] as number;
-
-    if (yourToken > lastVisibleToken) {
-        // Check if there are HIDDEN tokens between the last visible one and yours
-        const indexOfLast = allQueueNumbers.indexOf(lastVisibleToken);
-        const indexOfYours = allQueueNumbers.indexOf(yourToken);
-        
-        // If there is at least one token in between in the actual list
-        if (indexOfYours > indexOfLast + 1) {
-             items.push('DOTS');
-             items.push(yourToken);
-        } else {
-             // It's the immediate next valid token, just add it
-             items.push(yourToken);
-        }
-    }
-
-    // Ensure uniqueness
-    const uniqueItems = Array.from(new Set(items));
-
-    return (
-        <div className='flex gap-2 items-center justify-center overflow-x-auto no-scrollbar py-2 px-2 w-full'>
-            {uniqueItems.map((item, index) => {
-                // Render Dots
-                if (item === 'DOTS') {
-                    return (
-                        <div key="dots" className="flex items-center justify-center w-6 h-6 opacity-40 shrink-0">
-                            <span className="text-white text-lg leading-none -mt-1">...</span>
-                        </div>
-                    );
-                }
-
-                const tokenNum = item as number;
-                const apptData = appointmentsLookup[tokenNum] || {};
-                const isYou = tokenNum === yourToken;
-                const isCurrent = tokenNum === currentToken;
-                const status = apptData.status;
-
-                // --- STYLING LOGIC ---
-                let bgClass = "bg-white/10 text-white/80"; 
-                let borderClass = "border border-white/5";
-                let sizeClass = "w-9 h-9 text-sm"; 
-                let extraStyles = "";
-
-                if (status === 'COMPLETED') {
-                    // Bright Green
-                    bgClass = "bg-[#37ee27] text-[#1c1a2c] font-bold";
-                    borderClass = "border border-emerald-500/30";
-                } else if (status === 'CANCELLED') {
-                    bgClass = "bg-red-500/20 text-red-100";
-                    borderClass = "border border-red-500/30";
-                    extraStyles = "line-through decoration-red-400/50 decoration-2 opacity-70";
-                } else if (status === 'ONGOING' || isCurrent) {
-                    // Current Serving
-                    bgClass = "bg-white text-[#5b4fe1]";
-                    borderClass = "border-0 shadow-lg shadow-indigo-500/30";
-                    sizeClass = "w-10 h-10 text-xl font-bold";
-                    extraStyles = "scale-105 z-10";
-                }
-
-                // Highlight You
-                if (isYou) {
-                    bgClass = "bg-yellow-400 text-yellow-900";
-                    borderClass = "border-4 border-yellow-200/50 shadow-md";
-                    if (!isCurrent) {
-                        sizeClass = "w-10 h-10 text-base font-bold";
-                        extraStyles = "z-10";
-                    }
-                }
-
-                const tooltipText = isYou ? "You" : 
-                                    isCurrent ? "Serving Now" : 
-                                    status ? `Token ${tokenNum} (${status})` : `Token ${tokenNum}`;
-
-                return (
-                    <Tooltip key={tokenNum} title={tooltipText} arrow placement="top">
-                        <div className={`
-                            flex items-center justify-center rounded-full transition-all duration-300 shrink-0 cursor-default
-                            ${sizeClass} ${bgClass} ${borderClass} ${extraStyles}
-                        `}>
-                            {tokenNum}
-                        </div>
-                    </Tooltip>
-                )
-            })}
-        </div>
-    )
-  }
+  // Status Logic
+  const isLive = schedule.scheduleStatus === 'STARTED';
+  const statusLabel = isLive ? "Live Now" : schedule.scheduleStatus;
+  
+  // Dynamic Background Gradient
+  const cardGradient = isLive 
+    ? 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)' // Indigo to Violet
+    : 'linear-gradient(135deg, #334155 0%, #475569 100%)'; // Slate Gray (Inactive)
 
   return (
-    <Card 
-        className='mb-6 relative overflow-hidden shadow-xl border-none rounded-2xl text-white'
-        style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }} 
-    >
-      
-      <div className='absolute -right-10 -top-10 opacity-10 rotate-12 pointer-events-none'>
-        <i className='tabler-broadcast text-[200px]' />
-      </div>
-
-      <CardContent className='relative z-10 p-5'>
+    <Fade in={true} timeout={500}>
+        <Card 
+            className='mb-6 relative overflow-hidden shadow-xl border-none rounded-2xl text-white'
+            style={{ background: cardGradient }}
+        >
         
-        {/* --- HEADER --- */}
-        <div className='flex justify-between items-start mb-6'>
-            <div className="flex gap-3 items-center">
-                 <Avatar className="w-10 h-10 bg-white/20 text-white backdrop-blur-md">
-                    <i className="tabler-stethoscope text-xl" />
-                 </Avatar>
-                 <div>
-                    <Typography variant='h6' fontWeight={700} className='leading-tight text-white'>
-                        {schedule.doctorName}
-                    </Typography>
-                    <Typography variant='caption' className='text-white/70 block'>
-                        {schedule.specialization}
-                    </Typography>
-                </div>
-            </div>
-            
-            <div className='text-right'>
-                <Chip 
-                    label="Live Queue" 
-                    size='small' 
-                    className='bg-white text-[#5b4fe1] font-bold shadow-sm h-6'
-                />
-                {schedule.startedAt && (
-                    <div className='flex items-center justify-end gap-1 mt-1 opacity-70 text-[10px] font-bold uppercase'>
-                        <i className='tabler-clock text-[10px]' />
-                        <span>Started: {schedule.startedAt}</span>
-                    </div>
-                )}
-            </div>
+        {/* Background Icon Decoration */}
+        <div className='absolute -right-6 -top-6 opacity-10 rotate-12 pointer-events-none'>
+            <i className='tabler-activity-heartbeat text-[180px]' />
         </div>
 
-        {/* --- MAIN STATS ROW --- */}
-        <div className="flex flex-col md:flex-row gap-3 items-stretch mb-5">
+        <CardContent className='relative z-10 p-5'>
             
-            {/* 1. NOW SERVING */}
-            <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10 relative overflow-hidden flex flex-col justify-center items-center min-h-[90px]">
-                 <div className="w-full flex justify-between items-start px-1 mb-1">
-                    <Typography variant='caption' className='text-white/60 text-[10px] font-bold uppercase tracking-wider'>
+            {/* --- HEADER --- */}
+            <div className='flex justify-between items-start mb-6'>
+                <div className="flex gap-3 items-center">
+                    <Avatar className="w-12 h-12 bg-white/20 text-white backdrop-blur-md shadow-sm">
+                        <i className="tabler-stethoscope text-2xl" />
+                    </Avatar>
+                    <div>
+                        <Typography variant='h6' fontWeight={700} className='leading-tight text-white'>
+                            {schedule.doctorName}
+                        </Typography>
+                        <Typography variant='caption' className='text-white/70 block font-medium'>
+                            {schedule.specialization}
+                        </Typography>
+                    </div>
+                </div>
+                
+                <div className='text-right'>
+                    <Chip 
+                        label={statusLabel}
+                        size='small' 
+                        className={`font-bold uppercase tracking-wide h-6 shadow-sm border-none ${isLive ? 'bg-green-400 text-green-900' : 'bg-white/20 text-white'}`}
+                    />
+                    {schedule.startedAt && (
+                        <div className='flex items-center justify-end gap-1 mt-1 opacity-80 text-[10px] font-bold uppercase'>
+                            <i className='tabler-clock text-[10px]' />
+                            <span>Started: {schedule.startedAt}</span>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* --- BIG STATS ROW --- */}
+            <div className="flex gap-3 mb-6">
+                
+                {/* CURRENT SERVING */}
+                <div className="flex-1 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
+                    <Typography variant='caption' className='text-white/70 font-bold uppercase tracking-widest text-[10px] mb-1'>
                         Now Serving
                     </Typography>
-                    {isStarted && (
-                       <span className="flex h-2.5 w-2.5">
-                         <span className="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-green-400 opacity-75"></span>
-                         <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400"></span>
-                       </span>
+                    <Typography variant='h2' fontWeight={800} className='text-white drop-shadow-md'>
+                        {currentServing || '-'}
+                    </Typography>
+                    {isLive && (
+                        <div className="absolute top-3 right-3 flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400"></span>
+                        </div>
                     )}
-                 </div>
-                 
-                 <Typography variant='h2' fontWeight={800} className='text-5xl relative z-10'>
-                    {schedule.currentServing}
-                 </Typography>
-            </div>
+                </div>
 
-            {/* 2. PROGRESS */}
-            <div className="flex flex-col justify-center items-center px-2 grow-0 min-w-[120px]">
-                 <div className="bg-[#4f46e5]/40 border border-white/10 rounded-full px-3 py-0.5 mb-2 backdrop-blur-md">
-                     <Typography variant='caption' fontWeight={700} className='text-[10px] uppercase text-white'>
-                        {peopleAhead > 0 ? `${peopleAhead} Ahead` : peopleAhead === 0 ? 'Your Turn' : 'Passed'}
-                     </Typography>
-                 </div>
-                 
-                 <div className="w-full h-1.5 bg-black/20 rounded-full overflow-hidden relative min-w-[100px]">
-                      <div 
-                        className="h-full bg-white absolute top-0 left-0 transition-all duration-1000"
-                        style={{ width: `${peopleAhead <= 0 ? 100 : 50}%` }} 
-                      ></div>
-                 </div>
-                 <i className='tabler-arrow-right text-white/50 text-lg mt-1' />
-            </div>
-
-            {/* 3. YOUR TOKEN */}
-            <div className="flex-1 bg-linear-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10 relative flex flex-col justify-center items-center min-h-[90px]">
-                 <div className="w-full text-right mb-1">
-                    <Typography variant='caption' className='text-yellow-300/80 text-[10px] font-bold uppercase tracking-wider'>
+                {/* YOUR TOKEN */}
+                <div className="flex-1 bg-linear-to-br from-white/20 to-white/5 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex flex-col items-center justify-center shadow-lg">
+                    <Typography variant='caption' className='text-yellow-300 font-bold uppercase tracking-widest text-[10px] mb-1'>
                         Your Token
                     </Typography>
-                 </div>
-                 
-                 <div className="relative z-10 flex items-center justify-center w-14 h-14 rounded-full border-4 border-yellow-400/30 bg-yellow-500/10">
-                     <Typography variant='h3' fontWeight={800} className='text-3xl text-white'>
+                    <Typography variant='h2' fontWeight={800} className='text-white drop-shadow-md'>
                         {yourToken}
-                     </Typography>
-                 </div>
-            </div>
-        </div>
-
-        {/* --- ALERT --- */}
-        {peopleAhead <= 2 && peopleAhead >= 0 && isStarted && (
-             <Alert 
-                icon={false}
-                className='mb-4 bg-white text-[#1e1b4b] font-bold py-0 px-3 justify-center shadow-lg border-l-4 border-yellow-500'
-                sx={{ '& .MuiAlert-message': { padding: '4px 0', fontSize: '0.85rem' } }}
-             >
-                <div className="flex items-center gap-2">
-                    {peopleAhead === 0 && <><i className='tabler-door-enter text-green-600 text-lg'/> <span>It's your turn. Please enter.</span></>}
-                    {peopleAhead === 1 && <><i className='tabler-bell-ringing text-orange-600 text-lg'/> <span>You are next! Get ready.</span></>}
-                    {peopleAhead === 2 && <><i className='tabler-info-circle text-blue-600 text-lg'/> <span>Almost there. Prepare yourself.</span></>}
+                    </Typography>
                 </div>
-             </Alert>
-        )}
-
-        {/* --- QUEUE STREAM --- */}
-        <div className='bg-black/20 rounded-xl border border-white/5 overflow-hidden'>
-            <div className='flex justify-between items-center px-3 py-2 border-b border-white/5'>
-                <Typography variant='caption' className='text-white/50 text-[10px] font-bold uppercase tracking-widest'>
-                    Queue Stream
-                </Typography>
-                <Typography variant='caption' className='text-white/50 text-[10px] font-medium'>
-                    {schedule.time}
-                </Typography>
             </div>
-            
-            {renderQueueVisualizer()}
-        </div>
 
-      </CardContent>
-    </Card>
+            {/* --- ALERT BANNER --- */}
+            {isLive && (
+                <div className={`
+                    mb-6 rounded-xl p-3 flex items-center justify-center gap-2 text-sm font-bold shadow-md backdrop-blur-md border border-white/10
+                    ${peopleAhead === 0 ? 'bg-green-500/90 text-white' : 'bg-white/90 text-indigo-900'}
+                `}>
+                    {peopleAhead === 0 ? (
+                        <>
+                            <i className='tabler-door-enter text-xl'/> 
+                            <span>It's your turn! Please enter.</span>
+                        </>
+                    ) : (
+                        <>
+                            <i className='tabler-users text-xl text-indigo-500'/>
+                            <span>Approx. {peopleAhead} people ahead of you</span>
+                        </>
+                    )}
+                </div>
+            )}
+
+            {/* --- TIMELINE SECTION --- */}
+            {peopleAhead > 0 && (
+                <Box className='bg-black/20 backdrop-blur-sm rounded-xl border border-white/5 p-4'>
+                    <Typography variant='caption' className='text-white/50 text-[10px] font-bold uppercase tracking-widest block mb-4 border-b border-white/10 pb-2'>
+                        Realtime Queue
+                    </Typography>
+
+                    <div className="relative pl-2">
+                        
+                        {/* Dotted Vertical Line connecting nodes */}
+                        <div className="absolute left-[29px] top-3 bottom-6 w-0.5 border-l-2 border-dashed border-white/20 -z-10"></div>
+
+                        <div className="space-y-5">
+                            
+                            {/* 1. START POINT (Current) */}
+                            <div className="flex items-center gap-3">
+                                <div className="w-4 h-4 rounded-full bg-green-400 border-2 border-white/30 shadow-[0_0_10px_rgba(74,222,128,0.6)] shrink-0 ml-[13px] animate-pulse"></div>
+                                <div className="bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg flex items-center gap-2 backdrop-blur-md">
+                                    <Chip label="Serving" size="small" className="bg-green-500 text-white font-bold h-5 text-[10px]" />
+                                    <Typography variant="caption" className="font-bold text-white">Token {currentServing}</Typography>
+                                </div>
+                            </div>
+
+                            {/* 2. MIDDLE (Waiting List) */}
+                            {waitingList.length > 4 ? (
+                                // >>> COLLAPSED VIEW
+                                <div className="flex items-center gap-3 py-1">
+                                    <div className="w-2 h-2 rounded-full bg-white/40 shrink-0 ml-[17px]"></div>
+                                    <div className="flex-1 bg-white/5 border border-white/10 border-dashed rounded-lg p-3 flex justify-between items-center text-white/80">
+                                        <div className="flex items-center gap-2">
+                                            <i className="tabler-users text-lg text-white/60" />
+                                            <Typography variant="body2" fontWeight={600} className='text-sm'>
+                                                +{waitingList.length} Waiting
+                                            </Typography>
+                                        </div>
+                                        <Typography variant="caption" className="text-white/50 text-[10px]">
+                                            Tokens {waitingList[0].queueNo} - {waitingList[waitingList.length - 1].queueNo}
+                                        </Typography>
+                                    </div>
+                                </div>
+                            ) : (
+                                // >>> DETAILED VIEW (1-3 people)
+                                <div className="space-y-3 pl-1">
+                                    {waitingList.map((appt: any) => (
+                                        <div key={appt.queueNo} className="flex items-center gap-3">
+                                            {/* Small dot on timeline */}
+                                            <div className="w-1.5 h-1.5 rounded-full bg-white/30 shrink-0 ml-[18px]"></div>
+                                            
+                                            {/* Patient Row */}
+                                            <div className="flex items-center gap-3 text-white/70 bg-white/5 px-3 py-1.5 rounded-lg w-full border border-white/5">
+                                                <IconUser />
+                                                <Typography variant="body2" className='text-xs font-medium truncate flex-1'>
+                                                    {appt.patientName}
+                                                </Typography>
+                                                <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-white/90">
+                                                    #{appt.queueNo}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* 3. END POINT (You) */}
+                            <div className="flex items-center gap-3">
+                                <div className="w-5 h-5 rounded-full bg-yellow-400 border-2 border-white/50 shadow-[0_0_15px_rgba(250,204,21,0.6)] shrink-0 ml-[11px] flex items-center justify-center">
+                                    <div className="w-1.5 h-1.5 bg-yellow-800 rounded-full"></div>
+                                </div>
+                                <div className="bg-yellow-500/20 border border-yellow-400/50 px-3 py-2 rounded-lg flex items-center justify-between w-full backdrop-blur-md">
+                                    <div>
+                                        <Typography variant="caption" className="block text-yellow-200 font-bold uppercase text-[9px] tracking-wider mb-0.5">You are here</Typography>
+                                        <Typography variant="subtitle2" className="font-bold text-white leading-none">Token {yourToken}</Typography>
+                                    </div>
+                                    <i className="tabler-map-pin-filled text-yellow-400 text-xl" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </Box>
+            )}
+
+        </CardContent>
+        </Card>
+    </Fade>
   )
 }
 
