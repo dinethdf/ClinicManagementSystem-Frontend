@@ -69,6 +69,8 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
 
   // 1. Initialize Form Data on Open
   useEffect(() => {
+
+    console.log(patientData)
     if (open && patientData) {
       // Calculate age logic
       let isChild = false
@@ -218,7 +220,17 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 )}
               />
             </Grid>
-            
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Controller
+                name='fullName'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <CustomTextField {...field} fullWidth label='Full Name' error={!!errors.fullName} helperText={errors.fullName?.message} />
+                )}
+              />
+            </Grid>            
             {/* DOB & Age Logic */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
@@ -338,12 +350,25 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 )}
               />
             </Grid>
+{/* <--- NEW FIELDS: Weight & Height ---> */}
             <Grid size={{ xs: 12, sm: 4 }}>
                 <Controller
                     name='weight'
                     control={control}
+                    rules={{ required: false }}
                     render={({ field }) => (
-                    <CustomTextField {...field} fullWidth type="number" label='Weight (kg)' placeholder='65' error={!!errors.weight} helperText={errors.weight?.message} />
+                    <CustomTextField
+                        {...field}
+                        fullWidth
+                        type="number"
+                        label='Weight (kg)'
+                        placeholder='e.g. 65'
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === '' ? '' : Number(val));
+                        }}
+                        {...(errors.weight && { error: true, helperText: errors.weight.message })}
+                    />
                     )}
                 />
             </Grid>
@@ -351,8 +376,20 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 <Controller
                     name='height'
                     control={control}
+                    rules={{ required: false }}
                     render={({ field }) => (
-                    <CustomTextField {...field} fullWidth type="number" label='Height (cm)' placeholder='170' error={!!errors.height} helperText={errors.height?.message} />
+                    <CustomTextField
+                        {...field}
+                        fullWidth
+                        type="number"
+                        label='Height (cm)'
+                        placeholder='e.g. 170'
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === '' ? '' : Number(val));
+                        }}
+                        {...(errors.height && { error: true, helperText: errors.height.message })}
+                    />
                     )}
                 />
             </Grid>

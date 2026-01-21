@@ -44,8 +44,8 @@ const initialData: Patient = {
   relationshipToGuardian: '', // <--- NEW FIELD
 
   // Physical Stats
-  weight: '', // <--- NEW FIELD
-  height: '', // <--- NEW FIELD
+  weight: null, // <--- NEW FIELD
+  height: null, // <--- NEW FIELD
 
   address: '',
   city: '',
@@ -299,7 +299,7 @@ const AccountDetails = () => {
               />
             </Grid>
             
-            {/* <--- NEW FIELDS: Weight & Height ---> */}
+{/* <--- NEW FIELDS: Weight & Height ---> */}
             <Grid size={{ xs: 12, sm: 4 }}>
                 <Controller
                     name='weight'
@@ -312,6 +312,10 @@ const AccountDetails = () => {
                         type="number"
                         label='Weight (kg)'
                         placeholder='e.g. 65'
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === '' ? '' : Number(val));
+                        }}
                         {...(errors.weight && { error: true, helperText: errors.weight.message })}
                     />
                     )}
@@ -329,6 +333,10 @@ const AccountDetails = () => {
                         type="number"
                         label='Height (cm)'
                         placeholder='e.g. 170'
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === '' ? '' : Number(val));
+                        }}
                         {...(errors.height && { error: true, helperText: errors.height.message })}
                     />
                     )}

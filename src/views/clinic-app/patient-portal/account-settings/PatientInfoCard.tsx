@@ -45,7 +45,7 @@ const PatientInfoCard = ({ patientData }: { patientData: PatientType }) => {
           </CustomAvatar>
           
           <div className='flex flex-col items-center text-center'>
-            <Typography variant='h5'>{patientData.fullName}</Typography>
+            <Typography variant='h5'>{patientData.firstName + " " + patientData.lastName}</Typography>
             <Typography color='text.secondary'>Patient ID: #{patientData.patientNo}</Typography>
             <Chip 
                 label={patientData.isActive ? 'Active' : 'Inactive'} 
@@ -86,6 +86,10 @@ const PatientInfoCard = ({ patientData }: { patientData: PatientType }) => {
           <Typography variant='h6'>Details</Typography>
           
           <div className='flex flex-col gap-2'>
+            <div className='flex justify-between'>
+              <Typography className='font-medium'>Full Name:</Typography>
+              <Typography>{patientData.fullName}</Typography>
+            </div>
             <div className='flex justify-between'>
               <Typography className='font-medium'>Username/Email:</Typography>
               <Typography>{patientData.email}</Typography>
