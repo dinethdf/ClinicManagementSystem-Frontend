@@ -122,7 +122,7 @@ const PatientSecurityTab = () => {
                         disabled={isLoading}
                         startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <i className='tabler-mail-forward' />}
                     >
-                        {isLoading ? 'Sending...' : 'Send OTP & Proceed'}
+                        {isLoading ? 'Sending...' : 'Send OTP & Change Password'}
                     </Button>
                 </div>
             )}
