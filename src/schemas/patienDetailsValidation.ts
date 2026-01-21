@@ -1,4 +1,4 @@
-import { email, object, minLength, string, pipe, nonEmpty, custom, regex, union, literal, nullable, unknown, optional, nonNullable } from 'valibot'
+import { email, object, minLength, string, pipe, nonEmpty, custom, regex, union, literal, nullable, unknown, optional, nonNullable, number } from 'valibot'
 
 export const getPatientValidationSchema = (isUnderAge: boolean) => {
   return object({
@@ -37,10 +37,10 @@ export const getPatientValidationSchema = (isUnderAge: boolean) => {
     maritalStatus: pipe(string(), minLength(1, 'Marital status is required')),
     bloodGroup: string(),
     weight: pipe(
-      string()
+      optional(number())
     ),
     height: pipe(
-      string()
+      optional(number())
     ),        
     dob: pipe(string('Please select your Date of Birth'), minLength(1, 'Please select your Date of Birth')),
     guradian: !isUnderAge

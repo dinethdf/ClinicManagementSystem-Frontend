@@ -8,7 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import Grid from '@mui/material/Grid' // Using Grid v2
+import Grid from '@mui/material/Grid' 
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Skeleton from '@mui/material/Skeleton'
@@ -19,8 +19,9 @@ import Avatar from '@mui/material/Avatar'
 // Component Imports
 import RealtimeLiveQueueCard from './RealtimeLiveQueueCard'
 
-// Service
-import { patientAppointmentService } from '@/services/patient-portal/patient.appointments.service'
+// Service & Types
+import { patientAppointmentService} from '@/services/patient-portal/patient.appointments.service'
+import { PrescriptionDTO } from '@/types/patient-portal/patient.appointments.types'
 
 // Types
 interface AppointmentDetailsDTO {
@@ -56,21 +57,30 @@ interface Props {
 
 const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
   const [details, setDetails] = useState<AppointmentDetailsDTO | null>(null)
+  const [prescription, setPrescription] = useState<PrescriptionDTO | null>(null) // <--- New State
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (open && appointmentId) {
-      loadDetails()
+      loadData()
     }
   }, [open, appointmentId])
 
-  const loadDetails = async () => {
+  const loadData = async () => {
     setLoading(true)
     setError(null)
+    setPrescription(null) // Reset previous data
     try {
-      const data = await patientAppointmentService.getAppointmentDetails(appointmentId)
-      setDetails(data as any) 
+      // Fetch both Details and Prescription in parallel
+      const [detailsData, prescriptionData] = await Promise.all([
+        patientAppointmentService.getAppointmentDetails(appointmentId),
+        patientAppointmentService.getPrescription(appointmentId)
+      ])
+
+      setDetails(detailsData as any)
+      setPrescription(prescriptionData) 
+
     } catch (err) {
       console.error(err)
       setError('Failed to load appointment details.')
@@ -124,14 +134,13 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
         ) : details ? (
             <Grid container spacing={3} className='mt-2'>
                 
-                {/* --- SECTION 1: DETAILS --- */}
-                {/* Always full width (xs=12) to stack vertically */}
+                {/* --- SECTION 1: MAIN DETAILS --- */}
                 <Grid size={{ xs: 12 }}>
                     <div className='flex flex-col gap-5'>
                         
                         {/* 1. DOCTOR & SCHEDULE CARD */}
                         <div className='flex flex-col gap-3 p-4 border rounded-xl bg-primary/5 border-primary/20 relative'>
-                             {/* TOKEN BADGE (Absolute Top Right) */}
+                             {/* TOKEN BADGE */}
                              <div className='absolute top-4 right-4 text-center'>
                                 <Typography variant='caption' className='block uppercase text-[10px] text-primary font-bold'>Token</Typography>
                                 <div className='bg-white text-primary font-extrabold text-2xl h-10 w-10 flex items-center justify-center rounded-full shadow-sm border border-primary/20'>
@@ -169,24 +178,64 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
                                  </div>
                              </div>
                         </div>
-                {/* --- SECTION 2: LIVE QUEUE --- */}
-                {/* Placed below details, taking full width */}
-                {isActive && (
-                    <Grid size={{ xs: 12 }}>
-                        <Divider className='mb-4'>
-                            <Chip label="LIVE STATUS" size='small' />
-                        </Divider>
 
-                        <Box className="flex-1">
-                            <RealtimeLiveQueueCard 
-                                clinicId={2} // Hardcoded as per previous instructions
-                                scheduleId={102} 
-                                yourToken={10} 
-                            />
-                        </Box>
-                    </Grid>
-                )}
-                        {/* 2. PATIENT INFO */}
+                        {/* --- SECTION 2: LIVE QUEUE (If Active) --- */}
+                        {isActive && (
+                            <div>
+                                <Divider className='mb-4'>
+                                    <Chip label="LIVE STATUS" size='small' />
+                                </Divider>
+                                <RealtimeLiveQueueCard 
+                                    clinicId={2} 
+                                    scheduleId={details.scheduleId} 
+                                    yourToken={details.queuePosition} 
+                                />
+                            </div>
+                        )}
+
+                        {/* --- SECTION 3: PRESCRIPTION (New) --- */}
+                        {prescription && (
+                            <div>
+                                <Divider className='mb-4'>
+                                    <Chip label="PRESCRIPTION" color='info' size='small' variant='outlined' />
+                                </Divider>
+                                
+                                <div className='border rounded-lg overflow-hidden'>
+                                    <div className='bg-blue-50 p-3 flex justify-between items-center border-b border-blue-100'>
+                                        <div className='flex items-center gap-2'>
+                                            <i className='tabler-pill text-blue-600' />
+                                            <Typography variant='subtitle2' className='font-bold text-blue-800'>Medications</Typography>
+                                        </div>
+                                        <Typography variant='caption' className='text-blue-600'>
+                                            {new Date(prescription.createdDate).toLocaleDateString()}
+                                        </Typography>
+                                    </div>
+                                    
+                                    <div className='p-0'>
+                                        {prescription.items.map((item, index) => (
+                                            <div key={index} className={`p-3 ${index !== prescription.items.length - 1 ? 'border-b border-dashed' : ''}`}>
+                                                <Typography variant='body2' className='font-semibold text-gray-800'>
+                                                    {item.medicineName}
+                                                </Typography>
+                                                <div className='flex gap-2 mt-1 flex-wrap'>
+                                                    <Chip label={item.instructions} size='small' className='text-xs h-6 bg-gray-100' />
+                                                    <span className='text-xs text-gray-500 border px-1.5 py-0.5 rounded'>{item.duration}</span>
+                                                    <span className='text-xs text-gray-500 border px-1.5 py-0.5 rounded'>Qty: {item.quantity}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    
+                                    {prescription.note && (
+                                        <div className='bg-gray-50 p-3 border-t text-xs text-gray-600 italic'>
+                                            <span className='font-bold not-italic mr-1'>Note:</span> {prescription.note}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 4. PATIENT INFO */}
                         <div>
                              <Typography variant='subtitle2' className='mb-2 font-bold uppercase text-xs text-gray-500'>Patient Details</Typography>
                              <div className='grid grid-cols-2 gap-y-2 text-sm'>
@@ -206,7 +255,7 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
                         
                         <Divider />
 
-                        {/* 3. FINANCIALS */}
+                        {/* 5. FINANCIALS */}
                         <div>
                             <div className='flex justify-between items-center mb-2'>
                                 <Typography variant='subtitle2' className='font-bold uppercase text-xs text-gray-500'>Payment Details</Typography>
@@ -241,7 +290,7 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
                             </div>
                         </div>
 
-                        {/* 4. NOTES */}
+                        {/* 6. NOTES */}
                         {details.note && (
                             <div className='bg-yellow-50 p-3 rounded border border-yellow-200'>
                                 <Typography variant='caption' className='text-yellow-800 font-bold'>Note:</Typography>

@@ -48,7 +48,7 @@ export async function getPendingPayouts(
 ) {
   try {
     const queryParams = new URLSearchParams({
-        page: (page - 1).toString(),
+        page: (page).toString(),
         size: size.toString()
     })
 

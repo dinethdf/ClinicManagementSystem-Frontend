@@ -64,3 +64,24 @@ export interface AppointmentDetailsDTO {
   invoiceTotalDiscount: number
   invoiceStatus: string
 }
+
+
+export interface PrescriptionDTO {
+  id: number;
+  appointmentId: number;
+  doctorName: string | null;
+  patientName: string;
+  status: string;
+  note: string;
+  createdDate: string;
+  createdBy:string
+  items: PrescriptionItem[];
+}
+
+export interface PrescriptionItem {
+  medicineName: string;
+  dosage: string;
+  quantity: string;
+  duration: string;
+  instructions: string;
+}

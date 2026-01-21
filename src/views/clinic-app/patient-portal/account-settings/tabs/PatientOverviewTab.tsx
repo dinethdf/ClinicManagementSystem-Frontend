@@ -74,14 +74,14 @@ const PatientOverviewTab = ({ patientData }: { patientData: PatientType }) => {
            <Divider />
            <CardContent>
              <Grid container spacing={4}>
-                <Grid size={{ xs: 12, sm: 4 }}>
+                {/* <Grid size={{ xs: 12, sm: 4 }}>
                     <Typography className='font-medium' color='text.secondary'>Ethnicity ID</Typography>
                     <Typography>{patientData.ethnicity}</Typography>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
                     <Typography className='font-medium' color='text.secondary'>Marital Status ID</Typography>
                     <Typography>{patientData.maritalStatus}</Typography>
-                </Grid>
+                </Grid> */}
                 <Grid size={{ xs: 12, sm: 4 }}>
                     <Typography className='font-medium' color='text.secondary'>Guardian</Typography>
                     <Typography>{patientData.guardian || 'None'}</Typography>
