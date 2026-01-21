@@ -130,7 +130,7 @@ export const getAppointmentList = async (params: any) => {
 
     // 1. Create URLSearchParams with mandatory pagination fields
     const query = new URLSearchParams({
-      page: page.toString(),
+      page: (page-1).toString(),
       size: size.toString()
     })
 
