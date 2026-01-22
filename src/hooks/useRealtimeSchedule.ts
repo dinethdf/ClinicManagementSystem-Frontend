@@ -38,7 +38,6 @@ export const useRealtimeSchedule = (scheduleId: number | string) => {
     return () => unsubscribe();
     
   }, [scheduleId]);
-
-  console.log(data)
+console.log(data)
   return { schedule: data, loading, error };
 };

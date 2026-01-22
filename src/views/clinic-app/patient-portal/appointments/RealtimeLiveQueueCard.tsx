@@ -11,12 +11,11 @@ import Skeleton from '@mui/material/Skeleton'
 import Avatar from '@mui/material/Avatar'
 import Fade from '@mui/material/Fade'
 import Box from '@mui/material/Box'
+import Alert from '@mui/material/Alert'
+import { useColorScheme } from '@mui/material/styles'
 
 // Hook Import
 import { useRealtimeSchedule } from '@/hooks/useRealtimeSchedule'
-
-// Icons
-const IconUser = () => <i className="tabler-user text-sm" />
 
 interface Props {
   scheduleId: number
@@ -26,28 +25,29 @@ interface Props {
 const RealtimeLiveQueueCard = ({ scheduleId, yourToken }: Props) => {
   
   const { schedule, loading, error } = useRealtimeSchedule(scheduleId)
+  const { mode } = useColorScheme()
 
-  // --- 1. DATA LOGIC ---
+  // --- 1. DATA LOGIC (UPDATED) ---
   const queueStats = useMemo(() => {
-    if (!schedule || !schedule.appointments) return { peopleAhead: 0, waitingList: [] }
+    if (!schedule || !schedule.appointments) return { peopleAhead: 0, waitingList: [], yourStatus: null }
 
-    const currentServing = schedule.currentServing || 0
     const list = Array.isArray(schedule.appointments) 
         ? schedule.appointments 
         : Object.values(schedule.appointments)
 
-    const intermediateAppointments = list.filter((appt: any) => {
+    // Find your appointment
+    const yourAppointment = list.find((appt: any) => appt && appt.queueNo === yourToken)
+    
+    // Get all appointments before your token that are WAITING
+    const waitingBeforeYou = list.filter((appt: any) => {
         if (!appt) return false
-        return appt.queueNo > currentServing && appt.queueNo < yourToken
-    })
-
-    const waitingList = intermediateAppointments
-        .filter((appt: any) => appt.status === 'WAITING')
-        .sort((a: any, b: any) => a.queueNo - b.queueNo)
+        return appt.queueNo < yourToken && appt.status === 'WAITING'
+    }).sort((a: any, b: any) => a.queueNo - b.queueNo)
     
     return {
-        peopleAhead: waitingList.length,
-        waitingList: waitingList
+        peopleAhead: waitingBeforeYou.length,
+        waitingList: waitingBeforeYou,
+        yourStatus: yourAppointment?.status || null
     }
   }, [schedule, yourToken])
 
@@ -55,13 +55,13 @@ const RealtimeLiveQueueCard = ({ scheduleId, yourToken }: Props) => {
   // --- 2. RENDER STATES ---
 
   if (loading) return (
-    <Card className='mb-6 rounded-xl border-none shadow-sm bg-gray-50'>
+    <Card sx={{ bgcolor: 'background.default', borderRadius: 3, boxShadow: 1 }}>
        <CardContent className="p-5">
-          <Skeleton variant="text" width="60%" height={30} className='mb-4' />
+          <Skeleton variant="text" width="40%" height={30} sx={{ mb: 2, bgcolor: 'action.hover' }} />
           <div className="flex gap-4 items-center">
-             <Skeleton variant="rectangular" height={80} className="w-24 rounded-xl" />
-             <div className='flex-1'><Skeleton variant="text" /></div>
-             <Skeleton variant="rectangular" height={80} className="w-24 rounded-xl" />
+             <Skeleton variant="rectangular" height={80} className="w-24 rounded-xl" sx={{ bgcolor: 'action.hover' }} />
+             <div className='flex-1'><Skeleton variant="text" sx={{ bgcolor: 'action.hover' }} /></div>
+             <Skeleton variant="rectangular" height={80} className="w-24 rounded-xl" sx={{ bgcolor: 'action.hover' }} />
           </div>
        </CardContent>
     </Card>
@@ -71,41 +71,48 @@ const RealtimeLiveQueueCard = ({ scheduleId, yourToken }: Props) => {
 
   const currentServing = schedule.currentServing || 0
   const isStarted = schedule.scheduleStatus === 'STARTED'
-  const { peopleAhead, waitingList } = queueStats
+  const { peopleAhead, waitingList, yourStatus } = queueStats
 
-  // Colors & Theme
+  // Theme Logic
   const isLive = schedule.scheduleStatus === 'STARTED';
   const statusLabel = isLive ? "Live Now" : schedule.scheduleStatus;
   
-  // Calculate Progress Percentage: (Current / Yours) * 100
-  // If Current > Yours (passed), max at 100%.
+  // Progress Bar Calculation
   const progressPercent = Math.min(100, Math.max(0, (currentServing / yourToken) * 100));
+
+  // Alert logic for when you're almost up
+  const showAlert = peopleAhead < 2 && peopleAhead >= 0 && isLive && yourStatus === 'WAITING';
+  
+  // Show completed/cancelled status
+  const showStatusAlert = yourStatus === 'COMPLETED' || yourStatus === 'CANCELLED';
 
   return (
     <Fade in={true} timeout={500}>
-        <Card 
-            className='mb-6 relative overflow-hidden shadow-xl border-none rounded-2xl text-white'
-            style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)' }}
-        >
+        <Card sx={{ 
+          borderRadius: 3, 
+          boxShadow: mode === 'dark' ? 3 : 2,
+          bgcolor: 'background.default',
+          mb: 3
+        }}>
         
-        {/* Background Decoration */}
-        <div className='absolute -right-6 -top-6 opacity-10 rotate-12 pointer-events-none'>
-            <i className='tabler-activity-heartbeat text-[180px]' />
-        </div>
-
         <CardContent className='relative z-10 p-5'>
             
             {/* --- HEADER --- */}
             <div className='flex justify-between items-start mb-8'>
                 <div className="flex gap-3 items-center">
-                    <Avatar className="w-10 h-10 bg-white/20 text-white backdrop-blur-md shadow-sm">
-                        <i className="tabler-stethoscope text-xl" />
+                    <Avatar sx={{ 
+                      width: 40, 
+                      height: 40, 
+                      bgcolor: 'action.hover',
+                      borderRadius: 2
+                    }}>
+                        <i className="tabler-stethoscope text-xl" style={{ color: 'var(--mui-palette-primary-main)' }} />
                     </Avatar>
                     <div>
-                        <Typography variant='h6' fontWeight={700} className='leading-tight text-white'>
+                        <Typography variant='h6' fontWeight={700} sx={{ color: 'text.primary', lineHeight: 1.2 }}>
                             {schedule.doctorName}
                         </Typography>
-                        <Typography variant='caption' className='text-white/70 block font-medium'>
+                        <Typography variant='caption' sx={{ color: 'text.secondary', display: 'block', fontWeight: 500 }}>
                             {schedule.specialization}
                         </Typography>
                     </div>
@@ -113,109 +120,277 @@ const RealtimeLiveQueueCard = ({ scheduleId, yourToken }: Props) => {
                 <Chip 
                     label={statusLabel}
                     size='small' 
-                    className={`font-bold uppercase tracking-wide h-6 shadow-sm border-none ${isLive ? 'bg-green-400 text-green-900' : 'bg-white/20 text-white'}`}
+                    sx={{
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.5,
+                      height: 24,
+                      border: 'none',
+                      bgcolor: isLive ? 'success.lightOpacity' : 'action.hover',
+                      color: isLive ? 'success.main' : 'text.secondary'
+                    }}
                 />
             </div>
 
-            {/* --- NEW PROGRESS ROW --- */}
+            {/* --- ALERT BANNER (When almost your turn) --- */}
+            {showAlert && (
+                <Fade in={true} timeout={800}>
+                    <Alert 
+                        severity={peopleAhead === 0 ? "success" : "warning"}
+                        icon={peopleAhead === 0 ? <i className="tabler-check" /> : <i className="tabler-bell-ringing" />}
+                        sx={{ mb: 3, borderRadius: 2 }}
+                    >
+                       <Typography variant='body2' fontWeight={600}>
+                            {peopleAhead === 0 
+                            ? "🎉 You're next! Please be ready." 
+                            : `⚡ Almost your turn! Only ${peopleAhead} person ahead.`
+                            }
+                       </Typography>
+                    </Alert>
+                </Fade>
+            )}
+
+            {/* --- STATUS ALERT (Completed/Cancelled) --- */}
+            {showStatusAlert && (
+                <Fade in={true} timeout={800}>
+                    <Alert 
+                        severity={yourStatus === 'COMPLETED' ? "success" : "error"}
+                        icon={yourStatus === 'COMPLETED' ? <i className="tabler-circle-check" /> : <i className="tabler-circle-x" />}
+                        sx={{ mb: 3, borderRadius: 2 }}
+                    >
+                       <Typography variant='body2' fontWeight={600}>
+                            {yourStatus === 'COMPLETED' 
+                            ? "✅ Your appointment is completed. Thank you!" 
+                            : "❌ Your appointment has been cancelled."
+                            }
+                       </Typography>
+                    </Alert>
+                </Fade>
+            )}
+
+            {/* --- PROGRESS ROW --- */}
             <div className="flex items-center gap-4 mb-8">
                 
                 {/* 1. NOW SERVING (Left Anchor) */}
                 <div className="flex flex-col items-center z-10">
-                    <div className={`
-                        w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg border border-white/20 backdrop-blur-md
-                        ${isLive ? 'bg-white text-indigo-600' : 'bg-white/10 text-white'}
-                    `}>
-                        <Typography variant='h4' fontWeight={800}>{currentServing}</Typography>
-                    </div>
-                    <Typography variant='caption' className='mt-2 font-bold text-white/60 text-[10px] uppercase'>Serving</Typography>
+                    <Box sx={{
+                        width: 72,
+                        height: 72,
+                        borderRadius: 2.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: 3,
+                        borderColor: isLive ? 'info.dark' : 'divider',
+                        bgcolor: isLive ? 'info.main' : 'action.hover',
+                        color: 'white',
+                        boxShadow: isLive ? '0 0 25px rgba(0, 186, 209, 0.7)' : 'none',
+                        transition: 'all 0.3s'
+                    }}>
+                        <Typography variant='h3' fontWeight={900}>{currentServing}</Typography>
+                    </Box>
+                    <Typography variant='caption' sx={{ mt: 1.5, fontWeight: 800, color: isLive ? 'info.main' : 'text.secondary', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      Serving
+                    </Typography>
                 </div>
 
                 {/* 2. MIDDLE PROGRESS BAR */}
                 <div className="flex-1 flex flex-col justify-center relative">
                     
-                    {/* Waiting Count Badge (Floating above bar) */}
-                    <div className="absolute -top-7 left-1/2 -translate-x-1/2">
-                        <div className="bg-black/20 backdrop-blur-md border border-white/10 px-3 py-0.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                            <i className='tabler-users text-white text-xs' />
-                            <Typography variant='caption' className='font-bold text-white text-[11px]'>
+                    {/* Inject Custom Animation Styles */}
+                    <style jsx global>{`
+                        @keyframes ripple-effect {
+                            0% { transform: scale(1); opacity: 0.8; }
+                            100% { transform: scale(2.5); opacity: 0; }
+                        }
+                        .blink-ring {
+                            animation: ripple-effect 1.5s infinite cubic-bezier(0, 0, 0.2, 1);
+                        }
+                        @keyframes pulse-glow {
+                            0%, 100% { box-shadow: 0 0 10px rgba(255, 159, 67, 0.4); }
+                            50% { box-shadow: 0 0 20px rgba(255, 159, 67, 0.8); }
+                        }
+                        .pulse-alert {
+                            animation: pulse-glow 2s infinite;
+                        }
+                    `}</style>
+
+                    {/* Waiting Count Badge (Floating) */}
+                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-20">
+                        <Box sx={{
+                          bgcolor: 'background.paper',
+                          border: 1,
+                          borderColor: 'divider',
+                          px: 2,
+                          py: 0.75,
+                          borderRadius: 10,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          boxShadow: 2
+                        }}
+                        className={peopleAhead < 2 && isLive ? 'pulse-alert' : ''}
+                        >
+                            <i className='tabler-users' style={{ fontSize: 14, color: 'var(--mui-palette-text-secondary)' }} />
+                            <Typography variant='caption' sx={{ fontWeight: 800, color: 'text.primary', fontSize: 13 }}>
                                 {peopleAhead} Waiting
                             </Typography>
-                        </div>
+                        </Box>
                     </div>
 
-                    {/* The Bar Track */}
-                    <div className="h-2 w-full bg-black/20 rounded-full overflow-hidden relative">
-                        {/* The Fill */}
-                        <div 
-                            className="h-full bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.6)] relative transition-all duration-1000 ease-out"
-                            style={{ width: `${progressPercent}%` }}
-                        >
-                            {/* Pulse effect at the tip of the bar */}
+                    <Box sx={{ 
+                      height: 10, 
+                      width: '100%', 
+                      bgcolor: 'action.hover',
+                      borderRadius: 10,
+                      position: 'relative',
+                      overflow: 'visible'
+                    }}>
+                        <Box sx={{
+                            height: '100%',
+                            bgcolor: 'success.main',
+                            boxShadow: '0 0 10px rgba(40, 199, 111, 0.6)',
+                            position: 'relative',
+                            transition: 'all 1s ease-out',
+                            borderRadius: '10px 0 0 10px',
+                            width: `${progressPercent}%`
+                        }}>
                             {isLive && (
-                                <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/50 animate-pulse"></div>
+                                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-30 flex items-center justify-center w-3 h-3">
+                                    <div
+                                        className="blink-ring absolute w-full h-full rounded-full opacity-60"
+                                        style={{ backgroundColor: "var(--mui-palette-error-main)" }}
+                                    ></div>
+                                    <div
+                                        className="relative w-3 h-3 bg-white rounded-full shadow-[0_0_5px_rgba(0,0,0,0.3)]"
+                                        style={{ border: "2px solid var(--mui-palette-success-dark)" }}
+                                    ></div>
+                                </div>
                             )}
-                        </div>
-                    </div>
+                        </Box>
+                    </Box>
 
                     {/* Status Text Below Bar */}
                     <div className="flex justify-between mt-1 px-1">
-                        <Typography variant='caption' className='text-white/40 text-[9px]'>Start</Typography>
-                        <Typography variant='caption' className='text-white/40 text-[9px]'>You</Typography>
+                        <Typography variant='caption' sx={{ color: 'text.disabled', fontSize: 9 }}>Start</Typography>
+                        <Typography variant='caption' sx={{ color: 'text.disabled', fontSize: 9 }}>You</Typography>
                     </div>
                 </div>
 
                 {/* 3. YOUR TOKEN (Right Anchor) */}
                 <div className="flex flex-col items-center z-10">
-                    <div className="w-16 h-16 rounded-2xl bg-yellow-400 text-yellow-900 flex items-center justify-center shadow-lg border-2 border-yellow-200">
+                    <Box sx={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: 2,
+                        bgcolor: peopleAhead < 2 && isLive ? 'warning.light' : 'warning.main',
+                        color: 'warning.contrastText',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: 2,
+                        borderColor: 'warning.light',
+                        boxShadow: '0 0 15px rgba(255, 159, 67, 0.4)',
+                        transition: 'all 0.3s'
+                    }}
+                    className={peopleAhead < 2 && isLive ? 'pulse-alert' : ''}
+                    >
                         <Typography variant='h4' fontWeight={800}>{yourToken}</Typography>
-                    </div>
-                    <Typography variant='caption' className='mt-2 font-bold text-yellow-300 text-[10px] uppercase'>You</Typography>
+                    </Box>
+                    <Typography variant='caption' sx={{ mt: 1, fontWeight: 700, color: 'warning.main', fontSize: 10, textTransform: 'uppercase' }}>
+                      You
+                    </Typography>
                 </div>
 
             </div>
 
             {/* --- TIMELINE / QUEUE LIST (Collapsible) --- */}
-            {peopleAhead > 0 && (
-                <Box className='bg-black/20 backdrop-blur-sm rounded-xl border border-white/5 p-4'>
+            {peopleAhead > 0 && yourStatus === 'WAITING' && (
+                <Box sx={{ 
+                  bgcolor: 'background.paper',
+                  borderRadius: 2,
+                  border: 1,
+                  borderColor: 'divider',
+                  p: 2,
+                  boxShadow: 1
+                }}>
                     <div className="relative pl-2">
                         {/* Dotted Line */}
-                        <div className="absolute left-[29px] top-2 bottom-2 w-0.5 border-l-2 border-dashed border-white/20 -z-10"></div>
+                        <Box sx={{
+                          position: 'absolute',
+                          left: '29px',
+                          top: 8,
+                          bottom: 8,
+                          width: 0.5,
+                          borderLeft: 2,
+                          borderStyle: 'dashed',
+                          borderColor: 'divider',
+                          zIndex: -1
+                        }} />
 
                         <div className="space-y-4">
+                            
                             {/* Current (Small Row) */}
                             <div className="flex items-center gap-3 opacity-60">
-                                <div className="w-3 h-3 rounded-full bg-white shrink-0 ml-[15px]"></div>
-                                <Typography variant="caption" className="text-white">Current: Token {currentServing}</Typography>
+                                <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: 'text.disabled', flexShrink: 0, ml: '15px' }} />
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                  Current: Token {currentServing}
+                                </Typography>
                             </div>
 
                             {/* The Waiting List Logic */}
                             {waitingList.length > 3 ? (
-                                // COLLAPSED
+                                // COLLAPSED VIEW
                                 <div className="flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-white/40 shrink-0 ml-[17px]"></div>
-                                    <div className="flex-1 bg-white/5 border border-white/10 border-dashed rounded-lg p-2 flex justify-between items-center text-white/80">
-                                        <span className='text-xs font-bold flex items-center gap-1'>
-                                            <i className="tabler-users text-sm" /> +{waitingList.length} Others
-                                        </span>
-                                        <span className="text-[10px] opacity-60">Tokens {waitingList[0].queueNo}-{waitingList[waitingList.length - 1].queueNo}</span>
-                                    </div>
+                                    <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'text.disabled', flexShrink: 0, ml: '17px' }} />
+                                    <Box sx={{
+                                      flex: 1,
+                                      bgcolor: 'action.selected',
+                                      border: 1,
+                                      borderColor: 'divider',
+                                      borderStyle: 'dashed',
+                                      borderRadius: 1.5,
+                                      p: 1,
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center'
+                                    }}>
+                                        <Typography variant="caption" sx={{ fontSize: 12, fontWeight: 700, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                            <i className="tabler-users" style={{ fontSize: 14 }} /> +{waitingList.length} Others
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ fontSize: 10, opacity: 0.6, color: 'text.secondary' }}>
+                                          Tokens {waitingList[0].queueNo}-{waitingList[waitingList.length - 1].queueNo}
+                                        </Typography>
+                                    </Box>
                                 </div>
                             ) : (
-                                // DETAILED
+                                // DETAILED VIEW
                                 <div className="space-y-2">
                                     {waitingList.map((appt: any) => (
                                         <div key={appt.queueNo} className="flex items-center gap-3">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-white/30 shrink-0 ml-[18px]"></div>
-                                            <div className="flex items-center gap-3 text-white/70 bg-white/5 px-3 py-1.5 rounded-lg w-full border border-white/5">
-                                                <IconUser />
-                                                <Typography variant="body2" className='text-xs font-medium truncate flex-1'>
-                                                    {appt.patientName}
+                                            <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'text.disabled', flexShrink: 0, ml: '18px' }} />
+                                            <Box sx={{
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              gap: 1.5,
+                                              bgcolor: 'action.selected',
+                                              px: 1.5,
+                                              py: 0.75,
+                                              borderRadius: 1.5,
+                                              width: '100%',
+                                              border: 1,
+                                              borderColor: 'divider'
+                                            }}>
+                                                <i className="tabler-user" style={{ fontSize: 14, color: 'var(--mui-palette-text-disabled)' }} />
+                                                <Typography variant="body2" sx={{ fontSize: 12, fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', color: 'text.primary' }}>
+                                                   {appt.patientName
+                                                    ? appt.patientName.slice(0, 5) + '*'.repeat(Math.max(0, appt.patientName.length - 4))
+                                                    : ''}
                                                 </Typography>
-                                                <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-white/90">
+                                                <Box component="span" sx={{ fontSize: 10, bgcolor: 'action.hover', px: 0.75, py: 0.25, borderRadius: 0.5, color: 'text.secondary' }}>
                                                     #{appt.queueNo}
-                                                </span>
-                                            </div>
+                                                </Box>
+                                            </Box>
                                         </div>
                                     ))}
                                 </div>
@@ -223,8 +398,10 @@ const RealtimeLiveQueueCard = ({ scheduleId, yourToken }: Props) => {
 
                             {/* You (Small Row) */}
                             <div className="flex items-center gap-3">
-                                <div className="w-3 h-3 rounded-full bg-yellow-400 shrink-0 ml-[15px]"></div>
-                                <Typography variant="caption" className="text-yellow-300 font-bold">You are next (Token {yourToken})</Typography>
+                                <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: 'warning.main', flexShrink: 0, ml: '15px' }} />
+                                <Typography variant="caption" sx={{ color: 'warning.main', fontWeight: 700 }}>
+                                  {yourStatus === 'WAITING' ? 'You are next' : 'Your position'} (Token {yourToken})
+                                </Typography>
                             </div>
                         </div>
                     </div>
