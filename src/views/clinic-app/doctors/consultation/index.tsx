@@ -149,24 +149,48 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
       }
   }
 
-  const handleStartConsultation = async () => {
-    if(!processingPatient?.id) return;
-
+const handleStartConsultation = async () => {
+    if (!processingPatient?.id) return;
     if (appointmentInfo?.status === 'PENDING_PAYMENT') {
         setError("Cannot start consultation: Payment is Pending.")
         return
     }
-
     setLoading(true)
-    const res = await getConsultationPatientDetails(processingPatient.id)
-    if(res.success && res.data) {
-      setPatientDetail(res.data)
-      setStartConsultationOpen(false) 
-      setViewState('CONSULTATION')
-    } else {
-      setError("Failed to load patient profile")
+    try {
+        const res = await getConsultationPatientDetails(processingPatient.id)
+        if (res.success && res.data) {
+            setPatientDetail(res.data)
+            setStartConsultationOpen(false) 
+            setViewState('CONSULTATION')
+            try {
+                if (scheduleId && appointmentInfo?.queueNo) {
+                    await doctorSheduleService.callPatient(Number(scheduleId), appointmentInfo.queueNo);
+                }
+            } catch (queueError) {
+                console.log("Queue Update Error (Non-blocking):", queueError);
+            }
+
+        } else {
+            setError("Failed to load patient profile")
+        }
+
+    } catch (err: any) {
+        console.error(err)
+        setError("An unexpected error occurred loading profile")
+    } finally {
+        setLoading(false)
     }
-    setLoading(false)
+  }
+
+  const handleComplete = async () => {
+     try {
+          if (scheduleId && appointmentInfo?.queueNo) {
+               await doctorSheduleService.completePatient(Number(scheduleId), appointmentInfo.queueNo);
+           }
+       } catch (queueError) {
+           console.log("Queue Completion Error:", queueError);
+       }
+    handleReset()
   }
 
   const handleReset = () => {
@@ -254,6 +278,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
         appointmentInfo={appointmentInfo}
         patientDetail={patientDetail}
         onEnd={handleReset}
+        onComplete={handleComplete}
     />
   )
 }

@@ -91,6 +91,55 @@ async downloadSessionSummaryReport(
     }
   }  
 
+  async downloadDoctorSessionReport(
+      startDate: string,
+      endDate: string,
+      doctorId: string = '' // Default to empty string
+    ): Promise<boolean> {
+      try {
+        const response = await apiClient.get(
+          '/api/report/admin/v1.0/reports/doctor-wise-summary',
+          {
+            params: {
+              clinicId: 1, // Hardcoded as per your request
+              doctorId: doctorId, // Sends value or empty string
+              startDate,
+              endDate,
+              type: 'ALL',
+              lang: 'en'
+            },
+            responseType: 'blob' // Important for file download
+          }
+        )
+
+        // --- Handle Browser Download ---
+        const blob = new Blob([response.data], { type: 'application/pdf' })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        
+        link.href = url
+        // Naming the file dynamically
+        const filename = doctorId 
+          ? `Doctor_${doctorId}_Session_Report_${startDate}.pdf`
+          : `All_Doctors_Session_Report_${startDate}.pdf`
+
+        link.setAttribute('download', filename)
+        
+        document.body.appendChild(link)
+        link.click()
+        
+        // Cleanup
+        link.parentNode?.removeChild(link)
+        window.URL.revokeObjectURL(url)
+
+        return true
+
+      } catch (error) {
+        console.error('Failed to download doctor session report:', error)
+        return false
+      }
+    }  
+
 }
 
 export const reportService = new ReportService()

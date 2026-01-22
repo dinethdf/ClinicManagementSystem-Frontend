@@ -13,10 +13,7 @@ export const getPatientValidationSchema = (isUnderAge: boolean) => {
       minLength(3, 'Last Name must be at least 3 characters long')
     ),
     guardian: isUnderAge
-      ? pipe(
-          nullable(unknown()), // Allow null initially, accept any non-null type (our Guardian object)
-          nonNullable(unknown()) // Enforce that it's NOT null if underage
-        )
+      ? nonNullable(unknown()) 
       : nullable(unknown()),
     fullName: pipe(
       string(),
@@ -42,12 +39,7 @@ export const getPatientValidationSchema = (isUnderAge: boolean) => {
     height: pipe(
       optional(number())
     ),        
-    dob: pipe(string('Please select your Date of Birth'), minLength(1, 'Please select your Date of Birth')),
-    guradian: !isUnderAge
-      ? optional(string())
-      : pipe(
-          string()
-        ),     
+    dob: pipe(string('Please select your Date of Birth'), minLength(1, 'Please select your Date of Birth')),    
     relationshipToGuardian: !isUnderAge
       ? optional(string())
       : pipe(

@@ -6,10 +6,10 @@ class PatientService {
 
 async getPatients({ page, pageSize, sort, ...filters }: GetPatientsParams): Promise<PaginatedPatientResponse<PatientResponceDTO>> {
   try {
-    console.log("Call thje api For patient")
+    console.log("get patients")
       const response = await apiClient.get<ApiResponse<PaginatedPatientResponse<PatientResponceDTO>>>('/api/patient/list', {
         params: {
-          page: page - 1, // API is 0-based, Table is 1-based
+          page: page, // API is 0-based, Table is 1-based
           size: pageSize,
           
           // Map specific filters to backend @RequestParam

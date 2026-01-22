@@ -96,6 +96,54 @@ async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorSchedule
       throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch schedules')
     }
   }  
+  // Add this method inside your DoctorSheduleService class
+
+  async startQueueSession( scheduleId: number): Promise<void> {
+    try {
+      const clinicId = 1;
+      // Passing parameters as query strings to match @RequestParam in Spring Boot
+      await apiClient.post(`/api/queue/start?clinicId=${clinicId}&scheduleId=${scheduleId}`, {});
+    } catch (error: any) {
+      console.error('Failed to start queue session:', error);
+      // You might want to throw the error to handle it in the UI (e.g., show a toast)
+      throw new Error(error.response?.data?.message || 'Failed to start session');
+    }
+  }
+
+  async callPatient(scheduleId: number| string, tokenNo: number): Promise<void> {
+    try {
+      // NOTE: Using hardcoded clinicId=1 as per previous context. 
+      const clinicId = 1; 
+      
+      await apiClient.post(`/api/queue/call?clinicId=${clinicId}&scheduleId=${scheduleId}&tokenNo=${tokenNo}`, {});
+    } catch (error: any) {
+      // We throw here so the component knows it failed, but the component will ignore it.
+      throw new Error(error.response?.data?.message || 'Failed to call patient');
+    }
+  }
+
+  // Inside DoctorSheduleService class...
+
+  async completePatient(scheduleId: number, tokenNo: number): Promise<void> {
+    try {
+      // NOTE: Using hardcoded clinicId=1 as per previous context.
+      const clinicId = 1; 
+      
+      await apiClient.post(`/api/queue/complete?clinicId=${clinicId}&scheduleId=${scheduleId}&tokenNo=${tokenNo}`, {});
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to complete patient queue status');
+    }
+  }
+
+  async finishQueueSession(scheduleId: number): Promise<void> {
+      try {
+        // NOTE: Using hardcoded clinicId=1 as per previous context.
+        const clinicId = 1; 
+        await apiClient.post(`/api/queue/finish?clinicId=${clinicId}&scheduleId=${scheduleId}`, {});
+      } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to finish queue session');
+      }
+    }
 }
 
 export const doctorSheduleService = new DoctorSheduleService()

@@ -186,9 +186,8 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
                                     <Chip label="LIVE STATUS" size='small' />
                                 </Divider>
                                 <RealtimeLiveQueueCard 
-                                    clinicId={2} 
                                     scheduleId={details.scheduleId} 
-                                    yourToken={details.queuePosition} 
+                                    yourToken={7} 
                                 />
                             </div>
                         )}
