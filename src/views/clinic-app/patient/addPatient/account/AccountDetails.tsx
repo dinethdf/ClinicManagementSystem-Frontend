@@ -310,6 +310,7 @@ const AccountDetails = () => {
                         {...field}
                         fullWidth
                         type="number"
+                        value={field.value || ''}
                         label='Weight (kg)'
                         placeholder='e.g. 65'
                         onChange={(e) => {
@@ -331,6 +332,7 @@ const AccountDetails = () => {
                         {...field}
                         fullWidth
                         type="number"
+                        value={field.value || ''}
                         label='Height (cm)'
                         placeholder='e.g. 170'
                         onChange={(e) => {

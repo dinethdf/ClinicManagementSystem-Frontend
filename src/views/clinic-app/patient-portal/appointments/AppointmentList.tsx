@@ -21,12 +21,12 @@ import SimpleCommonTable from '@/components/common-components/table/simpleDataTa
 import OptionMenu from '@core/components/option-menu'
 import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick'
 import AppointmentDetailsDialog from './AppointmentDetailsDialog'
-import DoctorSheduleSelect from '@/components/dialogs/doctor-shedule-select' // <--- The Schedule Picker
+import DoctorSheduleSelect from '@/components/dialogs/doctor-shedule-select'
 
 // Service & Types
 import { patientAppointmentService } from '@/services/patient-portal/patient.appointments.service'
 import type { PatientAppointmentDTO } from '@/types/patient-portal/patient.appointments.types'
-import type { DoctorScheduleDTO } from '@/types/doctor.types' // Ensure you have this type
+import type { DoctorScheduleDTO } from '@/types/doctor.types'
 
 // Utils
 import { getLocalizedUrl } from '@/utils/i18n'
@@ -52,13 +52,17 @@ const appointmentStatusObj: { [key: string]: StatusType } = {
 
 const AppointmentList = () => {
   // --- State ---
-  const [tabValue, setTabValue] = useState('1') // '1' = Upcoming, '2' = History
+  const [tabValue, setTabValue] = useState('1')
   const [data, setData] = useState<PatientAppointmentDTO[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
   // Dialog State
   const [isScheduleOpen, setIsScheduleOpen] = useState(false)
+  
+  // NEW: State for the Details Dialog (Single Instance)
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null)
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
 
   const { lang: locale } = useParams()
 
@@ -86,32 +90,30 @@ const AppointmentList = () => {
     setTabValue(newValue)
   }
 
+  // --- Helper: Open Details ---
+  const handleViewDetails = (id: number) => {
+      setSelectedAppointmentId(id)
+      setIsDetailsOpen(true)
+  }
+
   // --- Action: Create Appointment (Book) ---
   const handleScheduleSelect = async (schedule: DoctorScheduleDTO | null) => {
     if (!schedule) return
 
     try {
-        // Call the service (no patientId needed, backend handles user context)
         const result = await patientAppointmentService.createAppointment(
             schedule.id || 0,
             "Quick Appointment created from Portal"
         )
 
         if (result.success) {
-            // 1. Close Modal
             setIsScheduleOpen(false) 
-            
-            // 2. Show Success
             toast.success(`Appointment #${result.data} booked successfully!`)
-            
-            // 3. Refresh List to show the new booking
             fetchData()
-
         } else {
             console.error('Booking failed:', result.error)
             toast.error(result.error?.message || 'Failed to book appointment')
         }
-
     } catch (error) {
         console.error("System error", error)
         toast.error("An unexpected error occurred.")
@@ -125,7 +127,7 @@ const AppointmentList = () => {
       try {
           await patientAppointmentService.cancelAppointment(id);
           toast.success("Appointment cancelled.")
-          fetchData(); // Refresh list
+          fetchData();
       } catch (error: any) {
           toast.error(error || "Failed to cancel");
       }
@@ -136,18 +138,14 @@ const AppointmentList = () => {
       columnHelper.accessor('appointmentId', {
         header: 'Reference',
         cell: ({ row }) => (
-          <OpenDialogOnElementClick
-              element={Typography}
-              elementProps={{
-                  children: `#${row.original.appointmentId}`,
-                  className: 'font-medium cursor-pointer text-primary hover:underline',
-                  component: 'span'
-              }}
-              dialog={AppointmentDetailsDialog}
-              dialogProps={{
-                  appointmentId: row.original.appointmentId
-              }}
-          />
+          // CHANGED: Just a Typography with onClick, no Component wrapping it
+          <Typography
+             className='font-medium cursor-pointer text-primary hover:underline'
+             component='span'
+             onClick={() => handleViewDetails(row.original.appointmentId)} // <--- Sets state
+          >
+             #{row.original.appointmentId}
+          </Typography>
         )
       }),
     columnHelper.accessor('scheduleDate', {
@@ -204,13 +202,16 @@ const AppointmentList = () => {
             {
               text: 'View Details',
               icon: 'tabler-eye',
-              href: getLocalizedUrl(`/patient/appointments/${row.original.appointmentId}`, locale as Locale)
+              // Use the same helper function
+              menuItemProps: {
+                onClick: () => handleViewDetails(row.original.appointmentId) 
+              }
             },
             ...(row.original.status !== 'CANCELLED' && row.original.status !== 'COMPLETED' ? [{
                 text: 'Cancel',
                 icon: 'tabler-circle-x', 
                 menuItemProps: { 
-                    onClick: () => handleCancel(row.original.id), // Ensure you use DB ID here if needed
+                    onClick: () => handleCancel(row.original.id), 
                     className: 'text-error hover:bg-red-50' 
                 }
             }] : [])
@@ -225,11 +226,11 @@ const AppointmentList = () => {
     <div className='animate-in fade-in slide-in-from-bottom-4 duration-500'>
       <TabContext value={tabValue}>
         
-        {/* HEADER: Tabs + New Button */}
+        {/* HEADER */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
           <TabList onChange={handleTabChange} aria-label="Appointment Tabs">
             <Tab label="My Appointments" value="1" icon={<i className='tabler-calendar-time'/>} iconPosition="start" />
-           
+            
           </TabList>
 
           <Button 
@@ -255,12 +256,22 @@ const AppointmentList = () => {
 
       </TabContext>
 
-      {/* --- SCHEDULE SELECTION DIALOG --- */}
+      {/* --- SCHEDULE SELECTION DIALOG (Create) --- */}
       <DoctorSheduleSelect 
         open={isScheduleOpen}
         setOpen={setIsScheduleOpen}
         onSelectShedule={handleScheduleSelect}
       />
+
+      {/* --- APPOINTMENT DETAILS DIALOG (View) --- */}
+      {/* This renders ONLY ONCE at the bottom, and only mounts when an ID is selected */}
+      {selectedAppointmentId && (
+          <AppointmentDetailsDialog 
+            open={isDetailsOpen}
+            setOpen={setIsDetailsOpen}
+            appointmentId={selectedAppointmentId}
+          />
+      )}
     </div>
   )
 }

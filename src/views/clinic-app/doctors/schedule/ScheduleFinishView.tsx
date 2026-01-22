@@ -16,6 +16,7 @@ import Box from '@mui/material/Box'
 
 // Service
 import { generateScheduleBill, type PayoutBillResponse } from '@/services/financial.server.service'
+import { doctorSheduleService } from '@/services/doctor.shedule.service'
 
 const ScheduleFinishView = ({ scheduleId }: { scheduleId: number }) => {
   const router = useRouter()
@@ -25,15 +26,26 @@ const ScheduleFinishView = ({ scheduleId }: { scheduleId: number }) => {
   const [errorState, setErrorState] = useState<{ message: string, code?: string } | null>(null)
 
   // API Call Handler
-  const handleGenerateBill = async () => {
+const handleGenerateBill = async () => {
     console.log(":funct run")
     setLoading(true)
     setErrorState(null)
 
+    // 1. Generate the Bill
     const result = await generateScheduleBill(scheduleId)
 
     if (result.success && result.data) {
         setBillData(result.data)
+
+        // 2. Finish Session & Delete Queue (Non-blocking)
+        try {
+            await doctorSheduleService.finishQueueSession(scheduleId);
+            console.log("Session marked as finished in Live Queue");
+        } catch (queueError) {
+            // Log error but don't stop the UI since bill is already ready
+            console.error("Queue Finish Error:", queueError);
+        }
+
     } else {
         // Handle Errors based on your codes
         const code = result.error?.code

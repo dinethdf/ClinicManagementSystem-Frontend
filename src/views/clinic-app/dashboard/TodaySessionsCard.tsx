@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation' // Import useRouter
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -12,6 +12,7 @@ import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
+import LoadingButton from '@mui/lab/LoadingButton' // Optional: Good for loading state
 
 // Service & Types
 import { doctorSheduleService } from '@/services/doctor.shedule.service' 
@@ -20,6 +21,11 @@ import type { DoctorScheduleDTO } from '@/types/doctor.types'
 const TodaySessionsSlider = ({ doctorId }: { doctorId: number }) => {
   const [todaySchedules, setTodaySchedules] = useState<DoctorScheduleDTO[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // New state to track which button is currently processing
+  const [startingSessionId, setStartingSessionId] = useState<number | null>(null)
+  
+  const router = useRouter() // Initialize router
 
   useEffect(() => {
     const fetchSchedules = async () => {
@@ -62,6 +68,30 @@ const TodaySessionsSlider = ({ doctorId }: { doctorId: number }) => {
         return '--'
     }
   }
+
+  // --- NEW: Handle Enter Room Click ---
+  const handleEnterRoom = async (schedule: DoctorScheduleDTO) => {
+    // Prevent multiple clicks
+    if (startingSessionId) return;
+
+    setStartingSessionId(schedule.id || 0);
+
+    try {
+        // 1. Call the API to start the session
+        // Note: Assuming `clinicId` is present in your DoctorScheduleDTO. 
+        // If it's not, you might need to fetch it or pass it in props.
+        await doctorSheduleService.startQueueSession( schedule.id || 0);
+
+        // 2. On success, navigate to the consultation page
+      
+    } catch (error) {
+        console.error("Failed to start session FireBase ", error);
+        setStartingSessionId(null);
+
+    }
+
+      router.push(`/doctor/consultation/${schedule.id}`);
+  };
 
   if (loading) {
     return (
@@ -159,17 +189,22 @@ const TodaySessionsSlider = ({ doctorId }: { doctorId: number }) => {
                              </div>
                         </div>
 
-                        <Link  href={`/doctor/consultation/${schedule.id}`} passHref className='w-full'>
-                            <Button 
-                                variant='contained' 
-                                fullWidth 
-                                disableElevation
-                                className='bg-primary hover:bg-primary-dark shadow-sm hover:shadow-md py-2 rounded-lg font-semibold'
-                                endIcon={<i className='tabler-arrow-narrow-right' />}
-                            >
-                                Enter Room
-                            </Button>
-                        </Link>
+                        {/* ENTER ROOM BUTTON */}
+                        <Button 
+                            variant='contained' 
+                            fullWidth 
+                            disableElevation
+                            onClick={() => handleEnterRoom(schedule)}
+                            disabled={startingSessionId === schedule.id}
+                            className='bg-primary hover:bg-primary-dark shadow-sm hover:shadow-md py-2 rounded-lg font-semibold relative'
+                            endIcon={startingSessionId !== schedule.id && <i className='tabler-arrow-narrow-right' />}
+                        >
+                            {startingSessionId === schedule.id ? (
+                                <CircularProgress size={24} color="inherit" />
+                            ) : (
+                                "Enter Room"
+                            )}
+                        </Button>
 
                     </CardContent>
                 </Card>

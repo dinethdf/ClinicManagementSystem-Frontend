@@ -212,7 +212,7 @@ const QueueManagementView = ({ clinicId, scheduleId }: Props) => {
                                                             ${isWaiting ? 'bg-orange-100 text-orange-600' : ''}
                                                         `}
                                                     >
-                                                        {patient.patientName.charAt(0)}
+                                                        {/* {patient.patientName.charAt(0)} */}
                                                     </Avatar>
                                                     <div>
                                                         <Typography variant='h6' fontWeight={isCurrent ? 800 : 600} className='leading-tight'>
