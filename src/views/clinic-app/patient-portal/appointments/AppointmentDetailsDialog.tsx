@@ -187,7 +187,7 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
                                 </Divider>
                                 <RealtimeLiveQueueCard 
                                     scheduleId={details.scheduleId} 
-                                    yourToken={4} 
+                                    yourToken={7} 
                                 />
                             </div>
                         )}
