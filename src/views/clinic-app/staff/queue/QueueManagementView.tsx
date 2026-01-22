@@ -37,7 +37,7 @@ interface Props {
 const QueueManagementView = ({ clinicId, scheduleId }: Props) => {
   
   // 1. Connect to Realtime DB
-  const { schedule, loading, error } = useRealtimeSchedule(clinicId, scheduleId)
+  const { schedule, loading, error } = useRealtimeSchedule(scheduleId)
 
   // 2. Convert Appointments Object to Sorted Array
   const patientList = useMemo(() => {
