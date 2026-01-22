@@ -10,9 +10,9 @@ import ReportTriggerCard from './components/ReportTriggerCard' // Use the one fr
 
 // Dialog Imports
 import RevenueReportDialog from '@/components/dialogs/report-dialog/admin-report/RevenueReportDialog'
-import AppointmentReportDialog from '@/components/dialogs/report-dialog/admin-report/AppointmentReportDialog'
 import PatientHealthReportDialog from '@/components/dialogs/report-dialog/admin-report/PatientHealthReportDialog'
 import SessionSummaryReportDialog from '@/components/dialogs/report-dialog/admin-report/SessionSummaryReportDialog'
+import DoctorWiseSessionSummaryReportDialog from '@/components/dialogs/report-dialog/admin-report/DoctorWiseSessionSummaryReportDialog'
 
 const ReportsDashboard = () => {
   return (
@@ -64,13 +64,13 @@ const ReportsDashboard = () => {
                   icon: 'tabler-calendar-stats',
                   color: 'info'
                 }}
-                dialog={AppointmentReportDialog}
+                dialog={DoctorWiseSessionSummaryReportDialog}
                 dialogProps={{}}
              />
           </Grid>
 
           {/* 4. Patient Health Report */}
-          <Grid size={{ xs: 12, md: 4 }}>
+          {/* <Grid size={{ xs: 12, md: 4 }}>
              <OpenDialogOnElementClick
                 element={ReportTriggerCard}
                 elementProps={{
@@ -82,7 +82,7 @@ const ReportsDashboard = () => {
                 dialog={PatientHealthReportDialog}
                 dialogProps={{}}
              />
-          </Grid>
+          </Grid> */}
 
        </Grid>
     </div>

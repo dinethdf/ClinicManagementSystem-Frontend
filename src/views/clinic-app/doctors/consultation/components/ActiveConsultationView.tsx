@@ -14,9 +14,10 @@ interface Props {
   appointmentInfo: AppointmentStatusDTO | null
   patientDetail: PatientDetailDTO | null
   onEnd: () => void
+  onComplete: () => void
 }
 
-const ActiveConsultationView = ({ appointmentInfo, patientDetail, onEnd }: Props) => {
+const ActiveConsultationView = ({ appointmentInfo, patientDetail, onEnd, onComplete }: Props) => {
   const patientId = patientDetail?.id ? Number(patientDetail.id) : 0;
   const appointmentId = appointmentInfo?.appointmentId ? Number(appointmentInfo.appointmentId) : 0;
 
@@ -40,7 +41,7 @@ const ActiveConsultationView = ({ appointmentInfo, patientDetail, onEnd }: Props
 
         <Grid size={{ xs: 12, md: 9 }}>
              <div className='flex flex-col gap-6'>
-                <PrescriptionManager appointmentId={appointmentId} onConsultationComplete={onEnd} />
+                <PrescriptionManager appointmentId={appointmentId} onConsultationComplete={onComplete} />
                 <LabRequestManager patientId={patientId} appointmentId={appointmentId} />
              </div>
         </Grid>
