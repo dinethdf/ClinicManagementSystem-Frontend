@@ -42,6 +42,7 @@ const StatCard = ({ title, value, icon, color, loading, subtext }: any) => (
 )
 
 import CircularProgress from '@mui/material/CircularProgress'
+import Link from 'next/link'
 
 const PatientDashboard = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -101,9 +102,11 @@ const PatientDashboard = () => {
                : "You have no upcoming appointments scheduled."}
           </Typography>
         </div>
+        <Link href="/en/patient/appointments" passHref>
         <Button variant='contained' sx={{ backgroundColor: 'white', color: 'primary.main', fontWeight: 'bold', zIndex: 10 }}>
           Book Appointment
         </Button>
+        </Link>
         <div className='absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl' />
       </div>
 

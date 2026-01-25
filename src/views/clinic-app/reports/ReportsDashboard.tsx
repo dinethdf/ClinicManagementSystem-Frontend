@@ -59,8 +59,8 @@ const ReportsDashboard = () => {
              <OpenDialogOnElementClick
                 element={ReportTriggerCard}
                 elementProps={{
-                  title: 'Doctor Appointments',
-                  subtitle: 'Load analysis, cancellation rates, and visit stats.',
+                  title: 'Doctor Wise SessionSummary Report',
+                  subtitle: '',
                   icon: 'tabler-calendar-stats',
                   color: 'info'
                 }}

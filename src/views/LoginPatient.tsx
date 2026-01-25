@@ -344,43 +344,6 @@ const AuthIllustrationWrapper = styled('div')(({ theme }) => ({
               </Typography>
             </div>
 
-            {/* --- Quick Logins (Preserved from Previous Component) --- */}
-            <Divider className='gap-2 text-textPrimary'>Quick Access</Divider>
-            
-            <div className='flex flex-col gap-3'>
-               {/* Admin Login */}
-               <div className='flex justify-between items-center border p-2 rounded'>
-                  <div className='flex flex-col'>
-                    <Typography variant='body2' className='font-bold'>Admin</Typography>
-                    <Typography variant='caption'>admin@cureguard.com</Typography>
-                  </div>
-                  <Button variant='outlined' size='small' onClick={() => handleQuickLogin('admin@cureguard.com', 'admin')}>
-                    Login
-                  </Button>
-               </div>
-
-               {/* Doctor Login */}
-               <div className='flex justify-between items-center border p-2 rounded'>
-                  <div className='flex flex-col'>
-                    <Typography variant='body2' className='font-bold'>Doctor</Typography>
-                    <Typography variant='caption'>test1@doctor.com</Typography>
-                  </div>
-                  <Button variant='outlined' size='small' onClick={() => handleQuickLogin('test1@doctor.com', 'test1')}>
-                    Login
-                  </Button>
-               </div>
-
-                {/* Staff Login */}
-               <div className='flex justify-between items-center border p-2 rounded'>
-                  <div className='flex flex-col'>
-                    <Typography variant='body2' className='font-bold'>Staff</Typography>
-                    <Typography variant='caption'>user@example.com</Typography>
-                  </div>
-                  <Button variant='outlined' size='small' onClick={() => handleQuickLogin('user@example.com', 'user@123')}>
-                    Login
-                  </Button>
-               </div>
-            </div>
 
             {/* Social Icons (Kept from New UI) */}
             <Divider className='gap-2 text-textPrimary'>or</Divider>

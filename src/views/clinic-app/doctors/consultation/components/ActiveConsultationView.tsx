@@ -42,7 +42,7 @@ const ActiveConsultationView = ({ appointmentInfo, patientDetail, onEnd, onCompl
         <Grid size={{ xs: 12, md: 9 }}>
              <div className='flex flex-col gap-6'>
                 <PrescriptionManager appointmentId={appointmentId} onConsultationComplete={onComplete} />
-                <LabRequestManager patientId={patientId} appointmentId={appointmentId} />
+                {/* <LabRequestManager patientId={patientId} appointmentId={appointmentId} /> */}
              </div>
         </Grid>
       </Grid>

@@ -436,7 +436,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
                 <Button
                   variant='outlined'
                   size='small'
-                  onClick={() => handleQuickLogin('user@example.com', 'user@123')}
+                  onClick={() => handleQuickLogin('test1@staff.com', 'test1')}
                 >
                   Login
                 </Button>

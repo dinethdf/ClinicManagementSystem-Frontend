@@ -189,9 +189,9 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
               </MenuItem>              
             </SubMenu>       
             <MenuItem  href={`/${locale}/clinic/reports`}>{dictionary['navigation'].reports || "Reports"}</MenuItem>  
-            <MenuItem href={`/${locale}/admin/account-settings`} icon={<i className='tabler-users-group' />}>
+            {/* <MenuItem href={`/${locale}/admin/account-settings`} icon={<i className='tabler-users-group' />}>
               {dictionary['navigation'].accountSettings || 'Account Settings'}
-            </MenuItem>  
+            </MenuItem>   */}
 
           </SubMenu>
           )}
@@ -234,10 +234,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
                 activeUrl='/clinic/appoinment-shedule/details'
               >
                 {dictionary['navigation'].details}
-              </MenuItem>     
-            <MenuItem href={`/${locale}/staff/account-settings`} icon={<i className='tabler-users-group' />}>
-              {dictionary['navigation'].accountSettings || 'Account Settings'}
-            </MenuItem>            
+              </MenuItem>             
             </SubMenu>           
 
             <SubMenu label={dictionary['navigation'].appoinments}>
@@ -316,14 +313,14 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
             <MenuItem href={`/${locale}/patient/appointments`} icon={<i className='tabler-calendar-time' />}>
               {dictionary['navigation'].appointments || 'My Appointments'}
             </MenuItem>
-
+{/* 
             <MenuItem href={`/${locale}/patient/medical-records`} icon={<i className='tabler-clipboard-heart' />}>
               {dictionary['navigation'].medicalRecords || 'Medical Records'}
             </MenuItem>
 
             <MenuItem href={`/${locale}/patient/billing`} icon={<i className='tabler-receipt-2' />}>
               {dictionary['navigation'].billing || 'Billing & Insurance'}
-            </MenuItem>
+            </MenuItem> */}
 
             <MenuItem href={`/${locale}/patient/account-settings`} icon={<i className='tabler-users-group' />}>
               {dictionary['navigation'].accountSettings || 'Account Settings'}

@@ -19,9 +19,9 @@ const OverViewTab = dynamic(() => import('@views/clinic-app/patient/details/pati
 const SecurityTab = dynamic(() => import('@views/clinic-app/patient/details/patient-right/security'))
 const Analysis = dynamic(() => import('@/views/clinic-app/patient/details/patient-right/analysis'))
 
-const InsuranceOverview = dynamic(
-  () => import('@views/clinic-app/patient/details/patient-right/address-billing/PaymentMethodCard')
-)
+// const InsuranceOverview = dynamic(
+//   () => import('@views/clinic-app/patient/details/patient-right/address-billing/PaymentMethodCard')
+// )
 
 const PatientIdTab = dynamic(() => import('@views/clinic-app/patient/details/patient-right/patient-card/PatientIdTab'))
 
@@ -30,7 +30,7 @@ const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
   const tabContentList = (): { [key: string]: ReactElement } => ({
     overview: <OverViewTab patientId={patientData.id} />,
     security: <SecurityTab patientId={patientData.id}/>,
-    insurance: <InsuranceOverview />,
+    // insurance: <InsuranceOverview />,
     analysis: <Analysis patientId={Number(patientData?.id) || 0} />,
     identity: <PatientIdTab patientData={patientData} />
   })

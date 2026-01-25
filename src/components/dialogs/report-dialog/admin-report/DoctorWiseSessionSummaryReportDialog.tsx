@@ -117,7 +117,7 @@ const DoctorWiseSessionSummaryReportDialog = ({ open, setOpen }: Props) => {
           </Grid>
 
           {/* Doctor ID Field (Optional) */}
-          <Grid size={{ xs: 12 }}>
+          {/* <Grid size={{ xs: 12 }}>
             <CustomTextField 
               fullWidth 
               label='Doctor ID (Optional)' 
@@ -126,7 +126,7 @@ const DoctorWiseSessionSummaryReportDialog = ({ open, setOpen }: Props) => {
               onChange={e => setFormData({ ...formData, doctorId: e.target.value })}
               helperText="Leave blank to generate a summary for all doctors."
             />
-          </Grid>
+          </Grid> */}
         </Grid>
       </DialogContent>
 
