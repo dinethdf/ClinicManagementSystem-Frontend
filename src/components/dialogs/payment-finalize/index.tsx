@@ -28,6 +28,10 @@ import DialogCloseButton from '../DialogCloseButton'
 
 import { processInvoicePayment } from '@/services/appoinment.server.service';
 
+// Add this import at the top
+import { getInvoiceDetails } from '@/services/invoice.server.service';
+import { appointmentPrintInvoice } from '@/components/printable/billPrint/AppointmentPrintInvoice';
+
 
 // Define the shape of the payment data
 type AddEditPaymentData = {
@@ -126,49 +130,50 @@ const PaymentFinalizer = ({ open, setOpen, finalTotal, invoiceId, discounts, pat
   const balance = payAmount - required;
 
 
-  // --- SUBMIT HANDLER (Placeholder for now) ---
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    
-    if (selectedMethod === 'Cash' && payAmount < required) {
-       
-      alert("Insufficient cash amount."); // Replace with toast later
-    
-      return;
-    }
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+  
+  if (selectedMethod === 'Cash' && payAmount < required) {
+    alert("Insufficient cash amount.");
+    return;
+  }
 
-    if (selectedMethod !== 'Cash' && !paymentDetails.transactionId) {
-        
-      alert("Transaction ID is required for non-cash payments.");
-      
-      return;
-    }
+  if (selectedMethod !== 'Cash' && !paymentDetails.transactionId) {
+    alert("Transaction ID is required for non-cash payments.");
+    return;
+  }
 
-      const paymentPayload = {
-          invoiceId: parseInt(invoiceId), 
-          paymentMethod: selectedMethod,
-          transactionCode: selectedMethod === 'Cash' ? null : paymentDetails.transactionId,
-          discounts: discounts,
-          patientMobileNo: patientMobileNo
-      };
-
-
-      // 4. CALL THE SERVER ACTION
-      const result = await processInvoicePayment(paymentPayload);
-
-      if (result.success) {
-          toast.success("Payment successful!");
-          handleClose();
-         router.replace(`/${params.lang}/clinic/appoinment/list`)
-        
-      } else {
-          toast.error(result?.error?.message || "Payment failed");
-          console.error("Payment Error:", result.error);
-      }
-    
-    // handleClose();
+  const paymentPayload = {
+    invoiceId: parseInt(invoiceId), 
+    paymentMethod: selectedMethod,
+    transactionCode: selectedMethod === 'Cash' ? null : paymentDetails.transactionId,
+    discounts: discounts,
+    patientMobileNo: patientMobileNo
   };
 
+  const result = await processInvoicePayment(paymentPayload);
+
+  if (result.success) {
+    toast.success("Payment successful!");
+    
+    // Fetch invoice details and print
+    const invoiceDetails = await getInvoiceDetails(parseInt(invoiceId));
+    
+    if (invoiceDetails) {
+      // Generate QR code URL - adjust based on your routing
+      const qrCodeUrl = `${window.location.origin}/${params.lang}/clinic/appoinment/invoice/${invoiceId}`;
+      
+      // Print the invoice
+      appointmentPrintInvoice(invoiceDetails, qrCodeUrl);
+    }
+    
+    handleClose();
+    router.replace(`/${params.lang}/clinic/appoinment/list`);
+  } else {
+    toast.error(result?.error?.message || "Payment failed");
+    console.error("Payment Error:", result.error);
+  }
+};
   return (
     <Dialog
       open={open}
