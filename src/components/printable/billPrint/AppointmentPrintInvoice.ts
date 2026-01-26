@@ -30,7 +30,7 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
   const consultationFee = invoiceData.items.find(item => item.typeName === 'APPOINTMENT')?.totalAmount || 0;
   const totalDiscount = Math.abs(invoiceData.totalDiscount);
   
-  // Generate QR code URL
+  // Generate QR code URL (High resolution, resized via CSS)
   const qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeUrl)}`;
 
   const htmlContent = `
@@ -43,7 +43,7 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
       <style>
         @media print {
           @page {
-            size: A6 portrait;
+            size: A6 portrait; /* 105mm x 148mm */
             margin: 0;
           }
           body {
@@ -62,21 +62,23 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
         
         body {
           font-family: 'Arial', sans-serif;
-          /* Increased base font to 12px for better readability */
-          font-size: 12px;
-          line-height: 1.3;
+          /* Base font 11.5px - legible but compact */
+          font-size: 11.5px; 
+          /* Tighter line height to save vertical space */
+          line-height: 1.15; 
           color: #000;
           width: 105mm;
-          min-height: 148mm;
+          height: 148mm; /* Fixed height for A6 */
           margin: 0;
           padding: 0;
           background: #fff;
+          overflow: hidden; /* Prevent spillover */
         }
         
         .page-container {
           width: 105mm;
-          min-height: 148mm;
-          padding: 3mm;
+          height: 148mm;
+          padding: 2mm; /* Reduced padding from 3mm to 2mm */
           display: flex;
           flex-direction: column;
         }
@@ -84,57 +86,54 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
         .main-container {
           flex: 1;
           border: 2px solid #000;
-          padding: 2mm; /* Reduced padding slightly to fit bigger fonts */
+          padding: 1.5mm;
           display: flex;
           flex-direction: column;
         }
         
+        /* --- HEADER --- */
         .bill-header {
           text-align: center;
-          margin-bottom: 2mm;
-          padding-bottom: 2mm;
+          margin-bottom: 1mm;
+          padding-bottom: 1mm;
           border-bottom: 2px solid #000;
         }
         
         .clinic-name {
-          /* Increased to 16px */
-          font-size: 16px;
+          font-size: 15px; /* Large */
           font-weight: 900;
-          margin-bottom: 1mm;
+          margin-bottom: 0.5mm;
           text-transform: uppercase;
         }
         
         .clinic-info {
-          /* Increased to 10px */
-          font-size: 10px;
-          line-height: 1.3;
+          font-size: 9px;
+          line-height: 1.1;
         }
         
         .invoice-header {
           text-align: center;
-          margin-bottom: 2mm;
-          padding: 1.5mm;
+          margin-bottom: 1mm;
+          padding: 1mm;
           background: #f0f0f0;
           border: 1px solid #000;
         }
         
         .invoice-title {
-          /* Increased to 13px */
-          font-size: 13px;
+          font-size: 12px;
           font-weight: bold;
-          letter-spacing: 0.5px;
         }
         
         .invoice-number {
-          /* Increased to 11px */
-          font-size: 11px;
-          margin-top: 1mm;
+          font-size: 10px;
+          margin-top: 0.5mm;
         }
 
+        /* --- COLUMNS --- */
         .two-column-section {
           display: flex;
-          gap: 2mm;
-          margin-bottom: 2mm;
+          gap: 1mm;
+          margin-bottom: 1mm;
         }
 
         .column {
@@ -142,50 +141,46 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
         }
         
         .section {
-          font-size: 12px;
+          font-size: 11.5px;
         }
         
         .section-title {
           font-weight: bold;
           border-bottom: 1px solid #000;
-          padding-bottom: 0.5mm;
-          margin-bottom: 1mm;
-          /* Increased to 12px */
-          font-size: 12px;
+          margin-bottom: 0.5mm;
+          font-size: 11.5px;
           background-color: #eee;
           padding-left: 2px;
         }
         
         .info-row {
           display: flex;
-          margin-bottom: 1mm;
+          margin-bottom: 0.5mm; /* Very tight spacing */
         }
         
         .info-label {
           font-weight: bold;
-          min-width: 60px; /* Widened for larger text */
-          /* Increased to 11px */
+          min-width: 50px;
           font-size: 11px;
         }
         
         .info-value {
-          /* Increased to 11px */
           font-size: 11px;
           flex: 1;
         }
         
+        /* --- ITEMS --- */
         .items-section {
-          margin: 2mm 0;
+          margin: 1mm 0;
         }
         
         .item-header {
           display: flex;
           justify-content: space-between;
-          padding: 1.5mm 1mm;
+          padding: 1mm;
           border-top: 2px solid #000;
           border-bottom: 2px solid #000;
           font-weight: bold;
-          /* Increased to 12px */
           font-size: 12px;
           background: #f5f5f5;
         }
@@ -193,51 +188,49 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
         .item-row {
           display: flex;
           justify-content: space-between;
-          padding: 2mm 1mm; /* Increased padding slightly */
+          padding: 1mm;
           border-bottom: 1px solid #ddd;
-          /* Increased to 12px */
           font-size: 12px;
         }
         
+        /* --- TOTALS --- */
         .totals {
-          margin-top: 2mm; /* Reduced space before totals */
+          margin-top: 1mm;
           border-top: 2px solid #000;
-          padding-top: 2mm;
+          padding-top: 1mm;
         }
         
         .total-row {
           display: flex;
           justify-content: space-between;
-          margin-bottom: 1mm;
-          /* Increased to 12px */
+          margin-bottom: 0.5mm;
           font-size: 12px;
           padding: 0 1mm;
         }
         
         .total-final {
           font-weight: bold;
-          /* Increased to 16px */
-          font-size: 16px;
+          font-size: 15px; /* Large Total */
           border-top: 2px solid #000;
           border-bottom: 3px double #000;
-          padding: 2mm 1mm;
-          margin-top: 1mm;
+          padding: 1.5mm 1mm;
+          margin-top: 0.5mm;
           background: #f5f5f5;
         }
         
-        /* QR Code Layout */
-        .qr-section {
-          margin-top: auto; /* Pushes to bottom */
-          text-align: center;
-          padding-top: 4mm;
-          padding-bottom: 2mm;
-          border-top: 1px dashed #999; /* Separator from totals */
+        /* --- QR CODE & FOOTER --- */
+        /* Flex push to bottom */
+        .bottom-wrapper {
+            margin-top: auto;
+            border-top: 1px dashed #999;
+            padding-top: 1mm;
+            text-align: center;
         }
-        
+
         .qr-code {
-          width: 60px;
-          height: 60px;
-          margin-bottom: 1mm;
+          width: 80px; /* 80px is optimal for A6 (approx 2cm) */
+          height: 80px;
+          margin-bottom: 0.5mm;
         }
         
         .qr-label {
@@ -254,13 +247,12 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
         
         .status-badge {
           display: inline-block;
-          padding: 1px 4px;
+          padding: 0px 3px;
           background: #4CAF50;
           color: white;
           border-radius: 2px;
-          font-size: 10px;
+          font-size: 9px;
           font-weight: bold;
-          vertical-align: middle;
         }
       </style>
     </head>
@@ -351,13 +343,10 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
             </div>
           </div>
 
-          <div class="qr-section">
-            <img src="${qrCodeImage}" alt="QR Code" class="qr-code">
-            <div class="qr-label">Scan to Verify | Ref: #${invoiceData.invoiceId}</div>
-          </div>
-
-          <div class="footer">
-            Thank you for your visit!
+          <div class="bottom-wrapper">
+             <img src="${qrCodeImage}" alt="QR Code" class="qr-code">
+             <div class="qr-label">Scan to Verify | Ref: #${invoiceData.invoiceId}</div>
+             <div class="footer">Thank you for your visit!</div>
           </div>
 
         </div>
