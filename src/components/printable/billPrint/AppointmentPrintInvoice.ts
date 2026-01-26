@@ -30,8 +30,8 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
   const consultationFee = invoiceData.items.find(item => item.typeName === 'APPOINTMENT')?.totalAmount || 0;
   const totalDiscount = Math.abs(invoiceData.totalDiscount);
   
-  // Generate QR code URL (High resolution, resized via CSS)
-  const qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeUrl)}`;
+  // Generate QR code URL
+  const qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrCodeUrl)}`;
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -43,8 +43,9 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
       <style>
         @media print {
           @page {
-            size: A6 portrait; /* 105mm x 148mm */
-            margin: 0;
+            /* Tell printer the paper is 80mm wide, but length is auto */
+            size: 80mm auto; 
+            margin: 0mm; 
           }
           body {
             margin: 0;
@@ -62,31 +63,21 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
         
         body {
           font-family: 'Arial', sans-serif;
-          /* Base font 11.5px - legible but compact */
-          font-size: 11.5px; 
-          /* Tighter line height to save vertical space */
-          line-height: 1.15; 
+          font-size: 12px;
+          line-height: 1.2;
           color: #000;
-          width: 105mm;
-          height: 148mm; /* Fixed height for A6 */
-          margin: 0;
-          padding: 0;
           background: #fff;
-          overflow: hidden; /* Prevent spillover */
+          /* SAFE ZONE CONFIGURATION */
+          width: 80mm; /* Physical Paper Width */
+          padding-left: 4mm;  /* Safety Margin Left */
+          padding-right: 4mm; /* Safety Margin Right */
         }
         
         .page-container {
-          width: 105mm;
-          height: 148mm;
-          padding: 2mm; /* Reduced padding from 3mm to 2mm */
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .main-container {
-          flex: 1;
-          border: 2px solid #000;
-          padding: 1.5mm;
+          /* Content is only 72mm wide (80 - 4 - 4) to avoid edge shading */
+          width: 100%;
+          padding-top: 3mm;
+          padding-bottom: 5mm;
           display: flex;
           flex-direction: column;
         }
@@ -94,74 +85,52 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
         /* --- HEADER --- */
         .bill-header {
           text-align: center;
-          margin-bottom: 1mm;
-          padding-bottom: 1mm;
-          border-bottom: 2px solid #000;
+          margin-bottom: 2mm;
+          padding-bottom: 2mm;
+          border-bottom: 2px dashed #000;
         }
         
         .clinic-name {
-          font-size: 15px; /* Large */
+          font-size: 16px;
           font-weight: 900;
-          margin-bottom: 0.5mm;
+          margin-bottom: 1mm;
           text-transform: uppercase;
         }
         
         .clinic-info {
-          font-size: 9px;
-          line-height: 1.1;
-        }
-        
-        .invoice-header {
-          text-align: center;
-          margin-bottom: 1mm;
-          padding: 1mm;
-          background: #f0f0f0;
-          border: 1px solid #000;
-        }
-        
-        .invoice-title {
-          font-size: 12px;
-          font-weight: bold;
-        }
-        
-        .invoice-number {
           font-size: 10px;
-          margin-top: 0.5mm;
-        }
-
-        /* --- COLUMNS --- */
-        .two-column-section {
-          display: flex;
-          gap: 1mm;
-          margin-bottom: 1mm;
-        }
-
-        .column {
-          flex: 1;
         }
         
-        .section {
-          font-size: 11.5px;
+        /* --- INVOICE INFO --- */
+        .invoice-details {
+          text-align: center;
+          margin-bottom: 2mm;
+          font-size: 11px;
         }
-        
-        .section-title {
+
+        .status-badge {
+          display: inline-block;
+          border: 1px solid #000;
+          padding: 0px 4px;
+          border-radius: 4px;
+          font-size: 10px;
+          font-weight: bold;
+          margin-left: 2mm;
+        }
+
+        /* --- SECTIONS --- */
+        .section-header {
           font-weight: bold;
           border-bottom: 1px solid #000;
-          margin-bottom: 0.5mm;
-          font-size: 11.5px;
-          background-color: #eee;
-          padding-left: 2px;
+          margin-top: 2mm;
+          margin-bottom: 1mm;
+          font-size: 12px;
+          text-transform: uppercase;
         }
-        
+
         .info-row {
           display: flex;
-          margin-bottom: 0.5mm; /* Very tight spacing */
-        }
-        
-        .info-label {
-          font-weight: bold;
-          min-width: 50px;
-          font-size: 11px;
+          margin-bottom: 1mm;
         }
         
         .info-value {
@@ -169,205 +138,177 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
           flex: 1;
         }
         
-        /* --- ITEMS --- */
-        .items-section {
-          margin: 1mm 0;
+        /* --- ITEMS TABLE --- */
+        .items-table {
+          width: 100%;
+          margin-top: 3mm;
+          border-collapse: collapse;
         }
         
-        .item-header {
-          display: flex;
-          justify-content: space-between;
-          padding: 1mm;
-          border-top: 2px solid #000;
-          border-bottom: 2px solid #000;
-          font-weight: bold;
-          font-size: 12px;
-          background: #f5f5f5;
-        }
-        
-        .item-row {
-          display: flex;
-          justify-content: space-between;
-          padding: 1mm;
-          border-bottom: 1px solid #ddd;
+        .items-table th {
+          text-align: left;
+          border-top: 2px dashed #000;
+          border-bottom: 2px dashed #000;
+          padding: 1mm 0;
           font-size: 12px;
         }
         
+        .items-table td {
+          padding: 2mm 0;
+          border-bottom: 1px dotted #ccc;
+          font-size: 12px;
+        }
+        
+        .amount-col {
+          text-align: right;
+        }
+
         /* --- TOTALS --- */
-        .totals {
-          margin-top: 1mm;
-          border-top: 2px solid #000;
-          padding-top: 1mm;
+        .totals-section {
+          margin-top: 2mm;
+          padding-top: 2mm;
+          border-top: 2px dashed #000;
         }
         
         .total-row {
           display: flex;
           justify-content: space-between;
-          margin-bottom: 0.5mm;
+          margin-bottom: 1mm;
           font-size: 12px;
-          padding: 0 1mm;
         }
         
-        .total-final {
+        .final-total {
           font-weight: bold;
-          font-size: 15px; /* Large Total */
+          font-size: 16px;
+          margin-top: 2mm;
           border-top: 2px solid #000;
-          border-bottom: 3px double #000;
-          padding: 1.5mm 1mm;
-          margin-top: 0.5mm;
-          background: #f5f5f5;
+          border-bottom: 4px double #000;
+          padding: 2mm 0;
         }
-        
+
         /* --- QR CODE & FOOTER --- */
-        /* Flex push to bottom */
-        .bottom-wrapper {
-            margin-top: auto;
-            border-top: 1px dashed #999;
-            padding-top: 1mm;
-            text-align: center;
+        .footer-section {
+          margin-top: 5mm;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
 
         .qr-code {
-          width: 80px; /* 80px is optimal for A6 (approx 2cm) */
-          height: 80px;
-          margin-bottom: 0.5mm;
+          /* EXACTLY 2.5cm */
+          width: 25mm; 
+          height: 25mm;
+          margin-bottom: 1mm;
         }
         
-        .qr-label {
+        .qr-text {
           font-size: 10px;
+          margin-bottom: 2mm;
+        }
+        
+        .thank-you {
           font-weight: bold;
+          font-size: 12px;
+          margin-top: 2mm;
+        }
+        
+        .flex-row {
+          display: flex;
+          gap: 2mm;
+        }
+        .col {
+          flex: 1;
         }
 
-        .footer {
-          text-align: center;
-          margin-top: 1mm;
-          font-size: 10px;
-          font-weight: bold;
-        }
-        
-        .status-badge {
-          display: inline-block;
-          padding: 0px 3px;
-          background: #4CAF50;
-          color: white;
-          border-radius: 2px;
-          font-size: 9px;
-          font-weight: bold;
-        }
       </style>
     </head>
     <body>
       <div class="page-container">
-        <div class="main-container">
-          <div class="bill-header">
-            <div class="clinic-name">YOUR CLINIC NAME</div>
-            <div class="clinic-info">
-              123 Medical Street, Colombo 07<br>
-              Tel: +94 11 234 5678
-            </div>
+        
+        <div class="bill-header">
+          <div class="clinic-name">YOUR CLINIC NAME</div>
+          <div class="clinic-info">
+            123 Medical Street, Colombo<br>
+            Tel: 011-2345678
           </div>
-
-          <div class="invoice-header">
-            <div class="invoice-title">MEDICAL INVOICE</div>
-            <div class="invoice-number">
-              #${String(invoiceData.invoiceId).padStart(6, '0')} | ${invoiceData.dateIssued} | 
-              <span class="status-badge">${invoiceData.status}</span>
-            </div>
-          </div>
-
-          <div class="two-column-section">
-            <div class="column">
-              <div class="section">
-                <div class="section-title">PATIENT INFO</div>
-                <div class="info-row">
-                  <span class="info-label">No:</span>
-                  <span class="info-value">${invoiceData.patientNo}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Name:</span>
-                  <span class="info-value" style="font-weight:bold;">${invoiceData.patientName}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Tel:</span>
-                  <span class="info-value">${invoiceData.patientContactNo}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="column">
-              <div class="section">
-                <div class="section-title">DOCTOR INFO</div>
-                <div class="info-row">
-                  <span class="info-label">Dr:</span>
-                  <span class="info-value">${invoiceData.doctorName}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Spec:</span>
-                  <span class="info-value">${invoiceData.doctorSpecialization}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="items-section">
-            <div class="item-header">
-              <span>Description</span>
-              <span>Amount</span>
-            </div>
-            <div class="item-row">
-              <span>Consultation Fee</span>
-              <span>Rs. ${consultationFee.toFixed(2)}</span>
-            </div>
-            ${totalDiscount > 0 ? `
-            <div class="item-row">
-              <span>Discount Applied</span>
-              <span style="color: #d32f2f;">- Rs. ${totalDiscount.toFixed(2)}</span>
-            </div>
-            ` : ''}
-          </div>
-
-          <div class="totals">
-            <div class="total-row">
-              <span>Subtotal:</span>
-              <span>Rs. ${invoiceData.subtotal.toFixed(2)}</span>
-            </div>
-            ${totalDiscount > 0 ? `
-            <div class="total-row">
-              <span>Discount:</span>
-              <span>- Rs. ${totalDiscount.toFixed(2)}</span>
-            </div>
-            ` : ''}
-            <div class="total-row total-final">
-              <span>TOTAL:</span>
-              <span>Rs. ${invoiceData.finalAmount.toFixed(2)}</span>
-            </div>
-          </div>
-
-          <div class="bottom-wrapper">
-             <img src="${qrCodeImage}" alt="QR Code" class="qr-code">
-             <div class="qr-label">Scan to Verify | Ref: #${invoiceData.invoiceId}</div>
-             <div class="footer">Thank you for your visit!</div>
-          </div>
-
         </div>
+
+        <div class="invoice-details">
+          <strong>INVOICE #${invoiceData.invoiceId}</strong><br>
+          ${invoiceData.dateIssued}
+          <span class="status-badge">${invoiceData.status}</span>
+        </div>
+
+        <div class="flex-row">
+            <div class="col">
+                <div class="section-header">Patient</div>
+                <div class="info-row">
+                    <span class="info-value" style="font-weight:bold">${invoiceData.patientName}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-value">Tel: ${invoiceData.patientContactNo}</span>
+                </div>
+            </div>
+            <div class="col">
+                <div class="section-header">Doctor</div>
+                <div class="info-row">
+                    <span class="info-value">${invoiceData.doctorName}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-value" style="font-size:10px">${invoiceData.doctorSpecialization}</span>
+                </div>
+            </div>
+        </div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th class="amount-col">Amt</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Consultation Fee</td>
+                    <td class="amount-col">${consultationFee.toFixed(2)}</td>
+                </tr>
+                ${totalDiscount > 0 ? `
+                <tr>
+                    <td>Discount</td>
+                    <td class="amount-col" style="color:black">-${totalDiscount.toFixed(2)}</td>
+                </tr>
+                ` : ''}
+            </tbody>
+        </table>
+
+        <div class="totals-section">
+            <div class="total-row">
+                <span>Subtotal</span>
+                <span>${invoiceData.subtotal.toFixed(2)}</span>
+            </div>
+            <div class="total-row final-total">
+                <span>TOTAL</span>
+                <span>Rs. ${invoiceData.finalAmount.toFixed(2)}</span>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            <img src="${qrCodeImage}" class="qr-code" alt="QR" />
+            <div class="qr-text">Ref: #${invoiceData.invoiceId}</div>
+            
+            <div class="thank-you">*** THANK YOU ***</div>
+        </div>
+
       </div>
 
       <script>
         window.onload = function() {
           window.print();
         };
-        
         window.onafterprint = function() {
           window.close();
         };
-        
-        setTimeout(function() {
-          if (!window.matchMedia('print').matches) {
-            setTimeout(function() {
-              window.close();
-            }, 1000);
-          }
-        }, 100);
       </script>
     </body>
     </html>
