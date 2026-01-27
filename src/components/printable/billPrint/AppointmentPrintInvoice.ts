@@ -96,26 +96,17 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
             overflow: hidden; 
             background-color: #525659; 
         }
-        
-        body {
-          font-family: 'Arial', sans-serif;
-          /* Increased base font from 9px to 11px */
-          font-size: 11px;
-          line-height: 1.3;
-          color: #000;
-          width: 105mm;
-          min-height: 148mm; /* Changed to min-height to allow content to flow if needed */
-          margin: 0;
-          padding: 0;
-          background: #fff;
-        }
-        
-        .page-container {
-          width: 105mm;
-          min-height: 148mm;
-          padding: 3mm; /* Reduced padding slightly to give more room for text */
-          display: flex;
-          flex-direction: column;
+
+        /* --- PREVIEW VIEW (Screen) --- */
+        @media screen {
+          html, body { height: 100%; width: 100%; }
+          body { display: flex; justify-content: center; align-items: flex-start; padding-top: 40px; }
+          #invoice-view {
+            width: 80mm; min-height: 150mm; background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 3mm 4mm;
+            display: flex; flex-direction: column;
+          }
+          #success-animation { display: none; }
         }
         
         /* --- PRINT VIEW --- */
@@ -133,139 +124,58 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
           display: flex; flex-direction: column; align-items: center; justify-content: center;
           z-index: 999;
         }
-        
-        .clinic-name {
-          /* Increased from 11px to 14px */
-          font-size: 14px;
-          font-weight: bold;
-          margin-bottom: 1mm;
-          text-transform: uppercase;
+        .printer-container { position: relative; width: 100px; height: 100px; margin-bottom: 20px; }
+        .printer-body {
+          position: absolute; bottom: 0; left: 10px; width: 80px; height: 40px;
+          background: #e0e0e0; border-radius: 8px; z-index: 2;
+          border-bottom: 4px solid #bdbdbd;
         }
-        
-        .clinic-info {
-          /* Increased from 7px to 9px */
-          font-size: 9px;
-          line-height: 1.3;
+        .printer-body::after {
+          content: ''; position: absolute; top: 10px; left: 10px; width: 60px; height: 4px;
+          background: #9e9e9e; border-radius: 2px;
         }
-        
-        .invoice-header {
-          text-align: center;
-          margin-bottom: 2mm;
-          padding: 1.5mm;
-          background: #f0f0f0;
-          border: 1px solid #000;
+        .paper-sheet {
+          position: absolute; left: 25px; width: 50px; background: white;
+          border: 1px solid #ddd; z-index: 1;
+          animation: printPaper 2s ease-in-out infinite;
         }
-        
-        .invoice-title {
-          /* Increased from 10px to 12px */
-          font-size: 12px;
-          font-weight: bold;
-          letter-spacing: 0.5px;
+        .check-circle {
+          width: 50px; height: 50px; background: #4CAF50; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          margin-top: 20px; opacity: 0; transform: scale(0.5);
+          animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+          animation-delay: 0.5s;
         }
-        
-        .invoice-number {
-          /* Increased from 7px to 10px */
-          font-size: 10px;
-          margin-top: 1mm;
+        .check-icon {
+          width: 25px; height: 15px; border-left: 4px solid white;
+          border-bottom: 4px solid white; transform: rotate(-45deg); margin-top: -5px;
         }
         .success-text { color: white; font-size: 18px; font-weight: bold; margin-top: 10px; opacity: 0; animation: fadeIn 0.5s forwards 0.8s; }
 
-        .two-column-section {
-          display: flex;
-          gap: 2mm;
-          margin-bottom: 2mm;
+        @keyframes printPaper {
+          0% { top: 20px; height: 0px; }
+          50% { top: -20px; height: 60px; }
+          100% { top: 20px; height: 0px; }
         }
         @keyframes popIn { to { opacity: 1; transform: scale(1); } }
         @keyframes fadeIn { to { opacity: 1; } }
 
-        .column {
-          flex: 1;
-        }
+        /* --- RECEIPT STYLES --- */
+        .bill-header { text-align: center; margin-bottom: 2mm; padding-bottom: 2mm; border-bottom: 2px dashed #000; }
+        .clinic-name { font-size: 16px; font-weight: 900; margin-bottom: 1mm; text-transform: uppercase; }
+        .clinic-info { font-size: 10px; }
         
-        .section {
-          /* Base size is body size (11px) */
-          font-size: 11px;
-        }
-        
-        .section-title {
-          font-weight: bold;
-          border-bottom: 1px solid #000;
-          padding-bottom: 0.5mm;
-          margin-bottom: 1mm;
-          /* Increased from 9px to 11px */
-          font-size: 11px;
-          background-color: #eee; /* Added background for clarity */
-          padding-left: 2px;
-        }
-        
-        .info-row {
-          display: flex;
-          margin-bottom: 1mm; /* Increased spacing slightly */
-        }
-        
-        .info-label {
-          font-weight: bold;
-          min-width: 55px; /* Widened to fit larger text */
-          /* Increased from 7.5px to 10px */
-          font-size: 10px;
-        }
-        
-        .info-value {
-          /* Increased from 7.5px to 10px */
-          font-size: 10px;
-          flex: 1;
-        }
-        
-        .items-section {
-          margin: 2mm 0;
-        }
-        
-        .item-header {
-          display: flex;
-          justify-content: space-between;
-          padding: 1.5mm 1mm;
-          border-top: 2px solid #000;
-          border-bottom: 2px solid #000;
-          font-weight: bold;
-          /* Increased from 8px to 11px */
-          font-size: 11px;
-          background: #f5f5f5;
-        }
-        
-        .item-row {
-          display: flex;
-          justify-content: space-between;
-          padding: 1.5mm 1mm;
-          border-bottom: 1px solid #ddd;
-          /* Increased from 8px to 11px */
-          font-size: 11px;
-        }
-        
-        .qr-section {
-          text-align: center;
-          margin: 2mm 0;
-          padding: 1mm;
-          border: 1px dashed #999;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-        }
-        
-        .qr-info-container {
-            text-align: left;
-        }
+        .invoice-meta { text-align: center; margin-bottom: 2mm; font-size: 10px; }
+        .invoice-id { font-size: 12px; font-weight: bold; }
+        .status-badge { display: inline-block; border: 1px solid #000; padding: 0px 4px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-left: 2mm; }
 
-        .qr-title {
-          font-weight: bold;
-          font-size: 10px;
-        }
-        
-        .qr-code {
-          width: 50px; /* Made slightly smaller to save vertical space */
-          height: 50px;
-          border: 1px solid #333;
-          padding: 1mm;
+        .queue-box { 
+            border: 1px solid #000; 
+            padding: 1.5mm; 
+            margin-bottom: 2mm; 
+            text-align: center; 
+            border-radius: 4px;
+            background-color: #f9f9f9;
         }
         .queue-label { font-size: 9px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
         .queue-number { font-size: 16px; font-weight: 900; line-height: 1; margin: 1mm 0; }
@@ -274,122 +184,63 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
         .flex-row { display: flex; gap: 2mm; margin-bottom: 2mm; }
         .col { flex: 1; }
         
-        .qr-label {
-          font-size: 9px;
-          margin-top: 1mm;
-          font-weight: bold;
-        }
+        .section-header { font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 1mm; font-size: 11px; text-transform: uppercase; }
+        .info-row { display: flex; margin-bottom: 1mm; font-size: 11px; }
+        .info-value { font-weight: bold; }
         
         .items-table { width: 100%; margin-top: 2mm; border-collapse: collapse; font-size: 11px; }
         .items-table th { text-align: left; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 1mm 0; }
         .items-table td { padding: 1.5mm 0; border-bottom: 1px dotted #ccc; }
         .amount-col { text-align: right; }
         
-        .total-row {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 1mm;
-          /* Increased from 9px to 11px */
-          font-size: 11px;
-          padding: 0 1mm;
-        }
+        .totals-section { margin-top: 2mm; padding-top: 2mm; border-top: 2px dashed #000; }
+        .total-row { display: flex; justify-content: space-between; margin-bottom: 1mm; font-size: 12px; }
+        .final-total { font-weight: bold; font-size: 16px; margin-top: 2mm; border-top: 2px solid #000; border-bottom: 4px double #000; padding: 2mm 0; }
         
-        .total-final {
-          font-weight: bold;
-          /* Increased from 11px to 14px */
-          font-size: 14px;
-          border-top: 2px solid #000;
-          border-bottom: 3px double #000;
-          padding: 2mm 1mm;
-          margin-top: 1mm;
-          background: #f5f5f5;
-        }
-        
-        .footer {
-          text-align: center;
-          margin-top: 2mm;
-          padding-top: 2mm;
-          border-top: 1px dashed #999;
-          /* Increased from 6px to 9px */
-          font-size: 9px;
-          line-height: 1.4;
-        }
-        
-        .status-badge {
-          display: inline-block;
-          padding: 1px 4px;
-          background: #4CAF50;
-          color: white;
-          border-radius: 2px;
-          /* Increased from 7px to 9px */
-          font-size: 9px;
-          font-weight: bold;
-          vertical-align: middle;
-        }
+        .payment-info { font-size: 10px; text-align: center; margin-top: 1mm; color: #333; }
+
+        .footer-section { margin-top: 2mm; text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .qr-code { width: 25mm; height: 25mm; margin-bottom: 1mm; }
+        .thank-you { font-weight: bold; font-size: 12px; margin-top: 2mm; }
       </style>
     </head>
     <body>
-      <div class="page-container">
-        <div class="main-container">
-          <div class="bill-header">
-            <div class="clinic-name">YOUR CLINIC NAME</div>
-            <div class="clinic-info">
-              123 Medical Street, Colombo 07<br>
-              Tel: +94 11 234 5678
-            </div>
-          </div>
 
-          <div class="invoice-header">
-            <div class="invoice-title">MEDICAL INVOICE</div>
-            <div class="invoice-number">
-              #${String(invoiceData.invoiceId).padStart(6, '0')} | ${invoiceData.dateIssued} | 
-              <span class="status-badge">${invoiceData.status}</span>
-            </div>
+      <div id="success-animation">
+         <div class="printer-container">
+            <div class="paper-sheet"></div>
+            <div class="printer-body"></div>
+         </div>
+      </div>
+
+      <div id="invoice-view">
+        <div class="bill-header">
+          <div class="clinic-name">${clinicName}</div>
+          <div class="clinic-info">
+             ${fullClinicAddress}<br>
+             ${clinicTel ? `Tel: ${clinicTel}` : ''}
           </div>
         </div>
 
-          <div class="two-column-section">
-            <div class="column">
-              <div class="section">
-                <div class="section-title">PATIENT INFO</div>
-                <div class="info-row">
-                  <span class="info-label">No:</span>
-                  <span class="info-value">${invoiceData.patientNo}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Name:</span>
-                  <span class="info-value" style="font-weight:bold;">${invoiceData.patientName}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Tel:</span>
-                  <span class="info-value">${invoiceData.patientContactNo}</span>
-                </div>
-              </div>
-            </div>
+        <div class="invoice-meta">
+          <div class="invoice-id">INVOICE #${invoiceData.invoiceId}</div>
+          <div>${formatDate(invoiceData.dateIssued)}</div>
+          <div style="font-weight:bold; margin-top:2px;">${invoiceData.status}</div>
+        </div>
 
-            <div class="column">
-              <div class="section">
-                <div class="section-title">DOCTOR INFO</div>
-                <div class="info-row">
-                  <span class="info-label">Dr:</span>
-                  <span class="info-value">${invoiceData.doctorName}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Spec:</span>
-                  <span class="info-value">${invoiceData.doctorSpecialization}</span>
-                </div>
-              </div>
+        <div class="queue-box">
+            <div class="queue-label">Queue No</div>
+            <div class="queue-number">${String(invoiceData.queuePosition).padStart(2, '0')}</div>
+            <div class="appt-time">
+                ${apptDateFormatted} @ ${apptTimeFormatted}
             </div>
         </div>
 
-          <div class="items-section">
-            <div class="item-header">
-              <span>Description</span>
-              <span>Amount</span>
-            </div>
-            <div class="item-row">
-              <span>Consultation Fee</span>
-              <span>Rs. ${consultationFee.toFixed(2)}</span>
+        <div class="flex-row">
+            <div class="col">
+                <div class="section-header">Patient</div>
+                <div class="info-row"><span class="info-value">${invoiceData.patientName}</span></div>
+                <div class="info-row" style="font-size:10px;">${invoiceData.patientContactNo}</div>
             </div>
             <div class="col">
                 <div class="section-header">Doctor</div>
@@ -398,35 +249,31 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
             </div>
         </div>
 
-          <div class="qr-section">
-            <img src="${qrCodeImage}" alt="QR Code" class="qr-code">
-            <div class="qr-info-container">
-                 <div class="qr-title">Scan to Verify</div>
-                 <div class="qr-label">Ref: #${invoiceData.invoiceId}</div>
-            </div>
-          </div>
+        <table class="items-table">
+            <thead><tr><th>Item</th><th class="amount-col">Amount</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>${description}</td>
+                    <td class="amount-col">${consultationFee.toFixed(2)}</td>
+                </tr>
+            </tbody>
+        </table>
 
-          <div class="totals">
-            <div class="total-row">
-              <span>Subtotal:</span>
-              <span>Rs. ${invoiceData.subtotal.toFixed(2)}</span>
-            </div>
-            ${totalDiscount > 0 ? `
-            <div class="total-row">
-              <span>Discount:</span>
-              <span>- Rs. ${totalDiscount.toFixed(2)}</span>
-            </div>
-            ` : ''}
-            <div class="total-row total-final">
-              <span>TOTAL:</span>
-              <span>Rs. ${invoiceData.finalAmount.toFixed(2)}</span>
-            </div>
-          </div>
+        <div class="totals-section">
+            <div class="total-row"><span>Subtotal</span><span>${invoiceData.subtotal.toFixed(2)}</span></div>
+            ${totalDiscount > 0 ? `<div class="total-row"><span>Discount</span><span>-${totalDiscount.toFixed(2)}</span></div>` : ''}
+            <div class="total-row final-total"><span>TOTAL</span><span>Rs. ${invoiceData.finalAmount.toFixed(2)}</span></div>
+        </div>
 
-          <div class="footer">
-            <div style="font-weight: bold;">Thank you for your visit!</div>
-            <div>No signature required</div>
-          </div>
+        ${invoiceData.paymentMethod ? `
+        <div class="payment-info">
+             Paid by: <strong>${invoiceData.paymentMethod}</strong>
+        </div>
+        ` : ''}
+
+        <div class="footer-section">
+            <img src="${qrCodeImage}" class="qr-code" alt="QR" />
+            <div class="thank-you">*** THANK YOU ***</div>
         </div>
       </div>
 
