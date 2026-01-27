@@ -4,7 +4,7 @@ import QueueManagementView from '@/views/clinic-app/staff/queue/QueueManagementV
 
 
 // Assuming you have a way to get the logged-in user's Clinic ID
-const MOCK_CLINIC_ID = 2; 
+const MOCK_CLINIC_ID = 1; 
 
 // 1. Update the type definition to wrap params in Promise
 const QueuePage = async (props: { params: Promise<{ scheduleId: string }> }) => {
