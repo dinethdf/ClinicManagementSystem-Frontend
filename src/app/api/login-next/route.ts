@@ -14,6 +14,8 @@ export async function POST(req: Request) {
   const { email, password, type } = await req.json()
 
   if (type === "clinic"){
+
+    console.log("startRequest og")
       const res = await loginUser(email, password)
       return NextResponse.json(res, { status: 200 })
 
