@@ -1,7 +1,9 @@
 'use client';
 
+import { getClinicStorageDetails } from "@/utils/common"; // Adjust path if needed
 import { generateQueueTrackingUrl } from "@/utils/qrcode";
 
+// 1. Type Definition
 type InvoiceData = {
   invoiceId: number;
   dateIssued: string;
@@ -33,10 +35,25 @@ type InvoiceData = {
 
 export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: () => void) {
   
-  // 1. Find the Main Item (Appointment/Consultation)
-  const mainItem = invoiceData.items.find(item => item.typeName === 'APPOINTMENT');
+  // --- 1. Get Clinic Details from Storage ---
+  const clinicData = getClinicStorageDetails();
+
+  // Fallback defaults if storage is empty
+  const clinicName = clinicData?.name || "YOUR CLINIC NAME";
   
-  // 2. Get the amount and description from the main item, or fallback values
+  // Construct Address (Address + City)
+  const clinicAddressPart = clinicData?.address || "123 Medical Street";
+  const clinicCityPart = clinicData?.city ? `, ${clinicData.city}` : "";
+  const fullClinicAddress = `${clinicAddressPart}${clinicCityPart}`;
+  
+  // Use Landline, fallback to Mobile
+  const clinicTel = clinicData?.landNo || clinicData?.mobileNo || "011-2345678";
+
+
+  // --- 2. Data Processing ---
+  
+  // Find the Main Item (Appointment/Consultation)
+  const mainItem = invoiceData.items.find(item => item.typeName === 'APPOINTMENT');
   const consultationFee = mainItem?.totalAmount || 0;
   const description = mainItem?.description || 'Consultation Fee';
   
@@ -52,6 +69,7 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
   };
 
   const apptDateFormatted = new Date(invoiceData.appointmentDate).toLocaleDateString('en-GB');
+  // Format Time (e.g., 05:15:00 -> 05:15 PM)
   const apptTimeFormatted = new Date(`1970-01-01T${invoiceData.appointmentTime}`).toLocaleTimeString('en-US', {
       hour: '2-digit', minute: '2-digit', hour12: true
   });
@@ -197,13 +215,16 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
 
       <div id="invoice-view">
         <div class="bill-header">
-          <div class="clinic-name">YOUR CLINIC NAME</div>
-          <div class="clinic-info">123 Medical Street, Colombo<br>Tel: 011-2345678</div>
+          <div class="clinic-name">${clinicName}</div>
+          <div class="clinic-info">
+             ${fullClinicAddress}<br>
+             ${clinicTel ? `Tel: ${clinicTel}` : ''}
+          </div>
         </div>
 
         <div class="invoice-meta">
           <div class="invoice-id">INVOICE #${invoiceData.invoiceId}</div>
-          <div>${formatDate(invoiceData.datePaidDate || '')}</div>
+          <div>${formatDate(invoiceData.dateIssued)}</div>
           <div style="font-weight:bold; margin-top:2px;">${invoiceData.status}</div>
         </div>
 

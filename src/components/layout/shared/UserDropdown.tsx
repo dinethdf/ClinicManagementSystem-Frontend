@@ -30,7 +30,7 @@ import { useSettings } from '@core/hooks/useSettings'
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
 import { logoutAndRedirect } from '@/libs/authentication'
-import { getUserDetails, type UserStorageData } from '@/utils/commone'
+import { getUserDetails, type UserStorageData } from '@/utils/common'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({

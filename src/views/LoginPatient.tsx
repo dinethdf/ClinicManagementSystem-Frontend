@@ -43,7 +43,7 @@ import themeConfig from '@configs/themeConfig'
 import { getLocalizedUrl } from '@/utils/i18n'
 import { getClinicDetails, logoutAndRedirect, setLoginCookie } from '@/libs/authentication'
 import { styled } from '@mui/material/styles'
-import { saveClinicDetails, saveUserDetails } from '@/utils/commone'
+import { saveClinicDetails, saveUserDetails } from '@/utils/common'
 
 
 // --- Types & Schema (From Previous Component) ---

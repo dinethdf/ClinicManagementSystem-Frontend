@@ -50,7 +50,7 @@ import { getLocalizedUrl } from '@/utils/i18n'
 import { logoutAndRedirect, setLoginCookie, getClinicDetails} from '@/libs/authentication'
 import BackDropFullScreen from '@/components/BackDropFullScreen'
 import data from './../data/searchData';
-import { saveClinicDetails, saveUserDetails } from '@/utils/commone'
+import { saveClinicDetails, saveUserDetails } from '@/utils/common'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
