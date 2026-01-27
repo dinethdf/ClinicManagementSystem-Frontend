@@ -41,8 +41,9 @@ import themeConfig from '@configs/themeConfig'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
-import { logoutAndRedirect, setLoginCookie, saveUserDetails } from '@/libs/authentication'
+import { getClinicDetails, logoutAndRedirect, setLoginCookie } from '@/libs/authentication'
 import { styled } from '@mui/material/styles'
+import { saveClinicDetails, saveUserDetails } from '@/utils/commone'
 
 
 // --- Types & Schema (From Previous Component) ---
@@ -121,6 +122,14 @@ const LoginPatient = ({ mode }: { mode: SystemMode }) => {
           userImg: result.data.userImg,
           userRole: result.data.userRole
         })
+      try {
+          const clinicInfo = await getClinicDetails(result.data.accessToken);
+          if (clinicInfo) {
+            await saveClinicDetails(clinicInfo);
+          }
+        } catch (clinicError) {
+          console.error("Could not fetch clinic info", clinicError);
+        }         
 
         const redirectURL = searchParams.get('redirectTo') ?? '/patient'
         
