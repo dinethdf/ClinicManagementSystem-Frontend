@@ -158,13 +158,10 @@ const handleSubmit = async (e: FormEvent) => {
     
     // Fetch invoice details and print
     const invoiceDetails = await getInvoiceDetails(parseInt(invoiceId));
-    
+
     if (invoiceDetails) {
-      // Generate QR code URL - adjust based on your routing
-      const qrCodeUrl = `${window.location.origin}/${params.lang}/clinic/appoinment/invoice/${invoiceId}`;
-      
-      // Print the invoice
-      appointmentPrintInvoice(invoiceDetails, qrCodeUrl);
+
+      appointmentPrintInvoice(invoiceDetails);
     }
     
     handleClose();
