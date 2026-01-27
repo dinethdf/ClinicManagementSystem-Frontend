@@ -47,9 +47,10 @@ import { useSettings } from '@core/hooks/useSettings'
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
 
-import { logoutAndRedirect, setLoginCookie, saveUserDetails } from '@/libs/authentication'
+import { logoutAndRedirect, setLoginCookie, getClinicDetails} from '@/libs/authentication'
 import BackDropFullScreen from '@/components/BackDropFullScreen'
 import data from './../data/searchData';
+import { saveClinicDetails, saveUserDetails } from '@/utils/common'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -174,6 +175,18 @@ console.log("start Run func fe api call")
           userRole: result.data.userRole
         })
 
+      try {
+          // We pass the accessToken explicitly because cookies might not be readable instantly by axios
+          const clinicInfo = await getClinicDetails(result.data.accessToken);
+          
+          if (clinicInfo) {
+         await saveClinicDetails(clinicInfo);
+          }
+        } catch (clinicError) {
+
+          console.error("Could not fetch clinic info", clinicError);
+        }        
+
         const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
 
         router.replace(getLocalizedUrl(redirectURL, locale as Locale))
@@ -227,6 +240,16 @@ console.log("start Run func fe api call")
           userImg: result.data.userImg,
           userRole: result.data.userRole
         })
+
+      try {
+          const clinicInfo = await getClinicDetails(result.data.accessToken);
+          if (clinicInfo) {
+         await saveClinicDetails(clinicInfo);
+          }
+        } catch (clinicError) {
+          console.error("Could not fetch clinic info", clinicError);
+        }    
+
         const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
      
         toast.success('Login Successful', {

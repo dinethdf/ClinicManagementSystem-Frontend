@@ -1,8 +1,13 @@
 'use client';
 
+import { getClinicStorageDetails } from "@/utils/common"; // Adjust path if needed
+import { generateQueueTrackingUrl } from "@/utils/qrcode";
+
+// 1. Type Definition
 type InvoiceData = {
   invoiceId: number;
   dateIssued: string;
+  datePaidDate?: string;
   status: string;
   patientNo: string;
   patientName: string;
@@ -10,54 +15,86 @@ type InvoiceData = {
   patientDob: string;
   patientContactNo: string;
   appointmentId: number;
+  appointmentNumber?: string | number | null;
   doctorName: string;
   doctorSpecialization: string;
   appointmentNote: string;
-  items: Array<{
-    description: string;
-    typeName: string;
-    unitPrice: number;
-    quantity: number;
-    totalAmount: number;
-  }>;
+  appointmentDate: string;
+  appointmentTime: string;
+  queuePosition: number;
+  scheduleId: number;
+  
+  items: Array<{ description: string; typeName: string; unitPrice: number; quantity: number; totalAmount: number; }>;
   subtotal: number;
   totalDiscount: number;
   finalAmount: number;
+  paymentMethod?: string;
+  amountPaid?: number;
+  transactionId?: string;
 };
 
-export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: string) {
-  // Calculate totals
-  const consultationFee = invoiceData.items.find(item => item.typeName === 'APPOINTMENT')?.totalAmount || 0;
+export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: () => void) {
+  
+  // --- 1. Get Clinic Details from Storage ---
+  const clinicData = getClinicStorageDetails();
+
+  // Fallback defaults if storage is empty
+  const clinicName = clinicData?.name || "YOUR CLINIC NAME";
+  
+  // Construct Address (Address + City)
+  const clinicAddressPart = clinicData?.address || "123 Medical Street";
+  const clinicCityPart = clinicData?.city ? `, ${clinicData.city}` : "";
+  const fullClinicAddress = `${clinicAddressPart}${clinicCityPart}`;
+  
+  // Use Landline, fallback to Mobile
+  const clinicTel = clinicData?.landNo || clinicData?.mobileNo || "011-2345678";
+
+
+  // --- 2. Data Processing ---
+  
+  // Find the Main Item (Appointment/Consultation)
+  const mainItem = invoiceData.items.find(item => item.typeName === 'APPOINTMENT');
+  const consultationFee = mainItem?.totalAmount || 0;
+  const description = mainItem?.description || 'Consultation Fee';
+  
   const totalDiscount = Math.abs(invoiceData.totalDiscount);
   
-  // Generate QR code URL
+  // Format Date Helper
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleString('en-GB', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+    });
+  };
+
+  const apptDateFormatted = new Date(invoiceData.appointmentDate).toLocaleDateString('en-GB');
+  // Format Time (e.g., 05:15:00 -> 05:15 PM)
+  const apptTimeFormatted = new Date(`1970-01-01T${invoiceData.appointmentTime}`).toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', hour12: true
+  });
+
+  const qrCodeUrl = generateQueueTrackingUrl(invoiceData.scheduleId, invoiceData.queuePosition)
+
   const qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrCodeUrl)}`;
 
+  // --- HTML Content ---
   const htmlContent = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Invoice - ${invoiceData.invoiceId}</title>
+      <title>Invoice #${invoiceData.invoiceId}</title>
       <style>
-        @media print {
-          @page {
-            size: A6 portrait;
-            margin: 0;
-          }
-          body {
-            margin: 0;
-            padding: 0;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-        }
-        
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
+        /* --- RESET --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            font-size: 12px; 
+            line-height: 1.2; 
+            color: #000; 
+            overflow: hidden; 
+            background-color: #525659; 
         }
         
         body {
@@ -81,19 +118,20 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
           flex-direction: column;
         }
         
-        .main-container {
-          flex: 1;
-          border: 2px solid #000;
-          padding: 3mm;
-          display: flex;
-          flex-direction: column;
+        /* --- PRINT VIEW --- */
+        @media print {
+          @page { size: 80mm auto; margin: 0mm; }
+          html, body { width: 80mm; height: auto; background: none; }
+          #invoice-view { width: 80mm; padding: 3mm 4mm; box-shadow: none; margin: 0; }
+          #success-animation { display: none !important; }
         }
-        
-        .bill-header {
-          text-align: center;
-          margin-bottom: 2mm;
-          padding-bottom: 2mm;
-          border-bottom: 2px solid #000;
+
+        /* --- ANIMATION STYLES --- */
+        #success-animation {
+          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+          background: #525659; 
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          z-index: 999;
         }
         
         .clinic-name {
@@ -130,12 +168,15 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
           font-size: 10px;
           margin-top: 1mm;
         }
+        .success-text { color: white; font-size: 18px; font-weight: bold; margin-top: 10px; opacity: 0; animation: fadeIn 0.5s forwards 0.8s; }
 
         .two-column-section {
           display: flex;
           gap: 2mm;
           margin-bottom: 2mm;
         }
+        @keyframes popIn { to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { to { opacity: 1; } }
 
         .column {
           flex: 1;
@@ -226,6 +267,12 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
           border: 1px solid #333;
           padding: 1mm;
         }
+        .queue-label { font-size: 9px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
+        .queue-number { font-size: 16px; font-weight: 900; line-height: 1; margin: 1mm 0; }
+        .appt-time { font-size: 11px; font-weight: bold; border-top: 1px dotted #ccc; padding-top: 1mm; margin-top: 1mm; }
+
+        .flex-row { display: flex; gap: 2mm; margin-bottom: 2mm; }
+        .col { flex: 1; }
         
         .qr-label {
           font-size: 9px;
@@ -233,11 +280,10 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
           font-weight: bold;
         }
         
-        .totals {
-          margin-top: auto;
-          border-top: 2px solid #000;
-          padding-top: 2mm;
-        }
+        .items-table { width: 100%; margin-top: 2mm; border-collapse: collapse; font-size: 11px; }
+        .items-table th { text-align: left; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 1mm 0; }
+        .items-table td { padding: 1.5mm 0; border-bottom: 1px dotted #ccc; }
+        .amount-col { text-align: right; }
         
         .total-row {
           display: flex;
@@ -300,6 +346,7 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
               <span class="status-badge">${invoiceData.status}</span>
             </div>
           </div>
+        </div>
 
           <div class="two-column-section">
             <div class="column">
@@ -333,7 +380,7 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
                 </div>
               </div>
             </div>
-          </div>
+        </div>
 
           <div class="items-section">
             <div class="item-header">
@@ -344,13 +391,12 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
               <span>Consultation Fee</span>
               <span>Rs. ${consultationFee.toFixed(2)}</span>
             </div>
-            ${totalDiscount > 0 ? `
-            <div class="item-row">
-              <span>Discount Applied</span>
-              <span style="color: #d32f2f;">- Rs. ${totalDiscount.toFixed(2)}</span>
+            <div class="col">
+                <div class="section-header">Doctor</div>
+                <div class="info-row"><span class="info-value">${invoiceData.doctorName}</span></div>
+                <div class="info-row" style="font-size:10px;">${invoiceData.doctorSpecialization}</div>
             </div>
-            ` : ''}
-          </div>
+        </div>
 
           <div class="qr-section">
             <img src="${qrCodeImage}" alt="QR Code" class="qr-code">
@@ -386,31 +432,36 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, qrCodeUrl: str
 
       <script>
         window.onload = function() {
-          window.print();
+          setTimeout(() => {
+             window.print();
+          }, 500);
         };
         
         window.onafterprint = function() {
-          window.close();
+          document.getElementById('invoice-view').style.display = 'none';
+          document.getElementById('success-animation').style.display = 'flex';
+
+          setTimeout(() => {
+             window.close();
+          }, 1600);
         };
-        
-        setTimeout(function() {
-          if (!window.matchMedia('print').matches) {
-            setTimeout(function() {
-              window.close();
-            }, 1000);
-          }
-        }, 100);
       </script>
     </body>
     </html>
   `;
 
   const printWindow = window.open('', '_blank');
-  if (!printWindow) {
-    alert('Please allow popups to print the invoice');
-    return;
+  if (printWindow) {
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    const timer = setInterval(() => {
+        if (printWindow.closed) {
+            clearInterval(timer);
+            if (onComplete) onComplete(); 
+        }
+    }, 500);
+  } else {
+    alert('Please allow popups to print');
   }
-  
-  printWindow.document.write(htmlContent);
-  printWindow.document.close();
 }

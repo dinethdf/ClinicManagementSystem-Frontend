@@ -64,11 +64,7 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
         return
       }
 
-      // Generate QR code URL (adjust the URL as needed)
-      const qrCodeUrl = `${window.location.origin}/en/clinic/appoinment/invoice/${invoiceId}`
-      
-      // Print the invoice
-      appointmentPrintInvoice(invoiceDetails, qrCodeUrl)
+      appointmentPrintInvoice(invoiceDetails)
       
     } catch (error) {
       console.error('Print error:', error)

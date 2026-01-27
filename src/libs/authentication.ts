@@ -101,56 +101,36 @@ export function logoutAndRedirect() {
 // src/utils/user-storage.ts
 
 
-
-export interface UserStorageData {
-  userName: string;
-  userEmail: string;
-  userImg: string;
-  userRole: string;
+export interface ClinicDetails {
+  id: number;
+  name: string;
+  subdomain: string;
+  address: string;
+  city: string;
+  mobileNo: string;
+  landNo: string;
+  email: string;
+  logoUrl: string;
 }
 
-const USER_STORAGE_KEY = 'userData';
-
-export const saveUserDetails = (data: { 
-  userName: string | null; 
-  userEmail: string | null; 
-  userImg: string | null; 
-  userRole: string | null; 
-}) => {
-  // 1. Check if exists and remove
-  if (localStorage.getItem(USER_STORAGE_KEY)) {
-    localStorage.removeItem(USER_STORAGE_KEY);
-  }
-
-  const safeData: UserStorageData = {
-    userName: data.userName || '',
-    userEmail: data.userEmail || '',
-    userImg: data.userImg || '',
-    userRole: data.userRole || ''
-  };
-
+export const getClinicDetails = async (token: string): Promise<ClinicDetails | null> => {
   try {
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(safeData));
+    // FIX 1: Ensure '/api' is included in the URL
+    // FIX 2: Use the dynamic 'token' variable, not the hardcoded string
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/clinic/info/details`, {
+      headers: {
+        Authorization: `Bearer ${token}` 
+      }
+    });
+
+    if (response.data && response.data.success) {
+      return response.data.data;
+    }
+    return null;
   } catch (error) {
-    console.error('Error saving user details to localStorage', error);
-  }
-};
-
-
-export const getUserDetails = (): UserStorageData | null => {
-  if (typeof window === 'undefined') return null; 
-
-  const data = localStorage.getItem(USER_STORAGE_KEY);
-  if (!data) return null;
-
-  try {
-    return JSON.parse(data) as UserStorageData;
-  } catch (error) {
-    console.error('Error parsing user details', error);
+    console.error('Failed to fetch clinic details:', error);
     return null;
   }
 };
 
-export const clearUserDetails = () => {
-  localStorage.removeItem(USER_STORAGE_KEY);
-};
+
