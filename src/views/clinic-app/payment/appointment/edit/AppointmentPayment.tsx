@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 // MUI Imports
 import Grid from '@mui/material/Grid'
@@ -61,7 +61,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
     backgroundColor: theme.palette.action.hover,
   },
-
   '&:last-child td, &:last-child th': {
     border: 0,
   },
@@ -69,16 +68,37 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appointmentInvDetails?: any }) => {
   
-  // const isBelowMdScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
-
   const [issueDate, setIssueDate] = useState<Date | null | undefined>(
-      appointmentInvDetails?.dateIssued ? new Date(appointmentInvDetails.dateIssued) : new Date()
+     appointmentInvDetails?.dateIssued ? new Date(appointmentInvDetails.dateIssued) : new Date()
   )
+
+  // --- 1. SEPARATE ITEMS VS DISCOUNTS ---
+  // The API returns discounts mixed in 'items' for PAID invoices. We need to separate them.
+  const { billableItems, existingDiscounts } = useMemo(() => {
+    const rawItems: InvoiceItem[] = appointmentInvDetails?.items || [];
+    
+    const billable = rawItems.filter(item => !item.typeName.includes('DISCOUNT') && item.totalAmount >= 0);
+    
+    // For PAID invoices, extract discounts from items. 
+    // They usually have negative amounts, so we convert to positive for display.
+    const discounts = rawItems
+        .filter(item => item.typeName.includes('DISCOUNT'))
+        .map(d => ({
+            discountType: d.typeName,
+            description: d.description,
+            amount: Math.abs(d.totalAmount) // Ensure positive for UI
+        }));
+
+    return { billableItems: billable, existingDiscounts: discounts };
+  }, [appointmentInvDetails]);
+
+  const isUnpaid = appointmentInvDetails?.status?.code === "UNPAID";
 
   const { control, watch } = useForm<InvoiceFormData>({
     defaultValues: {
-      discounts: [],
-      note: 'Thank you for choosing CureGuard Clinic. Wishing you a speedy recovery and good health!'
+      // If PAID, populate form with existing discounts (read-only effect), otherwise start empty
+      discounts: isUnpaid ? [] : existingDiscounts,
+      note: appointmentInvDetails?.appointmentNote || ''
     }
   });
 
@@ -87,23 +107,35 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
     name: 'discounts'
   });
 
-  const buttonProps: ButtonProps = {
-     variant: 'contained',
-     color:"success",
-     className:"capitalize",
-     children: 'Make Payment',
-     disabled: appointmentInvDetails.status != "UNPAID"
-  }  
-
   // --- CALCULATIONS ---
-  const initialSubtotal = appointmentInvDetails?.items?.reduce((sum: number, item: InvoiceItem) => sum + (item.totalAmount || 0), 0) || 0;
+  // If API provides 'subtotal' and 'totalDiscount' directly (usually for PAID), prioritize those.
+  // Otherwise, calculate dynamically for UNPAID editing state.
+  
   const watchedDiscounts = watch('discounts');
-  const totalDiscount = watchedDiscounts?.reduce((sum, discount) => sum + (Number(discount.amount) || 0), 0) || 0;
-  const finalTotal = Math.max(0, initialSubtotal - totalDiscount);
+
+  // 1. Calculate Subtotal (Sum of only billable items)
+  const calculatedSubtotal = billableItems.reduce((sum, item) => sum + (item.totalAmount || 0), 0);
+  const displaySubtotal = appointmentInvDetails?.subtotal || calculatedSubtotal;
+
+  // 2. Calculate Discount Total
+  const calculatedDiscountTotal = watchedDiscounts?.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) || 0;
+  // Use API totalDiscount if PAID/available, else use watched form values
+  const displayTotalDiscount = isUnpaid ? calculatedDiscountTotal : (appointmentInvDetails?.totalDiscount || calculatedDiscountTotal);
+
+  // 3. Final Total
+  const displayFinalTotal = Math.max(0, displaySubtotal - displayTotalDiscount);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', minimumFractionDigits: 2 }).format(amount);
   };
+
+  const buttonProps: ButtonProps = {
+      variant: 'contained',
+      color: "success",
+      className: "capitalize",
+      children: isUnpaid ? 'Make Payment' : 'Paid',
+      disabled: !isUnpaid
+  }  
 
   return (
     <>
@@ -153,10 +185,14 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                           customInput={<CustomTextField fullWidth />}
                         />
                       </div>
-                      {appointmentInvDetails?.status !== "UNPAID" && (
+                      {/* Status Chip */}
+                      {appointmentInvDetails?.status && (
                         <Chip 
-                          label={appointmentInvDetails.status} 
-                          color={'primary'}
+                          label={appointmentInvDetails.status.displayName || appointmentInvDetails.status.code} 
+                          sx={{ 
+                              backgroundColor: appointmentInvDetails.status.colorCode || '#primary', 
+                              color: '#fff' 
+                          }}
                           size='medium'
                           variant='filled'
                           className='mt-1 w-max uppercase font-bold text-[10px]' 
@@ -194,10 +230,10 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                 <Typography color='text.secondary' className='min-is-[100px]'>Specialty:</Typography>
                                 <Typography color='text.primary'>{appointmentInvDetails.doctorSpecialization}</Typography>
                             </div>
-                             {appointmentInvDetails.appointmentNumber && (
+                             {appointmentInvDetails.appointmentDate && (
                                 <div className='flex gap-2'>
-                                    <Typography color='text.secondary' className='min-is-[100px]'>Appt No:</Typography>
-                                    <Typography color='text.primary' className='font-medium'>{appointmentInvDetails.appointmentNumber}</Typography>
+                                    <Typography color='text.secondary' className='min-is-[100px]'>Date:</Typography>
+                                    <Typography color='text.primary' className='font-medium'>{appointmentInvDetails.appointmentDate} @ {appointmentInvDetails.appointmentTime}</Typography>
                                 </div>
                             )}
                         </div>
@@ -209,7 +245,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                 <Divider />
               </Grid>
 
-              {/* --- INVOICE ITEMS SECTION (Improved UI with Table) --- */}
+              {/* --- INVOICE ITEMS SECTION (Billable Items Only) --- */}
               <Grid size={{ xs: 12 }}>
                 <Typography variant='h6' className='mbe-4'>
                    Services & Items
@@ -225,45 +261,52 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                         </TableRow>
                         </TableHead>
                         <TableBody>
-                        {appointmentInvDetails?.items?.map((item: InvoiceItem, index: number) => (
-                            <StyledTableRow key={index}>
-                                <TableCell component="th" scope="row">
-                                    <div className='flex flex-col'>
-                                        <Typography color='text.primary' className='font-medium'>
-                                            {item.description}
-                                        </Typography>
-                                        <Typography variant='caption' color='text.secondary'>
-                                            {item.typeName}
-                                        </Typography>
-                                    </div>
-                                </TableCell>
-                                <TableCell align="right">{formatCurrency(item.unitPrice)}</TableCell>
-                                <TableCell align="right">{item.quantity}</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 'medium' }}>{formatCurrency(item.totalAmount)}</TableCell>
-                            </StyledTableRow>
-                        ))}
+                        {billableItems.length > 0 ? (
+                            billableItems.map((item, index) => (
+                                <StyledTableRow key={index}>
+                                    <TableCell component="th" scope="row">
+                                        <div className='flex flex-col'>
+                                            <Typography color='text.primary' className='font-medium'>
+                                                {item.description}
+                                            </Typography>
+                                            <Typography variant='caption' color='text.secondary'>
+                                                {item.typeName}
+                                            </Typography>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell align="right">{formatCurrency(item.unitPrice)}</TableCell>
+                                    <TableCell align="right">{item.quantity}</TableCell>
+                                    <TableCell align="right" sx={{ fontWeight: 'medium' }}>{formatCurrency(item.totalAmount)}</TableCell>
+                                </StyledTableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={4} align="center">No billable items found</TableCell>
+                            </TableRow>
+                        )}
                         </TableBody>
                     </Table>
                 </TableContainer>
               </Grid>
 
-              {/* --- DISCOUNT SECTION (Improved UI) --- */}
-
-              { appointmentInvDetails.status == "UNPAID" &&
+              {/* --- DISCOUNT SECTION --- */}
               <Grid size={{ xs: 12 }}>
                  <div className='flex items-center justify-between mbe-1'>
                     <Typography variant='h6'>
                         Discounts
                     </Typography>
-                     <Button
-                        size='medium'
-                        variant='outlined'
-                        color='primary'
-                        onClick={() => appendDiscount({ discountType: 'DOCTOR_DISCOUNT', description: '', amount: 0 })}
-                        startIcon={<i className='tabler-plus' />}
-                    >
-                        Add Discount
-                    </Button>
+                    {/* Only show 'Add Discount' button if UNPAID */}
+                    {isUnpaid && (
+                        <Button
+                            size='medium'
+                            variant='outlined'
+                            color='primary'
+                            onClick={() => appendDiscount({ discountType: 'DOCTOR_DISCOUNT', description: '', amount: 0 })}
+                            startIcon={<i className='tabler-plus' />}
+                        >
+                            Add Discount
+                        </Button>
+                    )}
                  </div>
                  
                 {discountFields.length > 0 ? (
@@ -276,7 +319,14 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                             name={`discounts.${index}.discountType`}
                                             control={control}
                                             render={({ field }) => (
-                                                <CustomTextField select fullWidth label="Type" size="small" {...field}>
+                                                <CustomTextField 
+                                                    select 
+                                                    fullWidth 
+                                                    label="Type" 
+                                                    size="small" 
+                                                    {...field}
+                                                    disabled={!isUnpaid} // Disable if PAID
+                                                >
                                                     <MenuItem value='DOCTOR_DISCOUNT'>Doctor Discount</MenuItem>
                                                     <MenuItem value='CLINIC_DISCOUNT'>Clinic Discount</MenuItem>
                                                     <MenuItem value='OTHER_DISCOUNT'>Other</MenuItem>
@@ -285,13 +335,20 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                         />
                                     </Grid>
                                     <Grid size={{ xs: 12, md: 5 }}>
-                                         <Controller
-                                            name={`discounts.${index}.description`}
-                                            control={control}
-                                            render={({ field }) => (
-                                                <CustomTextField fullWidth label="Description" size="small" placeholder='e.g. 10% Off' {...field} />
-                                            )}
-                                        />
+                                             <Controller
+                                                name={`discounts.${index}.description`}
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <CustomTextField 
+                                                        fullWidth 
+                                                        label="Description" 
+                                                        size="small" 
+                                                        placeholder='e.g. 10% Off' 
+                                                        {...field} 
+                                                        disabled={!isUnpaid} // Disable if PAID
+                                                    />
+                                                )}
+                                            />
                                     </Grid>
                                     <Grid size={{ xs: 12, md: 3 }}>
                                         <Controller
@@ -308,14 +365,17 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                                     {...field}
                                                     value={field.value === 0 ? '' : field.value ?? ''}
                                                     onChange={(e) => field.onChange(parseFloat(e.target.value) || null)}
+                                                    disabled={!isUnpaid} // Disable if PAID
                                                 />
                                             )}
                                         />
                                     </Grid>
                                 </Grid>
-                                <IconButton size='small' color="error" onClick={() => removeDiscount(index)} className='mt-1'>
-                                    <i className='tabler-trash' />
-                                </IconButton>
+                                {isUnpaid && (
+                                    <IconButton size='small' color="error" onClick={() => removeDiscount(index)} className='mt-1'>
+                                        <i className='tabler-trash' />
+                                    </IconButton>
+                                )}
                             </div>
                          ))}
                     </div>
@@ -325,7 +385,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                     </Typography>
                 )}
               </Grid>
-              }
+
               <Grid size={{ xs: 12 }}>
                 <Divider />
               </Grid>
@@ -337,20 +397,20 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                     <div className='flex items-center justify-between mbe-2'>
                       <Typography color='text.secondary'>Subtotal:</Typography>
                       <Typography className='font-medium' color='text.primary'>
-                        {formatCurrency(initialSubtotal)}
+                        {formatCurrency(displaySubtotal)}
                       </Typography>
                     </div>
                     <div className='flex items-center justify-between mbe-2'>
                       <Typography color='text.secondary'>Total Discount:</Typography>
                       <Typography className='font-medium' color='error.main'>
-                        - {formatCurrency(totalDiscount)}
+                        - {formatCurrency(displayTotalDiscount)}
                       </Typography>
                     </div>
                     <Divider className='my-3' />
                     <div className='flex items-center justify-between'>
                       <Typography variant="h6">Total Amount:</Typography>
                       <Typography variant="h6" color='primary.main'>
-                        {formatCurrency(finalTotal)}
+                        {formatCurrency(displayFinalTotal)}
                       </Typography>
                     </div>
                   </div>
@@ -377,6 +437,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                             fullWidth
                             multiline
                             placeholder="Add a note..."
+                            disabled={!isUnpaid}
                         />
                     )}
                 />
@@ -389,17 +450,21 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
       <Grid size={{ xs: 12, md: 3 }}>
         <Card>
           <CardContent className='flex flex-col gap-4'>
-            <OpenDialogOnElementClick 
-                element={Button} 
-                elementProps={buttonProps} 
-                dialog={PaymentFinalizer} 
-                dialogProps={{ 
-                    finalTotal: finalTotal, 
-                    invoiceId: appointmentInvDetails?.invoiceId || id,
-                    discounts: watchedDiscounts,
-                    patientMobileNo: appointmentInvDetails?.patientContactNo
-                }} 
-            />
+             {isUnpaid ? (
+                <OpenDialogOnElementClick 
+                    element={Button} 
+                    elementProps={buttonProps} 
+                    dialog={PaymentFinalizer} 
+                    dialogProps={{ 
+                        finalTotal: displayFinalTotal, 
+                        invoiceId: appointmentInvDetails?.invoiceId || id,
+                        discounts: watchedDiscounts,
+                        patientMobileNo: appointmentInvDetails?.patientContactNo
+                    }} 
+                />
+             ) : (
+                 <Button {...buttonProps}>Paid</Button>
+             )}
           </CardContent>
         </Card>
       </Grid>    
