@@ -68,37 +68,41 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appointmentInvDetails?: any }) => {
   
+  // Parse date safely
   const [issueDate, setIssueDate] = useState<Date | null | undefined>(
      appointmentInvDetails?.dateIssued ? new Date(appointmentInvDetails.dateIssued) : new Date()
   )
 
   // --- 1. SEPARATE ITEMS VS DISCOUNTS ---
-  // The API returns discounts mixed in 'items' for PAID invoices. We need to separate them.
   const { billableItems, existingDiscounts } = useMemo(() => {
     const rawItems: InvoiceItem[] = appointmentInvDetails?.items || [];
     
+    // Filter out discounts from the main table
     const billable = rawItems.filter(item => !item.typeName.includes('DISCOUNT') && item.totalAmount >= 0);
     
-    // For PAID invoices, extract discounts from items. 
-    // They usually have negative amounts, so we convert to positive for display.
+    // Extract discounts for form initialization (if editing is needed or for display logic)
     const discounts = rawItems
         .filter(item => item.typeName.includes('DISCOUNT'))
         .map(d => ({
             discountType: d.typeName,
             description: d.description,
-            amount: Math.abs(d.totalAmount) // Ensure positive for UI
+            amount: Math.abs(d.totalAmount) // Ensure positive for UI inputs
         }));
 
     return { billableItems: billable, existingDiscounts: discounts };
   }, [appointmentInvDetails]);
 
-  const isUnpaid = appointmentInvDetails?.status?.code === "UNPAID";
+  // --- 2. STATUS & PAYMENT LOGIC ---
+  const statusCode = appointmentInvDetails?.status?.code;
+  // It is payable if UNPAID or PARTIAL
+  const isPayable = statusCode === "UNPAID" || statusCode === "PARTIAL";
+  const isFullyPaid = statusCode === "PAID";
 
   const { control, watch } = useForm<InvoiceFormData>({
     defaultValues: {
-      // If PAID, populate form with existing discounts (read-only effect), otherwise start empty
-      discounts: isUnpaid ? [] : existingDiscounts,
-      note: appointmentInvDetails?.appointmentNote || ''
+      // If UNPAID, we might start empty. If PARTIAL/PAID, we load existing discounts to show them.
+      discounts: isPayable && statusCode === "UNPAID" ? [] : existingDiscounts,
+      note: appointmentInvDetails?.appointmentNote || 'Thank you for choosing CureGuard Clinic.'
     }
   });
 
@@ -107,35 +111,46 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
     name: 'discounts'
   });
 
-  // --- CALCULATIONS ---
-  // If API provides 'subtotal' and 'totalDiscount' directly (usually for PAID), prioritize those.
-  // Otherwise, calculate dynamically for UNPAID editing state.
-  
+  // --- 3. CALCULATIONS ---
   const watchedDiscounts = watch('discounts');
 
-  // 1. Calculate Subtotal (Sum of only billable items)
-  const calculatedSubtotal = billableItems.reduce((sum, item) => sum + (item.totalAmount || 0), 0);
-  const displaySubtotal = appointmentInvDetails?.subtotal || calculatedSubtotal;
+  // A. Subtotal
+  // Use API subtotal if available, else calc from billable items
+  const displaySubtotal = appointmentInvDetails?.subtotal || billableItems.reduce((sum, item) => sum + (item.totalAmount || 0), 0);
 
-  // 2. Calculate Discount Total
-  const calculatedDiscountTotal = watchedDiscounts?.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) || 0;
-  // Use API totalDiscount if PAID/available, else use watched form values
-  const displayTotalDiscount = isUnpaid ? calculatedDiscountTotal : (appointmentInvDetails?.totalDiscount || calculatedDiscountTotal);
+  // B. Discounts
+  // For calculation: Use form values if editable, otherwise use API totalDiscount
+  const formDiscountTotal = watchedDiscounts?.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) || 0;
+  const displayTotalDiscount = (statusCode === "UNPAID") ? formDiscountTotal : (appointmentInvDetails?.totalDiscount || formDiscountTotal);
 
-  // 3. Final Total
-  const displayFinalTotal = Math.max(0, displaySubtotal - displayTotalDiscount);
+  // C. Totals
+  const finalTotalAmount = Math.max(0, displaySubtotal - displayTotalDiscount);
+  const amountPaidSoFar = appointmentInvDetails?.amountPaid || 0;
+  
+  // D. Balance Due (Important for Partial)
+  const balanceDue = Math.max(0, finalTotalAmount - amountPaidSoFar);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', minimumFractionDigits: 2 }).format(amount);
   };
 
-  const buttonProps: ButtonProps = {
+  // Button Props for "Full Payment"
+  const fullPaymentBtnProps: ButtonProps = {
       variant: 'contained',
       color: "success",
-      className: "capitalize",
-      children: isUnpaid ? 'Make Payment' : 'Paid',
-      disabled: !isUnpaid
+      className: "capitalize w-full",
+      children: 'Full Settle',
+      startIcon: <i className='tabler-check' />
   }  
+
+  // Button Props for "Partial Payment"
+  const partialPaymentBtnProps: ButtonProps = {
+      variant: 'outlined',
+      color: "primary",
+      className: "capitalize w-full",
+      children: 'Partial Payment',
+      startIcon: <i className='tabler-adjustments-dollar' />
+  }
 
   return (
     <>
@@ -185,6 +200,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                           customInput={<CustomTextField fullWidth />}
                         />
                       </div>
+                      
                       {/* Status Chip */}
                       {appointmentInvDetails?.status && (
                         <Chip 
@@ -245,7 +261,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                 <Divider />
               </Grid>
 
-              {/* --- INVOICE ITEMS SECTION (Billable Items Only) --- */}
+              {/* --- INVOICE ITEMS SECTION --- */}
               <Grid size={{ xs: 12 }}>
                 <Typography variant='h6' className='mbe-4'>
                    Services & Items
@@ -295,8 +311,8 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                     <Typography variant='h6'>
                         Discounts
                     </Typography>
-                    {/* Only show 'Add Discount' button if UNPAID */}
-                    {isUnpaid && (
+                    {/* Allow Adding Discounts only if UNPAID. If Partial, logic gets complex, usually locked. */}
+                    {statusCode === "UNPAID" && (
                         <Button
                             size='medium'
                             variant='outlined'
@@ -325,7 +341,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                                     label="Type" 
                                                     size="small" 
                                                     {...field}
-                                                    disabled={!isUnpaid} // Disable if PAID
+                                                    disabled={statusCode !== "UNPAID"}
                                                 >
                                                     <MenuItem value='DOCTOR_DISCOUNT'>Doctor Discount</MenuItem>
                                                     <MenuItem value='CLINIC_DISCOUNT'>Clinic Discount</MenuItem>
@@ -345,7 +361,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                                         size="small" 
                                                         placeholder='e.g. 10% Off' 
                                                         {...field} 
-                                                        disabled={!isUnpaid} // Disable if PAID
+                                                        disabled={statusCode !== "UNPAID"}
                                                     />
                                                 )}
                                             />
@@ -365,13 +381,13 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                                     {...field}
                                                     value={field.value === 0 ? '' : field.value ?? ''}
                                                     onChange={(e) => field.onChange(parseFloat(e.target.value) || null)}
-                                                    disabled={!isUnpaid} // Disable if PAID
+                                                    disabled={statusCode !== "UNPAID"}
                                                 />
                                             )}
                                         />
                                     </Grid>
                                 </Grid>
-                                {isUnpaid && (
+                                {statusCode === "UNPAID" && (
                                     <IconButton size='small' color="error" onClick={() => removeDiscount(index)} className='mt-1'>
                                         <i className='tabler-trash' />
                                     </IconButton>
@@ -394,25 +410,49 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
               <Grid size={{ xs: 12 }}>
                 <div className='flex justify-end'>
                   <div className='min-is-[300px]'>
+                    
                     <div className='flex items-center justify-between mbe-2'>
                       <Typography color='text.secondary'>Subtotal:</Typography>
                       <Typography className='font-medium' color='text.primary'>
                         {formatCurrency(displaySubtotal)}
                       </Typography>
                     </div>
+                    
                     <div className='flex items-center justify-between mbe-2'>
                       <Typography color='text.secondary'>Total Discount:</Typography>
                       <Typography className='font-medium' color='error.main'>
                         - {formatCurrency(displayTotalDiscount)}
                       </Typography>
                     </div>
+                    
                     <Divider className='my-3' />
-                    <div className='flex items-center justify-between'>
+                    
+                    <div className='flex items-center justify-between mbe-2'>
                       <Typography variant="h6">Total Amount:</Typography>
                       <Typography variant="h6" color='primary.main'>
-                        {formatCurrency(displayFinalTotal)}
+                        {formatCurrency(finalTotalAmount)}
                       </Typography>
                     </div>
+
+                    {/* NEW: Paid & Balance Rows for Partial/Paid States */}
+                    {(amountPaidSoFar > 0 || isPayable) && (
+                        <>
+                            <div className='flex items-center justify-between mbe-2'>
+                                <Typography color='text.secondary'>Paid Amount:</Typography>
+                                <Typography className='font-medium' color='success.main'>
+                                    {formatCurrency(amountPaidSoFar)}
+                                </Typography>
+                            </div>
+                            
+                            <div className='bg-red-50 p-2 rounded border border-red-100 flex items-center justify-between'>
+                                <Typography color='error.main' className="font-bold">Balance Due:</Typography>
+                                <Typography color='error.main' className="font-bold">
+                                    {formatCurrency(balanceDue)}
+                                </Typography>
+                            </div>
+                        </>
+                    )}
+
                   </div>
                 </div>
               </Grid>
@@ -437,7 +477,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                             fullWidth
                             multiline
                             placeholder="Add a note..."
-                            disabled={!isUnpaid}
+                            disabled={!isPayable}
                         />
                     )}
                 />
@@ -447,24 +487,53 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
         </Card>
       </Grid>
       
+      {/* --- ACTION CARD (Right Side) --- */}
       <Grid size={{ xs: 12, md: 3 }}>
         <Card>
           <CardContent className='flex flex-col gap-4'>
-             {isUnpaid ? (
-                <OpenDialogOnElementClick 
-                    element={Button} 
-                    elementProps={buttonProps} 
-                    dialog={PaymentFinalizer} 
-                    dialogProps={{ 
-                        finalTotal: displayFinalTotal, 
-                        invoiceId: appointmentInvDetails?.invoiceId || id,
-                        discounts: watchedDiscounts,
-                        patientMobileNo: appointmentInvDetails?.patientContactNo
-                    }} 
-                />
+             
+             {isPayable ? (
+                <>
+                    {/* BUTTON 1: Full Payment */}
+                    <OpenDialogOnElementClick 
+                        element={Button} 
+                        elementProps={fullPaymentBtnProps} 
+                        dialog={PaymentFinalizer} 
+                        dialogProps={{ 
+                            finalTotal: balanceDue, // Pass remaining balance
+                            invoiceId: appointmentInvDetails?.invoiceId || id,
+                            discounts: watchedDiscounts,
+                            patientMobileNo: appointmentInvDetails?.patientContactNo,
+                            mode: 'FULL' // Optional hint for dialog
+                        }} 
+                    />
+
+                    {/* BUTTON 2: Partial Payment */}
+                    <OpenDialogOnElementClick 
+                        element={Button} 
+                        elementProps={partialPaymentBtnProps} 
+                        dialog={PaymentFinalizer} 
+                        dialogProps={{ 
+                            finalTotal: balanceDue, // Pass balance (dialog handles input)
+                            invoiceId: appointmentInvDetails?.invoiceId || id,
+                            discounts: watchedDiscounts,
+                            patientMobileNo: appointmentInvDetails?.patientContactNo,
+                            mode: 'PARTIAL' // Optional hint for dialog
+                        }} 
+                    />
+                </>
              ) : (
-                 <Button {...buttonProps}>Paid</Button>
+                 <Button 
+                    variant='contained' 
+                    color="inherit" 
+                    disabled 
+                    fullWidth
+                    className="bg-gray-200 text-gray-500"
+                 >
+                    Paid In Full
+                 </Button>
              )}
+
           </CardContent>
         </Card>
       </Grid>    
