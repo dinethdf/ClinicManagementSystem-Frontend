@@ -68,7 +68,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appointmentInvDetails?: any }) => {
   
-  // Parse date safely
   const [issueDate, setIssueDate] = useState<Date | null | undefined>(
      appointmentInvDetails?.dateIssued ? new Date(appointmentInvDetails.dateIssued) : new Date()
   )
@@ -77,31 +76,30 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
   const { billableItems, existingDiscounts } = useMemo(() => {
     const rawItems: InvoiceItem[] = appointmentInvDetails?.items || [];
     
-    // Filter out discounts from the main table
+    // Filter Billable Items (Positive amounts, not discounts)
     const billable = rawItems.filter(item => !item.typeName.includes('DISCOUNT') && item.totalAmount >= 0);
     
-    // Extract discounts for form initialization (if editing is needed or for display logic)
+    // Extract Existing Discounts
     const discounts = rawItems
         .filter(item => item.typeName.includes('DISCOUNT'))
         .map(d => ({
             discountType: d.typeName,
             description: d.description,
-            amount: Math.abs(d.totalAmount) // Ensure positive for UI inputs
+            amount: Math.abs(d.totalAmount) // Convert negative to positive for UI
         }));
 
     return { billableItems: billable, existingDiscounts: discounts };
   }, [appointmentInvDetails]);
 
-  // --- 2. STATUS & PAYMENT LOGIC ---
+  // --- 2. STATUS CHECK ---
   const statusCode = appointmentInvDetails?.status?.code;
-  // It is payable if UNPAID or PARTIAL
+  // Editable if UNPAID or PARTIAL
   const isPayable = statusCode === "UNPAID" || statusCode === "PARTIAL";
-  const isFullyPaid = statusCode === "PAID";
 
   const { control, watch } = useForm<InvoiceFormData>({
     defaultValues: {
-      // If UNPAID, we might start empty. If PARTIAL/PAID, we load existing discounts to show them.
-      discounts: isPayable && statusCode === "UNPAID" ? [] : existingDiscounts,
+      // Always load existing discounts so user can see them and add NEW ones in the same list
+      discounts: existingDiscounts, 
       note: appointmentInvDetails?.appointmentNote || 'Thank you for choosing CureGuard Clinic.'
     }
   });
@@ -111,30 +109,28 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
     name: 'discounts'
   });
 
-  // --- 3. CALCULATIONS ---
+  // --- 3. DYNAMIC CALCULATIONS ---
   const watchedDiscounts = watch('discounts');
 
-  // A. Subtotal
-  // Use API subtotal if available, else calc from billable items
+  // A. Subtotal (From API or calculated from billable items)
   const displaySubtotal = appointmentInvDetails?.subtotal || billableItems.reduce((sum, item) => sum + (item.totalAmount || 0), 0);
 
-  // B. Discounts
-  // For calculation: Use form values if editable, otherwise use API totalDiscount
+  // B. Total Discount
+  // If Payable (UNPAID/PARTIAL): Calculate dynamically from form (allows adding new discounts)
+  // If Paid: Use static API value
   const formDiscountTotal = watchedDiscounts?.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) || 0;
-  const displayTotalDiscount = (statusCode === "UNPAID") ? formDiscountTotal : (appointmentInvDetails?.totalDiscount || formDiscountTotal);
+  const displayTotalDiscount = isPayable ? formDiscountTotal : (appointmentInvDetails?.totalDiscount || formDiscountTotal);
 
-  // C. Totals
+  // C. Final Totals
   const finalTotalAmount = Math.max(0, displaySubtotal - displayTotalDiscount);
   const amountPaidSoFar = appointmentInvDetails?.amountPaid || 0;
-  
-  // D. Balance Due (Important for Partial)
   const balanceDue = Math.max(0, finalTotalAmount - amountPaidSoFar);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', minimumFractionDigits: 2 }).format(amount);
   };
 
-  // Button Props for "Full Payment"
+  // Button Configs
   const fullPaymentBtnProps: ButtonProps = {
       variant: 'contained',
       color: "success",
@@ -143,7 +139,6 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
       startIcon: <i className='tabler-check' />
   }  
 
-  // Button Props for "Partial Payment"
   const partialPaymentBtnProps: ButtonProps = {
       variant: 'outlined',
       color: "primary",
@@ -200,7 +195,6 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                           customInput={<CustomTextField fullWidth />}
                         />
                       </div>
-                      
                       {/* Status Chip */}
                       {appointmentInvDetails?.status && (
                         <Chip 
@@ -219,12 +213,10 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                 </div>
               </Grid>
 
-              {/* --- Bill To & Appointment Details --- */}
+              {/* --- Bill To & Details --- */}
               <Grid size={{ xs: 12 }} container spacing={6}>
                   <Grid size={{ xs: 12, md: 6 }}>
-                    <Typography className='font-medium mbe-2' color='text.primary'>
-                        Bill To:
-                    </Typography>
+                    <Typography className='font-medium mbe-2' color='text.primary'>Bill To:</Typography>
                     <div className='flex flex-col gap-1'>
                         <Typography color='text.primary' className='font-medium'>{appointmentInvDetails?.patientName}</Typography>
                         <Typography color='text.secondary'>{appointmentInvDetails?.patientAddress}</Typography>
@@ -234,9 +226,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                   </Grid>
                   {appointmentInvDetails?.appointmentId && (
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <Typography className='font-medium mbe-2' color='text.primary'>
-                            Appointment Details:
-                        </Typography>
+                        <Typography className='font-medium mbe-2' color='text.primary'>Appointment Details:</Typography>
                         <div className='flex flex-col gap-1'>
                             <div className='flex gap-2'>
                                 <Typography color='text.secondary' className='min-is-[100px]'>Doctor:</Typography>
@@ -261,11 +251,9 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                 <Divider />
               </Grid>
 
-              {/* --- INVOICE ITEMS SECTION --- */}
+              {/* --- INVOICE ITEMS --- */}
               <Grid size={{ xs: 12 }}>
-                <Typography variant='h6' className='mbe-4'>
-                   Services & Items
-                </Typography>
+                <Typography variant='h6' className='mbe-4'>Services & Items</Typography>
                 <TableContainer component={Paper} variant="outlined">
                     <Table sx={{ minWidth: 650 }} aria-label="invoice items table">
                         <TableHead sx={{ backgroundColor: 'var(--mui-palette-action-hover)' }}>
@@ -282,12 +270,8 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                 <StyledTableRow key={index}>
                                     <TableCell component="th" scope="row">
                                         <div className='flex flex-col'>
-                                            <Typography color='text.primary' className='font-medium'>
-                                                {item.description}
-                                            </Typography>
-                                            <Typography variant='caption' color='text.secondary'>
-                                                {item.typeName}
-                                            </Typography>
+                                            <Typography color='text.primary' className='font-medium'>{item.description}</Typography>
+                                            <Typography variant='caption' color='text.secondary'>{item.typeName}</Typography>
                                         </div>
                                     </TableCell>
                                     <TableCell align="right">{formatCurrency(item.unitPrice)}</TableCell>
@@ -305,14 +289,13 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                 </TableContainer>
               </Grid>
 
-              {/* --- DISCOUNT SECTION --- */}
+              {/* --- DISCOUNT SECTION (Updated for Partial Edit) --- */}
               <Grid size={{ xs: 12 }}>
                  <div className='flex items-center justify-between mbe-1'>
-                    <Typography variant='h6'>
-                        Discounts
-                    </Typography>
-                    {/* Allow Adding Discounts only if UNPAID. If Partial, logic gets complex, usually locked. */}
-                    {statusCode === "UNPAID" && (
+                    <Typography variant='h6'>Discounts</Typography>
+                    
+                    {/* UPDATED: Allowed for UNPAID OR PARTIAL */}
+                    {isPayable && (
                         <Button
                             size='medium'
                             variant='outlined'
@@ -336,12 +319,8 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                             control={control}
                                             render={({ field }) => (
                                                 <CustomTextField 
-                                                    select 
-                                                    fullWidth 
-                                                    label="Type" 
-                                                    size="small" 
-                                                    {...field}
-                                                    disabled={statusCode !== "UNPAID"}
+                                                    select fullWidth label="Type" size="small" {...field}
+                                                    disabled={!isPayable} // Editable if Payable
                                                 >
                                                     <MenuItem value='DOCTOR_DISCOUNT'>Doctor Discount</MenuItem>
                                                     <MenuItem value='CLINIC_DISCOUNT'>Clinic Discount</MenuItem>
@@ -356,12 +335,8 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                                 control={control}
                                                 render={({ field }) => (
                                                     <CustomTextField 
-                                                        fullWidth 
-                                                        label="Description" 
-                                                        size="small" 
-                                                        placeholder='e.g. 10% Off' 
-                                                        {...field} 
-                                                        disabled={statusCode !== "UNPAID"}
+                                                        fullWidth label="Description" size="small" placeholder='e.g. 10% Off' {...field} 
+                                                        disabled={!isPayable} 
                                                     />
                                                 )}
                                             />
@@ -372,22 +347,18 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                             control={control}
                                              render={({ field }) => (
                                                 <CustomTextField
-                                                    fullWidth
-                                                    type='number'
-                                                    label="Amount"
-                                                    size="small"
-                                                    placeholder='0.00'
+                                                    fullWidth type='number' label="Amount" size="small" placeholder='0.00'
                                                     slotProps={{ input: { startAdornment: <InputAdornment position='start'>LKR</InputAdornment>, inputProps: { min: 0 } } }}
                                                     {...field}
                                                     value={field.value === 0 ? '' : field.value ?? ''}
                                                     onChange={(e) => field.onChange(parseFloat(e.target.value) || null)}
-                                                    disabled={statusCode !== "UNPAID"}
+                                                    disabled={!isPayable}
                                                 />
                                             )}
                                         />
                                     </Grid>
                                 </Grid>
-                                {statusCode === "UNPAID" && (
+                                {isPayable && (
                                     <IconButton size='small' color="error" onClick={() => removeDiscount(index)} className='mt-1'>
                                         <i className='tabler-trash' />
                                     </IconButton>
@@ -434,7 +405,6 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                       </Typography>
                     </div>
 
-                    {/* NEW: Paid & Balance Rows for Partial/Paid States */}
                     {(amountPaidSoFar > 0 || isPayable) && (
                         <>
                             <div className='flex items-center justify-between mbe-2'>
@@ -487,7 +457,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
         </Card>
       </Grid>
       
-      {/* --- ACTION CARD (Right Side) --- */}
+      {/* --- ACTIONS --- */}
       <Grid size={{ xs: 12, md: 3 }}>
         <Card>
           <CardContent className='flex flex-col gap-4'>
@@ -500,11 +470,11 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                         elementProps={fullPaymentBtnProps} 
                         dialog={PaymentFinalizer} 
                         dialogProps={{ 
-                            finalTotal: balanceDue, // Pass remaining balance
+                            finalTotal: balanceDue,
                             invoiceId: appointmentInvDetails?.invoiceId || id,
-                            discounts: watchedDiscounts,
+                            discounts: watchedDiscounts, // Send current form discounts
                             patientMobileNo: appointmentInvDetails?.patientContactNo,
-                            mode: 'FULL' // Optional hint for dialog
+                            mode: 'FULL'
                         }} 
                     />
 
@@ -514,11 +484,11 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                         elementProps={partialPaymentBtnProps} 
                         dialog={PaymentFinalizer} 
                         dialogProps={{ 
-                            finalTotal: balanceDue, // Pass balance (dialog handles input)
+                            finalTotal: balanceDue,
                             invoiceId: appointmentInvDetails?.invoiceId || id,
-                            discounts: watchedDiscounts,
+                            discounts: watchedDiscounts, // Send current form discounts
                             patientMobileNo: appointmentInvDetails?.patientContactNo,
-                            mode: 'PARTIAL' // Optional hint for dialog
+                            mode: 'PARTIAL'
                         }} 
                     />
                 </>

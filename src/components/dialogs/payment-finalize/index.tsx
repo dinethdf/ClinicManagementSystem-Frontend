@@ -63,7 +63,7 @@ const initialPaymentData: AddEditPaymentData = {
 const paymentMethodes: CustomInputHorizontalData[] = [
   { title: 'Cash', value: 'Cash', isSelected: true },
   { title: 'Card', value: 'Card' },
-  { title: 'Bank', value: 'Bank Transfer' } // Shortened title for space
+  { title: 'Bank', value: 'Bank Transfer' } 
 ]
 
 const PaymentFinalizer = ({ 
@@ -135,32 +135,38 @@ const PaymentFinalizer = ({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
     if (!isValid) return;
 
     if (selectedMethod !== 'Cash' && !paymentDetails.transactionId) {
-      alert("Transaction ID required.");
+      alert("Transaction ID is required for non-cash payments.");
       return;
     }
     
     let finalPayableAmount = (mode === 'PARTIAL') ? enteredAmount : targetAmount;
 
+    // --- UPDATED PAYLOAD TO MATCH API REQUIREMENT ---
     const paymentPayload = {
       invoiceId: parseInt(invoiceId), 
-      paymentMethod: selectedMethod,
+      amountPaid: finalPayableAmount, // Match JSON: "amountPaid"
+      paymentMethod: selectedMethod,  // e.g. "Cash"
+      paymentLocation: "CLINIC_COUNTER", // Match JSON: "CLINIC_COUNTER"
       transactionCode: selectedMethod === 'Cash' ? null : paymentDetails.transactionId,
-      amount: finalPayableAmount, 
-      discounts: discounts, 
-      patientMobileNo: patientMobileNo
+      receivedByStaffId: 1, // Match JSON: Hardcoded ID (Ideally get from Auth Context)
+      discounts: discounts, // Matches JSON structure
+      // Note: 'patientMobileNo' removed from payload as it was not in your JSON example
     };
 
     const result = await processInvoicePayment(paymentPayload);
 
     if (result.success) {
       toast.success("Payment successful!");
+      
       const invoiceDetails = await getInvoiceDetails(parseInt(invoiceId));
       if (invoiceDetails) {
         appointmentPrintInvoice(invoiceDetails);
       }
+      
       handleClose();
       router.replace(`/${params.lang}/clinic/appoinment/list`);
     } else {
@@ -179,13 +185,12 @@ const PaymentFinalizer = ({
   return (
     <Dialog
       open={open}
-      maxWidth='sm' // Changed to SM to make it narrower visually
+      maxWidth='sm'
       fullWidth
       scroll='body'
       onClose={handleClose}
-      sx={{ '& .MuiDialog-paper': { overflow: 'visible', margin: '16px' } }} // Reduced margin
+      sx={{ '& .MuiDialog-paper': { overflow: 'visible', margin: '16px' } }}
     >
-      {/* Reduced padding in Title */}
       <DialogTitle variant='h5' className='flex gap-1 flex-col text-center p-4 sm:pb-2'>
         {mode === 'FULL' ? 'Full Settlement' : 'Partial Payment'}
         <Typography variant="caption" component="span" className="text-gray-500"> 
@@ -194,13 +199,11 @@ const PaymentFinalizer = ({
       </DialogTitle>
       
       <form onSubmit={handleSubmit}>
-        {/* Reduced padding in Content */}
         <DialogContent className='p-4 sm:px-8'>
           <DialogCloseButton onClick={handleClose} disableRipple>
             <i className='tabler-x' />
           </DialogCloseButton>
           
-          {/* Reduced Grid Spacing from 6 to 3 */}
           <Grid container spacing={3}>
             
             {/* Payment Method */}
@@ -212,11 +215,11 @@ const PaymentFinalizer = ({
                 selected={selectedMethod}
                 name='payment-method'
                 handleChange={handleMethodChange}
-                gridProps={{ size: { xs: 4, sm: 4 } }} // Make them sit in one row on mobile too
+                gridProps={{ size: { xs: 4, sm: 4 } }}
               />
             ))}
 
-            {/* --- DISPLAY INFO (Compact Box) --- */}
+            {/* --- DISPLAY INFO --- */}
             <Grid size={{ xs: 12 }}>
               <Box className='flex flex-row justify-between items-center px-4 py-2 rounded border border-divider bg-action-hover'>
                 <Typography variant='body1' color='text.secondary' className="font-medium">
@@ -228,7 +231,7 @@ const PaymentFinalizer = ({
               </Box>
             </Grid>
 
-            {/* --- AMOUNT INPUT (Reduced Height) --- */}
+            {/* --- AMOUNT INPUT --- */}
             <Grid size={{ xs: 12 }}>
                 <CustomTextField
                     fullWidth
@@ -241,13 +244,12 @@ const PaymentFinalizer = ({
                     onChange={handleFormChange}
                     autoFocus={!isInputDisabled} 
                     disabled={isInputDisabled}
-                    // Reduced font size slightly and height
                     inputProps={{ style: { fontSize: '1.75rem', height: '2.5rem', textAlign: 'center', fontWeight: 'bold' }, min: 0 }}
                     helperText={mode === 'PARTIAL' && `Max allowed: ${targetAmount}`}
                 />
             </Grid>
 
-            {/* --- DYNAMIC FEEDBACK (Compact) --- */}
+            {/* --- DYNAMIC FEEDBACK --- */}
             <Grid size={{ xs: 12 }} className='flex flex-row justify-between items-center px-2'>
                 {mode === 'FULL' ? (
                     selectedMethod === 'Cash' && (
@@ -277,7 +279,7 @@ const PaymentFinalizer = ({
               <Grid size={{ xs: 12 }}>
                   <CustomTextField
                     fullWidth
-                    size="small" // Small input to save space
+                    size="small"
                     label='Transaction Ref / ID'
                     name='transactionId'
                     placeholder='e.g., TRX-12345678'
@@ -291,7 +293,7 @@ const PaymentFinalizer = ({
             <Grid size={{ xs: 12 }}>
                 <CustomTextField
                 fullWidth
-                size="small" // Small input
+                size="small"
                 label='Notes'
                 name='notes'
                 placeholder='Add note...'
@@ -303,14 +305,13 @@ const PaymentFinalizer = ({
           </Grid>
         </DialogContent>
         
-        {/* Compact Actions Footer */}
         <DialogActions className='justify-center p-4 pt-2'>
           <Button 
             variant='contained' 
             type='submit'
             color={isValid ? 'primary' : 'secondary'}
             disabled={!isValid}
-            className="w-full sm:w-auto" // Full width on mobile
+            className="w-full sm:w-auto"
           >
             Confirm Payment
           </Button>
