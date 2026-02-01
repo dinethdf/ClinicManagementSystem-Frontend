@@ -1,31 +1,9 @@
 'use server'
 
 import { http, ApiError } from '@/services/api.config.server'
-import type { PatientDetailDTO, CreatePrescriptionDTO } from '@/types/consultation.types'
+import type { CreatePrescriptionDTO } from '@/types/consultation.types'
 import type { AllergyDTO, DiseaseDTO, AddHealthRecordRequest } from '@/types/patient.types';
 
-export async function getConsultationPatientDetails(patientId: number) {
-  try {
-   
-    const patientData = await http.get<PatientDetailDTO>(
-      `/api/patient/details/staff/${patientId}`
-    )
-    
-    if (!patientData) {
-     
-      return { success: false, data: null }
-    }
-
-   
-    return { success: true, data: patientData }
-
-  } catch (error) {
-
-    console.error('Fetch patient failed:', error)
-   
-    return { success: false, data: null }
-  }
-}
 
 export async function getPatientByBarcode(barcode: string) {
   try {

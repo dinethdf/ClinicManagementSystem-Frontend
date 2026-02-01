@@ -24,7 +24,7 @@ import AsyncAutocomplete from '@/components/form-components/AsyncAutocompletePro
 
 // Service Imports
 import { getPatientByBarcode } from '@/services/doctor/consultation.server.service'
-import type { PatientDetailDTO } from '@/types/consultation.types'
+import type { PatientDetailDTO } from '@/types/patient.types'
 
 type PatientSelectorDialogProps = {
   open: boolean

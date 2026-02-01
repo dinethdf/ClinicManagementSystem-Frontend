@@ -22,23 +22,6 @@ export type PrescriptionItem = {
   instructions: string
 }
 
-export type PatientDetailDTO = {
-  id: number
-  firstName: string
-  lastName: string
-  fullName: string
-  patientNo: string
-  nic: string
-  age: number
-  gender: number // 1: Male, 2: Female
-  bloodGroup: string
-  mobileNo: string
-  address: string
-  city: string
-  profileImg: string
-
-}
-
 
 export type PrescriptionItemDTO = {
   medicineName: string

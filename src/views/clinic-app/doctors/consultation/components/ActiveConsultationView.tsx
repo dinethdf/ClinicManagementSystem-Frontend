@@ -8,7 +8,7 @@ import PrescriptionManager from '../PrescriptionManager'
 import LabRequestManager from './LabRequestManager' // Import your new component
 
 import type { AppointmentStatusDTO } from '@/types/appoinments.types'
-import type { PatientDetailDTO } from '@/types/consultation.types'
+import type { PatientDetailDTO } from '@/types/patient.types'
 
 interface Props {
   appointmentInfo: AppointmentStatusDTO | null

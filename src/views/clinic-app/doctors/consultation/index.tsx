@@ -16,14 +16,13 @@ import ActiveConsultationView from './components/ActiveConsultationView'
 // Service Imports
 import { checkAppointmentStatus } from '@/services/appointment/appoinment.server.service'
 import { doctorSheduleService } from '@/services/doctor/doctor.shedule.service'
-import { 
-  getConsultationPatientDetails, 
-  getPatientByBarcode 
+import { getPatientByBarcode 
 } from '@/services/doctor/consultation.server.service'
 
 // Type Imports
 import type { AppointmentStatusDTO } from '@/types/appoinments.types'
-import type { PatientDetailDTO } from '@/types/consultation.types'
+import type { PatientDetailDTO } from '@/types/patient.types'
+import { getPatientByIdConsutant } from '@/services/patient/patient.server.service'
 
 interface AnalyticsData {
   total: number; completed: number; booked: number; pendingPayment: number; cancelled: number;
@@ -157,7 +156,7 @@ const handleStartConsultation = async () => {
     }
     setLoading(true)
     try {
-        const res = await getConsultationPatientDetails(processingPatient.id)
+        const res = await getPatientByIdConsutant(processingPatient.id)
         if (res.success && res.data) {
             setPatientDetail(res.data)
             setStartConsultationOpen(false) 

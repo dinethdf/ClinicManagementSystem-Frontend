@@ -26,6 +26,7 @@ import { CardHeader, Divider } from '@mui/material'
 import CustomTextField from '@core/components/mui/TextField'
 import CustomDatePicker from '@/components/custome/DatePickerTextField'
 import BackDropFullScreen from '@/components/BackDropFullScreen'
+import AsyncAutocomplete from '@/components/form-components/AsyncAutocompleteProps' // Added Import
 
 // Logic Imports
 import { getDoctorValidationSchema } from '@/schemas/doctorDetailsValidation' 
@@ -107,7 +108,7 @@ const DoctorAccountDetails = () => {
     }
 
     try {
-     
+      
       // Ensure you have this service method created
       const response = await doctorService.createDoctor(apiPayload)
 
@@ -373,25 +374,19 @@ const DoctorAccountDetails = () => {
               <Controller
                 name='specializationId'
                 control={control}
-                render={({ field }) => (
-                  <CustomTextField
+                render={({ field, fieldState: { error } }) => (
+                  <AsyncAutocomplete
                     {...field}
-                    select
-                    fullWidth
                     label='Specialization'
-                    error={!!errors.specializationId}
-                    helperText={errors.specializationId?.message}
-                  >
-                    <MenuItem value=''>Select Specialization</MenuItem>
-                    {/* You should ideally fetch these from an API */}
-                    <MenuItem value='1'>General Physician</MenuItem>
-                    <MenuItem value='2'>Dermatologist</MenuItem>
-                    <MenuItem value='3'>Orthopedic Surgeon</MenuItem>
-                    <MenuItem value='4'>Cardiologist</MenuItem>
-                    <MenuItem value='5'>Pediatrician</MenuItem>
-                    <MenuItem value='7'>Neurologist</MenuItem>
-                    <MenuItem value='10'>Dental Surgeon</MenuItem>
-                  </CustomTextField>
+                    fetchUrl='/api/specialization/list'
+                    searchParamKey='query'
+                    placeholder='Select Specialization'
+                    getOptionLabel={(option: any) => option.name || ''}
+                    fetchInputLenth={0}
+                    fullWidth
+                    error={!!error}
+                    helperText={error?.message}
+                  />
                 )}
               />
             </Grid>

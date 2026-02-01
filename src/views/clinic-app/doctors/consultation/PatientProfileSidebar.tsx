@@ -29,8 +29,7 @@ import {
   addDisease,
   deleteDisease
 } from '@/services/doctor/consultation.server.service'
-import type { PatientDetailDTO } from '@/types/consultation.types'
-import type { AllergyDTO, DiseaseDTO } from '@/types/patient.types'
+import type { AllergyDTO, DiseaseDTO, PatientDetailDTO } from '@/types/patient.types'
 
 const PatientProfileSidebar = ({ patient }: { patient: PatientDetailDTO }) => {
   
