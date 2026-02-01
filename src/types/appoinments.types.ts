@@ -65,6 +65,10 @@ export type AppointmentListDTO = {
 
 
 export type AppointmentDetailDTO = {
+  statusDisplayName: string
+  statusColor: string
+  invoiceStatusDisplayName: string
+  invoiceStatusColor: string
   id: number
   startTime: string
   endTime: string

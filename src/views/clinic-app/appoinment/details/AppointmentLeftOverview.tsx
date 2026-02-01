@@ -10,16 +10,18 @@ import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import Box from '@mui/material/Box'
+import Avatar from '@mui/material/Avatar'
 
 // Type Imports
 import type { AppointmentDetailDTO } from '@/types/appoinments.types'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import ConfirmationDialog from '@/components/dialogs/confirmation-dialog/ConfirmationDialog'
+import RefundDialog from '@/components/dialogs/refund-dialog/RefundDialog'
 
 // Service Imports
-import { cancelAppointment} from '@/services/appoinment.server.service'
+import { cancelAppointment } from '@/services/appoinment.server.service'
 import { encodeHideValue } from '@/utils/encode'
 import { appointmentPrintInvoice } from '@/components/printable/billPrint/AppointmentPrintInvoice'
 import { getInvoiceDetails } from '@/services/invoice.server.service'
@@ -27,45 +29,28 @@ import { getInvoiceDetails } from '@/services/invoice.server.service'
 const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: AppointmentDetailDTO }) => {
   const router = useRouter()
   const [openCancelDialog, setOpenCancelDialog] = useState(false)
+  const [openRefundDialog, setOpenRefundDialog] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
 
+  // --- ACTIONS ---
   const handleCancelConfirm = async (reason?: string) => {
-    // 1. Call the Server Action with the selected reason
     const finalReason = reason || "No reason provided";
     const result = await cancelAppointment(appointmentData.id, finalReason);
-
-    // 2. Refresh UI if successful
     if (result.success) {
         router.refresh(); 
         return { success: true, message: result.message };
     } 
-    
-    // 3. Return error
     return { success: false, message: result.error?.message || "Failed to cancel appointment" };
   }
 
   const handlePrintInvoice = async () => {
     try {
       setIsPrinting(true)
-      
-      // Get the invoice ID from appointmentData (adjust field name as needed)
-      const invoiceId = appointmentData.id // or appointmentData.id depending on your data structure
-      
-      if (!invoiceId) {
-        alert('Invoice not found for this appointment')
-        return
-      }
-
-      // Fetch invoice details
+      const invoiceId = appointmentData.id 
+      if (!invoiceId) { alert('Invoice not found'); return }
       const invoiceDetails = await getInvoiceDetails(invoiceId)
-      
-      if (!invoiceDetails) {
-        alert('Failed to load invoice details')
-        return
-      }
-
+      if (!invoiceDetails) { alert('Failed to load invoice details'); return }
       appointmentPrintInvoice(invoiceDetails)
-      
     } catch (error) {
       console.error('Print error:', error)
       alert('Failed to print invoice')
@@ -76,107 +61,169 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
 
   return (
     <>
-      <Card>
-        <CardContent className='flex flex-col pbs-12 gap-6'>
-           {/* ... (Previous Avatar/Header Code) ... */}
+      <Card className="overflow-visible">
+        <CardContent className='flex flex-col gap-6 p-6'>
            
-           <div className='flex flex-col justify-self-center items-center gap-6'>
-            <div className='flex flex-col items-center gap-4'>
-              <CustomAvatar src='/images/avatars/common.png' variant='rounded' size={100} />
-              <div className='flex flex-col items-center text-center'>
-                <Typography variant='h5'>{appointmentData.patientName}</Typography>
-                <Typography variant='body2' color='text.disabled'>{appointmentData.patientNo}</Typography>
-                <Chip 
-                  label={appointmentData.status} 
-                  color={appointmentData.status === 'COMPLETED' ? 'success' : appointmentData.status === 'CANCELLED' ? 'error' : 'primary'} 
-                  variant='tonal' 
-                  size='small' 
-                  className='mt-2' 
+           {/* --- 1. IDENTITY HEADER --- */}
+           <div className='flex flex-col items-center gap-3'>
+             <div className="relative">
+                <Avatar 
+                    src='/images/avatars/common.png' 
+                    alt={appointmentData.patientName}
+                    sx={{ width: 80, height: 80, border: '3px solid white', boxShadow: 2 }}
                 />
-              </div>
-            </div>
-          </div>
-          
-          <Divider />
-          
-          {/* ... (Previous Patient Details & Doctor Details) ... */}
-          <div className='flex flex-col gap-4'>
-            <Typography variant='h6'>Patient Details</Typography>
-            <div className='flex flex-col gap-2'>
-              <div className='flex items-center gap-2'>
-                <i className='tabler-phone text-xl text-textSecondary' />
-                <Typography>{appointmentData.patientMobile}</Typography>
-              </div>
-              <div className='flex items-center gap-2'>
-                <i className='tabler-id text-xl text-textSecondary' />
-                <Typography>{appointmentData.patientNic}</Typography>
-              </div>
-            </div>
-          </div>
+                <Chip 
+                   label={appointmentData.statusDisplayName || appointmentData.status} 
+                   sx={{ 
+                       backgroundColor: appointmentData.statusColor || 'primary.main', 
+                       color: '#fff',
+                       position: 'absolute',
+                       bottom: -6,
+                       left: '50%',
+                       transform: 'translateX(-50%)',
+                       height: 20,
+                       fontSize: '0.65rem',
+                       fontWeight: 'bold'
+                   }} 
+                   size='small' 
+                 />
+             </div>
+             
+             <div className='text-center mt-1'>
+               <Typography variant='h6' className="font-bold leading-tight">
+                  {appointmentData.patientName}
+               </Typography>
+               <Typography variant='caption' className="text-gray-400 font-mono block">
+                  {appointmentData.patientNo}
+               </Typography>
+             </div>
+           </div>
+           
+           <Divider />
+           
+           {/* --- 2. QUICK CONTACT & INFO --- */}
+           <div className='flex flex-col gap-3'>
+                <div className='flex items-center justify-between bg-gray-50 p-2 rounded border border-gray-100'>
+                   <div className='flex items-center gap-2'>
+                        <i className='tabler-phone text-gray-500 text-lg' />
+                        <Typography variant="body2" className="font-medium">{appointmentData.patientMobile}</Typography>
+                   </div>
+                </div>
+                
+                <div className='flex items-center justify-between bg-gray-50 p-2 rounded border border-gray-100'>
+                   <div className='flex items-center gap-2'>
+                        <i className='tabler-id text-gray-500 text-lg' />
+                        <Typography variant="body2" className="font-medium">{appointmentData.patientNic}</Typography>
+                   </div>
+                </div>
+           </div>
 
-          <Divider />
+           {/* --- 3. PAYMENT STATUS SUMMARY --- */}
+           <Box className="bg-blue-50/50 rounded p-3 text-center border border-blue-100">
+                <Typography variant="caption" className="uppercase text-gray-400 font-bold tracking-wide">
+                    Payment Status
+                </Typography>
+                <div className="flex items-center justify-center gap-2 mt-1">
+                    <Typography variant="h6" className="font-bold text-gray-700">
+                        {new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR' }).format(appointmentData.invoiceFinalAmount)}
+                    </Typography>
+                    <Chip 
+                        label={appointmentData.invoiceStatusDisplayName || appointmentData.invoiceStatus} 
+                        size="small" 
+                        sx={{ 
+                            backgroundColor: appointmentData.invoiceStatusColor || '#eee', 
+                            color: '#fff', 
+                            fontSize: '0.65rem',
+                            height: 20
+                        }} 
+                    />
+                </div>
+           </Box>
 
-          {/* ... */}
+           <Divider />
 
-          <div className='flex flex-col gap-2'>
-              {/* Print Invoice Button - Show only if payment is completed */}
-              {appointmentData.invoiceStatus === 'PAID' && (
-                <Button
-                  variant='contained'
-                  color='secondary'
-                  className='max-sm:is-full'
-                  startIcon={<i className='tabler-printer' />}
-                  onClick={handlePrintInvoice}
-                  disabled={isPrinting}
-                >
-                  {isPrinting ? 'Loading...' : 'Print Invoice'}
-                </Button>
-              )}
-
+           {/* --- 4. ACTIONS (Stacked) --- */}
+           <div className='flex flex-col gap-3'>
               {/* Payment Button */}
               <Button
                 variant='contained'
                 color='primary'
-                className='max-sm:is-full'
+                fullWidth
                 startIcon={<i className='tabler-credit-card' />}
                 onClick={() => {
-                  const appinemntId = appointmentData.id || 0
-                  const encoded = encodeHideValue(appinemntId);
+                  const encoded = encodeHideValue(appointmentData.id);
                   router.push(`./../payment/${encoded}`)
                 }}
                 disabled={appointmentData.status === 'CANCELLED'}
               >
-                {appointmentData.status === 'PENDING_PAYMENT' ? "Make Payment" : "Payment Details" }   
+                {appointmentData.status === 'PENDING_PAYMENT' ? "Make Payment" : "View Payment" }   
               </Button>  
 
-              {/* Cancel Button */}
-              {appointmentData.status !== 'CANCELLED' && (
-                  <Button
-                    variant='tonal'
-                    color='error'
-                    className='max-sm:is-full'
-                    startIcon={<i className='tabler-x' />}
-                    onClick={() => setOpenCancelDialog(true)}
-                  >
-                    Cancel & Refund
-                  </Button>
-              )}
+              <div className="flex gap-2">
+                  {/* Print - Only if Paid */}
+                  {appointmentData.invoiceStatus === 'PAID' && (
+                    <Button
+                      variant='tonal'
+                      color='secondary'
+                      fullWidth
+                      onClick={handlePrintInvoice}
+                      disabled={isPrinting}
+                      title="Bill Print"
+                    >
+                      <i className='tabler-printer' />
+                    </Button>
+                  )}
+
+                  {/* Refund - Only if Paid/Partial */}
+                  {(appointmentData.invoiceStatus === 'PAID' || appointmentData.invoiceStatus === 'PARTIAL') && appointmentData.status !== 'CANCELLED' && (
+                      <Button
+                        variant='tonal'
+                        color='warning'
+                        fullWidth
+                        onClick={() => setOpenRefundDialog(true)}
+                        title="Give Refund"
+                      >
+                        <i className='tabler-receipt-refund' />
+                      </Button>
+                  )}
+
+                  {/* Cancel */}
+                  {appointmentData.status !== 'CANCELLED' && (
+                      <Button
+                        variant='tonal'
+                        color='error'
+                        fullWidth
+                        onClick={() => setOpenCancelDialog(true)}
+                        title="Cancel Appointment"
+                      >
+                        <i className='tabler-x' />
+                      </Button>
+                  )}
+              </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Confirmation Dialog */}
       <ConfirmationDialog
         open={openCancelDialog}
         setOpen={setOpenCancelDialog}
         type='cancel-appointment'
         onConfirm={handleCancelConfirm}
-        // Updated Payment Details Passing
         paymentDetails={{
-            invoiceStatus: appointmentData.invoiceStatus,          // e.g. 'PAID', 'UNPAID'
-            invoiceFinalAmount: appointmentData.invoiceFinalAmount, // The amount paid
+            invoiceStatus: appointmentData.invoiceStatus,
+            invoiceFinalAmount: appointmentData.invoiceFinalAmount,
             doctorFee: appointmentData.doctorFee,
             clinicFee: appointmentData.clinicFee
         }}
+      />
+
+      {/* Refund Dialog */}
+      <RefundDialog 
+        open={openRefundDialog}
+        setOpen={setOpenRefundDialog}
+        invoiceId={appointmentData.id}
+        onSuccess={() => router.refresh()}
       />
     </>
   )
