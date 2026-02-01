@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import CustomerDetails from '@/views/clinic-app/patient/details'
 
 // Service Imports (Updated)
-import { getPatientById } from '@/services/patient.server.service'
+import { getPatientById } from '@/services/patient/patient.server.service'
 
 const CustomerDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params

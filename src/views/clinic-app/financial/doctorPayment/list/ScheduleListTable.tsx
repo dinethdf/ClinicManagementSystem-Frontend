@@ -38,7 +38,7 @@ import OptionMenu from '@core/components/option-menu'
 import { getLocalizedUrl } from '@/utils/i18n'
 
 // Service Imports
-import { getScheduleList } from '@/services/doctor.shedule.server.service'
+import { getScheduleList } from '@/services/doctor/doctor.shedule.server.service'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'

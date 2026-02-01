@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import SchedulePaymentDetails from '@/views/clinic-app/financial/doctorPayment/details/index'
 
 // Service Imports
-import { getFinancialSchedule } from '@/services/financial.server.service'
+import { getFinancialSchedule } from '@/services/financial/financial.server.service'
 
 // Utils
 import { decodeHideValue } from '@/utils/encode'

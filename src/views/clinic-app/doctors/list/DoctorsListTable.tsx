@@ -20,7 +20,7 @@ import CommonServerTable from '@/components/common-components/table/CommonServer
 import { FilterConfig, SortingConfig } from '@/components/common-components/table/TableTypes' // 1. Import SortingConfig
 
 // Service & Types
-import { doctorService } from '@/services/doctor.service' 
+import { doctorService } from '@/services/doctor/doctor.service' 
 import type { DoctorResponseDTO } from '@/types/doctor.types' 
 
 const columnHelper = createColumnHelper<DoctorResponseDTO>()

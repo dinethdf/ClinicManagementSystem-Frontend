@@ -1,4 +1,4 @@
-import { apiClient } from './api.config'
+import { apiClient } from '../api.config'
 
 // Type Imports
 import type { DoctorScheduleApiResponse } from '@/types/analysis.types'

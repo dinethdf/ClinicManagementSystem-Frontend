@@ -1,4 +1,4 @@
-import { apiClient } from './api.config' // Assuming this is where your axios instance lives
+import { apiClient } from '../api.config' // Assuming this is where your axios instance lives
 import type { PatientAppointmentDTO, ApiResponse, ScheduleAppointmentResponse } from '@/types/appoinments.types'
 
 class AppointmentService {

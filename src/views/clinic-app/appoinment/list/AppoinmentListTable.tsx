@@ -24,7 +24,7 @@ import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementCl
 import OptionMenu from '@core/components/option-menu'
 
 // Services & Types
-import { getAppointmentList } from '@/services/appoinment.server.service'
+import { getAppointmentList } from '@/services/appointment/appoinment.server.service'
 import type { AppointmentListDTO } from '@/types/appoinments.types'
 import type { ThemeColor } from '@core/types'
 import type { Locale } from '@configs/i18n'

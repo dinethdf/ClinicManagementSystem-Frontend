@@ -18,7 +18,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import DialogCloseButton from '@/components/dialogs/DialogCloseButton'
 
 // Service
-import { processRefund, type RefundPayload } from '@/services/invoice.server.service'
+import { processRefund, type RefundPayload } from '@/services/financial/invoice.server.service'
 
 type Props = {
   open: boolean

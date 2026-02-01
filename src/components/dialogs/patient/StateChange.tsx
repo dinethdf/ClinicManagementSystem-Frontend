@@ -16,7 +16,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import classnames from 'classnames'
 
 // Service Imports
-import { patientService } from '@/services/patient.service' 
+import { patientService } from '@/services/patient/patient.service' 
 
 type StateType = 'delete-account' | 'unsubscribe' | 'deactivate-account' | 'delete-order' | 'delete-customer'
 

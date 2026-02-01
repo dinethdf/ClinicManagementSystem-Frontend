@@ -1,4 +1,4 @@
-import { apiClient } from './api.config' // Ensure this path matches your project structure
+import { apiClient } from '../api.config' // Ensure this path matches your project structure
 
 class ReportService {
 

@@ -15,8 +15,8 @@ import Chip from '@mui/material/Chip'
 import Box from '@mui/material/Box'
 
 // Service
-import { generateScheduleBill, type PayoutBillResponse } from '@/services/financial.server.service'
-import { doctorSheduleService } from '@/services/doctor.shedule.service'
+import { generateScheduleBill, type PayoutBillResponse } from '@/services/financial/financial.server.service'
+import { doctorSheduleService } from '@/services/doctor/doctor.shedule.service'
 
 const ScheduleFinishView = ({ scheduleId }: { scheduleId: number }) => {
   const router = useRouter()

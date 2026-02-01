@@ -1,6 +1,6 @@
 import {ApiResponse} from '@/types/common.type'
-import type { Patient, Guardian, PatientResponceDTO, GetPatientsParams, PaginatedPatientResponse } from '../types/patient.types'
-import { apiClient } from './api.config'
+import type { Patient, Guardian, PatientResponceDTO, GetPatientsParams, PaginatedPatientResponse } from '../../types/patient.types'
+import { apiClient } from '../api.config'
 
 class PatientService {
 

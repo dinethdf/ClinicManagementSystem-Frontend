@@ -14,12 +14,12 @@ import EndSessionDialog from './components/EndSessionDialog'
 import ActiveConsultationView from './components/ActiveConsultationView'
 
 // Service Imports
-import { checkAppointmentStatus } from '@/services/appoinment.server.service'
-import { doctorSheduleService } from '@/services/doctor.shedule.service'
+import { checkAppointmentStatus } from '@/services/appointment/appoinment.server.service'
+import { doctorSheduleService } from '@/services/doctor/doctor.shedule.service'
 import { 
   getConsultationPatientDetails, 
   getPatientByBarcode 
-} from '@/services/consultation.server.service'
+} from '@/services/doctor/consultation.server.service'
 
 // Type Imports
 import type { AppointmentStatusDTO } from '@/types/appoinments.types'

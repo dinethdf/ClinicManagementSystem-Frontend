@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
 // Service Imports (Assuming your service is exported as 'appointmentService')
-import { appointmentService } from '@/services/analysis.admin.service'
+import { appointmentService } from '@/services/reports/analysis.admin.service'
 
 // Type Imports
 import type { 

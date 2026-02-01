@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { doctorAnalysisService } from '@/services/analysis.doctor.service'
+import { doctorAnalysisService } from '@/services/reports/analysis.doctor.service'
 import type { ScheduleDTO } from '@/types/analysis.types'
 import type { RootState } from '@/redux-store'
 

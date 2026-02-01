@@ -1,6 +1,6 @@
 import type { DashboardSummaryDTO, MonthlyRevenueDTO, RevenueAnalysisResponse, SpecializationSummaryResponse } from '@/types/analysis.types'
 
-import { apiClient } from './api.config'
+import { apiClient } from '../api.config'
 
 
 

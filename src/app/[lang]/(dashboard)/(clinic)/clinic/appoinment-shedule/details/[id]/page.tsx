@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 
 import ScheduleDetails from '@/views/clinic-app/appoinmentShedule/details'
 
-import { getScheduleById } from '@/services/doctor.shedule.server.service'
+import { getScheduleById } from '@/services/doctor/doctor.shedule.server.service'
 
 const ScheduleDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params

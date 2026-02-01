@@ -25,7 +25,7 @@ import TimelineConnector from '@mui/lab/TimelineConnector'
 import type { TimelineProps } from '@mui/lab/Timeline'
 
 // Service & Type Imports
-import { patientAnalysisService } from '@/services/patient.analysis.service'
+import { patientAnalysisService } from '@/services/patient/patient.analysis.service'
 import type { PatientAnalysisData } from '@/types/analysis.types'
 
 // --- STYLED COMPONENTS ---

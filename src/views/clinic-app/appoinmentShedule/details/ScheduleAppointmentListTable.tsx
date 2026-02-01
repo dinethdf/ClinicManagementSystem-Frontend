@@ -32,7 +32,7 @@ import type { ThemeColor } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Service Imports
-import { appointmentService } from '@/services/appoinment.service'
+import { appointmentService } from '@/services/appointment/appoinment.service'
 
 // Utils
 import { getLocalizedUrl } from '@/utils/i18n'

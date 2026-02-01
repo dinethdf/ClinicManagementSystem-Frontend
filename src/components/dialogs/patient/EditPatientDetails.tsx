@@ -30,7 +30,7 @@ import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementCli
 
 // Types & Services
 import type { Patient, Guardian } from '@/types/patient.types'
-import { patientService } from '@/services/patient.service'
+import { patientService } from '@/services/patient/patient.service'
 import { getPatientValidationSchema } from '@/schemas/patienDetailsValidation'
 
 type EditPatientDetailsProps = {

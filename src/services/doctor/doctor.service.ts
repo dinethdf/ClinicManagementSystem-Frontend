@@ -1,5 +1,5 @@
 import type { DoctorCreateDTO, DoctorScheduleDTO, GetDoctorsParams, PaginatedDoctorResponse } from '@/types/doctor.types'
-import { apiClient } from './api.config'
+import { apiClient } from '../api.config'
 import { ApiResponse } from '@/types/common.type'
 
 

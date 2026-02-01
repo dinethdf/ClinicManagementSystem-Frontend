@@ -1,4 +1,4 @@
-import { apiClient } from './api.config'
+import { apiClient } from '../api.config'
 
 export interface ClinicStaffResponseDTO {
   id: number;

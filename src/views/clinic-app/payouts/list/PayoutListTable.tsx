@@ -26,7 +26,7 @@ import {
 import type { PayoutBillDTO } from '@/types/payout.types' // Ensure this type has scheduleId
 
 // Service & Utils
-import { getDoctorPayoutsList } from '@/services/payout.server.service'
+import { getDoctorPayoutsList } from '@/services/financial/payout.server.service'
 import { getLocalizedUrl } from '@/utils/i18n'
 import { encodeHideValue } from '@/utils/encode' // Import your encoder
 import type { Locale } from '@configs/i18n'

@@ -21,7 +21,7 @@ import {
 import type { ColumnDef, PaginationState } from '@tanstack/react-table'
 
 import type { DoctorScheduleDTO } from '@/types/doctor.types'
-import { getSchedulesByDoctorId } from '@/services/doctor.shedule.server.service'
+import { getSchedulesByDoctorId } from '@/services/doctor/doctor.shedule.server.service'
 
 import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@components/TablePaginationComponent'

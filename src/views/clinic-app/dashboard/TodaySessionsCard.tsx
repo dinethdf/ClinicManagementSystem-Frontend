@@ -15,7 +15,7 @@ import Box from '@mui/material/Box'
 import LoadingButton from '@mui/lab/LoadingButton' // Optional: Good for loading state
 
 // Service & Types
-import { doctorSheduleService } from '@/services/doctor.shedule.service' 
+import { doctorSheduleService } from '@/services/doctor/doctor.shedule.service' 
 import type { DoctorScheduleDTO } from '@/types/doctor.types' 
 
 const TodaySessionsSlider = ({ doctorId }: { doctorId: number }) => {

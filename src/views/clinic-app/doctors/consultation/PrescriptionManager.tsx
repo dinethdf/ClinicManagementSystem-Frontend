@@ -38,8 +38,8 @@ import Tooltip from '@mui/material/Tooltip'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Services & Types
-import { createPrescription } from '@/services/consultation.server.service'
-import { prescriptionService } from '@/services/prescription.service'
+import { createPrescription } from '@/services/doctor/consultation.server.service'
+import { prescriptionService } from '@/services/appointment/prescription.service'
 import type { PrescriptionItemDTO } from '@/types/consultation.types' 
 import type { MedicineDTO, PrescriptionConfigDTO } from '@/types/prescription.types'
 

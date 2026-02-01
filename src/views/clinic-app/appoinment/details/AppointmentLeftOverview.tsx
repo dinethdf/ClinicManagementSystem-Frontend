@@ -21,10 +21,10 @@ import ConfirmationDialog from '@/components/dialogs/confirmation-dialog/Confirm
 import RefundDialog from '@/components/dialogs/refund-dialog/RefundDialog'
 
 // Service Imports
-import { cancelAppointment } from '@/services/appoinment.server.service'
+import { cancelAppointment } from '@/services/appointment/appoinment.server.service'
 import { encodeHideValue } from '@/utils/encode'
 import { appointmentPrintInvoice } from '@/components/printable/billPrint/AppointmentPrintInvoice'
-import { getInvoiceDetails } from '@/services/invoice.server.service'
+import { getInvoiceDetails } from '@/services/financial/invoice.server.service'
 
 const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: AppointmentDetailDTO }) => {
   const router = useRouter()

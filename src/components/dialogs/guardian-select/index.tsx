@@ -20,7 +20,7 @@ import { useForm, Controller } from 'react-hook-form'
 
 import CustomTextField from '@core/components/mui/TextField'
 
-import { patientService } from '@/services/patient.service' // Assuming Guardian[] is returned
+import { patientService } from '@/services/patient/patient.service' // Assuming Guardian[] is returned
 
 import DialogCloseButton from '../DialogCloseButton'
 

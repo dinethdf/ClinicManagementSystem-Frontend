@@ -21,7 +21,7 @@ import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementCli
 import DoctorSheduleSelect from '@/components/dialogs/doctor-shedule-select' // Adjust this import path to where you saved the popup code
 
 // Service & Utils Imports
-import { createAppointment } from '@/services/appoinment.server.service'
+import { createAppointment } from '@/services/appointment/appoinment.server.service'
 import { encodeHideValue } from '@/utils/encode'
 import { toast } from 'react-toastify'
 

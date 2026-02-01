@@ -26,7 +26,7 @@ import CustomTabList from '@core/components/mui/TabList'
 import type { AppointmentDetailDTO } from '@/types/appoinments.types'
 
 // Import the server action
-import { getPrescriptionByAppointment, type PrescriptionDTO } from '@/services/prescription.server.service'
+import { getPrescriptionByAppointment, type PrescriptionDTO } from '@/services/appointment/prescription.server.service'
 
 const AppointmentRight = ({ appointmentData }: { appointmentData: AppointmentDetailDTO }) => {
   const [activeTab, setActiveTab] = useState('overview')

@@ -26,7 +26,7 @@ import {
     bookPublicAppointment,
     sendOtp, 
     verifyOtp 
-} from '@/services/doctor.shedule.server.service'
+} from '@/services/doctor/doctor.shedule.server.service'
 import type { PublicScheduleDTO, PublicBookingRequest } from '@/types/public-booking.types'
 import { custom } from 'valibot';
 

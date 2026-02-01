@@ -27,7 +27,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import type { DoctorScheduleDTO, UpdateScheduleDTO } from '@/types/doctor.types'
 
 // Service Imports
-import { doctorSheduleService } from '@/services/doctor.shedule.service'
+import { doctorSheduleService } from '@/services/doctor/doctor.shedule.service'
 
 type EditScheduleProps = {
   open: boolean

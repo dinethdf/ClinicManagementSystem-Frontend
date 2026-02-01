@@ -20,7 +20,7 @@ import SheduleVariants from './SheduleVariants'
 
 import type {Doctor, DoctorSchedule, DoctorScheduleDTO } from '@/types/doctor.types'
 
-import { doctorService } from '@/services/doctor.service';
+import { doctorService } from '@/services/doctor/doctor.service';
 
 const SheduleInformation = ({role}: { role: string }) => {
   

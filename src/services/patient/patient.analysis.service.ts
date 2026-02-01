@@ -1,4 +1,4 @@
-import { apiClient } from './api.config'
+import { apiClient } from '../api.config'
 import type { PatientAnalysisResponse } from '@/types/analysis.types'
 
 class PatientAnalysisService {

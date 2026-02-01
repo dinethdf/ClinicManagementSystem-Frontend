@@ -29,7 +29,7 @@ import BackDropFullScreen from '@/components/BackDropFullScreen'
 
 // Logic Imports
 import { getDoctorValidationSchema } from '@/schemas/doctorDetailsValidation' 
-import { doctorService } from '@/services/doctor.service'
+import { doctorService } from '@/services/doctor/doctor.service'
 
 // Types (Define this in @/types/doctor.types.ts)
 interface DoctorFormData {

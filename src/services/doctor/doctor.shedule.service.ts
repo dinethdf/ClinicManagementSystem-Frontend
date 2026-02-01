@@ -1,5 +1,5 @@
 import type { DoctorScheduleDTO, ScheduleAnalyticsDTO, ScheduleFilterParams, UpdateScheduleDTO } from '@/types/doctor.types';
-import { apiClient } from './api.config'
+import { apiClient } from '../api.config'
 
 interface ApiResponse<T> {
   success: boolean

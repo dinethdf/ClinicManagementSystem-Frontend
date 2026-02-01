@@ -15,7 +15,7 @@ import type { PatientAppointmentDTO } from '@/types/appoinments.types'
 import { createColumnHelper } from '@tanstack/react-table'
 
 // Service & Component Imports
-import { appointmentService } from '@/services/appoinment.service'
+import { appointmentService } from '@/services/appointment/appoinment.service'
 import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable' 
 import OptionMenu from '@core/components/option-menu'
 import { getLocalizedUrl } from '@/utils/i18n'

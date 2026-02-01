@@ -28,7 +28,7 @@ import {
   getDiseases,
   addDisease,
   deleteDisease
-} from '@/services/consultation.server.service'
+} from '@/services/doctor/consultation.server.service'
 import type { PatientDetailDTO } from '@/types/consultation.types'
 import type { AllergyDTO, DiseaseDTO } from '@/types/patient.types'
 

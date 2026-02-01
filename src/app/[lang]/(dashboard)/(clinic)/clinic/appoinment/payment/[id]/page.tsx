@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid'
 import AppointmentPayment from '@/views/clinic-app/payment/appointment/edit/AppointmentPayment'
 
 import { decodeHideValue } from '@/utils/encode'
-import { getInvoiceDetails } from '@/services/invoice.server.service';
+import { getInvoiceDetails } from '@/services/financial/invoice.server.service';
 
 const EditPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params

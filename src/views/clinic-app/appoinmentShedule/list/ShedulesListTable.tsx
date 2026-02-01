@@ -26,7 +26,7 @@ import { getLocalizedUrl } from '@/utils/i18n'
 import type { Locale } from '@configs/i18n'
 
 // Service Imports
-import { getScheduleList } from '@/services/doctor.shedule.server.service'
+import { getScheduleList } from '@/services/doctor/doctor.shedule.server.service'
 
 // --- Types ---
 export interface ScheduleDTO {

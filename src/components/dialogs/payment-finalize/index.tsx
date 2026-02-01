@@ -25,8 +25,8 @@ import CustomTextField from '@core/components/mui/TextField'
 import DialogCloseButton from '../DialogCloseButton'
 
 // Services
-import { processInvoicePayment } from '@/services/appoinment.server.service';
-import { getInvoiceDetails } from '@/services/invoice.server.service';
+import { processInvoicePayment } from '@/services/appointment/appoinment.server.service';
+import { getInvoiceDetails } from '@/services/financial/invoice.server.service';
 import { appointmentPrintInvoice } from '@/components/printable/billPrint/AppointmentPrintInvoice';
 
 // --- TYPES ---

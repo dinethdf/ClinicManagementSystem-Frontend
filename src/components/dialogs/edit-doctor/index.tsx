@@ -27,7 +27,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import type { Doctor } from '@/types/doctor.types'
 
 // Service Imports
-import { doctorService } from '@/services/doctor.service' 
+import { doctorService } from '@/services/doctor/doctor.service' 
 
 type EditDoctorDetailsProps = {
   open: boolean
