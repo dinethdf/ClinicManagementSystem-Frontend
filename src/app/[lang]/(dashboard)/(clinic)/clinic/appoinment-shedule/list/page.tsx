@@ -9,7 +9,7 @@ const ScheduleListPage = () => {
   
   // Note: We do not fetch data here anymore. 
   // The <ScheduleListTable /> component handles its own data fetching 
-  // so that it can manage Page, Size, and Filters dynamically.
+  // so that it can manage Page, Size, and Filters dynamically. tyyhis is now mu change
 
   return (
     <Grid container spacing={6}>
