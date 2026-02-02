@@ -58,7 +58,7 @@ const specializations: SpecializationDTO[] = [
   
     try {
 
-      const response = await getPublicSchedulesList({
+      const response : any = await getPublicSchedulesList({
         page: page - 1, 
         size: 8, // Cards per page
         date: selectedDate || undefined, 
