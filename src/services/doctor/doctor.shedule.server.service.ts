@@ -184,7 +184,7 @@ export async function bookPublicAppointment(payload: PublicBookingRequest) {
     const data = await http.post('/api/public/book-public', {
       ...payload,
       clinicId: process.env.NEXT_PUBLIC_CLINIC_ID
-    });
+    }, true);
     
     return data;
 
@@ -253,7 +253,7 @@ export async function verifyOtp(mobileNo: string, otp: string) {
       otp,
       clinicId: process.env.NEXT_PUBLIC_CLINIC_ID || 0
     }, true);
-       console.log("Verify OTP Response:", data);
+       console.log("Send OTP Response:", data);
     return data;
 
   } catch (error) {
