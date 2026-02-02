@@ -36,6 +36,8 @@ import CustomTextField from '@core/components/mui/TextField'
 import PaymentFinalizer from '@/components/dialogs/payment-finalize'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
+import PaymentHistoryDialog from '@/views/clinic-app/payment/appointment/edit/PaymentHistoryDialog' //
+
 // Styled Component Imports
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
@@ -125,6 +127,12 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
   const finalTotalAmount = Math.max(0, displaySubtotal - displayTotalDiscount);
   const amountPaidSoFar = appointmentInvDetails?.amountPaid || 0;
   const balanceDue = Math.max(0, finalTotalAmount - amountPaidSoFar);
+
+  const [openHistoryDialog, setOpenHistoryDialog] = useState(false)
+
+  const isPending = statusCode === "PENDING_PAYMENT";
+  const showHistory = statusCode !== "PENDING_PAYMENT" && statusCode !== "UNPAID";
+
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', minimumFractionDigits: 2 }).format(amount);
@@ -504,9 +512,29 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                  </Button>
              )}
 
+              {showHistory && (
+                 <>
+                    <Divider />
+                    <Button 
+                        variant='outlined' 
+                        color='secondary' 
+                        className='w-full'
+                        startIcon={<i className='tabler-history' />}
+                        onClick={() => {setOpenHistoryDialog(true); console.log("first")}}
+                    >
+                        Payment History
+                    </Button>
+                 </>
+             )}             
+
           </CardContent>
         </Card>
       </Grid>    
+      <PaymentHistoryDialog 
+        open={openHistoryDialog}
+        setOpen={setOpenHistoryDialog}
+        invoiceId={parseInt(appointmentInvDetails?.invoiceId || id)}
+      />            
     </>
   )
 }

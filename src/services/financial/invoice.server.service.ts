@@ -49,3 +49,18 @@ export async function processRefund(payload: RefundPayload) {
     return { success: false, message: "An unexpected error occurred during refund." };
   }
 }
+
+export async function getInvoicePaymentHistory(invoiceId: number) {
+  try {
+    // UPDATED ENDPOINT
+    const response = await http.get(`/api/payments/history/${invoiceId}`);
+   
+    return { success: true, data: Array.isArray(response) ? response : response };
+  } catch (error: any) {
+    console.error("Fetch History Error:", error);
+    return { 
+        success: false, 
+        message: error.message || "Failed to load payment history" 
+    };
+  }
+}
