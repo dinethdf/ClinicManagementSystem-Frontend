@@ -21,7 +21,7 @@ export class ApiError extends Error {
   }
 }
 
-async function apiFetch(endpoint: string, options: RequestInit = {}) {
+async function apiFetch(endpoint: string, options: RequestInit = {}, isFullResponse: boolean = false) {
   const cookieStore = cookies();
   const token = (await cookieStore).get('accessToken')?.value;
 
@@ -70,22 +70,22 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
 
   const json = await res.json();
 
-  return json.data !== undefined ? json.data : json; 
+  return json.data == undefined || isFullResponse ? json : json.data; 
 
 }
 
 export const http = {
-  get: <T = any>(endpoint: string): Promise<T> =>
-    apiFetch(endpoint, { method: 'GET' }),
+  get: <T = any>(endpoint: string, isFullResponse: boolean = false): Promise<T> =>
+    apiFetch(endpoint, { method: 'GET' }, isFullResponse),
 
-  post: <T = any>(endpoint: string, body: any): Promise<T> =>
-    apiFetch(endpoint, { method: 'POST', body: JSON.stringify(body) }),
+  post: <T = any>(endpoint: string, body: any, isFullResponse: boolean = false): Promise<T> =>
+    apiFetch(endpoint, { method: 'POST', body: JSON.stringify(body) }, isFullResponse),
 
-  put: <T = any>(endpoint: string, body: any): Promise<T> =>
-    apiFetch(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
+  put: <T = any>(endpoint: string, body: any, isFullResponse: boolean = false): Promise<T> =>
+    apiFetch(endpoint, { method: 'PUT', body: JSON.stringify(body) }, isFullResponse),
 
-  patch: <T = any>(endpoint: string): Promise<T> =>
-    apiFetch(endpoint, { method: 'PATCH' }),  
+  patch: <T = any>(endpoint: string, isFullResponse: boolean = false  ): Promise<T> =>
+    apiFetch(endpoint, { method: 'PATCH' }, isFullResponse),  
 
   delete: <T = any>(endpoint: string): Promise<T> =>
     apiFetch(endpoint, { method: 'DELETE' }),

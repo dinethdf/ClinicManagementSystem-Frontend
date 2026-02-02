@@ -178,13 +178,7 @@ export async function validateScheduleOwnership(
   }
 }
 
-// ==================================================================================
-// PUBLIC BOOKING
-// ==================================================================================
 
-/**
- * Book appointment for public users
- */
 export async function bookPublicAppointment(payload: PublicBookingRequest) {
   try {
     const data = await http.post('/api/public/book-public', {
@@ -192,7 +186,7 @@ export async function bookPublicAppointment(payload: PublicBookingRequest) {
       clinicId: process.env.NEXT_PUBLIC_CLINIC_ID
     });
     
-    return { success: true, data };
+    return data;
 
   } catch (error) {
     if (error instanceof ApiError) {
@@ -204,41 +198,37 @@ export async function bookPublicAppointment(payload: PublicBookingRequest) {
   }
 }
 
-/**
- * Check if patient exists by NIC or mobile number
- */
 export async function checkPatientAvailability(query: string) {
   try {
-    const isNic = query.toLowerCase().includes('v') || query.length > 10;
-    const param = isNic ? `nic=${query}` : `mobileNo=${query}`;
-    const clinicId = `clinicId=${process.env.NEXT_PUBLIC_CLINIC_ID}`;
-
-    const data = await http.get(`/api/public/check-patient?${param}&${clinicId}`);
+    const clinicId = process.env.NEXT_PUBLIC_CLINIC_ID || 1; 
     
-    return data;
+    const data = await http.get(`/api/public/check-patient?query=${query}&clinicId=${clinicId}`);
+    console.log(data);
+     return { success: true, data: data, message: "Successfully checked patient availability" };
 
-  } catch (error) {
+  } catch (error: any) {
+    if (error.status === 404 || error.statusCode === 404) {
+        return { success: true, data: [], message: "No patient found" };
+    }
+
     console.error('Patient availability check failed:', error);
-    throw error;
+    return { success: false, message: error.message || 'Network or Server Error', data: [] };
   }
 }
 
-// ==================================================================================
-// OTP VERIFICATION
-// ==================================================================================
 
-/**
- * Send OTP to mobile/email
- */
 export async function sendOtp(mobileNo: string, email: string) {
   try {
     const data = await http.post('/api/otp/send', {
       mobileNo,
       email,
       clinicId: process.env.NEXT_PUBLIC_CLINIC_ID
-    });
+    }, true);
     
-    return { success: true, data };
+    console.log('OTP send response:');
+    console.log(data);
+    
+    return { success: true, data: data, message: "Successfully checked patient availability" };
 
   } catch (error) {
     if (error instanceof ApiError) {
@@ -256,18 +246,15 @@ export async function sendOtp(mobileNo: string, email: string) {
   }
 }
 
-/**
- * Verify OTP code
- */
 export async function verifyOtp(mobileNo: string, otp: string) {
   try {
     const data = await http.post('/api/otp/verify', {
       mobileNo,
       otp,
-      clinicId: process.env.NEXT_PUBLIC_CLINIC_ID
-    });
-    
-    return { success: true, data };
+      clinicId: process.env.NEXT_PUBLIC_CLINIC_ID || 0
+    }, true);
+       console.log("Verify OTP Response:", data);
+    return data;
 
   } catch (error) {
     if (error instanceof ApiError) {

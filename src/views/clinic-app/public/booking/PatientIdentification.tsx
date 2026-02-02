@@ -1,9 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-
 import dayjs from 'dayjs'
-
 
 // MUI Imports
 import Grid from '@mui/material/Grid'
@@ -17,6 +15,11 @@ import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
 import Chip from '@mui/material/Chip'
 import MenuItem from '@mui/material/MenuItem'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
+import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
 
 import CustomDatePicker from '@/components/custome/DatePickerTextField'
 
@@ -28,7 +31,6 @@ import {
     verifyOtp 
 } from '@/services/doctor/doctor.shedule.server.service'
 import type { PublicScheduleDTO, PublicBookingRequest } from '@/types/public-booking.types'
-import { custom } from 'valibot';
 
 interface Props {
   selectedSchedule: PublicScheduleDTO;
@@ -44,121 +46,134 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('') 
 
-  // Flow State
-  const [step, setStep] = useState<'SEARCH' | 'VERIFY_OTP' | 'CONFIRM_EXISTING' | 'REGISTER_NEW'>('SEARCH')
+  // Flow State: Added 'SELECT_PATIENT'
+  const [step, setStep] = useState<'SEARCH' | 'SELECT_PATIENT' | 'VERIFY_OTP' | 'CONFIRM_EXISTING' | 'REGISTER_NEW'>('SEARCH')
   
+  // Data State
+  const [foundPatients, setFoundPatients] = useState<any[]>([]) 
+  const [existingPatient, setExistingPatient] = useState<any>(null) 
+
   // OTP State
   const [otp, setOtp] = useState('')
   const [mobileToVerify, setMobileToVerify] = useState('')
   const [isOtpSent, setIsOtpSent] = useState(false)
   const [isVerified, setIsVerified] = useState(false) 
-
-  const [existingPatient, setExistingPatient] = useState<any>(null)
   
-
   const [regForm, setRegForm] = useState({
       firstName: '', lastName: '', dob: '', gender: 1, mobileNo: '', nic: '', email: ''
   })
   
   const [note, setNote] = useState('')
 
-
-const handleSearchPatient = async () => {
+  // --- 1. SEARCH LOGIC ---
+  const handleSearchPatient = async () => {
     if (!identifier.trim()) {
         setErrorMsg("Please enter an NIC or Mobile Number");
         return;
     }
     
-    setLoading(true); 
-    setErrorMsg(''); 
-    setSuccessMsg('');
+    setLoading(true); setErrorMsg(''); setSuccessMsg('');
 
     try {
-
         const res = await checkPatientAvailability(identifier);
-
-        if (!res.success) {
-            // FIX: Added fallback string so error message always displays
+        
+        // Handle explicit API failure (e.g. 500 error)
+        if (!res.success && res.message !== "No patient found") {
             setErrorMsg(res.message || "Patient verification failed.");
+            setLoading(false);
             return;
         }
 
-        const patientData = res.data;
+        // Ensure data is an array (API might return [] or data:[])
+        const patientsList = Array.isArray(res.data) ? res.data : [];
 
-        if (patientData) {
-            console.log("Existing patient found:", patientData);
-            setExistingPatient(patientData);
-            
-            if (patientData.mobileNo) {
-                setMobileToVerify(patientData.mobileNo);
-                await handleSendOtp(patientData.mobileNo, patientData.email);
-            } else {
-                setErrorMsg("Patient found, but no mobile number is registered for verification.");
-            }
+        if (patientsList.length > 1) {
+            // Case A: Multiple patients found -> Let user select
+            setFoundPatients(patientsList);
+            setStep('SELECT_PATIENT');
+            setLoading(false);
 
-        } 
-        else {
-            console.log("No patient found. Initializing new registration...");
-            const cleanId = identifier.trim();
-            const isNic = /^[0-9]{9}[vVxX]$/.test(cleanId) || cleanId.length === 12; 
-            
-            const mobileInput = !isNic ? cleanId : '';
-            const nicInput = isNic ? cleanId : '';
+        } else if (patientsList.length === 1) {
+            // Case B: Single patient found -> Auto select
+            handleSelectPatient(patientsList[0]);
 
-            setRegForm(prev => ({
-                ...prev,
-                nic: nicInput,
-                mobileNo: mobileInput,
-                email: ''
-            }));
-
-            if (mobileInput) {
-                setMobileToVerify(mobileInput);
-                await handleSendOtp(mobileInput, '');
-            } else {
-                setStep('REGISTER_NEW');
-            }
+        } else {
+            // Case C: No patient found -> New Registration
+            handleNewRegistrationSetup();
         }
 
     } catch (err) {
         console.error("Search Error:", err);
         setErrorMsg('Failed to check availability. Please try again.');
-    } finally {
         setLoading(false);
     }
   }
 
+  // Helper: Setup new registration state
+  const handleNewRegistrationSetup = () => {
+      const cleanId = identifier.trim();
+      // Heuristic: If 9 digits+V or >10 digits without starting '07', assume NIC
+      const isNicRegex = /^[0-9]{9}[vVxX]$/.test(cleanId) || (cleanId.length > 10 && !cleanId.startsWith('07')); 
+      
+      const nicInput = isNicRegex ? cleanId : '';
+      const mobileInput = !isNicRegex ? cleanId : '';
+
+      setRegForm(prev => ({
+          ...prev,
+          nic: nicInput,
+          mobileNo: mobileInput,
+          email: ''
+      }));
+
+      // If they searched by mobile, verifying it immediately is smoother
+      if (mobileInput) {
+          setMobileToVerify(mobileInput);
+          handleSendOtp(mobileInput, '');
+      } else {
+          setStep('REGISTER_NEW');
+          setLoading(false);
+      }
+  }
+
+  // Helper: Select a specific patient from list or auto-find
+  const handleSelectPatient = async (patient: any) => {
+      setExistingPatient(patient);
+      
+      if (patient.mobileNo) {
+          setMobileToVerify(patient.mobileNo);
+          await handleSendOtp(patient.mobileNo, patient.email || '');
+      } else {
+          setErrorMsg("Selected patient has no registered mobile number.");
+          setLoading(false);
+      }
+  }
+
+  // --- 2. SEND OTP ---
   const handleSendOtp = async (mobile: string, email: string = '') => {
       setLoading(true); setErrorMsg(''); setSuccessMsg('');
       
       try {
-          
           const res = await sendOtp(mobile, email) 
           
           if(res.success) {
-             
-            setIsOtpSent(true)
+              setIsOtpSent(true)
               setStep('VERIFY_OTP')
               setSuccessMsg(res.message || "OTP sent successfully.")
           } else {
-              
             setErrorMsg(res.message || "Failed to send OTP")
           }
       } catch (err: any) { 
-        
         setErrorMsg(err.message || "System error sending OTP") 
       }
       
       setLoading(false)
   }
 
-
+  // --- 3. VERIFY OTP ---
   const handleVerifyOtp = async () => {
-
       if(!otp) return
 
       setLoading(true); setErrorMsg(''); setSuccessMsg('');
-      
 
       try {
           const res = await verifyOtp(mobileToVerify, otp) 
@@ -183,22 +198,27 @@ const handleSearchPatient = async () => {
       setLoading(false)
   }
 
+  const handleVerifyNewMobile = async () => {
+      if(!regForm.mobileNo) return
+      setMobileToVerify(regForm.mobileNo)
+      await handleSendOtp(regForm.mobileNo, regForm.email)
+  }
+
+  // --- 4. BOOK APPOINTMENT ---
   const handleBookAppointment = async () => {
-        
         if(!isVerified) { 
             setErrorMsg("Mobile number not verified!"); 
             return; 
         }
 
-        setLoading(true); 
-        setErrorMsg(''); 
-        setSuccessMsg('');
+        setLoading(true); setErrorMsg(''); setSuccessMsg('');
 
         try {
             const payload: PublicBookingRequest = {
                 scheduleId: selectedSchedule.id,
                 existingPatientId: null,
-                note: note
+                note: note,
+                firstName: '', lastName: '', nic: '', mobileNo: '', dob: '', gender: 1, email: ''
             }
 
             if (step === 'CONFIRM_EXISTING') {
@@ -206,11 +226,9 @@ const handleSearchPatient = async () => {
                 payload.mobileNo = existingPatient.mobileNo
                 payload.email = existingPatient.email 
             } else {
-                
                 if(!regForm.firstName || !regForm.lastName || !regForm.dob || !regForm.nic) {
                     setErrorMsg("Please fill in all required fields.")
-                    setLoading(false); 
-                    return;
+                    setLoading(false); return;
                 }
                 
                 payload.existingPatientId = null
@@ -228,7 +246,9 @@ const handleSearchPatient = async () => {
             if (response.success) {
                 setSuccessMsg(response.message || "Booking Successful!")
                 if(onSubmitBooking) onSubmitBooking(response.data)
-            } 
+            } else {
+                setErrorMsg(response.message || "Booking failed.")
+            }
 
         } catch (err: any) {
             console.error("Booking Error:", err)
@@ -238,19 +258,10 @@ const handleSearchPatient = async () => {
         }
    }
 
-  const handleVerifyNewMobile = async () => {
-
-      if(!regForm.mobileNo) return
-
-      setMobileToVerify(regForm.mobileNo)
-    
-      await handleSendOtp(regForm.mobileNo, regForm.email)
-  }
-
   const handleReset = () => {
-      
-    setStep('SEARCH')
+      setStep('SEARCH')
       setExistingPatient(null)
+      setFoundPatients([])
       setNote('')
       setErrorMsg('')
       setSuccessMsg('')
@@ -258,7 +269,7 @@ const handleSearchPatient = async () => {
       setOtp('')
       setIsOtpSent(false)
       setIdentifier('')
-
+      setRegForm({ firstName: '', lastName: '', dob: '', gender: 1, mobileNo: '', nic: '', email: '' })
   }
 
   return (
@@ -291,6 +302,7 @@ const handleSearchPatient = async () => {
                 <div className='mb-2'>
                     <Typography variant="h5" className="font-semibold">
                         {step === 'SEARCH' && "Patient Identification"}
+                        {step === 'SELECT_PATIENT' && "Select Patient Profile"}
                         {step === 'VERIFY_OTP' && "Mobile Verification"}
                         {step === 'CONFIRM_EXISTING' && "Confirm Details"}
                         {step === 'REGISTER_NEW' && "New Patient Registration"}
@@ -298,7 +310,7 @@ const handleSearchPatient = async () => {
                 </div>
 
                 {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-                {successMsg && <Alert severity="success" icon={<i className='tabler-check' />}>{successMsg}</Alert>}
+                {successMsg && <Alert severity="success">{successMsg}</Alert>}
 
                 {/* --- VIEW 1: SEARCH --- */}
                 {step === 'SEARCH' && (
@@ -310,12 +322,56 @@ const handleSearchPatient = async () => {
                             onChange={(e) => setIdentifier(e.target.value)}
                             placeholder="e.g., 200012345678 or 0771234567"
                         />
-                        {/* Email Input Removed from here as requested */}
-                        
                         <div className='flex gap-3 justify-end'>
                             <Button onClick={onBack} color="inherit">Back</Button>
                             <Button variant="contained" size="large" onClick={handleSearchPatient} disabled={!identifier || loading}>
                                 {loading ? <CircularProgress size={20} color="inherit" /> : 'Check Availability'}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {/* --- VIEW 1.5: SELECT PATIENT --- */}
+                {step === 'SELECT_PATIENT' && (
+                    <div className="flex flex-col gap-4 animate-in fade-in">
+                        <Alert severity="info">
+                            Multiple profiles found for this number. Please select yours.
+                        </Alert>
+                        
+                        <div className="bg-gray-50 border rounded-lg overflow-hidden">
+                            <List className="p-0">
+                                {foundPatients.map((patient, index) => (
+                                    <div key={patient.id}>
+                                        <ListItem disablePadding>
+                                            <ListItemButton onClick={() => handleSelectPatient(patient)} className="hover:bg-blue-50 py-3">
+                                                <div className="flex items-center gap-4 w-full">
+                                                    <Avatar sx={{ bgcolor: 'primary.light' }}>{patient.firstName.charAt(0)}</Avatar>
+                                                    <div className="flex flex-col flex-1">
+                                                        <Typography className="font-semibold text-gray-800">
+                                                            {patient.firstName} {patient.lastName}
+                                                        </Typography>
+                                                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 mt-1">
+                                                            <span className="bg-white px-2 py-0.5 rounded border">ID: {patient.patientNo}</span>
+                                                            <span className="bg-white px-2 py-0.5 rounded border">NIC: {patient.nic}</span>
+                                                            {patient.dob && <span>DOB: {patient.dob}</span>}
+                                                        </div>
+                                                    </div>
+                                                    <Button size="small" variant="contained" className="ml-2">Select</Button>
+                                                </div>
+                                            </ListItemButton>
+                                        </ListItem>
+                                        {index < foundPatients.length - 1 && <Divider component="li" />}
+                                    </div>
+                                ))}
+                            </List>
+                        </div>
+
+                        <div className='flex gap-3 justify-between mt-2 items-center'>
+                            <Button onClick={handleNewRegistrationSetup} variant="text" color="primary">
+                                Not in this list? Register New
+                            </Button>
+                            <Button onClick={handleReset} color="inherit" variant="outlined">
+                                Cancel
                             </Button>
                         </div>
                     </div>
@@ -343,13 +399,11 @@ const handleSearchPatient = async () => {
                     </div>
                 )}
 
+                {/* --- VIEW 3: CONFIRM EXISTING --- */}
                 {step === 'CONFIRM_EXISTING' && existingPatient && (
                     <div className="flex flex-col gap-4 animate-in fade-in">
-                        
-                        {/* Patient Details Card */}
                         <Alert severity="success" icon={false} className="border-green-200 border bg-green-50/50 p-0 overflow-hidden">
                             <div className="p-4">
-                                {/* Header: Name & Status */}
                                 <div className="flex justify-between items-start w-full mb-3">
                                     <div>
                                         <Typography variant="caption" className="uppercase font-bold text-green-700 tracking-wider">
@@ -359,20 +413,10 @@ const handleSearchPatient = async () => {
                                             {existingPatient.firstName} {existingPatient.lastName}
                                         </Typography>
                                     </div>
-                                    <Chip 
-                                        label="Verified" 
-                                        color="success" 
-                                        size="small" 
-                                        className="font-bold"
-                                        icon={<i className='tabler-check'/>} 
-                                    />
+                                    <Chip label="Verified" color="success" size="small" className="font-bold" />
                                 </div>
-
                                 <Divider className="border-green-200 mb-3 opacity-50" />
-
-                                {/* Details Grid - UPDATED SYNTAX */}
                                 <Grid container spacing={2}>
-                                    {/* Row 1: Identifiers */}
                                     <Grid size={{ xs: 6 }}>
                                         <div className="flex flex-col">
                                             <span className="text-[10px] uppercase text-gray-500 font-bold tracking-wide">Patient ID</span>
@@ -385,31 +429,10 @@ const handleSearchPatient = async () => {
                                             <span className="text-sm font-semibold text-gray-800">{existingPatient.nic}</span>
                                         </div>
                                     </Grid>
-
-                                    {/* Row 2: Personal */}
-                                    <Grid size={{ xs: 6 }}>
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] uppercase text-gray-500 font-bold tracking-wide">Date of Birth</span>
-                                            <span className="text-sm font-semibold text-gray-800">{existingPatient.dob}</span>
-                                        </div>
-                                    </Grid>
-                                    <Grid size={{ xs: 6 }}>
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] uppercase text-gray-500 font-bold tracking-wide">Location</span>
-                                            <span className="text-sm font-semibold text-gray-800">{existingPatient.city || existingPatient.district || 'N/A'}</span>
-                                        </div>
-                                    </Grid>
-
-                                    {/* Row 3: Contact */}
                                     <Grid size={{ xs: 12 }}>
                                         <div className="flex flex-col">
                                             <span className="text-[10px] uppercase text-gray-500 font-bold tracking-wide">Contact</span>
-                                            <div className="flex gap-3 text-sm font-semibold text-gray-800">
-                                                <span className="flex items-center gap-1"><i className="tabler-phone text-xs opacity-50"/> {existingPatient.mobileNo}</span>
-                                                {existingPatient.email && (
-                                                    <span className="flex items-center gap-1 text-gray-600 font-normal"><i className="tabler-mail text-xs opacity-50"/> {existingPatient.email}</span>
-                                                )}
-                                            </div>
+                                            <span className="text-sm font-semibold text-gray-800">{existingPatient.mobileNo}</span>
                                         </div>
                                     </Grid>
                                 </Grid>
@@ -455,26 +478,13 @@ const handleSearchPatient = async () => {
                                     label='Date Of Birth'
                                     value={regForm.dob ? dayjs(regForm.dob) : null}
                                     onChange={(newValue) => {
-                                        setRegForm({
-                                            ...regForm,
-                                            dob: newValue ? newValue.format('YYYY-MM-DD') : ''
-                                        })
+                                        setRegForm({ ...regForm, dob: newValue ? newValue.format('YYYY-MM-DD') : '' })
                                     }}
-                                    openTo='year'
-                                    views={['year', 'month', 'day']}
-                                    yearsOrder='desc'
-                                    maxDate={dayjs()}
                                     format='YYYY-MM-DD'
-                                    slotProps={{
-                                        textField: {
-                                            fullWidth: true,
-                                            required: true
-                                        }
-                                    }}
+                                    slotProps={{ textField: { fullWidth: true, required: true } }}
                                 />
                             </Grid>
 
-                            {/* Email Field - Shown only in Registration */}
                             <Grid size={{ xs: 12, md: 6 }}>
                                 <TextField label="Email" fullWidth value={regForm.email} onChange={(e) => setRegForm({...regForm, email: e.target.value})} />
                             </Grid>
@@ -496,8 +506,7 @@ const handleSearchPatient = async () => {
                                 </div>
                             </Grid>
 
-                            
-                             <Grid size={{ xs: 12, md: 6 }}>
+                            <Grid size={{ xs: 12, md: 6 }}>
                                 <TextField select label="Gender" fullWidth required
                                     value={regForm.gender}
                                     onChange={(e) => setRegForm({...regForm, gender: Number(e.target.value)})}

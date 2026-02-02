@@ -88,7 +88,7 @@ const ScheduleListTable = () => {
       setIsLoading(true)
 
       try {
-        const res = await getScheduleList(
+        const res : any = await getScheduleList(
             pagination.pageIndex, 
             pagination.pageSize, 
             filters.doctorId, 
