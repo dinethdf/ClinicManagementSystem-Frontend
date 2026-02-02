@@ -17,7 +17,7 @@ const StepVerifyOtp = ({ mobile, otp, setOtp, loading, onVerify, onBack }: Props
   return (
     <div className="flex flex-col gap-5 animate-in fade-in">
         <Alert severity="info">
-            We sent a verification code to <strong>{mobile}</strong>.
+            We sent a verification code check Your Email or Mobile No.
         </Alert>
         <TextField 
             label="Enter OTP Code" fullWidth value={otp}

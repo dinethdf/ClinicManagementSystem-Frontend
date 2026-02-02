@@ -24,7 +24,7 @@ import type { TextFieldProps } from '@mui/material/TextField'
 // Custom Components
 import DialogCloseButton from '../DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
-import CustomDatePicker from '@/components/custome/DatePickerTextField' // Ensure this path is correct
+import CustomDatePicker from '@/components/custome/DatePickerTextField' 
 import GuardianSelectDialogBox from '@components/dialogs/guardian-select'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
@@ -86,17 +86,28 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
 
       reset({
         ...patientData,
-        dob: patientData.dob ? patientData.dob : null, // keep date string or object consistent
+        dob: patientData.dob ? patientData.dob : null, 
         gender: patientData.gender?.toString(),
         ethnicity: patientData.ethnicity?.toString(),
         maritalStatus: patientData.maritalStatus?.toString(),
         bloodGroup: patientData.bloodGroup || '',
         
-        // Ensure new fields are mapped
-        weight: patientData.weight || '',
-        height: patientData.height || '',
+        // FIX: Ensure null becomes empty string '' to avoid uncontrolled input errors
+        weight: patientData.weight !== null ? patientData.weight : '',
+        height: patientData.height !== null ? patientData.height : '',
+        
         relationshipToGuardian: patientData.relationshipToGuardian || '',
-        guardian: patientData.guardian || null
+        guardian: patientData.guardian || null,
+        
+        // Ensure other potential nulls are handled for text fields
+        landNo: patientData.landNo || '',
+        emergencyContactName: patientData.emergencyContactName || '',
+        emergencyContactRelationship: patientData.emergencyContactRelationship || '',
+        emergencyContactMobile: patientData.emergencyContactMobile || '',
+        emergencyContactEmail: patientData.emergencyContactEmail || '',
+        address: patientData.address || '',
+        city: patientData.city || '',
+        district: patientData.district || ''
       } as any)
     }
   }, [open, patientData, reset])
@@ -108,7 +119,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
 
   // 2. Guardian Selection Logic
   const selectGuardian = (guardian:Guardian) =>{
-       setValue("nic", guardian.nic)
+       setValue("nic", "")
        setValue("address", guardian.address)
        setValue("city", guardian.city)
        setValue("district", guardian.district)
@@ -145,9 +156,10 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
       maritalStatus: data.maritalStatus,
       bloodGroup: data.bloodGroup,
       
-      // Send new fields
-      weight: data.weight,
-      height: data.height,
+      // FIX: Ensure empty string is converted back to null or number for API
+      weight: data.weight === '' ? null : Number(data.weight),
+      height: data.height === '' ? null : Number(data.height),
+      
       relationshipToGuardian: data.relationshipToGuardian
     }
 
@@ -350,7 +362,8 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 )}
               />
             </Grid>
-{/* <--- NEW FIELDS: Weight & Height ---> */}
+            
+            {/* <--- FIX: Weight & Height Logic ---> */}
             <Grid size={{ xs: 12, sm: 4 }}>
                 <Controller
                     name='weight'
@@ -365,8 +378,10 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                         placeholder='e.g. 65'
                         onChange={(e) => {
                             const val = e.target.value;
-                            field.onChange(val === '' ? '' : Number(val));
+                            // Ensure it sets as string for TextField, but logic will parse on submit
+                            field.onChange(val);
                         }}
+                        value={field.value ?? ''} // Ensure no null passed to input
                         {...(errors.weight && { error: true, helperText: errors.weight.message })}
                     />
                     )}
@@ -386,8 +401,9 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                         placeholder='e.g. 170'
                         onChange={(e) => {
                             const val = e.target.value;
-                            field.onChange(val === '' ? '' : Number(val));
+                            field.onChange(val);
                         }}
+                        value={field.value ?? ''} // Ensure no null passed to input
                         {...(errors.height && { error: true, helperText: errors.height.message })}
                     />
                     )}

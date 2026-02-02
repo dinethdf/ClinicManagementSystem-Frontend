@@ -228,7 +228,7 @@ export async function sendOtp(mobileNo: string, email: string) {
     console.log('OTP send response:');
     console.log(data);
     
-    return { success: true, data: data, message: "Successfully checked patient availability" };
+    return data;
 
   } catch (error) {
     if (error instanceof ApiError) {

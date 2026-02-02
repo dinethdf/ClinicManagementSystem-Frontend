@@ -121,33 +121,53 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
       }
   }
 
-  // --- LOGIC: OTP ---
-  const handleSendOtp = async (mobile: string, email: string = '') => {
+const handleSendOtp = async (mobile: string, email: string = '') => {
       setLoading(true); setErrorMsg(''); setSuccessMsg('');
+      
       try {
           const res = await sendOtp(mobile, email) 
+          
           if(res.success) {
-              setIsOtpSent(true); setStep('VERIFY_OTP'); setSuccessMsg(res.message || "OTP sent successfully.")
+              setIsOtpSent(true); 
+              setStep('VERIFY_OTP'); 
+              // UPDATED: Use API message (e.g. "Unable to send SMS...")
+              setSuccessMsg(res.message || "OTP sent successfully.") 
           } else {
-            setErrorMsg(res.message || "Failed to send OTP")
+              // Error case: Use API message or fallback hardcoded value
+              setErrorMsg(res.message || "Failed to send OTP")
           }
-      } catch (err: any) { setErrorMsg(err.message || "System error sending OTP") }
+      } catch (err: any) { 
+          // System Error case: Hardcoded fallback
+          setErrorMsg(err.message || "System error sending OTP") 
+      }
+      
       setLoading(false)
   }
 
+// --- LOGIC: VERIFY OTP ---
   const handleVerifyOtp = async () => {
       if(!otp) return
       setLoading(true); setErrorMsg(''); setSuccessMsg('');
+      
       try {
           const res = await verifyOtp(mobileToVerify, otp) 
+          
           if(res.success && res.data === true) {
-              setIsVerified(true); setSuccessMsg(res.message || "Mobile verified successfully.")
-              if(existingPatient) { setStep('CONFIRM_EXISTING') } 
-              else { setRegForm(prev => ({ ...prev, mobileNo: mobileToVerify })); setStep('REGISTER_NEW') }
+              setIsVerified(true); 
+              setSuccessMsg(res.message || "Mobile verified successfully.")
+              
+              if(existingPatient) { 
+                  setStep('CONFIRM_EXISTING') 
+              } else { 
+                  setRegForm(prev => ({ ...prev, mobileNo: mobileToVerify })); 
+                  setStep('REGISTER_NEW') 
+              }
           } else {
-              setErrorMsg(res.message || "Invalid OTP.")
+              setErrorMsg(res.message || "Invalid OTP. Please try again.")
           }
-      } catch (err: any) { setErrorMsg(err.message || "Verification failed") }
+      } catch (err: any) { 
+          setErrorMsg(err.message || "Verification failed due to a system error.") 
+      }
       setLoading(false)
   }
 
