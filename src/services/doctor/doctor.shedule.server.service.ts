@@ -1,7 +1,7 @@
 'use server';
 
 import { http, ApiError } from '@/services/api.config.server';
-import type { DoctorScheduleDTO } from '@/types/doctor.types';
+import type { DoctorScheduleDTO, UpdatedDoctorScheduleDTO } from '@/types/doctor.types';
 import type { PublicBookingRequest } from '@/types/public-booking.types';
 
 interface PaginatedResponse<T> {
@@ -109,6 +109,16 @@ export async function getSchedulesByDoctorId(
 export async function getScheduleById(id: number): Promise<DoctorScheduleDTO | null> {
   try {
     const data = await http.get<DoctorScheduleDTO>(`/api/schedules/${id}`);
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch schedule:', error);
+    return null;
+  }
+}
+
+export async function getScheduleByIdUpdated(id: number): Promise<UpdatedDoctorScheduleDTO | null> {
+  try {
+    const data = await http.get<UpdatedDoctorScheduleDTO>(`/api/schedules/${id}`);
     return data;
   } catch (error) {
     console.error('Failed to fetch schedule:', error);

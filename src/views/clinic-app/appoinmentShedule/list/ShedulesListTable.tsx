@@ -31,6 +31,7 @@ import { getScheduleList } from '@/services/doctor/doctor.shedule.server.service
 // --- Types ---
 export interface ScheduleDTO {
   id: number
+  doctorId: number
   doctorName: string
   specialization: string
   scheduleDate: string
@@ -40,7 +41,13 @@ export interface ScheduleDTO {
   clinicFee: number
   maxPatientCount: number
   registeredPatientCount: number
-  status: string
+  isBookingOpen: boolean
+  // Updated Status Type based on API response
+  status: {
+    code: string
+    displayName: string
+    colorCode?: string 
+  }
 }
 
 const columnHelper = createColumnHelper<ScheduleDTO>()
@@ -60,10 +67,9 @@ const ScheduleListTable = () => {
     { label: 'Surgeon', value: 'Surgeon' },
   ]
 
-  // Defined exactly like DoctorsListTable
   const filterConfigs: FilterConfig[] = [
     { 
-      key: 'doctorName', // Maps to the param expected by your service wrapper
+      key: 'doctorName', 
       label: 'Doctor Name', 
       type: 'text', 
       placeholder: 'Search Doctor',
@@ -85,23 +91,18 @@ const ScheduleListTable = () => {
     }
   ]
 
-
-const fetchSchedulesWrapper = async (params: any) => {
+  const fetchSchedulesWrapper = async (params: any) => {
     const page = params.page ?? 0
-    const pageSize = params.pageSize ?? 10 // Map 'limit' to 'size'
+    const pageSize = params.pageSize ?? 10
     
-    // Extract filters (ensure empty strings if undefined)
     const doctorName = params.doctorName || ''
     const specialization = params.specialization || ''
     
-    // Handle Date: If it's a Date object, format it. If string, use as is.
     let date = params.date || ''
     if (params.date instanceof Date) {
-        // Formats to YYYY-MM-DD (e.g., 2025-10-14)
         date = params.date.toISOString().split('T')[0]
     }
 
-    // Call service with POSITIONAL arguments
     return await getScheduleList(
       page,
       pageSize,
@@ -111,11 +112,14 @@ const fetchSchedulesWrapper = async (params: any) => {
     )
   }
 
-  // --- 3. STATUS COLORS ---
-  const scheduleStatusObj: { [key: string]: { title: string; color: 'success' | 'info' | 'error' | 'warning' | 'primary' | 'secondary' } } = {
-    ACTIVE: { title: 'Active', color: 'success' },     
-    COMPLETED: { title: 'Completed', color: 'info' },    
-    CANCELLED: { title: 'Cancelled', color: 'error' }  
+  // --- 3. STATUS MAPPING (Fallback if colorCode is missing) ---
+  const getStatusColor = (code: string) => {
+      switch (code) {
+          case 'ACTIVE': return 'success';
+          case 'COMPLETED': return 'info';
+          case 'CANCELLED': return 'error';
+          default: return 'primary';
+      }
   }
 
   // --- 4. COLUMNS DEFINITION ---
@@ -198,15 +202,15 @@ const fetchSchedulesWrapper = async (params: any) => {
     columnHelper.accessor('status', {
         header: 'Status',
         cell: ({ row }) => {
-            const status = row.original.status;
-            const statusConfig = scheduleStatusObj[status] || { title: status, color: 'primary' };
-
+            const statusObj = row.original.status;
+            
             return (
               <Chip
-                label={statusConfig.title}
+                label={statusObj.displayName || statusObj.code}
                 variant='tonal'
-                color={statusConfig.color}
+                color={getStatusColor(statusObj.code)} 
                 size='small'
+                className='uppercase'
               />
             )
         }
@@ -237,27 +241,17 @@ const fetchSchedulesWrapper = async (params: any) => {
 
   return (
     <CommonServerTable
-      // 1. Unique ID for Redux Persistence
       tableId="schedule-list-table"
-      
       title="Schedule Management"
-      
-      // 2. Fetch Wrapper Function
       fetchDataFunction={fetchSchedulesWrapper}
-      
       columns={columns}
-      
-      // 3. Filter Configuration (Inputs)
       filterConfig={filterConfigs}      
-      // 4. Action Buttons (Top Right - Add Button)
       actionComponent={
         <>
-            {/* Optional Export Button matching Doctor Table */}
             <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>
                 Export
             </Button>
 
-            {/* ✅ Add Schedule Button */}
             <Button 
                 variant='contained' 
                 onClick={() => router.push(getLocalizedUrl('/clinic/appoinment-shedule/create', locale as Locale))}

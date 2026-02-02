@@ -57,6 +57,33 @@ export interface DoctorScheduleDTO {
   status?:string
 }
 
+// --- Updated Interface based on your JSON ---
+export interface UpdatedDoctorScheduleDTO {
+  id: number
+  doctorId: number
+  doctorName: string
+  specialization: string
+  scheduleDate: string
+  startTime: string
+  endTime: string
+  doctorFee: number
+  clinicFee: number
+  maxPatientCount: number
+  registeredPatientCount: number
+  isBookingOpen: boolean
+  // Status is an object
+  status: {
+    code: string
+    displayName: string
+    colorCode: string
+  }
+  // Payout Status is an object
+  payoutStatus?: {
+    code: string
+    displayName: string
+    colorCode: string
+  }
+}
 // Payload for updating
 export type UpdateScheduleDTO = {
   startTime: string

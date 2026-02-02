@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 
 import ScheduleDetails from '@/views/clinic-app/appoinmentShedule/details'
 
-import { getScheduleById } from '@/services/doctor/doctor.shedule.server.service'
+import { getScheduleByIdUpdated } from '@/services/doctor/doctor.shedule.server.service'
 
 const ScheduleDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params
@@ -13,7 +13,9 @@ const ScheduleDetailsPage = async (props: { params: Promise<{ id: string }> }) =
   let scheduleData = null
 
   try {
-    scheduleData = await getScheduleById(scheduleId)
+    scheduleData = await getScheduleByIdUpdated(scheduleId)
+
+    console.log(scheduleData)
   } catch (error) {
     console.error('Error fetching schedule details:', error)
   }
