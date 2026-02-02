@@ -14,8 +14,8 @@ export interface Patient {
   guardian: Guardian | null
   bloodGroup:string | null
   relationshipToGuardian :string | null
-  weight: number | null | string
-  height: number | null | string
+  weight: number | null 
+  height: number | null
 
   profileImg?:string
 

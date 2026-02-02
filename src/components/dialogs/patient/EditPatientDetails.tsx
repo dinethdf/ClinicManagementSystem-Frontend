@@ -41,9 +41,6 @@ type EditPatientDetailsProps = {
 }
 
 const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDetailsProps) => {
-
-  console.log("Load the components")
-
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -69,8 +66,6 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
 
   // 1. Initialize Form Data on Open
   useEffect(() => {
-
-    console.log(patientData)
     if (open && patientData) {
       // Calculate age logic
       let isChild = false
@@ -93,8 +88,8 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
         bloodGroup: patientData.bloodGroup || '',
         
         // FIX: Ensure null becomes empty string '' to avoid uncontrolled input errors
-        weight: patientData.weight !== null ? patientData.weight : '',
-        height: patientData.height !== null ? patientData.height : '',
+        weight: patientData.weight !== null ? patientData.weight : null,
+        height: patientData.height !== null ? patientData.height : null,
         
         relationshipToGuardian: patientData.relationshipToGuardian || '',
         guardian: patientData.guardian || null,
@@ -143,8 +138,10 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
   }   
 
   const onSubmit = async (data: Patient) => {
+    console.log("Patient data", data)
     if (!patientData?.id) return
 
+    console.log("patient data:", data)
     setIsLoading(true)
     setErrorMessage(null)
 
@@ -157,8 +154,8 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
       bloodGroup: data.bloodGroup,
       
       // FIX: Ensure empty string is converted back to null or number for API
-      weight: data.weight === '' ? null : Number(data.weight),
-      height: data.height === '' ? null : Number(data.height),
+      weight: data.weight === null ? null : Number(data.weight),
+      height: data.height === null ? null : Number(data.height),
       
       relationshipToGuardian: data.relationshipToGuardian
     }
@@ -379,7 +376,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                         onChange={(e) => {
                             const val = e.target.value;
                             // Ensure it sets as string for TextField, but logic will parse on submit
-                            field.onChange(val);
+                            field.onChange(val === '' ? null : Number(val));
                         }}
                         value={field.value ?? ''} // Ensure no null passed to input
                         {...(errors.weight && { error: true, helperText: errors.weight.message })}
@@ -401,7 +398,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                         placeholder='e.g. 170'
                         onChange={(e) => {
                             const val = e.target.value;
-                            field.onChange(val);
+                            field.onChange(val === '' ? null : Number(val));
                         }}
                         value={field.value ?? ''} // Ensure no null passed to input
                         {...(errors.height && { error: true, helperText: errors.height.message })}
