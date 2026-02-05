@@ -18,7 +18,7 @@ import EditScheduleDialog from '@/components/dialogs/edit-schedule'
 import { UpdatedDoctorScheduleDTO } from '@/types/doctor.types'
 import { encodeHideValue } from '@/utils/encode'
 
-const ScheduleDetailsSection = ({ scheduleData }: { scheduleData?: UpdatedDoctorScheduleDTO }) => {
+const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: UpdatedDoctorScheduleDTO, role: string }) => {
   
   const router = useRouter() // Initialize Router
 
@@ -146,26 +146,28 @@ const ScheduleDetailsSection = ({ scheduleData }: { scheduleData?: UpdatedDoctor
                 </div>
             </div>
         </div>
-        
-        {/* --- 5. Edit Button --- */}
-        <OpenDialogOnElementClick 
-            element={Button} 
-            elementProps={buttonProps} 
-            dialog={EditScheduleDialog} 
-            dialogProps={{ scheduleData: scheduleData }} 
-        />
 
-        {/* --- 6. NEW: Financial Overview Button --- */}
-        <Button 
-            variant='outlined' 
-            color='secondary' 
-            fullWidth 
-            onClick={() => router.push(`financial/schedule-summary/${encodeHideValue(scheduleData.id)}`)} 
-            startIcon={<i className='tabler-chart-pie' />}
-        >
-            Financial Overview
-        </Button>
-        
+        {/* --- 5. Edit Button --- */}
+            {role === 'ADMIN' && (
+            <>
+                <OpenDialogOnElementClick 
+                    element={Button} 
+                    elementProps={buttonProps} 
+                    dialog={EditScheduleDialog} 
+                    dialogProps={{ scheduleData: scheduleData }} 
+                />
+
+                <Button 
+                    variant='outlined' 
+                    color='secondary' 
+                    fullWidth 
+                    onClick={() => router.push(`financial/schedule-summary/${encodeHideValue(scheduleData.id)}`)} 
+                    startIcon={<i className='tabler-chart-pie' />}
+                >
+                    Financial Overview
+                </Button>
+            </>
+            )}
       </CardContent>
     </Card>
   )

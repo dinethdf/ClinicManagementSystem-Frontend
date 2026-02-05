@@ -9,11 +9,11 @@ import type { UpdatedDoctorScheduleDTO } from '@/types/doctor.types'
 import ScheduleDetailsSection from './ScheduleDetailsSection'
 import ScheduleAppointmentListTable from './ScheduleAppointmentListTable'
 
-const ScheduleDetails = ({ scheduleData }: { scheduleData: UpdatedDoctorScheduleDTO }) => {
+const ScheduleDetails = ({ scheduleData, role }: { scheduleData: UpdatedDoctorScheduleDTO, role: string }) => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, md: 5, lg: 4 }}>
-        <ScheduleDetailsSection scheduleData={scheduleData} />
+        <ScheduleDetailsSection scheduleData={scheduleData} role={role} />
       </Grid>
 
       {/* Right Side: Appointment List */}

@@ -13,7 +13,7 @@ const ScheduleDetailsPage = async (props: { params: Promise<{ id: string }> }) =
  
   const role = valid ? payload?.role : null;
 
-  const allowedRoles = ['ADMIN', 'USER'];
+  const allowedRoles = ['ADMIN', 'USER', , 'STAFF'];
 
 
   if (role && allowedRoles.includes(role)) {
@@ -30,7 +30,12 @@ const ScheduleDetailsPage = async (props: { params: Promise<{ id: string }> }) =
         redirect('/clinic/appoinmentShedule/list')
       }
 
-      return <ScheduleDetails scheduleData={scheduleData} />
+      if(role === 'STAFF' ) {
+        return <ScheduleDetails role={role}  scheduleData={scheduleData} />
+      }
+    if(role === 'ADMIN') {
+      return <ScheduleDetails role={role}  scheduleData={scheduleData} />
+    }
   }
 
   return (

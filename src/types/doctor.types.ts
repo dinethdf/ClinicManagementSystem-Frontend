@@ -219,3 +219,40 @@ interface PaginatedResponse<T> {
   size: number
   number: number
 }
+
+
+
+
+export interface ScheduleDTO {
+  id: number
+  doctorName: string
+  specialization: string
+  scheduleDate: string
+  startTime: string
+  endTime: string
+  isActive: 'ACTIVE' | 'NOT ACTIVE'
+  status:string
+  maxPatientCount: number
+  registeredPatientCount: number
+  doctorFee: number
+  clinicFee: number
+  isBookingOpen: boolean
+  payoutStatus?: {
+    code: string
+    displayName: string
+    colorCode: string
+  }
+}
+
+
+export interface DoctorScheduleApiResponse {
+  success: boolean
+  message: string
+  data: {
+    content: ScheduleDTO[]
+    totalElements: number
+    totalPages: number
+    size: number
+    number: number 
+  }
+}

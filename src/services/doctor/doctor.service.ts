@@ -1,4 +1,4 @@
-import type { DoctorCreateDTO, DoctorScheduleDTO, GetDoctorsParams, PaginatedDoctorResponse } from '@/types/doctor.types'
+import type { DoctorCreateDTO, DoctorScheduleApiResponse, DoctorScheduleDTO, GetDoctorsParams, PaginatedDoctorResponse } from '@/types/doctor.types'
 import { apiClient } from '../api.config'
 import { ApiResponse } from '@/types/common.type'
 
@@ -22,7 +22,6 @@ class DoctorService {
 
 async getDoctorList({ page, pageSize, sort, ...filters}: GetDoctorsParams): Promise<PaginatedDoctorResponse> {
 
-  console.log(filters)
     try {
       const response = await apiClient.get<any>('/api/doctor/list', {
         params: {
@@ -87,6 +86,18 @@ async updateDoctor(id: string, doctorData: Partial<any>): Promise<any> {
       throw new Error(error.response?.data?.defaultMessage || 'Failed to update doctor details')
     }
   }
+
+  async getDoctorSchedules(doctorId: number, page: number = 0, size: number = 10): Promise<DoctorScheduleApiResponse['data'] | null> {
+    try {
+      const response = await apiClient.get<DoctorScheduleApiResponse>(
+        `/api/schedules/by-doctor/${doctorId}?includeInactive=true&page=${page}&size=${size}`
+      )
+      return response.data.data
+    } catch (error) {
+      console.error('Failed to fetch doctor schedules:', error)
+      return null
+    }
+  }  
 
 }
 
