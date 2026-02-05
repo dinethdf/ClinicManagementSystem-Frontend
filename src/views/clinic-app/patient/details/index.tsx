@@ -1,5 +1,5 @@
 // React Imports
-import type { ReactElement } from 'react'
+import { useMemo, type ReactElement } from 'react'
 
 // Next Imports
 import dynamic from 'next/dynamic'
@@ -27,13 +27,13 @@ const PatientIdTab = dynamic(() => import('@views/clinic-app/patient/details/pat
 
 const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
   // Vars
-  const tabContentList = (): { [key: string]: ReactElement } => ({
+  const tabContentList = useMemo(() => ({
     overview: <OverViewTab patientId={patientData.id} />,
     security: <SecurityTab patientId={patientData.id}/>,
     insurance: <InsuranceOverview />,
     analysis: <Analysis patientId={Number(patientData?.id) || 0} />,
     identity: <PatientIdTab patientData={patientData} />
-  })
+  }), [patientData.id, patientData])
 
   return (
     <Grid container spacing={6}>
@@ -50,7 +50,7 @@ const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
         <PatientLeftOverview patientData={patientData} />
       </Grid>
       <Grid size={{ xs: 12, md: 8.5 }}>
-        <PatientRight tabContentList={tabContentList()} />
+        <PatientRight tabContentList={tabContentList} />
       </Grid>
     </Grid>
   )

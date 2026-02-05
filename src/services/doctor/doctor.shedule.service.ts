@@ -74,6 +74,8 @@ async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorSchedule
 
 // NEW: Get Upcoming Schedules with Filters (Public/Clinic usage)
   async getUpcomingSchedules(params: ScheduleFilterParams): Promise<PageableResponse<DoctorScheduleDTO>> {
+
+    console.log("Call the appoinemtn shedule details api")
     try {
       // Construct query string
       const queryParams = new URLSearchParams()

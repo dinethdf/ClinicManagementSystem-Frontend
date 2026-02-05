@@ -16,7 +16,7 @@ import type { ThemeColor } from '@core/types'
 import type { DoctorScheduleDTO } from '@/types/doctor.types' // Ensure this path is correct based on your project
 
 // Component Imports
-import ConfirmationDialog from '@/components/dialogs/confirmation-dialog'
+import ConfirmationDialog from '@/components/dialogs/cancel-appointment-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import DoctorSheduleSelect from '@/components/dialogs/doctor-shedule-select' // Adjust this import path to where you saved the popup code
 

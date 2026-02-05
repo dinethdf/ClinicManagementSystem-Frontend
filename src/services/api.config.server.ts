@@ -22,6 +22,8 @@ export class ApiError extends Error {
 }
 
 async function apiFetch(endpoint: string, options: RequestInit = {}, isFullResponse: boolean = false) {
+
+  console.log("Api Call : ", endpoint, options)
   const cookieStore = cookies();
   const token = (await cookieStore).get('accessToken')?.value;
 

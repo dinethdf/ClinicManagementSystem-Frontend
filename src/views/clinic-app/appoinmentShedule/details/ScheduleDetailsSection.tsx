@@ -1,4 +1,5 @@
 'use client'
+import { useRouter } from 'next/navigation' // Added Import
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -9,16 +10,18 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import LinearProgress from '@mui/material/LinearProgress'
 import type { ButtonProps } from '@mui/material/Button'
-import Box from '@mui/material/Box'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import EditScheduleDialog from '@/components/dialogs/edit-schedule'
 import { UpdatedDoctorScheduleDTO } from '@/types/doctor.types'
+import { encodeHideValue } from '@/utils/encode'
 
 const ScheduleDetailsSection = ({ scheduleData }: { scheduleData?: UpdatedDoctorScheduleDTO }) => {
   
+  const router = useRouter() // Initialize Router
+
   if (!scheduleData) return null;
 
   // Vars for the edit button
@@ -151,6 +154,17 @@ const ScheduleDetailsSection = ({ scheduleData }: { scheduleData?: UpdatedDoctor
             dialog={EditScheduleDialog} 
             dialogProps={{ scheduleData: scheduleData }} 
         />
+
+        {/* --- 6. NEW: Financial Overview Button --- */}
+        <Button 
+            variant='outlined' 
+            color='secondary' 
+            fullWidth 
+            onClick={() => router.push(`financial/schedule-summary/${encodeHideValue(scheduleData.id)}`)} 
+            startIcon={<i className='tabler-chart-pie' />}
+        >
+            Financial Overview
+        </Button>
         
       </CardContent>
     </Card>

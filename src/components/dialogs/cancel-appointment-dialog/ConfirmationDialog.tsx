@@ -15,6 +15,7 @@ import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import Select from '@mui/material/Select'
 import Box from '@mui/material/Box'
+import Divider from '@mui/material/Divider'
 
 import classnames from 'classnames'
 
@@ -25,10 +26,12 @@ type ConfirmationDialogProps = {
   open: boolean
   setOpen: (open: boolean) => void
   type: ConfirmationType
-  onConfirm?: (reason?: string) => Promise<any>
+  onConfirm?: (reason?: string) => Promise<{ success: boolean; message: string }>
   paymentDetails?: { 
-    invoiceStatus: string       // 'UNPAID','PAID','PARTIAL','CANCELLED'
-    invoiceFinalAmount: number  // What the patient actually paid (or owes)
+    invoiceStatus: string      
+    invoiceFinalAmount: number  // Total Bill Value
+    amountPaid: number          // NEW: Actual amount paid by patient
+    balanceRemaining?: number   // NEW: Remaining balance
     doctorFee: number
     clinicFee: number
   } 
@@ -62,7 +65,6 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
   const handleConfirmation = async (value: boolean) => {
     if (!value) {
       setUserInput(false)
-      setSecondDialog(true)
       setOpen(false)
       return
     }
@@ -78,7 +80,7 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
                 setApiMessage(response.message || 'Action completed successfully.')
             } else {
                 setUserInput(false)
-                setApiMessage(response.message || response.defaultMessage || 'Something went wrong.')
+                setApiMessage(response.message || 'Something went wrong.')
             }
         } catch (error) {
             setUserInput(false)
@@ -95,10 +97,24 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
     }
   }
 
-  // --- HELPER: Logic to determine if money needs to be returned ---
-  const isPaid = paymentDetails?.invoiceStatus === 'PAID' || paymentDetails?.invoiceStatus === 'PARTIAL';
+  // --- FINANCIAL LOGIC ---
+  // 1. Determine if any money has been paid
+  const amountPaid = paymentDetails?.amountPaid || 0;
+  const hasPaid = amountPaid > 0;
+
+  // 2. Total Value of the Appointment
   const totalAppointmentValue = (paymentDetails?.doctorFee || 0) + (paymentDetails?.clinicFee || 0);
-  const refundAmount = isPaid ? paymentDetails?.invoiceFinalAmount : 0;
+
+  // 3. Status Color Helper
+  const getStatusColor = (status: string | undefined) => {
+      switch (status) {
+          case 'PAID': return 'text-success';
+          case 'PARTIAL': return 'text-info';
+          case 'UNPAID': return 'text-warning';
+          case 'CANCELLED': return 'text-error';
+          default: return 'text-gray-500';
+      }
+  };
 
   return (
     <>
@@ -112,46 +128,53 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
               {type === 'cancel-appointment' ? 'Cancel Appointment?' : 'Are you sure?'}
             </Typography>
 
-            {/* --- REASON SELECTION & PAYMENT INFO (Only for Cancel) --- */}
+            {/* --- REASON & PAYMENT INFO --- */}
             {type === 'cancel-appointment' && (
                 <div className='w-full text-left flex flex-col gap-4 mb-4'>
                     
                     {/* FINANCIAL INFO BOX */}
                     {paymentDetails && (
-                        <Box className={`p-3 rounded border flex flex-col gap-1 ${isPaid ? 'bg-red-50 border-red-100' : 'bg-gray-50 border-gray-200'}`}>
+                        <Box className={`p-3 rounded border flex flex-col gap-2 ${hasPaid ? 'bg-red-50 border-red-100' : 'bg-gray-50 border-gray-200'}`}>
                             
-                            {/* Row 1: Status */}
-                            <div className='flex justify-between items-center border-b border-dashed pb-2 mb-1'>
+                            {/* Row 1: Header & Status */}
+                            <div className='flex justify-between items-center border-b border-dashed pb-2'>
                                 <Typography variant='caption' className='font-bold uppercase text-gray-500'>Payment Status</Typography>
-                                <Typography variant='subtitle2' className={`font-bold ${isPaid ? 'text-success' : 'text-warning'}`}>
+                                <Typography variant='subtitle2' className={`font-bold ${getStatusColor(paymentDetails.invoiceStatus)}`}>
                                     {paymentDetails.invoiceStatus}
                                 </Typography>
                             </div>
 
-                            {/* Row 2: Values */}
+                            {/* Row 2: Total Cost */}
                             <div className='flex justify-between items-center'>
-                                <Typography variant='body2' className='text-gray-600'>Total Appt. Value:</Typography>
-                                <Typography variant='body2' className='font-medium'>LKR {totalAppointmentValue.toFixed(2)}</Typography>
+                                <Typography variant='body2' className='text-gray-600'>Total Fee:</Typography>
+                                <Typography variant='body2' className='font-medium text-gray-600'>LKR {totalAppointmentValue.toFixed(2)}</Typography>
+                            </div>
+
+                            {/* Row 3: Amount Paid (Crucial for Partial) */}
+                            <div className='flex justify-between items-center'>
+                                <Typography variant='body2' className='text-gray-600'>Amount Paid:</Typography>
+                                <Typography variant='body2' className='font-bold text-gray-800'>LKR {amountPaid.toFixed(2)}</Typography>
                             </div>
                             
-                            {/* Row 3: Refund Highlight */}
-                            <div className='flex justify-between items-center mt-1 bg-white p-2 rounded shadow-sm'>
+                            {/* Row 4: Refund Highlight */}
+                            <div className='flex justify-between items-center mt-1 bg-white p-2 rounded shadow-sm border border-gray-100'>
                                 <Typography variant='subtitle2' className='font-bold text-gray-800'>
-                                    {isPaid ? "Refund Amount:" : "Refund Due:"}
+                                    {hasPaid ? "Refund Amount:" : "No Refund Due"}
                                 </Typography>
-                                <Typography variant='h6' className={`font-bold ${isPaid ? 'text-red-600' : 'text-gray-400'}`}>
-                                    {isPaid ? `LKR ${paymentDetails.invoiceFinalAmount.toFixed(2)}` : 'LKR 0.00'}
+                                <Typography variant='h6' className={`font-bold ${hasPaid ? 'text-red-600' : 'text-gray-400'}`}>
+                                    LKR {amountPaid.toFixed(2)}
                                 </Typography>
                             </div>
 
-                            <Typography variant='caption' className='text-center mt-1 text-gray-400'>
-                                {isPaid 
-                                    ? "* Verify patient identity before processing refund." 
-                                    : "* Patient has not paid yet. No refund required."}
+                            <Typography variant='caption' className='text-center mt-1 text-gray-400 italic'>
+                                {hasPaid 
+                                    ? "* This amount will be marked for refund." 
+                                    : "* Patient has not paid yet."}
                             </Typography>
                         </Box>
                     )}
 
+                    {/* REASON SELECTOR */}
                     <FormControl fullWidth size='small' className='mt-2'>
                         <InputLabel>Reason for Cancellation</InputLabel>
                         <Select
@@ -185,7 +208,6 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
             {type !== 'cancel-appointment' && (
                 <Typography color='text.primary'>
                     {type === 'delete-account' && 'You won\'t be able to revert user!'}
-                    {/* ... other types ... */}
                 </Typography>
             )}
 
@@ -207,7 +229,7 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
         </DialogActions>
       </Dialog>
 
-      {/* Result Dialog */}
+      {/* RESULT DIALOG */}
       <Dialog open={secondDialog} onClose={handleSecondDialogClose}>
         <DialogContent className='flex items-center flex-col text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
           <i className={classnames('text-[88px] mbe-6', {
@@ -216,7 +238,9 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
             })}
           />
           <Typography variant='h4' className='mbe-2'>{userInput ? 'Success' : 'Failed'}</Typography>
-          <Typography color='text.primary'>{apiMessage || (userInput ? 'Operation completed.' : 'Cancelled.')}</Typography>
+          <Typography color='text.primary' className='whitespace-pre-line'>
+            {apiMessage || (userInput ? 'Operation completed.' : 'Cancelled.')}
+          </Typography>
         </DialogContent>
         <DialogActions className='justify-center pbs-0 sm:pbe-16 sm:pli-16'>
           <Button variant='contained' color={userInput ? 'success' : 'error'} onClick={handleSecondDialogClose}>Ok</Button>

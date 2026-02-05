@@ -55,6 +55,7 @@ export interface DoctorScheduleDTO {
   maxPatientCount: number
   isActive?: boolean
   status?:string
+  isBookingOpen?: boolean
 }
 
 // --- Updated Interface based on your JSON ---

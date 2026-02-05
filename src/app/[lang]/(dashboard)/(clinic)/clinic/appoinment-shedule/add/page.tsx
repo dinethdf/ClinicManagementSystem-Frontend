@@ -8,7 +8,7 @@ const doctorAppointmentSection = async () => {
  
   const role = valid ? payload?.role : null;
 
-  const allowedRoles = ['ADMIN', 'STAFF', 'USER', 'DOCTOR'];
+  const allowedRoles = ['ADMIN', 'USER'];
 
 
   if (role && allowedRoles.includes(role)) {

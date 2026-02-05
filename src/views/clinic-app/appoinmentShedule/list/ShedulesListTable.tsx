@@ -5,12 +5,12 @@ import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 
 // MUI Imports
-import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import LinearProgress from '@mui/material/LinearProgress'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
 
 // TanStack Table
 import { createColumnHelper } from '@tanstack/react-table'
@@ -20,13 +20,17 @@ import CommonServerTable from '@/components/common-components/table/CommonServer
 import { FilterConfig } from '@/components/common-components/table/TableTypes'
 import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
+import AsyncAutocomplete from '@/components/form-components/AsyncAutocompleteProps' 
 
 // Utils & Types
 import { getLocalizedUrl } from '@/utils/i18n'
+import { encodeHideValue } from '@/utils/encode'
 import type { Locale } from '@configs/i18n'
 
 // Service Imports
 import { getScheduleList } from '@/services/doctor/doctor.shedule.server.service'
+import { Typography } from '@mui/material'
+import { SpecializationDTO } from '@/types/public-booking.types'
 
 // --- Types ---
 export interface ScheduleDTO {
@@ -42,12 +46,26 @@ export interface ScheduleDTO {
   maxPatientCount: number
   registeredPatientCount: number
   isBookingOpen: boolean
-  // Updated Status Type based on API response
   status: {
     code: string
     displayName: string
-    colorCode?: string 
+    colorCode: string 
   }
+  payoutStatus?: {
+    code: string
+    displayName: string
+    colorCode: string
+  }
+}
+
+type Doctor = {
+    id: number
+    firstName: string
+    lastName: string
+    specialization: {
+        id: number
+        name: string
+    }
 }
 
 const columnHelper = createColumnHelper<ScheduleDTO>()
@@ -56,73 +74,95 @@ const ScheduleListTable = () => {
   const router = useRouter()
   const { lang: locale } = useParams()
 
-  // --- 1. CONFIGURATION: FILTERS & SORTING ---
-  const specializationOptions = [
-    { label: 'General Practitioner', value: 'General Practitioner' },
-    { label: 'Cardiologist', value: 'Cardiologist' },
-    { label: 'Dermatologist', value: 'Dermatologist' },
-    { label: 'Orthopedic Surgeon', value: 'Orthopedic Surgeon' },
-    { label: 'Pediatrician', value: 'Pediatrician' },
-    { label: 'Neurologist', value: 'Neurologist' },
-    { label: 'Surgeon', value: 'Surgeon' },
-  ]
-
+  // --- 1. FILTER CONFIGURATION ---
   const filterConfigs: FilterConfig[] = [
-    { 
-      key: 'doctorName', 
-      label: 'Doctor Name', 
-      type: 'text', 
-      placeholder: 'Search Doctor',
-      gridSize: { xs: 12, sm: 4 }
-    },
-    { 
-      key: 'specialization', 
-      label: 'Specialization', 
-      type: 'select', 
-      options: specializationOptions,
-      gridSize: { xs: 12, sm: 4 }
+    {
+        key: 'selectedSpecialization', 
+        label: 'Specialization',
+        type: 'custom', 
+        gridSize: { xs: 12, sm: 6, md: 4 },
+        render: (values, onChange) => (
+            <AsyncAutocomplete
+                label='Search Specialization'
+                fetchUrl='/api/specialization/list'
+                searchParamKey='q'
+                placeholder='Enter Specialization'
+                getOptionLabel={(specialization: SpecializationDTO) => `${specialization.name}`}
+                fetchInputLenth={1}
+                fullWidth
+                size='small'
+                value={values.selectedSpecialization || null} 
+                onChange={(newValue: SpecializationDTO | null) => {
+                    onChange('selectedSpecialization', newValue) 
+                }}
+            />
+        )
     },
     {
-      key: 'date',
-      label: 'Schedule Date',
+        key: 'Spe', 
+        label: 'Doctor',
+        type: 'custom', 
+        gridSize: { xs: 12, sm: 6, md: 4 },
+        render: (values, onChange) => (
+            <AsyncAutocomplete
+                label='Search Doctor'
+                fetchUrl='/api/doctor/search'
+                searchParamKey='q'
+                placeholder='Enter Name'
+                getOptionLabel={(doctor: Doctor) => `${doctor.firstName} ${doctor.lastName} : ${doctor.specialization.name}`}
+                fetchInputLenth={2}
+                fullWidth
+                size='small'
+                value={values.selectedDoctor || null} 
+                onChange={(newValue: Doctor | null) => {
+                    onChange('selectedDoctor', newValue) 
+                }}
+            />
+        )
+    },    
+    {
+      key: 'startDate',
+      label: 'Schedule Start Date',
       type: 'date', 
       placeholder: 'Select Date',
-      gridSize: { xs: 12, sm: 4 }
-    }
+      gridSize: { xs: 12, sm: 6, md: 4 }
+    },
+    {
+      key: 'endDate',
+      label: 'Schedule End Date',
+      type: 'date', 
+      placeholder: 'Select Date',
+      gridSize: { xs: 12, sm: 6, md: 4 }
+    }    
   ]
 
+  // --- 2. DATA FETCHING WRAPPER (UPDATED FOR NEW API) ---
   const fetchSchedulesWrapper = async (params: any) => {
     const page = params.page ?? 0
     const pageSize = params.pageSize ?? 10
     
-    const doctorName = params.doctorName || ''
-    const specialization = params.specialization || ''
+    const selectedDoctor = params.selectedDoctor as Doctor | null
+    const selectedSpecialization = params.selectedSpecialization as SpecializationDTO | null
+
+    const doctorId = selectedDoctor?.id 
+    const specializationId = selectedSpecialization?.id
     
-    let date = params.date || ''
-    if (params.date instanceof Date) {
-        date = params.date.toISOString().split('T')[0]
-    }
+    // 3. Map Date to Start/End Range
+    let startDate = params.startDate
+    let endDate = params.endDate
+
 
     return await getScheduleList(
       page,
       pageSize,
-      doctorName, 
-      specialization, 
-      date
+      doctorId, 
+      specializationId, 
+      startDate,
+      endDate
     )
   }
 
-  // --- 3. STATUS MAPPING (Fallback if colorCode is missing) ---
-  const getStatusColor = (code: string) => {
-      switch (code) {
-          case 'ACTIVE': return 'success';
-          case 'COMPLETED': return 'info';
-          case 'CANCELLED': return 'error';
-          default: return 'primary';
-      }
-  }
-
-  // --- 4. COLUMNS DEFINITION ---
+  // --- 3. COLUMNS DEFINITION ---
   const columns = useMemo(() => [
     columnHelper.accessor('id', {
       header: 'Ref #',
@@ -200,20 +240,23 @@ const ScheduleListTable = () => {
     }),
 
     columnHelper.accessor('status', {
-        header: 'Status',
-        cell: ({ row }) => {
-            const statusObj = row.original.status;
-            
-            return (
-              <Chip
-                label={statusObj.displayName || statusObj.code}
-                variant='tonal'
-                color={getStatusColor(statusObj.code)} 
-                size='small'
-                className='uppercase'
-              />
-            )
-        }
+      header: 'Status',
+      cell: ({ row }) => {
+        const statusObj = row.original.status;
+        return (
+          <Chip
+            label={statusObj.displayName || statusObj.code}
+            size='small'
+            sx={{ 
+                backgroundColor: statusObj.colorCode, 
+                color: '#fff', 
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                fontSize: '0.75rem'
+            }}
+          />
+        )
+      }
     }),
 
     {
@@ -222,7 +265,7 @@ const ScheduleListTable = () => {
       cell: ({ row }: any) => (
         <div className='flex items-center'>
             <Tooltip title="Edit">
-                <IconButton size='small' onClick={() => router.push(getLocalizedUrl(`/clinic/appoinment-shedule/edit/${row.original.id}`, locale as Locale))}>
+                <IconButton size='small' onClick={() => router.push(getLocalizedUrl(`/clinic/appoinment-shedule/edit/${encodeHideValue(row.original.id)}`, locale as Locale))}>
                     <i className='tabler-edit text-textSecondary' />
                 </IconButton>
             </Tooltip>
@@ -230,7 +273,7 @@ const ScheduleListTable = () => {
                 iconButtonProps={{ size: 'medium' }}
                 iconClassName='text-textSecondary'
                 options={[
-                { text: 'View Details', icon: 'tabler-eye', href: getLocalizedUrl(`/clinic/appoinment-shedule/details/${row.original.id}`, locale as Locale) },
+                { text: 'View Details', icon: 'tabler-eye', href: getLocalizedUrl(`/clinic/appoinment-shedule/details/${encodeHideValue(row.original.id)}`, locale as Locale) },
                 { text: 'Cancel Schedule', icon: 'tabler-ban', menuItemProps: { className: 'text-error' } }
                 ]}
             />
@@ -241,26 +284,26 @@ const ScheduleListTable = () => {
 
   return (
     <CommonServerTable
-      tableId="schedule-list-table"
-      title="Schedule Management"
-      fetchDataFunction={fetchSchedulesWrapper}
-      columns={columns}
-      filterConfig={filterConfigs}      
-      actionComponent={
-        <>
-            <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>
-                Export
-            </Button>
+        tableId="schedule-list-table"
+        title="Schedule Management"
+        fetchDataFunction={fetchSchedulesWrapper}
+        columns={columns}
+        filterConfig={filterConfigs}      
+        actionComponent={
+            <>
+                <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>
+                    Export
+                </Button>
 
-            <Button 
-                variant='contained' 
-                onClick={() => router.push(getLocalizedUrl('/clinic/appoinment-shedule/create', locale as Locale))}
-                startIcon={<i className='tabler-plus' />}
-            >
-                Add Schedule
-            </Button>
-        </>
-      }
+                <Button 
+                    variant='contained' 
+                    onClick={() => router.push(getLocalizedUrl('/clinic/appoinment-shedule/create', locale as Locale))}
+                    startIcon={<i className='tabler-plus' />}
+                >
+                    Add Schedule
+                </Button>
+            </>
+        }
     />
   )
 }

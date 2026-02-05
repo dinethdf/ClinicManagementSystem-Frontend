@@ -126,26 +126,26 @@ export async function getScheduleByIdUpdated(id: number): Promise<UpdatedDoctorS
   }
 }
 
-/**
- * Get schedule list with filters (internal use, requires auth)
- */
 export async function getScheduleList(
   page: number, 
   pageSize: number, 
-  doctorName?: string, 
-  specialization?: string, 
-  date?: string
+  doctorId?: number, 
+  specializationId?: number, 
+  startDate?: string,
+  endDate?: string
 ) {
   try {
     const params = new URLSearchParams({
-      page: (page - 1).toString(),
+      page: page.toString(), // TanStack table is 0-indexed, Spring Boot is 0-indexed.
       size: pageSize.toString(),
     });
 
-    if (doctorName) params.append('doctorName', doctorName);
-    if (specialization) params.append('specialization', specialization);
-    if (date) params.append('date', date);
+    if (doctorId) params.append('doctorId', doctorId.toString());
+    if (specializationId) params.append('specializationId', specializationId.toString());
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
 
+    console.log("urs", `/api/schedules?${params.toString()}`)
     const data = await http.get<PaginatedResponse<DoctorScheduleDTO>>(
       `/api/schedules?${params.toString()}`
     );

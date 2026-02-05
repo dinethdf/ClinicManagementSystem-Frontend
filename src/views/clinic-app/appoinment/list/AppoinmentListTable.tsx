@@ -22,20 +22,41 @@ import { FilterConfig } from '@/components/common-components/table/TableTypes'
 import PatientSelectDialogBox from '@/components/dialogs/patient-select'
 import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick'
 import OptionMenu from '@core/components/option-menu'
+import AsyncAutocomplete from '@/components/form-components/AsyncAutocompleteProps'
 
-// Services & Types
+// Services
 import { getAppointmentList } from '@/services/appointment/appoinment.server.service'
-import type { AppointmentListDTO } from '@/types/appoinments.types'
-import type { ThemeColor } from '@core/types'
-import type { Locale } from '@configs/i18n'
-import { getLocalizedUrl } from '@/utils/i18n'
 
-// --- CONSTANTS ---
-const appointmentStatusObj: { [key: string]: { color: ThemeColor; label: string } } = {
-  Booked: { color: 'primary', label: 'Booked' },
-  COMPLETED: { color: 'success', label: 'Completed' },
-  CANCELLED: { color: 'error', label: 'Cancelled' },
-  NOSHOW: { color: 'warning', label: 'No Show' }
+// Utils
+import { getLocalizedUrl } from '@/utils/i18n'
+import type { Locale } from '@configs/i18n'
+import { encodeHideValue } from '@/utils/encode'
+
+// --- Types ---
+export interface AppointmentListDTO {
+  id: number
+  startTime: string
+  status: string 
+  statusDisplayName: string 
+  statusColor: string 
+  note: string
+  queuePosition: number
+  scheduleDate: string
+  doctorName: string
+  patientId: number
+  patientName: string
+  patientNo: string
+  patientMobile: string
+}
+
+type Doctor = {
+    id: number
+    firstName: string
+    lastName: string
+    specialization: {
+        id: number
+        name: string
+    }
 }
 
 const columnHelper = createColumnHelper<AppointmentListDTO>()
@@ -44,7 +65,7 @@ const AppointmentListTable = () => {
   const router = useRouter()
   const { lang: locale } = useParams()
 
-  // --- 1. CONFIGURATION: FILTERS ---
+  // --- 1. FILTER CONFIGURATION ---
   const filterConfigs: FilterConfig[] = [
     {
       key: 'patient', 
@@ -58,7 +79,7 @@ const AppointmentListTable = () => {
             fullWidth: true,
             label: 'Patient',
             placeholder: 'Select Patient',
-            value: values.patientName || '', // Display Name
+            value: values.patientName || '', 
             size: "small",
             InputProps: {
               readOnly: true,
@@ -73,13 +94,34 @@ const AppointmentListTable = () => {
           dialog={PatientSelectDialogBox}
           dialogProps={{
             onSelectPatient: (patient: any) => {
-              // Store ID for API, Name for UI
               onChange('patientId', patient.id)
               onChange('patientName', `${patient.firstName} ${patient.lastName}`)
             }
           }}
         />
       )
+    },
+    {
+        key: 'selectedDoctor', 
+        label: 'Doctor',
+        type: 'custom', 
+        gridSize: { xs: 12, sm: 6, md: 3 },
+        render: (values, onChange) => (
+            <AsyncAutocomplete
+                label=''
+                fetchUrl='/api/doctor/search'
+                searchParamKey='q'
+                placeholder='Search Doctor'
+                getOptionLabel={(doctor: Doctor) => `${doctor.firstName} ${doctor.lastName} : ${doctor.specialization.name}`}
+                fetchInputLenth={2}
+                fullWidth
+                size='small'
+                value={values.selectedDoctor || null} 
+                onChange={(newValue: Doctor | null) => {
+                    onChange('selectedDoctor', newValue) 
+                }}
+            />
+        )
     },
     {
       key: 'startDate',
@@ -95,7 +137,44 @@ const AppointmentListTable = () => {
     }
   ]
 
-  // --- 2. COLUMNS DEFINITION ---
+  // --- 2. DATA FETCHING WRAPPER ---
+  const fetchAppointmentsWrapper = async (params: any) => {
+    const page = params.page ?? 0
+    const pageSize = params.pageSize ?? 10
+    
+    // 1. Extract IDs
+    const patientId = params.patientId || null
+    
+    // Extract Doctor ID from the selected object
+    const selectedDoctor = params.selectedDoctor as Doctor | null
+    const doctorId = selectedDoctor?.id || null
+
+    // 2. Format Dates
+    let startDate = ''
+    let endDate = ''
+
+    if (params.startDate instanceof Date) {
+        startDate = params.startDate.toISOString().split('T')[0]
+    }
+    if (params.endDate instanceof Date) {
+        endDate = params.endDate.toISOString().split('T')[0]
+    }
+
+    // 3. Call Service
+    // Ensure you pass the arguments in the order your service expects:
+    // (page, pageSize, patientId, doctorId, scheduleId, startDate, endDate)
+    return await getAppointmentList(
+      page,
+      pageSize,
+      patientId,
+      doctorId,
+      null, // scheduleId (not filtering by specific schedule here)
+      startDate || undefined,
+      endDate || undefined
+    )
+  }
+
+  // --- 3. COLUMNS DEFINITION ---
   const columns = useMemo(() => [
     columnHelper.accessor('id', {
       header: 'Ref #',
@@ -128,9 +207,15 @@ const AppointmentListTable = () => {
           <Typography className='font-medium' color='text.primary'>
             {row.original.patientName}
           </Typography>
-          <Typography variant='caption' color='text.disabled'>
-            {row.original.patientNo}
-          </Typography>
+          <div className='flex gap-1 items-center'>
+            <Typography variant='caption' color='text.disabled'>
+                {row.original.patientNo}
+            </Typography>
+            <Typography variant='caption' color='text.disabled'>|</Typography>
+            <Typography variant='caption' color='text.disabled'>
+                {row.original.patientMobile}
+            </Typography>
+          </div>
         </div>
       )
     }),
@@ -142,15 +227,31 @@ const AppointmentListTable = () => {
       header: 'Queue',
       cell: ({ row }) => (
           <div className='flex justify-center'>
-              <Chip label={row.original.queuePosition} size='small' variant='outlined' />
+              <Chip 
+                label={row.original.queuePosition} 
+                size='small' 
+                variant='outlined' 
+                color='secondary'
+                className='font-bold'
+              />
           </div>
       )
     }),
     columnHelper.accessor('status', {
       header: 'Status',
       cell: ({ row }) => {
-        const status = appointmentStatusObj[row.original.status] || { color: 'secondary', label: row.original.status }
-        return <Chip label={status.label} color={status.color} variant='tonal' size='small' />
+        return (
+            <Chip 
+                label={row.original.statusDisplayName} 
+                size='small' 
+                sx={{ 
+                    backgroundColor: row.original.statusColor, 
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem'
+                }} 
+            />
+        )
       }
     }),
     {
@@ -175,23 +276,15 @@ const AppointmentListTable = () => {
 
   return (
     <CommonServerTable
-      // 1. Unique ID for Redux Persistence
       tableId="appointment-list-table"
-      
       title="Appointment List"
-      
-      // 2. Direct Service Function
-      fetchDataFunction={getAppointmentList}
-      
+      fetchDataFunction={fetchAppointmentsWrapper}
       columns={columns}
       filterConfig={filterConfigs}
-      
-      // 3. Action Component
       actionComponent={
         <Button 
           variant='contained' 
-          // Uses dynamic locale to match your URL structure: /en/clinic/appoinment/create
-          onClick={() => router.push(`/${locale}/clinic/appoinment/create`)} 
+          onClick={() => router.push(getLocalizedUrl('/clinic/appoinment/create', locale as Locale))} 
           startIcon={<i className='tabler-plus' />}
         >
           Add Appointment

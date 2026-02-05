@@ -10,7 +10,6 @@ import ScheduleDetailsSection from './ScheduleDetailsSection'
 import ScheduleAppointmentListTable from './ScheduleAppointmentListTable'
 
 const ScheduleDetails = ({ scheduleData }: { scheduleData: UpdatedDoctorScheduleDTO }) => {
-  console.log(scheduleData)
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, md: 5, lg: 4 }}>

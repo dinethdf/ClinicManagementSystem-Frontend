@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 
 import { http, ApiError } from '@/services/api.config.server';
 
-import type { AppointmentApiResponse, AppointmentDetailDTO, AppointmentStatusDTO, GetAppointmentListParams } from '@/types/appoinments.types';
+import type { AppointmentApiResponse, AppointmentDetailDTO, AppointmentStatusDTO, CancelResponse, GetAppointmentListParams } from '@/types/appoinments.types';
 
 
 
@@ -121,24 +121,29 @@ export async function processInvoicePayment(payload: any) {
 }
 
 
-export const getAppointmentList = async (params: any) => {
+export const getAppointmentList = async (
+  page: number,
+  pageSize: number,
+  patientId?: number | null,
+  doctorId?: number | null,   // Added doctorId
+  scheduleId?: number | null, // Added scheduleId
+  startDate?: string,
+  endDate?: string
+) => {
   try {
-    // FIX: The common table sends 'pageSize', but your API/URL logic might need 'size'.
-    // We explicitly check for params.pageSize and fallback to params.size or default 10.
-    const page = params.page || 1
-    const size = params.pageSize || params.size || 10
-
     // 1. Create URLSearchParams with mandatory pagination fields
+    // Note: Spring Boot Pageable is 0-indexed, so we pass 'page' directly.
     const query = new URLSearchParams({
-      page: (page-1).toString(),
-      size: size.toString()
+      page: page.toString(),
+      size: pageSize.toString()
     })
 
-    // 2. Conditionally append optional filters if they exist
-    if (params.patientId) query.append('patientId', params.patientId.toString())
-    if (params.scheduleId) query.append('scheduleId', params.scheduleId.toString())
-    if (params.startDate) query.append('startDate', params.startDate)
-    if (params.endDate) query.append('endDate', params.endDate)
+    // 2. Conditionally append optional filters
+    if (patientId) query.append('patientId', patientId.toString())
+    if (doctorId) query.append('doctorId', doctorId.toString())
+    if (scheduleId) query.append('scheduleId', scheduleId.toString())
+    if (startDate) query.append('startDate', startDate)
+    if (endDate) query.append('endDate', endDate)
 
     // 3. Make the API call
     const response = await http.get<AppointmentApiResponse>(`/api/appointments/list?${query.toString()}`)
@@ -194,16 +199,29 @@ export async function checkAppointmentStatus(scheduleId: number, patientId: numb
 
 export async function cancelAppointment(appointmentId: number, reason: string) {
   try {
-    // We now pass the dynamic 'reason' to the backend
-    const response = await http.post(`/api/appointments/cancel/${appointmentId}`, { reason });
 
-    return { success: true, message: response?.message || 'Appointment Cancelled & Refund Recorded.' };
+    const response = await http.post<CancelResponse>(`/api/appointments/cancel/${appointmentId}`, { reason }, true);
 
-  } catch (err) {
-    if (err instanceof ApiError) {
-       return { success: false, error: { message: err.message, details: err.details } };
+
+    let displayMessage = response.message || 'Appointment Cancelled & Refund Recorded.';
+    if (response.data?.refundAmount && response.data.refundAmount > 0) {
+        displayMessage += ` (Refund: LKR ${response.data.refundAmount.toFixed(2)})`;
     }
+
+    return { 
+        success: true, 
+        message: displayMessage 
+    };
+
+  } catch (err: any) {
+    if (err.response && err.response.data) {
+        return { 
+            success: false, 
+            message: err.response.data.message || 'Failed to cancel appointment.'
+        };
+    }
+    
     console.error('Unexpected error in cancelAppointment:', err);
-    return { success: false, error: { message: 'An unknown server error occurred.' } };
+    return { success: false, message: 'An unknown server error occurred.' };
   }
 }

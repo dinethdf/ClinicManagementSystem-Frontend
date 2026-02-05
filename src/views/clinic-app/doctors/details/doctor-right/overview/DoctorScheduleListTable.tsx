@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 
+// MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
@@ -20,21 +21,11 @@ import {
 } from '@tanstack/react-table'
 import type { ColumnDef, PaginationState } from '@tanstack/react-table'
 
+// Type Imports
 import type { DoctorScheduleDTO } from '@/types/doctor.types'
 import { getSchedulesByDoctorId } from '@/services/doctor/doctor.shedule.server.service'
 
-import CustomTextField from '@core/components/mui/TextField'
-import TablePaginationComponent from '@components/TablePaginationComponent'
-
 import tableStyles from '@core/styles/table.module.css'
-
-// Configuration for Status Chips
-const statusObj: Record<string, { title: string; color: 'success' | 'info' | 'error' | 'secondary' }> = {
-  ACTIVE: { title: 'Active', color: 'success' },
-  COMPLETED: { title: 'Completed', color: 'info' },
-  CANCELLED: { title: 'Cancelled', color: 'error' },
-  DEFAULT: { title: 'Unknown', color: 'secondary' }
-}
 
 const columnHelper = createColumnHelper<DoctorScheduleDTO>()
 
@@ -44,13 +35,13 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   
-  // 2. Add Pagination State
+  // Pagination State
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   })
   
-  // 3. Add Row Count State (from Server)
+  // Row Count State
   const [rowCount, setRowCount] = useState(0)
 
   // Router
@@ -58,24 +49,25 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
   const params = useParams()
   const lang = params.lang || 'en'
 
-  // --- Fetch Data (Server-Side Pagination) ---
+  // --- Fetch Data ---
   useEffect(() => {
     const fetchSchedules = async () => {
       if (!doctorId) return
       setIsLoading(true)
     
       try {
-        // Pass pageIndex and pageSize to the service
         const response = await getSchedulesByDoctorId(
             doctorId, 
             pagination.pageIndex, 
             pagination.pageSize
         )
+        
+        console.log("schedule response", response)
 
-        // Handle Paginated Response
         if (response.success && response.data) {
-            setData(response.data.content) // Set Rows
-            setRowCount(response.data.totalElements) // Set Total Count
+            // FIX: response.data IS the paginated object, so access .content directly
+            setData(response.data.content || []) 
+            setRowCount(response.data.totalElements || 0)
         } else {
             setErrorMessage(response.message || 'Failed to fetch data')
         }
@@ -88,7 +80,7 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
     }
     
     fetchSchedules()
-  }, [doctorId, pagination.pageIndex, pagination.pageSize]) // Re-fetch on page/size change
+  }, [doctorId, pagination.pageIndex, pagination.pageSize]) 
 
   const columns = useMemo<ColumnDef<DoctorScheduleDTO, any>[]>(
     () => [
@@ -126,7 +118,10 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
             const current = row.original.registeredPatientCount;
             const max = row.original.maxPatientCount;
             const percent = (current / max) * 100;
-            const bookingStatus = row.original.status || 'CLOSED';
+            
+            // FIX: Access status object safely
+            const statusObj = row.original.status as any; 
+            const bookingStatus = statusObj?.code || 'UNKNOWN';
            
             return (
             <div className='flex flex-col w-full gap-1 min-w-[150px]'>
@@ -134,8 +129,8 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
                         <Typography variant='caption' className='font-semibold'>
                             {`${current} / ${max} Booked`}
                         </Typography>
-                        <Typography variant='caption' color={bookingStatus === 'OPEN' ? 'success.main' : 'error.main'} className='text-[10px] uppercase font-bold tracking-wider'>
-                            {bookingStatus}
+                        <Typography variant='caption' className='text-[10px] uppercase font-bold tracking-wider'>
+                            {row.original.isBookingOpen ? 'OPEN' : 'CLOSED'}
                         </Typography>
                     </div>
                     <LinearProgress 
@@ -151,14 +146,18 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
       columnHelper.accessor('status', {
         header: 'Status',
         cell: ({ row }) => {
-            const status = row.original.status || 'Unknown';
-            const statusConfig = statusObj[status] || statusObj.DEFAULT;
-
+            // FIX: Handle Status Object structure { code, displayName, colorCode }
+            const statusObj = row.original.status as any;
+            
             return (
                 <Chip 
-                    label={statusConfig.title} 
-                    color={statusConfig.color} 
-                    variant='tonal' 
+                    label={statusObj?.displayName || statusObj?.code || 'Unknown'} 
+                    sx={{ 
+                        backgroundColor: statusObj?.colorCode || '#eee', 
+                        color: '#fff',
+                        fontWeight: 600
+                    }} 
+                    variant='filled' 
                     size='small' 
                 />
             )
@@ -230,21 +229,13 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
         </table>
       </div>
       <TablePagination
-        // 1. REMOVE THIS LINE:
-        // component={() => <TablePaginationComponent table={table as any} />}
-        
-        // 2. Keep standard props
-        component="div" // Use standard div wrapper
+        component="div" 
         count={rowCount}
         rowsPerPage={pagination.pageSize}
         page={pagination.pageIndex}
         onPageChange={(_, page) => table.setPageIndex(page)}
-        
-        // 3. This enables the dropdown
         rowsPerPageOptions={[5, 10, 25, 50]} 
         onRowsPerPageChange={(e) => table.setPageSize(Number(e.target.value))}
-        
-        // Optional: formatting text
         labelRowsPerPage="Rows per page:"
       />
     </Card>

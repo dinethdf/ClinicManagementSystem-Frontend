@@ -17,7 +17,7 @@ import Avatar from '@mui/material/Avatar'
 import type { AppointmentDetailDTO } from '@/types/appoinments.types'
 
 // Component Imports
-import ConfirmationDialog from '@/components/dialogs/confirmation-dialog/ConfirmationDialog'
+import ConfirmationDialog from '@/components/dialogs/cancel-appointment-dialog/ConfirmationDialog'
 import RefundDialog from '@/components/dialogs/refund-dialog/RefundDialog'
 
 // Service Imports
@@ -31,7 +31,6 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
   const [openCancelDialog, setOpenCancelDialog] = useState(false)
   const [openRefundDialog, setOpenRefundDialog] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
-
   // --- ACTIONS ---
   const handleCancelConfirm = async (reason?: string) => {
     const finalReason = reason || "No reason provided";
@@ -40,7 +39,7 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
         router.refresh(); 
         return { success: true, message: result.message };
     } 
-    return { success: false, message: result.error?.message || "Failed to cancel appointment" };
+    return { success: false, message: result.message || "Failed to cancel appointment" };
   }
 
   const handlePrintInvoice = async () => {
@@ -211,11 +210,13 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
         type='cancel-appointment'
         onConfirm={handleCancelConfirm}
         paymentDetails={{
-            invoiceStatus: appointmentData.invoiceStatus,
-            invoiceFinalAmount: appointmentData.invoiceFinalAmount,
-            doctorFee: appointmentData.doctorFee,
-            clinicFee: appointmentData.clinicFee
-        }}
+          invoiceStatus: appointmentData.invoiceStatus,
+          invoiceFinalAmount: appointmentData.invoiceFinalAmount,
+          doctorFee: appointmentData.doctorFee,
+          clinicFee: appointmentData.clinicFee,
+          amountPaid: appointmentData.amountPaid || 0, 
+          balanceRemaining: appointmentData.balanceRemaining || 0
+         }}
       />
 
       {/* Refund Dialog */}

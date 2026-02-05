@@ -89,6 +89,8 @@ export type AppointmentDetailDTO = {
   
   invoiceTotalDiscount: number
   invoiceFinalAmount: number
+  amountPaid?: number
+  balanceRemaining?: number
   invoiceStatus: string
 
   createdDate: string
@@ -148,4 +150,13 @@ export interface GetAppointmentListParams {
   scheduleId?: number
   startDate?: string
   endDate?: string
+}
+
+export type CancelResponse = {
+    success: boolean
+    message: string
+    data?: {
+        refundAmount?: number
+        message?: string
+    }
 }

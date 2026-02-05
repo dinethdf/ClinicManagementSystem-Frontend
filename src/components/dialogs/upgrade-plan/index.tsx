@@ -13,7 +13,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
 
 // Style Imports
-import ConfirmationDialog from '../confirmation-dialog'
+import ConfirmationDialog from '../cancel-appointment-dialog'
 
 //Component Imports
 import CustomTextField from '@core/components/mui/TextField'
