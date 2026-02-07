@@ -1,3 +1,5 @@
+
+import { memo, useMemo } from 'react' // ADDED: memo, useMemo
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -5,7 +7,7 @@ import Chip from '@mui/material/Chip'
 
 import PatientProfileSidebar from '../PatientProfileSidebar'
 import PrescriptionManager from '../PrescriptionManager'
-import LabRequestManager from './LabRequestManager' // Import your new component
+import LabRequestManager from './LabRequestManager'
 
 import type { AppointmentStatusDTO } from '@/types/appoinments.types'
 import type { PatientDetailDTO } from '@/types/patient.types'
@@ -19,9 +21,9 @@ interface Props {
 
 const ActiveConsultationView = ({ appointmentInfo, patientDetail, onEnd, onComplete }: Props) => {
 
-  console.log("analyse com")
-  const patientId = patientDetail?.id ? Number(patientDetail.id) : 0;
-  const appointmentId = appointmentInfo?.appointmentId ? Number(appointmentInfo.appointmentId) : 0;
+  // ADDED: Memoized values
+  const patientId = useMemo(() => patientDetail?.id ? Number(patientDetail.id) : 0, [patientDetail?.id]);
+  const appointmentId = useMemo(() => appointmentInfo?.appointmentId ? Number(appointmentInfo.appointmentId) : 0, [appointmentInfo?.appointmentId]);
 
   return (
     <div className='flex flex-col gap-4 animate-in slide-in-from-right duration-300'>
@@ -52,4 +54,5 @@ const ActiveConsultationView = ({ appointmentInfo, patientDetail, onEnd, onCompl
   )
 }
 
-export default ActiveConsultationView
+ActiveConsultationView.displayName = 'ActiveConsultationView' // ADDED
+export default memo(ActiveConsultationView) // MODIFIED: Wrapped in memo

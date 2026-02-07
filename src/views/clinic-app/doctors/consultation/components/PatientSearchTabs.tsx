@@ -1,4 +1,4 @@
-import { RefObject } from 'react'
+import { RefObject, memo, useCallback } from 'react' // ADDED: memo, useCallback
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
@@ -31,14 +31,24 @@ interface Props {
   barcodeVal: string
   setBarcodeVal: (val: string) => void
   onBarcodeSubmit: (val?: string) => void
-  
-  // --- FIX IS HERE: Allow null in the generic type ---
   barcodeInputRef: RefObject<HTMLInputElement | null>
 }
 
 const PatientSearchTabs = (props: Props) => {
 
-    console.log("patiern seracth")
+    // ADDED: Memoized callback for barcode input
+    const handleBarcodeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const newVal = e.target.value;
+        if (!/^\d*$/.test(newVal)) return; 
+        props.setBarcodeVal(newVal);
+        if (newVal.length === 10) props.onBarcodeSubmit(newVal);
+    }, [props])
+
+    // ADDED: Memoized callback for Enter key
+    const handleBarcodeKeyDown = useCallback((e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') props.onBarcodeSubmit();
+    }, [props])
+
   return (
     <div className='flex flex-col items-center justify-center mt-2'>
         <Card className='w-full max-w-md overflow-visible shadow-lg border border-gray-100'>
@@ -98,13 +108,8 @@ const PatientSearchTabs = (props: Props) => {
                                 fullWidth autoFocus
                                 placeholder="Scanning..."
                                 value={props.barcodeVal}
-                                onChange={(e) => {
-                                    const newVal = e.target.value;
-                                    if (!/^\d*$/.test(newVal)) return; 
-                                    props.setBarcodeVal(newVal);
-                                    if (newVal.length === 10) props.onBarcodeSubmit(newVal);
-                                }}
-                                onKeyDown={(e) => { if (e.key === 'Enter') props.onBarcodeSubmit(); }}
+                                onChange={handleBarcodeChange} // MODIFIED: Use memoized callback
+                                onKeyDown={handleBarcodeKeyDown} // MODIFIED: Use memoized callback
                                 sx={{ '& .MuiInputBase-input': { textAlign: 'center', letterSpacing: '1px' } }}
                                 variant="outlined" size="small"
                             />
@@ -121,4 +126,5 @@ const PatientSearchTabs = (props: Props) => {
   )
 }
 
-export default PatientSearchTabs
+PatientSearchTabs.displayName = 'PatientSearchTabs' // ADDED
+export default memo(PatientSearchTabs) // MODIFIED: Wrapped in memo

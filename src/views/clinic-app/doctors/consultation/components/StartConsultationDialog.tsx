@@ -1,3 +1,4 @@
+import { memo, useMemo, useCallback } from 'react' // ADDED: memo, useMemo, useCallback
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
@@ -9,9 +10,6 @@ import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 import { AppointmentStatusDTO } from '@/types/appoinments.types'
-
-// Props Interface
-
 
 interface Props {
   open: boolean
@@ -25,14 +23,13 @@ const StartConsultationDialog = ({ open, onClose, onConfirm, loading, appointmen
 
   if (!appointmentInfo) return null
 
-  // --- 1. STATUS LOGIC ---
   const { statusCode, statusDisplayName } = appointmentInfo;
   
-  // STRICT RULE: Only 'BOOKED' allows entry.
-  const isAllowedToStart = statusCode === 'BOOKED';
+  const isAllowedToStart = useMemo(() => statusCode === 'BOOKED', [statusCode]);
 
-  // --- 2. GET WARNING MESSAGE ---
-  const getWarningConfig = () => {
+  const warning = useMemo(() => {
+    if (isAllowedToStart) return null;
+    
     switch (statusCode) {
         case 'PENDING_PAYMENT':
             return { message: 'Cannot Start: Payment is Pending', severity: 'error', icon: 'tabler-credit-card-off' };
@@ -49,9 +46,14 @@ const StartConsultationDialog = ({ open, onClose, onConfirm, loading, appointmen
         default:
             return { message: `Status is ${statusDisplayName}`, severity: 'warning', icon: 'tabler-alert-triangle' };
     }
-  };
+  }, [isAllowedToStart, statusCode, statusDisplayName]);
 
-  const warning = !isAllowedToStart ? getWarningConfig() : null;
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !loading && isAllowedToStart) {
+          e.preventDefault();
+          onConfirm();
+      }
+  }, [loading, isAllowedToStart, onConfirm]);
 
   return (
     <Dialog 
@@ -60,13 +62,7 @@ const StartConsultationDialog = ({ open, onClose, onConfirm, loading, appointmen
         maxWidth="md"
         fullWidth
         sx={{ '& .MuiDialog-paper': { width: '600px', maxWidth: '90vw' } }}
-        onKeyDown={(e) => {
-            // Prevent Enter key if Action is blocked
-            if (e.key === 'Enter' && !loading && isAllowedToStart) {
-                e.preventDefault();
-                onConfirm();
-            }
-        }}
+        onKeyDown={handleKeyDown} // MODIFIED: Use memoized callback
     >
         <DialogTitle className='bg-primary text-white flex justify-between items-center py-3'>
             <span className='flex items-center gap-2 text-lg'>
@@ -86,7 +82,6 @@ const StartConsultationDialog = ({ open, onClose, onConfirm, loading, appointmen
         
         <DialogContent className='pt-6 pb-2'>
             <div className='flex flex-col items-center gap-4'>
-                {/* Patient Info */}
                 <div className='flex flex-col items-center gap-1 text-center'>
                     <Avatar className='w-16 h-16 bg-primary/10 text-primary text-2xl border-2 border-primary mb-1'>
                         {appointmentInfo.patientName.charAt(0)}
@@ -107,7 +102,6 @@ const StartConsultationDialog = ({ open, onClose, onConfirm, loading, appointmen
 
                 <Divider flexItem className='w-full' />
 
-                {/* Queue Number */}
                 <div className='bg-gray-50 rounded-lg p-4 w-full flex justify-between items-center border border-gray-100'>
                     <div>
                         <Typography variant='caption' className='uppercase tracking-wider text-gray-500 font-bold'>Queue No</Typography>
@@ -121,7 +115,6 @@ const StartConsultationDialog = ({ open, onClose, onConfirm, loading, appointmen
                     </div>
                 </div>
 
-                {/* --- DYNAMIC STATUS ALERT --- */}
                 {warning && (
                     <Alert 
                         severity={warning.severity as any} 
@@ -144,7 +137,6 @@ const StartConsultationDialog = ({ open, onClose, onConfirm, loading, appointmen
                 fullWidth 
                 startIcon={<i className='tabler-stethoscope' />}
                 onClick={onConfirm} 
-                // --- DISABLE IF NOT BOOKED ---
                 disabled={loading || !isAllowedToStart}
                 autoFocus 
             >
@@ -155,4 +147,5 @@ const StartConsultationDialog = ({ open, onClose, onConfirm, loading, appointmen
   )
 }
 
-export default StartConsultationDialog
+StartConsultationDialog.displayName = 'StartConsultationDialog' // ADDED
+export default memo(StartConsultationDialog) // MODIFIED: Wrapped in memo

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo, memo } from 'react' // ADDED: useCallback, useMemo, memo
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -33,7 +33,12 @@ import type { AllergyDTO, DiseaseDTO, PatientDetailDTO } from '@/types/patient.t
 
 const PatientProfileSidebar = ({ patient }: { patient: PatientDetailDTO }) => {
   
-  const genderLabel = patient.gender === 1 ? 'Male' : patient.gender === 2 ? 'Female' : 'Other'
+  // ADDED: Memoized gender label
+  const genderLabel = useMemo(() => {
+    if (patient.gender === 1) return 'Male';
+    if (patient.gender === 2) return 'Female';
+    return 'Other';
+  }, [patient.gender]);
 
   // --- STATES ---
   const [allergies, setAllergies] = useState<AllergyDTO[]>([])
@@ -45,14 +50,8 @@ const PatientProfileSidebar = ({ patient }: { patient: PatientDetailDTO }) => {
   const [formData, setFormData] = useState({ name: '', notes: '' })
   const [submitting, setSubmitting] = useState(false)
 
-  // --- FETCH DATA ---
-  useEffect(() => {
-    if (patient?.id) {
-      fetchHealthData()
-    }
-  }, [patient?.id])
-
-  const fetchHealthData = async () => {
+  // ADDED: Memoized fetch function
+  const fetchHealthData = useCallback(async () => {
     setLoading(true)
     const [allergiesRes, diseasesRes] = await Promise.all([
       getAllergies(patient.id),
@@ -62,26 +61,33 @@ const PatientProfileSidebar = ({ patient }: { patient: PatientDetailDTO }) => {
     if (allergiesRes.success) setAllergies(allergiesRes.data)
     if (diseasesRes.success) setDiseases(diseasesRes.data)
     setLoading(false)
-  }
+  }, [patient.id])
 
-  // --- HANDLERS ---
-  const handleOpenDialog = (type: 'allergy' | 'disease') => {
+  // --- FETCH DATA ---
+  useEffect(() => {
+    if (patient?.id) {
+      fetchHealthData()
+    }
+  }, [patient?.id, fetchHealthData]) // MODIFIED: Added fetchHealthData to deps
+
+  // ADDED: Memoized handlers
+  const handleOpenDialog = useCallback((type: 'allergy' | 'disease') => {
     setFormData({ name: '', notes: '' })
     setOpenDialog(type)
-  }
+  }, [])
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = useCallback(() => {
     setOpenDialog(null)
-  }
+  }, [])
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!formData.name) return
     setSubmitting(true)
 
     if (openDialog === 'allergy') {
       const res = await addAllergy(patient.id, formData)
       if (res.success && res.data) {
-        setAllergies([...allergies, res.data]) // Optimistic update
+        setAllergies([...allergies, res.data])
         handleCloseDialog()
       }
     } else if (openDialog === 'disease') {
@@ -92,9 +98,9 @@ const PatientProfileSidebar = ({ patient }: { patient: PatientDetailDTO }) => {
       }
     }
     setSubmitting(false)
-  }
+  }, [formData, openDialog, patient.id, allergies, diseases, handleCloseDialog])
 
-  const handleDelete = async (type: 'allergy' | 'disease', id: number) => {
+  const handleDelete = useCallback(async (type: 'allergy' | 'disease', id: number) => {
     if (!confirm('Are you sure you want to delete this record?')) return
 
     if (type === 'allergy') {
@@ -108,7 +114,7 @@ const PatientProfileSidebar = ({ patient }: { patient: PatientDetailDTO }) => {
             setDiseases(diseases.filter(d => d.id !== id))
         }
     }
-  }
+  }, [allergies, diseases])
 
   return (
     <div className='flex flex-col gap-6'>
@@ -261,4 +267,5 @@ const PatientProfileSidebar = ({ patient }: { patient: PatientDetailDTO }) => {
   )
 }
 
-export default PatientProfileSidebar
+PatientProfileSidebar.displayName = 'PatientProfileSidebar' // ADDED
+export default memo(PatientProfileSidebar) // MODIFIED: Wrapped in memo
