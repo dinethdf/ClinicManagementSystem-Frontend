@@ -13,6 +13,7 @@ interface Props {
 }
 
 const EndSessionDialog = ({ open, onClose, onConfirm, stats }: Props) => {
+    console.log("end session")
   return (
     <Dialog open={open} onClose={onClose}>
         <DialogTitle className='text-warning-main flex items-center gap-2'>

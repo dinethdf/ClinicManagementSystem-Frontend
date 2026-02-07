@@ -32,6 +32,7 @@ const StatCard = ({ title, count, icon, color }: { title: string, count: number,
 const SessionAnalytics = ({ stats, loading }: Props) => {
   if (loading) return <div className='flex justify-center p-2'><CircularProgress size={24} /></div>
 
+  console.log("session Analuaeusf")
   return (
     <Grid container spacing={2}>
         <Grid size={{ xs: 6, sm: 4, md: 2.4 }}><StatCard title='Total' count={stats.total} icon='tabler-users' color='primary' /></Grid>

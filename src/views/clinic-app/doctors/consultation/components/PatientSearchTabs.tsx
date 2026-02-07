@@ -37,6 +37,8 @@ interface Props {
 }
 
 const PatientSearchTabs = (props: Props) => {
+
+    console.log("patiern seracth")
   return (
     <div className='flex flex-col items-center justify-center mt-2'>
         <Card className='w-full max-w-md overflow-visible shadow-lg border border-gray-100'>

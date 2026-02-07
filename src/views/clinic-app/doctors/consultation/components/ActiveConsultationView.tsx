@@ -18,6 +18,8 @@ interface Props {
 }
 
 const ActiveConsultationView = ({ appointmentInfo, patientDetail, onEnd, onComplete }: Props) => {
+
+  console.log("analyse com")
   const patientId = patientDetail?.id ? Number(patientDetail.id) : 0;
   const appointmentId = appointmentInfo?.appointmentId ? Number(appointmentInfo.appointmentId) : 0;
 
@@ -29,7 +31,7 @@ const ActiveConsultationView = ({ appointmentInfo, patientDetail, onEnd, onCompl
                 <Typography variant='h5' className='text-primary'>Consultation</Typography>
                 <Chip label="Active" color='success' size='small' />
             </div>
-            <Typography variant="caption" color='text.secondary'>Queue: <strong>#{appointmentInfo?.queueNo}</strong> | {patientDetail?.fullName}</Typography>
+            <Typography variant="caption" color='text.secondary'>Queue: <strong>#{appointmentInfo?.queuePosition}</strong> | {patientDetail?.fullName}</Typography>
         </div>
         <Button variant='outlined' color='error' size='small' startIcon={<i className='tabler-x' />} onClick={onEnd}>End</Button>
       </div>

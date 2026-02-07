@@ -132,15 +132,30 @@ export type ScheduleAppointmentResponse = {
   number: number
 }
 
-export type AppointmentStatusDTO = {
-  id: number
+// export type AppointmentStatusDTO = {
+//   id: number
+//   appointmentId: number
+//   fullName: string
+//   patientNo: string
+//   nic: string
+//   queueNo: number
+//   status: string
+//   createdDate: string
+  
+// }
+
+
+export interface AppointmentStatusDTO {
+  statusColor: string
   appointmentId: number
-  fullName: string
-  patientNo: string
-  nic: string
-  queueNo: number
-  status: string
+  statusCode: string
   createdDate: string
+  queuePosition: number
+  patientNo: string
+  patientName: string
+  patientId: number
+  nic?: string
+  statusDisplayName: string
 }
 
 export interface GetAppointmentListParams {
