@@ -55,8 +55,36 @@ export interface DoctorScheduleDTO {
   maxPatientCount: number
   isActive?: boolean
   status?:string
+  isBookingOpen?: boolean
 }
 
+// --- Updated Interface based on your JSON ---
+export interface UpdatedDoctorScheduleDTO {
+  id: number
+  doctorId: number
+  doctorName: string
+  specialization: string
+  scheduleDate: string
+  startTime: string
+  endTime: string
+  doctorFee: number
+  clinicFee: number
+  maxPatientCount: number
+  registeredPatientCount: number
+  isBookingOpen: boolean
+  // Status is an object
+  status: {
+    code: string
+    displayName: string
+    colorCode: string
+  }
+  // Payout Status is an object
+  payoutStatus?: {
+    code: string
+    displayName: string
+    colorCode: string
+  }
+}
 // Payload for updating
 export type UpdateScheduleDTO = {
   startTime: string
@@ -190,4 +218,41 @@ interface PaginatedResponse<T> {
   totalPages: number
   size: number
   number: number
+}
+
+
+
+
+export interface ScheduleDTO {
+  id: number
+  doctorName: string
+  specialization: string
+  scheduleDate: string
+  startTime: string
+  endTime: string
+  isActive: 'ACTIVE' | 'NOT ACTIVE'
+  status:string
+  maxPatientCount: number
+  registeredPatientCount: number
+  doctorFee: number
+  clinicFee: number
+  isBookingOpen: boolean
+  payoutStatus?: {
+    code: string
+    displayName: string
+    colorCode: string
+  }
+}
+
+
+export interface DoctorScheduleApiResponse {
+  success: boolean
+  message: string
+  data: {
+    content: ScheduleDTO[]
+    totalElements: number
+    totalPages: number
+    size: number
+    number: number 
+  }
 }

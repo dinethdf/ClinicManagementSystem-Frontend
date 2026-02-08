@@ -32,7 +32,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import tableStyles from '@core/styles/table.module.css'
 
 // --- IMPORT THE SERVER ACTION ---
-import { getStaffList, ClinicStaffResponseDTO } from '@/services/staff.server.service'
+import { getStaffList, ClinicStaffResponseDTO } from '@/services/staff/staff.server.service'
 
 // --- DEBOUNCED INPUT ---
 const DebouncedInput = ({

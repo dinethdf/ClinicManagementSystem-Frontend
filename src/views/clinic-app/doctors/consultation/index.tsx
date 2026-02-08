@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, SyntheticEvent } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react' // ADDED: useCallback, useMemo, memo
 import { useRouter } from 'next/navigation'
 
 import Typography from '@mui/material/Typography'
@@ -9,21 +9,20 @@ import Button from '@mui/material/Button'
 // Component Imports
 import SessionAnalytics from './components/SessionAnalytics'
 import PatientSearchTabs from './components/PatientSearchTabs'
-import StartConsultationDialog from './components/StartConsultationDialog'
+import StartConsultationDialog from '@/components/dialogs/appointment-start/StartConsultationDialog'
 import EndSessionDialog from './components/EndSessionDialog'
 import ActiveConsultationView from './components/ActiveConsultationView'
 
 // Service Imports
-import { checkAppointmentStatus } from '@/services/appoinment.server.service'
-import { doctorSheduleService } from '@/services/doctor.shedule.service'
-import { 
-  getConsultationPatientDetails, 
-  getPatientByBarcode 
-} from '@/services/consultation.server.service'
+import { checkAppointmentStatus } from '@/services/appointment/appoinment.server.service'
+import { doctorSheduleService } from '@/services/doctor/doctor.shedule.service'
+import { getPatientByBarcode 
+} from '@/services/doctor/consultation.server.service'
 
 // Type Imports
 import type { AppointmentStatusDTO } from '@/types/appoinments.types'
-import type { PatientDetailDTO } from '@/types/consultation.types'
+import type { PatientDetailDTO } from '@/types/patient.types'
+import { getPatientByIdConsutant } from '@/services/patient/patient.server.service'
 
 interface AnalyticsData {
   total: number; completed: number; booked: number; pendingPayment: number; cancelled: number;
@@ -56,12 +55,25 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
   const barcodeInputRef = useRef<HTMLInputElement>(null)
   const [barcodeVal, setBarcodeVal] = useState('')
 
+  // ADDED: Memoized values
+  const scheduleIdNumber = useMemo(() => Number(scheduleId), [scheduleId])
+  const pendingCount = useMemo(() => stats.booked + stats.pendingPayment, [stats.booked, stats.pendingPayment])
+
+  // MODIFIED: Added useCallback
+  const loadAnalytics = useCallback(async () => {
+      setLoadingStats(true)
+      const data = await doctorSheduleService.getScheduleAnalytics(scheduleIdNumber)
+      if (data) setStats(data)
+      setLoadingStats(false)
+  }, [scheduleIdNumber])
+
   // --- EFFECTS ---
-  useEffect(() => { loadAnalytics() }, [scheduleId])
+  useEffect(() => { loadAnalytics() }, [loadAnalytics]) // MODIFIED: Added loadAnalytics to deps
 
   useEffect(() => {
       if (activeTab === '2') {
-          setTimeout(() => barcodeInputRef.current?.focus(), 100)
+          const timer = setTimeout(() => barcodeInputRef.current?.focus(), 100) // MODIFIED: Store timer
+          return () => clearTimeout(timer) // ADDED: Cleanup
       }
   }, [activeTab])
 
@@ -79,25 +91,12 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [viewState, startConsultationOpen, confirmDialogOpen]);
 
-  const loadAnalytics = async () => {
-      setLoadingStats(true)
-      const data = await doctorSheduleService.getScheduleAnalytics(Number(scheduleId))
-      if (data) setStats(data)
-      setLoadingStats(false)
-  }
-
-  // --- LOGIC HANDLERS ---
-  const handleTabChange = (event: SyntheticEvent, newValue: string) => {
-    setActiveTab(newValue)
-    setError(null)
-    setAppointmentInfo(null)
-    setStartConsultationOpen(false)
-  }
-
-  const executeStatusCheck = async (patientId: number) => {
+  // MODIFIED: Added useCallback to all handlers
+  const executeStatusCheck = useCallback(async (patientId: number) => {
     setLoading(true); setError(null); setAppointmentInfo(null);
     try {
-      const res = await checkAppointmentStatus(Number(scheduleId), patientId)
+      const res = await checkAppointmentStatus(scheduleIdNumber, patientId)
+
       if (res.success && res.data) {
          setAppointmentInfo(res.data)
          setStartConsultationOpen(true) 
@@ -106,24 +105,31 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
       }
     } catch (e) { setError("System Error during status check") }
     setLoading(false)
-  }
+  }, [scheduleIdNumber])
 
-  const handleManualSearchSelect = (newValue: any) => {
+  const handleTabChange = useCallback((event: any, newValue: string) => {
+    setActiveTab(newValue)
+    setError(null)
+    setAppointmentInfo(null)
+    setStartConsultationOpen(false)
+  }, [])
+
+  const handleManualSearchSelect = useCallback((newValue: any) => {
       setSearchInputValue(newValue); 
       setProcessingPatient(newValue); 
       setAppointmentInfo(null);
       setError(null);
-  }
+  }, [])
   
-  const handleCheckStatusClick = async () => {
+  const handleCheckStatusClick = useCallback(async () => {
     if (!processingPatient?.id) {
         setError("Please select a patient first.")
         return
     }
     await executeStatusCheck(processingPatient.id)
-  }
+  }, [processingPatient?.id, executeStatusCheck])
 
-  const handleBarcodeSubmit = async (codeOverride?: string) => {
+  const handleBarcodeSubmit = useCallback(async (codeOverride?: string) => {
       const scannedCode = codeOverride || barcodeVal;
       if (!scannedCode.trim()) return;
 
@@ -147,24 +153,24 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
         setError("Network error scanning barcode");
         setLoading(false);
       }
-  }
+  }, [barcodeVal, executeStatusCheck])
 
-const handleStartConsultation = async () => {
+  const handleStartConsultation = useCallback(async () => {
     if (!processingPatient?.id) return;
-    if (appointmentInfo?.status === 'PENDING_PAYMENT') {
+    if (appointmentInfo?.statusCode === 'PENDING_PAYMENT') {
         setError("Cannot start consultation: Payment is Pending.")
         return
     }
     setLoading(true)
     try {
-        const res = await getConsultationPatientDetails(processingPatient.id)
+        const res = await getPatientByIdConsutant(processingPatient.id)
         if (res.success && res.data) {
             setPatientDetail(res.data)
             setStartConsultationOpen(false) 
             setViewState('CONSULTATION')
             try {
-                if (scheduleId && appointmentInfo?.queueNo) {
-                    await doctorSheduleService.callPatient(Number(scheduleId), appointmentInfo.queueNo);
+                if (scheduleId && appointmentInfo?.queuePosition) {
+                    await doctorSheduleService.callPatient(scheduleIdNumber, appointmentInfo.queuePosition);
                 }
             } catch (queueError) {
                 console.log("Queue Update Error (Non-blocking):", queueError);
@@ -180,20 +186,20 @@ const handleStartConsultation = async () => {
     } finally {
         setLoading(false)
     }
-  }
+  }, [processingPatient?.id, appointmentInfo?.statusCode, appointmentInfo?.queuePosition, scheduleId, scheduleIdNumber])
 
-  const handleComplete = async () => {
+  const handleComplete = useCallback(async () => {
      try {
-          if (scheduleId && appointmentInfo?.queueNo) {
-               await doctorSheduleService.completePatient(Number(scheduleId), appointmentInfo.queueNo);
+          if (scheduleId && appointmentInfo?.queuePosition) {
+               await doctorSheduleService.completePatient(scheduleIdNumber, appointmentInfo.queuePosition);
            }
        } catch (queueError) {
            console.log("Queue Completion Error:", queueError);
        }
     handleReset()
-  }
+  }, [scheduleId, appointmentInfo?.queuePosition, scheduleIdNumber]) // ADDED: handleReset will be added below
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setViewState('SEARCH')
     setActiveTab('1') 
     setAppointmentInfo(null)
@@ -202,17 +208,27 @@ const handleStartConsultation = async () => {
     setError(null)
     setStartConsultationOpen(false)
     loadAnalytics() 
-  }
+  }, [loadAnalytics])
 
-  const handleCompleteScheduleClick = () => {
-      const pendingCount = stats.booked + stats.pendingPayment;
+  // MODIFIED: Move handleReset above handleComplete, then update handleComplete deps
+  // Re-ordering to fix dependency (handleComplete now depends on handleReset)
+
+  const finishSchedule = useCallback(() => {
+     router.push(`/doctor/schedule/${scheduleId}/finish`)
+  }, [router, scheduleId])
+
+  const handleCompleteScheduleClick = useCallback(() => {
       if (pendingCount > 0) setConfirmDialogOpen(true)
       else finishSchedule()
-  }
+  }, [pendingCount, finishSchedule])
 
-  const finishSchedule = () => {
-     router.push(`/doctor/schedule/${scheduleId}/finish`)
-  }
+  const closeStartDialog = useCallback(() => {
+    setStartConsultationOpen(false)
+  }, [])
+
+  const closeConfirmDialog = useCallback(() => {
+    setConfirmDialogOpen(false)
+  }, [])
 
   if (viewState === 'SEARCH') {
     return (
@@ -251,13 +267,13 @@ const handleStartConsultation = async () => {
             barcodeVal={barcodeVal}
             setBarcodeVal={setBarcodeVal}
             onBarcodeSubmit={handleBarcodeSubmit}
-            barcodeInputRef={barcodeInputRef}
+            barcodeInputRef={barcodeInputRef as any}
         />
 
         {/* 3. Dialogs */}
         <StartConsultationDialog 
             open={startConsultationOpen}
-            onClose={() => setStartConsultationOpen(false)}
+            onClose={closeStartDialog} // MODIFIED: Use memoized callback
             onConfirm={handleStartConsultation}
             loading={loading}
             appointmentInfo={appointmentInfo}
@@ -265,7 +281,7 @@ const handleStartConsultation = async () => {
 
         <EndSessionDialog 
             open={confirmDialogOpen}
-            onClose={() => setConfirmDialogOpen(false)}
+            onClose={closeConfirmDialog} // MODIFIED: Use memoized callback
             onConfirm={finishSchedule}
             stats={stats}
         />
@@ -283,4 +299,5 @@ const handleStartConsultation = async () => {
   )
 }
 
-export default ConsultationView
+ConsultationView.displayName = 'ConsultationView' // ADDED
+export default memo(ConsultationView) // MODIFIED: Wrapped in memo

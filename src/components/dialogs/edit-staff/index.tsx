@@ -22,7 +22,7 @@ import DialogCloseButton from '../DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Service & Types
-import { updateStaff, type ClinicStaffResponseDTO } from '@/services/staff.server.service'
+import { updateStaff, type ClinicStaffResponseDTO } from '@/services/staff/staff.server.service'
 
 type EditStaffDetailsProps = {
   open: boolean

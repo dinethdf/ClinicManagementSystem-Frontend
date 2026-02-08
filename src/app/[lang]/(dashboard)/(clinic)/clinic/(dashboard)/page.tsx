@@ -86,7 +86,7 @@ const DashboardClinics = async () => {
          <Grid size={{ xs: 12 }}>
              {/* You can create a dynamic component for patients here too */}
              <div className="p-4 bg-white rounded shadow">
-                <h3>Patient Dashboard Coming Soon</h3>
+                <h3>Patient Main Dashboard Coming Soon</h3>
              </div>
          </Grid>
       )}

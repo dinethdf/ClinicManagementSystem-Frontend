@@ -13,7 +13,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
 
 // Service Import
-import { createPatientLogin } from '@/services/patient.server.service'
+import { createPatientLogin } from '@/services/patient/patient.server.service'
 
 const PatientLoginCreator = ({ patientId }: { patientId: string }) => {
   // States

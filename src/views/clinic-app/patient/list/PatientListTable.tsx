@@ -14,7 +14,7 @@ import CommonServerTable from '@/components/common-components/table/CommonServer
 import { FilterConfig, SortingConfig } from '@/components/common-components/table/TableTypes'
 
 // Service & Types
-import { patientService } from '@/services/patient.service'
+import { patientService } from '@/services/patient/patient.service'
 import type { PatientResponceDTO } from '@/types/patient.types' // ✅ Correct Import
 
 // Utils

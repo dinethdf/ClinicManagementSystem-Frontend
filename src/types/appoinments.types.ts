@@ -65,6 +65,10 @@ export type AppointmentListDTO = {
 
 
 export type AppointmentDetailDTO = {
+  statusDisplayName: string
+  statusColor: string
+  invoiceStatusDisplayName: string
+  invoiceStatusColor: string
   id: number
   startTime: string
   endTime: string
@@ -85,6 +89,8 @@ export type AppointmentDetailDTO = {
   
   invoiceTotalDiscount: number
   invoiceFinalAmount: number
+  amountPaid?: number
+  balanceRemaining?: number
   invoiceStatus: string
 
   createdDate: string
@@ -105,6 +111,8 @@ export type AppointmentApiResponse = {
 }
 
 export type ScheduleAppointmentDTO = {
+  statusColor: string
+  statusDisplayName: string
   id: number
   startTime: string
   status: string
@@ -126,15 +134,29 @@ export type ScheduleAppointmentResponse = {
   number: number
 }
 
-export type AppointmentStatusDTO = {
-  id: number
+// export type AppointmentStatusDTO = {
+//   id: number
+//   appointmentId: number
+//   fullName: string
+//   patientNo: string
+//   nic: string
+//   queueNo: number
+//   status: string
+//   createdDate: string
+  
+// }
+
+export interface AppointmentStatusDTO {
+  statusColor: string
   appointmentId: number
-  fullName: string
-  patientNo: string
-  nic: string
-  queueNo: number
-  status: string
+  statusCode: string
   createdDate: string
+  queuePosition: number
+  patientNo: string
+  patientName: string
+  patientId: number
+  nic?: string
+  statusDisplayName: string
 }
 
 export interface GetAppointmentListParams {
@@ -144,4 +166,13 @@ export interface GetAppointmentListParams {
   scheduleId?: number
   startDate?: string
   endDate?: string
+}
+
+export type CancelResponse = {
+    success: boolean
+    message: string
+    data?: {
+        refundAmount?: number
+        message?: string
+    }
 }

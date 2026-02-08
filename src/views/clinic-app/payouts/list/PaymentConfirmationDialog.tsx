@@ -13,7 +13,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import CustomTextField from '@core/components/mui/TextField'
 
 // UPDATE: Import specific function instead of class instance
-import { processBulkPayment } from '@/services/payout.server.service'
+import { processBulkPayment } from '@/services/financial/payout.server.service'
 import type { BulkPaymentRequest } from '@/types/payout.types'
 
 type Props = {

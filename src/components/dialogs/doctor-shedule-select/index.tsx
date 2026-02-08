@@ -25,7 +25,7 @@ import Tooltip from '@mui/material/Tooltip'
 
 // Component Imports
 import DialogCloseButton from '../DialogCloseButton'
-import { doctorSheduleService } from '@/services/doctor.shedule.service'
+import { doctorSheduleService } from '@/services/doctor/doctor.shedule.service'
 import type { DoctorScheduleDTO } from '@/types/doctor.types' 
 
 type DialogBoxProps = {

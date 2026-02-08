@@ -2,7 +2,6 @@
 
 // React Imports
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
-
 import { useRouter, useParams } from 'next/navigation'
 
 // MUI Imports
@@ -23,41 +22,36 @@ import type { CustomInputHorizontalData } from '@core/components/custom-inputs/t
 // Components Imports
 import CustomInputHorizontal from '@core/components/custom-inputs/Horizontal'
 import CustomTextField from '@core/components/mui/TextField'
-
 import DialogCloseButton from '../DialogCloseButton'
 
-import { processInvoicePayment } from '@/services/appoinment.server.service';
-
-// Add this import at the top
-import { getInvoiceDetails } from '@/services/invoice.server.service';
+// Services
+import { processInvoicePayment } from '@/services/appointment/appoinment.server.service';
+import { getInvoiceDetails } from '@/services/financial/invoice.server.service';
 import { appointmentPrintInvoice } from '@/components/printable/billPrint/AppointmentPrintInvoice';
 
-
-// Define the shape of the payment data
-type AddEditPaymentData = {
-  requiredPayment: number
-  payAmount: number | null
-  transactionId: string
-  notes: string
-}
-
-// 1. NEW: Define Discount Type (if not already shared)
+// --- TYPES ---
 type Discount = {
   discountType: string;
   description: string;
   amount: number;
 };
 
-// 2. UPDATED: Props to accept discounts
+type AddEditPaymentData = {
+  requiredPayment: number 
+  payAmount: number | null 
+  transactionId: string
+  notes: string
+}
+
 type AddEditPaymentProps = {
   open: boolean
   setOpen: (open: boolean) => void
-  finalTotal: number
+  finalTotal: number 
   invoiceId: string
   discounts: Discount[]
   patientMobileNo: string
+  mode?: 'FULL' | 'PARTIAL' 
 }
-
 
 const initialPaymentData: AddEditPaymentData = {
   requiredPayment: 0,
@@ -67,46 +61,44 @@ const initialPaymentData: AddEditPaymentData = {
 }
 
 const paymentMethodes: CustomInputHorizontalData[] = [
-  {
-    title: 'Cash',
-    value: 'Cash', // Matched to your DB ENUM case
-    isSelected: true
-  },
-  {
-    title: 'Card',
-    value: 'Card' // Matched to your DB ENUM case
-  },
-  {
-    title: 'Bank Transfer', // You might need to add 'Bank Transfer' to your DB ENUM if you use it
-    value: 'Bank Transfer'
-  }
+  { title: 'Cash', value: 'Cash', isSelected: true },
+  { title: 'Card', value: 'Card' },
+  { title: 'Bank', value: 'Bank Transfer' } 
 ]
 
-const PaymentFinalizer = ({ open, setOpen, finalTotal, invoiceId, discounts, patientMobileNo }: AddEditPaymentProps) => {
+const PaymentFinalizer = ({ 
+    open, 
+    setOpen, 
+    finalTotal, 
+    invoiceId, 
+    discounts, 
+    patientMobileNo,
+    mode = 'FULL' 
+}: AddEditPaymentProps) => {
 
   const router = useRouter()
   const params = useParams()
-
   const initialSelected: string = paymentMethodes.find(item => item.isSelected)?.value || 'Cash'
 
-  // States
   const [selectedMethod, setSelectedMethod] = useState<string>(initialSelected)
   const [paymentDetails, setPaymentDetails] = useState<AddEditPaymentData>(initialPaymentData)
 
-  // Initialize state when dialog opens
+  // Initialize State
   useEffect(() => {
     if (open) {
+      const defaultAmount = (mode === 'FULL' && initialSelected !== 'Cash') ? finalTotal : null;
+
       setPaymentDetails({
         ...initialPaymentData,
-        requiredPayment: finalTotal // Initialize with the passed total
+        requiredPayment: finalTotal,
+        payAmount: defaultAmount
       })
       setSelectedMethod(initialSelected)
     }
-  }, [open, finalTotal, initialSelected])
+  }, [open, finalTotal, initialSelected, mode])
 
   const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    
     setPaymentDetails(prev => ({
       ...prev,
       [name]: name === 'payAmount' ? (value === '' ? null : parseFloat(value)) : value
@@ -114,84 +106,107 @@ const PaymentFinalizer = ({ open, setOpen, finalTotal, invoiceId, discounts, pat
   }
 
   const handleMethodChange = (prop: string | ChangeEvent<HTMLInputElement>) => {
-    
     const value = typeof prop === 'string' ? prop : (prop.target as HTMLInputElement).value
-    
     setSelectedMethod(value)
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-  }
-
-  // --- CALCULATIONS ---
-  const payAmount = paymentDetails.payAmount ?? 0;
-  const required = paymentDetails.requiredPayment;
-  const balance = payAmount - required;
-
-
-const handleSubmit = async (e: FormEvent) => {
-  e.preventDefault();
-  
-  if (selectedMethod === 'Cash' && payAmount < required) {
-    alert("Insufficient cash amount.");
-    return;
-  }
-
-  if (selectedMethod !== 'Cash' && !paymentDetails.transactionId) {
-    alert("Transaction ID is required for non-cash payments.");
-    return;
-  }
-
-  const paymentPayload = {
-    invoiceId: parseInt(invoiceId), 
-    paymentMethod: selectedMethod,
-    transactionCode: selectedMethod === 'Cash' ? null : paymentDetails.transactionId,
-    discounts: discounts,
-    patientMobileNo: patientMobileNo
-  };
-
-  const result = await processInvoicePayment(paymentPayload);
-
-  if (result.success) {
-    toast.success("Payment successful!");
     
-    // Fetch invoice details and print
-    const invoiceDetails = await getInvoiceDetails(parseInt(invoiceId));
+    if (mode === 'FULL' && value !== 'Cash') {
+        setPaymentDetails(prev => ({ ...prev, payAmount: finalTotal }))
+    } else {
+        setPaymentDetails(prev => ({ ...prev, payAmount: null }))
+    }
+  }
 
-    if (invoiceDetails) {
+  const handleClose = () => setOpen(false)
 
-      appointmentPrintInvoice(invoiceDetails);
+  // --- LOGIC ---
+  const enteredAmount = paymentDetails.payAmount ?? 0;
+  const targetAmount = paymentDetails.requiredPayment; 
+
+  let isValid = false;
+  let balanceOrChange = 0;
+
+  if (mode === 'FULL') {
+      balanceOrChange = enteredAmount - targetAmount; 
+      isValid = enteredAmount >= targetAmount;
+  } else {
+      balanceOrChange = targetAmount - enteredAmount; 
+      isValid = enteredAmount > 0 && enteredAmount <= targetAmount;
+  }
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    
+    if (!isValid) return;
+
+    if (selectedMethod !== 'Cash' && !paymentDetails.transactionId) {
+      alert("Transaction ID is required for non-cash payments.");
+      return;
     }
     
-    handleClose();
-    router.replace(`/${params.lang}/clinic/appoinment/list`);
-  } else {
-    toast.error(result?.error?.message || "Payment failed");
-    console.error("Payment Error:", result.error);
+    let finalPayableAmount = (mode === 'PARTIAL') ? enteredAmount : targetAmount;
+
+    // --- UPDATED PAYLOAD TO MATCH API REQUIREMENT ---
+    const paymentPayload = {
+      invoiceId: parseInt(invoiceId), 
+      amountPaid: finalPayableAmount, // Match JSON: "amountPaid"
+      paymentMethod: selectedMethod,  // e.g. "Cash"
+      paymentLocation: "CLINIC_COUNTER", // Match JSON: "CLINIC_COUNTER"
+      transactionCode: selectedMethod === 'Cash' ? null : paymentDetails.transactionId,
+      receivedByStaffId: 1, // Match JSON: Hardcoded ID (Ideally get from Auth Context)
+      discounts: discounts, // Matches JSON structure
+      // Note: 'patientMobileNo' removed from payload as it was not in your JSON example
+    };
+
+    const result = await processInvoicePayment(paymentPayload);
+
+    if (result.success) {
+      toast.success("Payment successful!");
+      
+      const invoiceDetails = await getInvoiceDetails(parseInt(invoiceId));
+      if (invoiceDetails) {
+        appointmentPrintInvoice(invoiceDetails);
+      }
+      
+      handleClose();
+      router.replace(`/${params.lang}/clinic/appoinment/list`);
+    } else {
+      toast.error(result?.error?.message || "Payment failed");
+    }
+  };
+
+  // Label Logic
+  let inputLabel = 'Payment Amount';
+  if (mode === 'FULL') {
+      inputLabel = selectedMethod === 'Cash' ? 'Cash Received' : 'Charge Amount';
   }
-};
+
+  const isInputDisabled = mode === 'FULL' && selectedMethod !== 'Cash';
+
   return (
     <Dialog
       open={open}
-      maxWidth='md'
+      maxWidth='sm'
+      fullWidth
       scroll='body'
       onClose={handleClose}
-      closeAfterTransition={false}
-      sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
+      sx={{ '& .MuiDialog-paper': { overflow: 'visible', margin: '16px' } }}
     >
-      <DialogTitle variant='h4' className='flex gap-2 flex-col text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
-        Process Payment
+      <DialogTitle variant='h5' className='flex gap-1 flex-col text-center p-4 sm:pb-2'>
+        {mode === 'FULL' ? 'Full Settlement' : 'Partial Payment'}
+        <Typography variant="caption" component="span" className="text-gray-500"> 
+            {mode === 'FULL' ? 'Settle remaining balance.' : 'Record installment.'}
+        </Typography>
       </DialogTitle>
       
       <form onSubmit={handleSubmit}>
-        <DialogContent className='pbs-0 sm:pli-16'>
+        <DialogContent className='p-4 sm:px-8'>
           <DialogCloseButton onClick={handleClose} disableRipple>
             <i className='tabler-x' />
           </DialogCloseButton>
-          <Grid container spacing={6}>
+          
+          <Grid container spacing={3}>
             
-            {/* Payment Method Selection */}
+            {/* Payment Method */}
             {paymentMethodes.map((item, index) => (
               <CustomInputHorizontal
                 type='radio'
@@ -200,123 +215,107 @@ const handleSubmit = async (e: FormEvent) => {
                 selected={selectedMethod}
                 name='payment-method'
                 handleChange={handleMethodChange}
-                gridProps={{ size: { xs: 12, sm: 4 } }}
+                gridProps={{ size: { xs: 4, sm: 4 } }}
               />
             ))}
 
-            {/* --- CASH PAYMENT UI --- */}
-            {selectedMethod === 'Cash' && (
-              <>
-                {/* Required Payment Display */}
-                <Grid size={{ xs: 12 }}>
-                  <Box className='flex flex-col items-center p-4 rounded border border-divider bg-action-hover'>
-                    <Typography variant='body1' color='text.secondary'>
-                      Required Payment
-                    </Typography>
-                    <Typography variant='h3' color='primary.main' className='font-medium'>
-                      {required.toLocaleString('en-LK', { style: 'currency', currency: 'LKR' })}
-                    </Typography>
-                  </Box>
-                </Grid>
+            {/* --- DISPLAY INFO --- */}
+            <Grid size={{ xs: 12 }}>
+              <Box className='flex flex-row justify-between items-center px-4 py-2 rounded border border-divider bg-action-hover'>
+                <Typography variant='body1' color='text.secondary' className="font-medium">
+                  Balance Due:
+                </Typography>
+                <Typography variant='h4' color='primary.main' className='font-bold'>
+                  {targetAmount.toLocaleString('en-LK', { style: 'currency', currency: 'LKR' })}
+                </Typography>
+              </Box>
+            </Grid>
 
-                {/* Amount Received Input (BIG) */}
-                <Grid size={{ xs: 12 }}>
-                  <CustomTextField
+            {/* --- AMOUNT INPUT --- */}
+            <Grid size={{ xs: 12 }}>
+                <CustomTextField
                     fullWidth
-                    label='Cash Received'
+                    label={inputLabel}
                     name='payAmount'
                     type='number'
                     variant='outlined'
                     placeholder='0.00'
                     value={paymentDetails.payAmount ?? ''}
                     onChange={handleFormChange}
-                    autoFocus
-                    inputProps={{ style: { fontSize: '2rem', height: '3rem', textAlign: 'center' }, min: 0 }}
-                    InputLabelProps={{ style: { fontSize: '1.25rem' } }}
-                  />
-                </Grid>
+                    autoFocus={!isInputDisabled} 
+                    disabled={isInputDisabled}
+                    inputProps={{ style: { fontSize: '1.75rem', height: '2.5rem', textAlign: 'center', fontWeight: 'bold' }, min: 0 }}
+                    helperText={mode === 'PARTIAL' && `Max allowed: ${targetAmount}`}
+                />
+            </Grid>
 
-                {/* Balance / Change Display */}
-                <Grid size={{ xs: 12 }} className='flex flex-col items-center gap-2'>
-                    {balance >= 0 ? (
-                         <>
-                            <Typography variant='h6' className='font-medium text-success'>
-                                Change to Return:
+            {/* --- DYNAMIC FEEDBACK --- */}
+            <Grid size={{ xs: 12 }} className='flex flex-row justify-between items-center px-2'>
+                {mode === 'FULL' ? (
+                    selectedMethod === 'Cash' && (
+                        <>
+                            <Typography variant='body1' className={`font-medium ${balanceOrChange >= 0 ? 'text-success' : 'text-error'}`}>
+                                {balanceOrChange >= 0 ? 'Change:' : 'Missing:'}
                             </Typography>
-                            <Typography variant='h2' className='font-bold text-success'>
-                                {balance.toLocaleString('en-LK', { style: 'currency', currency: 'LKR' })}
-                            </Typography>
-                         </>
-                    ) : (
-                         <>
-                            <Typography variant='h6' className='font-medium text-error'>
-                                Balance Due:
-                            </Typography>
-                            <Typography variant='h3' className='font-bold text-error'>
-                                {Math.abs(balance).toLocaleString('en-LK', { style: 'currency', currency: 'LKR' })}
+                            <Typography variant='h4' className={`font-bold ${balanceOrChange >= 0 ? 'text-success' : 'text-error'}`}>
+                                {Math.abs(balanceOrChange).toLocaleString('en-LK', { style: 'currency', currency: 'LKR' })}
                             </Typography>
                         </>
-                    )}
-                </Grid>
-              </>
-            )}
+                    )
+                ) : (
+                    <>
+                        <Typography variant='body1' className='font-medium text-warning'>
+                            Remaining:
+                        </Typography>
+                        <Typography variant='h4' className='font-bold text-warning'>
+                            {Math.max(0, balanceOrChange).toLocaleString('en-LK', { style: 'currency', currency: 'LKR' })}
+                        </Typography>
+                    </>
+                )}
+            </Grid>
 
-            {/* --- CARD / OTHER PAYMENT UI --- */}
+            {/* --- TRANSACTION ID --- */}
             {selectedMethod !== 'Cash' && (
-              <>
-                <Grid size={{ xs: 12 }} className='flex flex-col items-center p-4 rounded border border-divider bg-action-hover'>
-                   <Typography variant='h6' color='text.secondary'>
-                    Total To Charge:
-                   </Typography>
-                   <Typography variant='h3' color='primary.main' className='font-medium'>
-                    {required.toLocaleString('en-LK', { style: 'currency', currency: 'LKR' })}
-                   </Typography>
-                </Grid>
-
-                <Grid size={{ xs: 12 }}>
+              <Grid size={{ xs: 12 }}>
                   <CustomTextField
                     fullWidth
-                    label='Transaction Reference / ID'
+                    size="small"
+                    label='Transaction Ref / ID'
                     name='transactionId'
-                    variant='outlined'
                     placeholder='e.g., TRX-12345678'
                     value={paymentDetails.transactionId}
                     onChange={handleFormChange}
-                    autoFocus
-                    required // HTML5 validation
-                    inputProps={{ style: { fontSize: '1.25rem', padding: '1rem' } }}
-                    InputLabelProps={{ style: { fontSize: '1.1rem' } }}
+                    required
                   />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <CustomTextField
-                    fullWidth
-                    label='Notes (Optional)'
-                    name='notes'
-                    variant='outlined'
-                    multiline
-                    rows={3}
-                    placeholder='Add any payment notes here...'
-                    value={paymentDetails.notes}
-                    onChange={handleFormChange}
-                  />
-                </Grid>
-              </>
+              </Grid>
             )}
+
+            <Grid size={{ xs: 12 }}>
+                <CustomTextField
+                fullWidth
+                size="small"
+                label='Notes'
+                name='notes'
+                placeholder='Add note...'
+                value={paymentDetails.notes}
+                onChange={handleFormChange}
+                />
+            </Grid>
 
           </Grid>
         </DialogContent>
-        <DialogActions className='justify-center pbs-0 sm:pbe-16 sm:pli-16'>
+        
+        <DialogActions className='justify-center p-4 pt-2'>
           <Button 
             variant='contained' 
-            size="large"
             type='submit'
-            color={balance >= 0 || selectedMethod !== 'Cash' ? 'primary' : 'secondary'}
-            disabled={selectedMethod === 'Cash' && balance < 0} // Disable if cash is insufficient
+            color={isValid ? 'primary' : 'secondary'}
+            disabled={!isValid}
+            className="w-full sm:w-auto"
           >
             Confirm Payment
           </Button>
-          <Button variant='tonal' color='secondary' size="large" onClick={handleClose}>
+          <Button variant='tonal' color='secondary' onClick={handleClose} className="w-full sm:w-auto">
             Cancel
           </Button>
         </DialogActions>

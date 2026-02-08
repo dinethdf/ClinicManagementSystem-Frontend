@@ -36,32 +36,6 @@ export interface FetchRevenueArgs {
 }
 
 
-export interface ScheduleDTO {
-  id: number
-  doctorName: string
-  specialization: string
-  scheduleDate: string
-  startTime: string
-  endTime: string
-  isActive: 'ACTIVE' | 'NOT ACTIVE'
-  status:string
-  maxPatientCount: number
-  registeredPatientCount: number
-}
-
-
-export interface DoctorScheduleApiResponse {
-  success: boolean
-  message: string
-  data: {
-    content: ScheduleDTO[]
-    totalElements: number
-    totalPages: number
-    size: number
-    number: number 
-  }
-}
-
 export interface PatientAnalysisData {
   attendance: {
     total: number

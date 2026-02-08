@@ -35,7 +35,7 @@ import PatientSelectDialogBox from '@/components/dialogs/patient-select'
 import type { DoctorScheduleDTO } from '@/types/doctor.types'
 import type { PatientResponceDTO } from '@/types/patient.types'
 
-import { createAppointment } from '@/services/appoinment.server.service';
+import { createAppointment } from '@/services/appointment/appoinment.server.service';
 
 import { encodeHideValue } from '@/utils/encode'
 

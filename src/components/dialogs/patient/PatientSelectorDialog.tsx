@@ -23,8 +23,8 @@ import DialogCloseButton from './../DialogCloseButton'
 import AsyncAutocomplete from '@/components/form-components/AsyncAutocompleteProps'
 
 // Service Imports
-import { getPatientByBarcode } from '@/services/consultation.server.service'
-import type { PatientDetailDTO } from '@/types/consultation.types'
+import { getPatientByBarcode } from '@/services/doctor/consultation.server.service'
+import type { PatientDetailDTO } from '@/types/patient.types'
 
 type PatientSelectorDialogProps = {
   open: boolean

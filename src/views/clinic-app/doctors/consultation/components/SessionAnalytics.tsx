@@ -1,4 +1,5 @@
-import Grid from '@mui/material/Grid' // Ensure Grid2 is used
+import { memo } from 'react' // ADDED: memo
+import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
@@ -15,7 +16,8 @@ interface Props {
   loading: boolean;
 }
 
-const StatCard = ({ title, count, icon, color }: { title: string, count: number, icon: string, color: ThemeColor }) => (
+// ADDED: Memoized sub-component
+const StatCard = memo(({ title, count, icon, color }: { title: string, count: number, icon: string, color: ThemeColor }) => (
   <Card className='h-full border-b-4 border-b-transparent hover:border-b-primary transition-all shadow-sm'>
     <CardContent className='flex flex-col items-center justify-center gap-1 p-3 text-center'>
         <Avatar variant='rounded' className={`bg-${color}/10 text-${color} w-9 h-9`}>
@@ -27,7 +29,9 @@ const StatCard = ({ title, count, icon, color }: { title: string, count: number,
         </div>
     </CardContent>
   </Card>
-)
+))
+
+StatCard.displayName = 'StatCard' // ADDED
 
 const SessionAnalytics = ({ stats, loading }: Props) => {
   if (loading) return <div className='flex justify-center p-2'><CircularProgress size={24} /></div>
@@ -43,4 +47,5 @@ const SessionAnalytics = ({ stats, loading }: Props) => {
   )
 }
 
-export default SessionAnalytics
+SessionAnalytics.displayName = 'SessionAnalytics' // ADDED
+export default memo(SessionAnalytics) // MODIFIED: Wrapped in memo

@@ -8,7 +8,7 @@ import {
 } from '@mui/material'
 
 // Import the actions
-import { getDoctorSelfPayouts, getFinancialScheduleDetails } from '@/services/payout.server.service'
+import { getDoctorSelfPayouts, getFinancialScheduleDetails } from '@/services/financial/payout.server.service'
 
 import type { PayoutSummaryDTO } from '@/types/payout.types'
 import { AppointmentFinancialDTO } from '@/types/financial.types'

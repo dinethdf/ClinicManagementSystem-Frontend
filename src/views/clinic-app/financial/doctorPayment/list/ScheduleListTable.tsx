@@ -38,7 +38,7 @@ import OptionMenu from '@core/components/option-menu'
 import { getLocalizedUrl } from '@/utils/i18n'
 
 // Service Imports
-import { getScheduleList } from '@/services/doctor.shedule.server.service'
+import { getScheduleList } from '@/services/doctor/doctor.shedule.server.service'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
@@ -88,11 +88,11 @@ const ScheduleListTable = () => {
       setIsLoading(true)
 
       try {
-        const res = await getScheduleList(
+        const res : any = await getScheduleList(
             pagination.pageIndex, 
             pagination.pageSize, 
-            filters.doctorId, 
-            filters.specialization, 
+            Number(filters.doctorId), 
+            Number(filters.specialization), 
             filters.date
         )
 

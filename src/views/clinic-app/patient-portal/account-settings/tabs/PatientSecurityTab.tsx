@@ -19,7 +19,7 @@ import Typography from '@mui/material/Typography'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Service Import
-import { requestOtp, changePassword } from '@/services/patient.server.service'
+import { requestOtp, changePassword } from '@/services/patient/patient.server.service'
 
 const PatientSecurityTab = () => {
   // --- States ---

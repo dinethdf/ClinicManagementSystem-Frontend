@@ -10,7 +10,7 @@ import Chip from '@mui/material/Chip'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { ClinicStaffResponseDTO } from '@/services/staff.server.service'
+import type { ClinicStaffResponseDTO } from '@/services/staff/staff.server.service'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'

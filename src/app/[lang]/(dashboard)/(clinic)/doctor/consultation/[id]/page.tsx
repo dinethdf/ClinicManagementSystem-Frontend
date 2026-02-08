@@ -5,7 +5,7 @@ import ConsultationView from '@/views/clinic-app/doctors/consultation'
 import { verifyToken } from '@/libs/verifyToken'
 import { redirect } from 'next/navigation'
 
-import { validateScheduleOwnership } from '@/services/doctor.shedule.server.service' // Check path
+import { validateScheduleOwnership } from '@/services/doctor/doctor.shedule.server.service' // Check path
 import UnauthorizedRedirect from '@/components/auth/UnauthorizedRedirect'
 
 const ConsultationPage = async (props: { params: Promise<{ id: string }> }) => {

@@ -2,7 +2,7 @@
 import StaffDetails from '@/views/clinic-app/staff/details/StaffDetails'
 
 // Service Imports
-import { getStaffById } from '@/services/staff.server.service'
+import { getStaffById } from '@/services/staff/staff.server.service'
 
 const StaffDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params

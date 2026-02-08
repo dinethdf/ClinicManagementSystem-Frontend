@@ -9,7 +9,7 @@ import type { ThemeColor } from '@core/types'
 import type { OrderType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
+import ConfirmationDialog from '@/components/dialogs/cancel-appointment-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 type PayementStatusType = {

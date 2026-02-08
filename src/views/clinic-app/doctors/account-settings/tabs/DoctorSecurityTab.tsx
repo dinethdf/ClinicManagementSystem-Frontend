@@ -19,7 +19,7 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 
 import CustomTextField from '@core/components/mui/TextField'
-import { requestDoctorOtp, changeDoctorPassword } from '@/services/doctor.server.service'
+import { requestDoctorOtp, changeDoctorPassword } from '@/services/doctor/doctor.server.service'
 
 const DoctorSecurityTab = () => {
   const [step, setStep] = useState<'request' | 'submit'>('request')

@@ -18,7 +18,7 @@ import DialogActions from '@mui/material/DialogActions'
 import PatientIdCard from './PatientIdCard'
 
 // Service Imports
-import { getPatientBarcode } from '@/services/patient.server.service'
+import { getPatientBarcode } from '@/services/patient/patient.server.service'
 
 // Type Imports
 import type { Patient } from '@/types/patient.types'

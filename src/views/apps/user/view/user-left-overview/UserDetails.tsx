@@ -12,7 +12,7 @@ import type { ThemeColor } from '@core/types'
 
 // Component Imports
 import EditUserInfo from '@components/dialogs/edit-user-info'
-import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
+import ConfirmationDialog from '@/components/dialogs/cancel-appointment-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import CustomAvatar from '@core/components/mui/Avatar'
 

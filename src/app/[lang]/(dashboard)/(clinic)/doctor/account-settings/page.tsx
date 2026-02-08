@@ -1,7 +1,7 @@
 // src/views/clinic-app/doctor-portal/account-settings/DoctorDetailsPage.tsx
 
 import DoctorView from '@/views/clinic-app/doctors/account-settings/DoctorView'
-import { getDoctorDetailsByTocken } from '@/services/doctor.server.service'
+import { getDoctorDetailsByTocken } from '@/services/doctor/doctor.server.service'
 
 const DoctorDetailsPage = async () => {
   const doctorData = await getDoctorDetailsByTocken()
