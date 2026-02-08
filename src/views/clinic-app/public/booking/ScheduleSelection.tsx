@@ -17,7 +17,7 @@ import { Chip } from '@mui/material'
 
 import type { PublicScheduleDTO, SpecializationDTO } from '@/types/public-booking.types'
 
-import { getPublicSchedulesList } from '@/services/doctor.shedule.server.service'
+import { getPublicSchedulesList } from '@/services/doctor/doctor.shedule.server.service'
 
 
 interface Props {
@@ -58,7 +58,7 @@ const specializations: SpecializationDTO[] = [
   
     try {
 
-      const response = await getPublicSchedulesList({
+      const response : any = await getPublicSchedulesList({
         page: page - 1, 
         size: 8, // Cards per page
         date: selectedDate || undefined, 

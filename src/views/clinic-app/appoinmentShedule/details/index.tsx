@@ -3,17 +3,17 @@
 import Grid from '@mui/material/Grid'
 
 // Type Imports
-import type { DoctorScheduleDTO } from '@/types/doctor.types'
+import type { UpdatedDoctorScheduleDTO } from '@/types/doctor.types'
 
 // Component Imports
 import ScheduleDetailsSection from './ScheduleDetailsSection'
 import ScheduleAppointmentListTable from './ScheduleAppointmentListTable'
 
-const ScheduleDetails = ({ scheduleData }: { scheduleData: DoctorScheduleDTO }) => {
+const ScheduleDetails = ({ scheduleData, role }: { scheduleData: UpdatedDoctorScheduleDTO, role: string }) => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, md: 5, lg: 4 }}>
-        <ScheduleDetailsSection scheduleData={scheduleData} />
+        <ScheduleDetailsSection scheduleData={scheduleData} role={role} />
       </Grid>
 
       {/* Right Side: Appointment List */}

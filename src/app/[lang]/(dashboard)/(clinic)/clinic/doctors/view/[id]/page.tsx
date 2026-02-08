@@ -5,7 +5,7 @@
 import DoctorDetails from '@/views/clinic-app/doctors/details'
 
 // Service Imports
-import { getDoctorById } from '@/services/doctor.server.service'
+import { getDoctorById } from '@/services/doctor/doctor.server.service'
 
 const DoctorDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params

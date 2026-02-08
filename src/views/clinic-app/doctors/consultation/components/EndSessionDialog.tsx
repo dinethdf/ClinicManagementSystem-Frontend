@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
@@ -31,4 +32,5 @@ const EndSessionDialog = ({ open, onClose, onConfirm, stats }: Props) => {
   )
 }
 
-export default EndSessionDialog
+EndSessionDialog.displayName = 'EndSessionDialog' // ADDED
+export default memo(EndSessionDialog) // MODIFIED: Wrapped in memo

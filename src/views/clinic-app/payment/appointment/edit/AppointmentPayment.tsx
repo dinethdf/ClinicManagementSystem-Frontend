@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 // MUI Imports
 import Grid from '@mui/material/Grid'
@@ -36,6 +36,8 @@ import CustomTextField from '@core/components/mui/TextField'
 import PaymentFinalizer from '@/components/dialogs/payment-finalize'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
+import PaymentHistoryDialog from '@/views/clinic-app/payment/appointment/edit/PaymentHistoryDialog' //
+
 // Styled Component Imports
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
@@ -61,7 +63,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
     backgroundColor: theme.palette.action.hover,
   },
-
   '&:last-child td, &:last-child th': {
     border: 0,
   },
@@ -69,16 +70,39 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appointmentInvDetails?: any }) => {
   
-  // const isBelowMdScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
-
   const [issueDate, setIssueDate] = useState<Date | null | undefined>(
-      appointmentInvDetails?.dateIssued ? new Date(appointmentInvDetails.dateIssued) : new Date()
+     appointmentInvDetails?.dateIssued ? new Date(appointmentInvDetails.dateIssued) : new Date()
   )
+
+  // --- 1. SEPARATE ITEMS VS DISCOUNTS ---
+  const { billableItems, existingDiscounts } = useMemo(() => {
+    const rawItems: InvoiceItem[] = appointmentInvDetails?.items || [];
+    
+    // Filter Billable Items (Positive amounts, not discounts)
+    const billable = rawItems.filter(item => !item.typeName.includes('DISCOUNT') && item.totalAmount >= 0);
+    
+    // Extract Existing Discounts
+    const discounts = rawItems
+        .filter(item => item.typeName.includes('DISCOUNT'))
+        .map(d => ({
+            discountType: d.typeName,
+            description: d.description,
+            amount: Math.abs(d.totalAmount) // Convert negative to positive for UI
+        }));
+
+    return { billableItems: billable, existingDiscounts: discounts };
+  }, [appointmentInvDetails]);
+
+  // --- 2. STATUS CHECK ---
+  const statusCode = appointmentInvDetails?.status?.code;
+  // Editable if UNPAID or PARTIAL
+  const isPayable = statusCode === "UNPAID" || statusCode === "PARTIAL";
 
   const { control, watch } = useForm<InvoiceFormData>({
     defaultValues: {
-      discounts: [],
-      note: 'Thank you for choosing CureGuard Clinic. Wishing you a speedy recovery and good health!'
+      // Always load existing discounts so user can see them and add NEW ones in the same list
+      discounts: existingDiscounts, 
+      note: appointmentInvDetails?.appointmentNote || 'Thank you for choosing CureGuard Clinic.'
     }
   });
 
@@ -87,23 +111,49 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
     name: 'discounts'
   });
 
-  const buttonProps: ButtonProps = {
-     variant: 'contained',
-     color:"success",
-     className:"capitalize",
-     children: 'Make Payment',
-     disabled: appointmentInvDetails.status != "UNPAID"
-  }  
-
-  // --- CALCULATIONS ---
-  const initialSubtotal = appointmentInvDetails?.items?.reduce((sum: number, item: InvoiceItem) => sum + (item.totalAmount || 0), 0) || 0;
+  // --- 3. DYNAMIC CALCULATIONS ---
   const watchedDiscounts = watch('discounts');
-  const totalDiscount = watchedDiscounts?.reduce((sum, discount) => sum + (Number(discount.amount) || 0), 0) || 0;
-  const finalTotal = Math.max(0, initialSubtotal - totalDiscount);
+
+  // A. Subtotal (From API or calculated from billable items)
+  const displaySubtotal = appointmentInvDetails?.subtotal || billableItems.reduce((sum, item) => sum + (item.totalAmount || 0), 0);
+
+  // B. Total Discount
+  // If Payable (UNPAID/PARTIAL): Calculate dynamically from form (allows adding new discounts)
+  // If Paid: Use static API value
+  const formDiscountTotal = watchedDiscounts?.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) || 0;
+  const displayTotalDiscount = isPayable ? formDiscountTotal : (appointmentInvDetails?.totalDiscount || formDiscountTotal);
+
+  // C. Final Totals
+  const finalTotalAmount = Math.max(0, displaySubtotal - displayTotalDiscount);
+  const amountPaidSoFar = appointmentInvDetails?.amountPaid || 0;
+  const balanceDue = Math.max(0, finalTotalAmount - amountPaidSoFar);
+
+  const [openHistoryDialog, setOpenHistoryDialog] = useState(false)
+
+  const isPending = statusCode === "PENDING_PAYMENT";
+  const showHistory = statusCode !== "PENDING_PAYMENT" && statusCode !== "UNPAID";
+
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', minimumFractionDigits: 2 }).format(amount);
   };
+
+  // Button Configs
+  const fullPaymentBtnProps: ButtonProps = {
+      variant: 'contained',
+      color: "success",
+      className: "capitalize w-full",
+      children: 'Full Settle',
+      startIcon: <i className='tabler-check' />
+  }  
+
+  const partialPaymentBtnProps: ButtonProps = {
+      variant: 'outlined',
+      color: "primary",
+      className: "capitalize w-full",
+      children: 'Partial Payment',
+      startIcon: <i className='tabler-adjustments-dollar' />
+  }
 
   return (
     <>
@@ -153,10 +203,14 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                           customInput={<CustomTextField fullWidth />}
                         />
                       </div>
-                      {appointmentInvDetails?.status !== "UNPAID" && (
+                      {/* Status Chip */}
+                      {appointmentInvDetails?.status && (
                         <Chip 
-                          label={appointmentInvDetails.status} 
-                          color={'primary'}
+                          label={appointmentInvDetails.status.displayName || appointmentInvDetails.status.code} 
+                          sx={{ 
+                              backgroundColor: appointmentInvDetails.status.colorCode || '#primary', 
+                              color: '#fff' 
+                          }}
                           size='medium'
                           variant='filled'
                           className='mt-1 w-max uppercase font-bold text-[10px]' 
@@ -167,12 +221,10 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                 </div>
               </Grid>
 
-              {/* --- Bill To & Appointment Details --- */}
+              {/* --- Bill To & Details --- */}
               <Grid size={{ xs: 12 }} container spacing={6}>
                   <Grid size={{ xs: 12, md: 6 }}>
-                    <Typography className='font-medium mbe-2' color='text.primary'>
-                        Bill To:
-                    </Typography>
+                    <Typography className='font-medium mbe-2' color='text.primary'>Bill To:</Typography>
                     <div className='flex flex-col gap-1'>
                         <Typography color='text.primary' className='font-medium'>{appointmentInvDetails?.patientName}</Typography>
                         <Typography color='text.secondary'>{appointmentInvDetails?.patientAddress}</Typography>
@@ -182,9 +234,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                   </Grid>
                   {appointmentInvDetails?.appointmentId && (
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <Typography className='font-medium mbe-2' color='text.primary'>
-                            Appointment Details:
-                        </Typography>
+                        <Typography className='font-medium mbe-2' color='text.primary'>Appointment Details:</Typography>
                         <div className='flex flex-col gap-1'>
                             <div className='flex gap-2'>
                                 <Typography color='text.secondary' className='min-is-[100px]'>Doctor:</Typography>
@@ -194,10 +244,10 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                 <Typography color='text.secondary' className='min-is-[100px]'>Specialty:</Typography>
                                 <Typography color='text.primary'>{appointmentInvDetails.doctorSpecialization}</Typography>
                             </div>
-                             {appointmentInvDetails.appointmentNumber && (
+                             {appointmentInvDetails.appointmentDate && (
                                 <div className='flex gap-2'>
-                                    <Typography color='text.secondary' className='min-is-[100px]'>Appt No:</Typography>
-                                    <Typography color='text.primary' className='font-medium'>{appointmentInvDetails.appointmentNumber}</Typography>
+                                    <Typography color='text.secondary' className='min-is-[100px]'>Date:</Typography>
+                                    <Typography color='text.primary' className='font-medium'>{appointmentInvDetails.appointmentDate} @ {appointmentInvDetails.appointmentTime}</Typography>
                                 </div>
                             )}
                         </div>
@@ -209,11 +259,9 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                 <Divider />
               </Grid>
 
-              {/* --- INVOICE ITEMS SECTION (Improved UI with Table) --- */}
+              {/* --- INVOICE ITEMS --- */}
               <Grid size={{ xs: 12 }}>
-                <Typography variant='h6' className='mbe-4'>
-                   Services & Items
-                </Typography>
+                <Typography variant='h6' className='mbe-4'>Services & Items</Typography>
                 <TableContainer component={Paper} variant="outlined">
                     <Table sx={{ minWidth: 650 }} aria-label="invoice items table">
                         <TableHead sx={{ backgroundColor: 'var(--mui-palette-action-hover)' }}>
@@ -225,45 +273,47 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                         </TableRow>
                         </TableHead>
                         <TableBody>
-                        {appointmentInvDetails?.items?.map((item: InvoiceItem, index: number) => (
-                            <StyledTableRow key={index}>
-                                <TableCell component="th" scope="row">
-                                    <div className='flex flex-col'>
-                                        <Typography color='text.primary' className='font-medium'>
-                                            {item.description}
-                                        </Typography>
-                                        <Typography variant='caption' color='text.secondary'>
-                                            {item.typeName}
-                                        </Typography>
-                                    </div>
-                                </TableCell>
-                                <TableCell align="right">{formatCurrency(item.unitPrice)}</TableCell>
-                                <TableCell align="right">{item.quantity}</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 'medium' }}>{formatCurrency(item.totalAmount)}</TableCell>
-                            </StyledTableRow>
-                        ))}
+                        {billableItems.length > 0 ? (
+                            billableItems.map((item, index) => (
+                                <StyledTableRow key={index}>
+                                    <TableCell component="th" scope="row">
+                                        <div className='flex flex-col'>
+                                            <Typography color='text.primary' className='font-medium'>{item.description}</Typography>
+                                            <Typography variant='caption' color='text.secondary'>{item.typeName}</Typography>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell align="right">{formatCurrency(item.unitPrice)}</TableCell>
+                                    <TableCell align="right">{item.quantity}</TableCell>
+                                    <TableCell align="right" sx={{ fontWeight: 'medium' }}>{formatCurrency(item.totalAmount)}</TableCell>
+                                </StyledTableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={4} align="center">No billable items found</TableCell>
+                            </TableRow>
+                        )}
                         </TableBody>
                     </Table>
                 </TableContainer>
               </Grid>
 
-              {/* --- DISCOUNT SECTION (Improved UI) --- */}
-
-              { appointmentInvDetails.status == "UNPAID" &&
+              {/* --- DISCOUNT SECTION (Updated for Partial Edit) --- */}
               <Grid size={{ xs: 12 }}>
                  <div className='flex items-center justify-between mbe-1'>
-                    <Typography variant='h6'>
-                        Discounts
-                    </Typography>
-                     <Button
-                        size='medium'
-                        variant='outlined'
-                        color='primary'
-                        onClick={() => appendDiscount({ discountType: 'DOCTOR_DISCOUNT', description: '', amount: 0 })}
-                        startIcon={<i className='tabler-plus' />}
-                    >
-                        Add Discount
-                    </Button>
+                    <Typography variant='h6'>Discounts</Typography>
+                    
+                    {/* UPDATED: Allowed for UNPAID OR PARTIAL */}
+                    {isPayable && (
+                        <Button
+                            size='medium'
+                            variant='outlined'
+                            color='primary'
+                            onClick={() => appendDiscount({ discountType: 'DOCTOR_DISCOUNT', description: '', amount: 0 })}
+                            startIcon={<i className='tabler-plus' />}
+                        >
+                            Add Discount
+                        </Button>
+                    )}
                  </div>
                  
                 {discountFields.length > 0 ? (
@@ -276,7 +326,10 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                             name={`discounts.${index}.discountType`}
                                             control={control}
                                             render={({ field }) => (
-                                                <CustomTextField select fullWidth label="Type" size="small" {...field}>
+                                                <CustomTextField 
+                                                    select fullWidth label="Type" size="small" {...field}
+                                                    disabled={!isPayable} // Editable if Payable
+                                                >
                                                     <MenuItem value='DOCTOR_DISCOUNT'>Doctor Discount</MenuItem>
                                                     <MenuItem value='CLINIC_DISCOUNT'>Clinic Discount</MenuItem>
                                                     <MenuItem value='OTHER_DISCOUNT'>Other</MenuItem>
@@ -285,13 +338,16 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                         />
                                     </Grid>
                                     <Grid size={{ xs: 12, md: 5 }}>
-                                         <Controller
-                                            name={`discounts.${index}.description`}
-                                            control={control}
-                                            render={({ field }) => (
-                                                <CustomTextField fullWidth label="Description" size="small" placeholder='e.g. 10% Off' {...field} />
-                                            )}
-                                        />
+                                             <Controller
+                                                name={`discounts.${index}.description`}
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <CustomTextField 
+                                                        fullWidth label="Description" size="small" placeholder='e.g. 10% Off' {...field} 
+                                                        disabled={!isPayable} 
+                                                    />
+                                                )}
+                                            />
                                     </Grid>
                                     <Grid size={{ xs: 12, md: 3 }}>
                                         <Controller
@@ -299,23 +355,22 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                             control={control}
                                              render={({ field }) => (
                                                 <CustomTextField
-                                                    fullWidth
-                                                    type='number'
-                                                    label="Amount"
-                                                    size="small"
-                                                    placeholder='0.00'
+                                                    fullWidth type='number' label="Amount" size="small" placeholder='0.00'
                                                     slotProps={{ input: { startAdornment: <InputAdornment position='start'>LKR</InputAdornment>, inputProps: { min: 0 } } }}
                                                     {...field}
                                                     value={field.value === 0 ? '' : field.value ?? ''}
                                                     onChange={(e) => field.onChange(parseFloat(e.target.value) || null)}
+                                                    disabled={!isPayable}
                                                 />
                                             )}
                                         />
                                     </Grid>
                                 </Grid>
-                                <IconButton size='small' color="error" onClick={() => removeDiscount(index)} className='mt-1'>
-                                    <i className='tabler-trash' />
-                                </IconButton>
+                                {isPayable && (
+                                    <IconButton size='small' color="error" onClick={() => removeDiscount(index)} className='mt-1'>
+                                        <i className='tabler-trash' />
+                                    </IconButton>
+                                )}
                             </div>
                          ))}
                     </div>
@@ -325,7 +380,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                     </Typography>
                 )}
               </Grid>
-              }
+
               <Grid size={{ xs: 12 }}>
                 <Divider />
               </Grid>
@@ -334,25 +389,48 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
               <Grid size={{ xs: 12 }}>
                 <div className='flex justify-end'>
                   <div className='min-is-[300px]'>
+                    
                     <div className='flex items-center justify-between mbe-2'>
                       <Typography color='text.secondary'>Subtotal:</Typography>
                       <Typography className='font-medium' color='text.primary'>
-                        {formatCurrency(initialSubtotal)}
+                        {formatCurrency(displaySubtotal)}
                       </Typography>
                     </div>
+                    
                     <div className='flex items-center justify-between mbe-2'>
                       <Typography color='text.secondary'>Total Discount:</Typography>
                       <Typography className='font-medium' color='error.main'>
-                        - {formatCurrency(totalDiscount)}
+                        - {formatCurrency(displayTotalDiscount)}
                       </Typography>
                     </div>
+                    
                     <Divider className='my-3' />
-                    <div className='flex items-center justify-between'>
+                    
+                    <div className='flex items-center justify-between mbe-2'>
                       <Typography variant="h6">Total Amount:</Typography>
                       <Typography variant="h6" color='primary.main'>
-                        {formatCurrency(finalTotal)}
+                        {formatCurrency(finalTotalAmount)}
                       </Typography>
                     </div>
+
+                    {(amountPaidSoFar > 0 || isPayable) && (
+                        <>
+                            <div className='flex items-center justify-between mbe-2'>
+                                <Typography color='text.secondary'>Paid Amount:</Typography>
+                                <Typography className='font-medium' color='success.main'>
+                                    {formatCurrency(amountPaidSoFar)}
+                                </Typography>
+                            </div>
+                            
+                            <div className='bg-red-50 p-2 rounded border border-red-100 flex items-center justify-between'>
+                                <Typography color='error.main' className="font-bold">Balance Due:</Typography>
+                                <Typography color='error.main' className="font-bold">
+                                    {formatCurrency(balanceDue)}
+                                </Typography>
+                            </div>
+                        </>
+                    )}
+
                   </div>
                 </div>
               </Grid>
@@ -377,6 +455,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                             fullWidth
                             multiline
                             placeholder="Add a note..."
+                            disabled={!isPayable}
                         />
                     )}
                 />
@@ -386,23 +465,76 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
         </Card>
       </Grid>
       
+      {/* --- ACTIONS --- */}
       <Grid size={{ xs: 12, md: 3 }}>
         <Card>
           <CardContent className='flex flex-col gap-4'>
-            <OpenDialogOnElementClick 
-                element={Button} 
-                elementProps={buttonProps} 
-                dialog={PaymentFinalizer} 
-                dialogProps={{ 
-                    finalTotal: finalTotal, 
-                    invoiceId: appointmentInvDetails?.invoiceId || id,
-                    discounts: watchedDiscounts,
-                    patientMobileNo: appointmentInvDetails?.patientContactNo
-                }} 
-            />
+             
+             {isPayable ? (
+                <>
+                    {/* BUTTON 1: Full Payment */}
+                    <OpenDialogOnElementClick 
+                        element={Button} 
+                        elementProps={fullPaymentBtnProps} 
+                        dialog={PaymentFinalizer} 
+                        dialogProps={{ 
+                            finalTotal: balanceDue,
+                            invoiceId: appointmentInvDetails?.invoiceId || id,
+                            discounts: watchedDiscounts, // Send current form discounts
+                            patientMobileNo: appointmentInvDetails?.patientContactNo,
+                            mode: 'FULL'
+                        }} 
+                    />
+
+                    {/* BUTTON 2: Partial Payment */}
+                    <OpenDialogOnElementClick 
+                        element={Button} 
+                        elementProps={partialPaymentBtnProps} 
+                        dialog={PaymentFinalizer} 
+                        dialogProps={{ 
+                            finalTotal: balanceDue,
+                            invoiceId: appointmentInvDetails?.invoiceId || id,
+                            discounts: watchedDiscounts, // Send current form discounts
+                            patientMobileNo: appointmentInvDetails?.patientContactNo,
+                            mode: 'PARTIAL'
+                        }} 
+                    />
+                </>
+             ) : (
+                 <Button 
+                    variant='contained' 
+                    color="inherit" 
+                    disabled 
+                    fullWidth
+                    className="bg-gray-200 text-gray-500"
+                 >
+                    Paid In Full
+                 </Button>
+             )}
+
+              {showHistory && (
+                 <>
+                    <Divider />
+                    <Button 
+                        variant='outlined' 
+                        color='secondary' 
+                        className='w-full'
+                        startIcon={<i className='tabler-history' />}
+                        onClick={() => {setOpenHistoryDialog(true); console.log("first")}}
+                    >
+                        Payment History
+                    </Button>
+                 </>
+             )}             
+
           </CardContent>
         </Card>
       </Grid>    
+      <PaymentHistoryDialog 
+        open={openHistoryDialog}
+        setOpen={setOpenHistoryDialog}
+        invoiceId={parseInt(appointmentInvDetails?.invoiceId || id)}
+      />            
     </>
   )
 }

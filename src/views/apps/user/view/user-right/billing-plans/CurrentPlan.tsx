@@ -18,7 +18,7 @@ import type { ThemeColor } from '@core/types'
 import type { PricingPlanType } from '@/types/pages/pricingTypes'
 
 // Component Imports
-import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
+import ConfirmationDialog from '@/components/dialogs/cancel-appointment-dialog'
 import UpgradePlan from '@components/dialogs/upgrade-plan'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 

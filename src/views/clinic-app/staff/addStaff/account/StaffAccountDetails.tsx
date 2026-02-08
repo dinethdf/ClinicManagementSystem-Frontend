@@ -26,7 +26,7 @@ import BackDropFullScreen from '@/components/BackDropFullScreen'
 
 // Logic Imports
 import { getStaffValidationSchema } from '@/schemas/staffDetailsValidation'
-import { staffService } from '@/services/staff.service' // Ensure this exists
+import { staffService } from '@/services/staff/staff.service' // Ensure this exists
 
 interface StaffFormData {
   firstName: string

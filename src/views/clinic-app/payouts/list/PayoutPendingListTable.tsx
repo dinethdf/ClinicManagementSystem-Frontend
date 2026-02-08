@@ -15,7 +15,7 @@ import CommonServerTable from '@/components/common-components/table/CommonServer
 
 // Service & Types
 import type { PayoutBillDTO } from '@/types/payout.types'
-import { getPendingPayouts } from '@/services/payout.server.service'
+import { getPendingPayouts } from '@/services/financial/payout.server.service'
 
 // Components
 import PaymentConfirmationDialog from './PaymentConfirmationDialog'

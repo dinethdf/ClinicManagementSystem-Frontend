@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid'
 // Component Imports
 import StaffDetailsSection from './staff-left-overview/StaffDetailsSection'
 import StaffRight from './staff-right'
-import type { ClinicStaffResponseDTO } from '@/services/staff.server.service'
+import type { ClinicStaffResponseDTO } from '@/services/staff/staff.server.service'
 
 const StaffDetails = ({ staffData }: { staffData: ClinicStaffResponseDTO }) => {
   return (

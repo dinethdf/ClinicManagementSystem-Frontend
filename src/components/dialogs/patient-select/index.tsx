@@ -29,7 +29,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import DialogCloseButton from '../DialogCloseButton'
 
 import type { PatientResponceDTO } from '@/types/patient.types'
-import { patientService } from '@/services/patient.service'
+import { patientService } from '@/services/patient/patient.service'
 
 type DialogBoxProps = {
   open: boolean

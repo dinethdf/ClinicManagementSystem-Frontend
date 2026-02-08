@@ -4,14 +4,10 @@ import { useState } from 'react'
 
 // Imports
 import ScheduleSelection from './ScheduleSelection'
-import PatientIdentification from './PatientIdentification'
+import PatientIdentification from './patientIdentification/index'
 import type { PublicScheduleDTO } from '@/types/public-booking.types'
 
 import ChatBot from './ChatBot'
-
-
-// MUI Icons (Optional, or keep your class based icons)
-// import { IconCheck } from '@tabler/icons-react' 
 
 const PublicBookingWizard = () => {
   const [activeStep, setActiveStep] = useState<'SELECTION' | 'DETAILS' | 'SUCCESS'>('SELECTION')
@@ -20,27 +16,24 @@ const PublicBookingWizard = () => {
   // Store the Appointment ID returned from the backend
   const [finalAppointmentId, setFinalAppointmentId] = useState<number | null>(null)
 
-  // Step 1 -> Step 2
+
   const handleSelectSchedule = (schedule: PublicScheduleDTO) => {
     setSelectedSchedule(schedule)
     setActiveStep('DETAILS')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Step 2 -> Success
-  // Update: This now receives the appointmentID because the API call happens inside PatientIdentification
+
   const handleBookingSuccess = (appointmentId: number) => {
     setFinalAppointmentId(appointmentId)
     setActiveStep('SUCCESS')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // --- Success View ---
   if (activeStep === 'SUCCESS') {
     return (
         <div className='flex flex-col items-center justify-center p-12 text-center gap-6 animate-in fade-in zoom-in duration-500'>
             <div className='w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center shadow-sm'>
-                {/* Ensure you have the icon library or use a standard SVG */}
                 <i className='tabler-check text-6xl' /> 
             </div>
             

@@ -29,7 +29,7 @@ import {
 } from '@tanstack/react-table'
 
 // Service & Style Imports
-import { doctorSheduleService } from '@/services/doctor.shedule.service'
+import { doctorSheduleService } from '@/services/doctor/doctor.shedule.service'
 import tableStyles from '@core/styles/table.module.css'
 
 // --- TYPES ---

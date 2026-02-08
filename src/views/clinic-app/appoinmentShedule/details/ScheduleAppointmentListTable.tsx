@@ -2,9 +2,7 @@
 
 // React Imports
 import { useState, useEffect, useMemo } from 'react'
-
 import Link from 'next/link'
-
 import { useParams } from 'next/navigation'
 
 // MUI Imports
@@ -13,42 +11,26 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import TablePagination from '@mui/material/TablePagination'
-import CircularProgress from '@mui/material/CircularProgress'
-import Alert from '@mui/material/Alert'
 import Avatar from '@mui/material/Avatar'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
 
 // Third-party Imports
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
+import { createColumnHelper } from '@tanstack/react-table'
 import type { ColumnDef } from '@tanstack/react-table'
 
 // Type Imports
 import type { ScheduleAppointmentDTO } from '@/types/appoinments.types'
-import type { ThemeColor } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Service Imports
-import { appointmentService } from '@/services/appoinment.service'
+import { appointmentService } from '@/services/appointment/appoinment.service'
 
 // Utils
 import { getLocalizedUrl } from '@/utils/i18n'
 
-// Styles
-import tableStyles from '@core/styles/table.module.css'
-import TablePaginationComponent from '@/components/TablePaginationComponent'
-
-// Status Colors Mapping
-const statusColors: { [key: string]: ThemeColor } = {
-  Booked: 'primary',
-  COMPLETED: 'success',
-  CANCELLED: 'error',
-  NOSHOW: 'warning',
-  PENDING_PAYMENT: 'info'
-}
+// Custom Components
+import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable'
 
 const columnHelper = createColumnHelper<ScheduleAppointmentDTO>()
 
@@ -61,6 +43,9 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   
+  // Local Filter State
+  const [statusFilter, setStatusFilter] = useState<string>('')
+
   // Pagination State
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -69,15 +54,13 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
   
   const [totalCount, setTotalCount] = useState(0)
 
+  // 1. Fetch Data
   useEffect(() => {
-   
     const loadData = async () => {
       if (!scheduleId) return
       
       setIsLoading(true)
-     
       try {
-      
         const result = await appointmentService.getAppointmentsByScheduleId(
             scheduleId, 
             pagination.pageIndex, 
@@ -85,8 +68,8 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
         )
 
         if (result) {
-            setData(result.content)
-            setTotalCount(result.totalElements)
+            setData(result.content || [])
+            setTotalCount(result.totalElements || 0)
         } else {
             setData([])
         }
@@ -100,13 +83,13 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
     loadData()
   }, [scheduleId, pagination.pageIndex, pagination.pageSize])
 
-  // Columns Definition
+  // 2. Define Columns
   const columns = useMemo<ColumnDef<ScheduleAppointmentDTO, any>[]>(
     () => [
       columnHelper.accessor('queuePosition', {
         header: 'Queue',
         cell: ({ row }) => (
-           <Avatar variant="rounded" sx={{ color: 'primary.main', width: 30, height: 30, fontSize: '0.875rem', fontWeight: 'bold' }}>
+           <Avatar variant="rounded">
               {row.original.queuePosition}
            </Avatar>
         )
@@ -118,38 +101,53 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
             <Typography className='font-medium' color='text.primary'>
               {row.original.patientName}
             </Typography>
-            <div className='flex gap-2'>
-                <Typography variant='caption' color='text.disabled'>{row.original.patientNo}</Typography>
+            <div className='flex gap-2 items-center'>
+                <Typography>
+                    {row.original.patientNo}
+                </Typography>
                 <Typography variant='caption' color='text.disabled'>|</Typography>
-                <Typography variant='caption' color='text.disabled'>{row.original.patientMobile}</Typography>
+                <div className='flex items-center gap-1'>
+                    <i className='tabler-phone text-[10px] text-textDisabled' />
+                    <Typography variant='caption' color='text.disabled'>{row.original.patientMobile}</Typography>
+                </div>
             </div>
           </div>
         )
       }),
-      columnHelper.accessor('startTime', { // Using startTime as time indicator
+      columnHelper.accessor('startTime', { 
         header: 'Time',
-        cell: ({ row }) => <Typography>{row.original.startTime}</Typography>
+        cell: ({ row }) => <Typography variant="body2">{row.original.startTime}</Typography>
       }),
       columnHelper.accessor('status', {
         header: 'Status',
-        cell: ({ row }) => (
-          <Chip
-            label={row.original.status}
-            color={statusColors[row.original.status] || 'secondary'}
-            variant='tonal'
-            size='small'
-          />
-        )
+        cell: ({ row }) => {
+            // Use API provided colors and labels
+            const colorCode = row.original.statusColor || '#808080';
+            const label = row.original.statusDisplayName || row.original.status;
+
+            return (
+                <Chip
+                    label={label}
+                    size='small'
+                    sx={{ 
+                        backgroundColor: colorCode, 
+                        color: '#fff',
+                        fontWeight: 600,
+                        fontSize: '0.75rem'
+                    }}
+                />
+            )
+        }
       }),
       columnHelper.accessor('id', {
         id: 'actions',
         header: 'Action',
         cell: ({ row }) => (
           <Link
-            href={getLocalizedUrl(`/en/clinic/appoinment/details/${row.original.id}`, locale as Locale)}
-            className='text-primary hover:underline text-sm font-medium'
+            href={getLocalizedUrl(`/clinic/appoinment/details/${row.original.id}`, locale as Locale)}
+            className='text-primary hover:underline text-sm font-medium flex items-center gap-1'
           >
-            View
+            <i className='tabler-eye text-lg' /> View
           </Link>
         )
       })
@@ -157,66 +155,43 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
     [locale]
   )
 
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    manualPagination: true,
-    state: { pagination },
-    onPaginationChange: setPagination,
-    pageCount: Math.ceil(totalCount / pagination.pageSize),
-    filterFns: {} as any
-  })
-
-  if (isLoading && data.length === 0) return <Card className='h-[200px] flex items-center justify-center'><CircularProgress /></Card>
-  if (errorMessage) return <Alert severity="error">{errorMessage}</Alert>
+  // 3. Client-side Filtering (on current page)
+  const filteredData = useMemo(() => {
+      if(!statusFilter) return data;
+      // Filter by the raw status code (e.g., 'BOOKED', 'PENDING_PAYMENT')
+      return data.filter(item => item.status === statusFilter);
+  }, [data, statusFilter]);
 
   return (
     <Card>
-      <CardContent className='flex justify-between items-center gap-4'>
+      <CardContent className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
         <Typography variant='h5'>Scheduled Appointments</Typography>
-        {/* Optional Search Bar can go here */}
       </CardContent>
       
-      <div className='overflow-x-auto'>
-        <table className={tableStyles.table}>
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th key={header.id}>
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.length === 0 ? (
-                <tr>
-                    <td colSpan={columns.length} className='text-center py-4'>
-                        <Typography color="text.secondary">No appointments found for this schedule.</Typography>
-                    </td>
-                </tr>
-            ) : (
-                table.getRowModel().rows.map(row => (
-                <tr key={row.id}>
-                    {row.getVisibleCells().map(cell => (
-                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                    ))}
-                </tr>
-                ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      
-      <TablePagination
-        component={() => <TablePaginationComponent table={table as any} />}
-        count={totalCount}
-        rowsPerPage={pagination.pageSize}
-        page={pagination.pageIndex}
-        onPageChange={(_, page) => setPagination(prev => ({ ...prev, pageIndex: page }))}
+      <SimpleCommonTable 
+        data={filteredData} 
+        columns={columns} 
+        isLoading={isLoading} 
+        error={errorMessage} 
+        // Pass the Status Dropdown to the Common Table
+        filters={
+            <TextField 
+                select 
+                value={statusFilter} 
+                onChange={e => setStatusFilter(e.target.value)} 
+                size="small" 
+                className='max-sm:is-full sm:is-48'
+                placeholder="Filter by Status"
+                SelectProps={{ displayEmpty: true }}
+            >
+                <MenuItem value="">All Status</MenuItem>
+                <MenuItem value="BOOKED">Booked</MenuItem>
+                <MenuItem value="PENDING_PAYMENT">Pending Payment</MenuItem>
+                <MenuItem value="COMPLETED">Completed</MenuItem>
+                <MenuItem value="CANCELLED">Cancelled</MenuItem>
+                <MenuItem value="NOSHOW">No Show</MenuItem>
+            </TextField>
+        }
       />
     </Card>
   )

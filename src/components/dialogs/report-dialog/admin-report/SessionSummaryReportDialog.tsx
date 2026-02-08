@@ -18,7 +18,7 @@ import DialogCloseButton from '@components/dialogs/DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Services & Context
-import { reportService } from '@/services/admin.report.service'
+import { reportService } from '@/services/reports/admin.report.service'
 
 type Props = {
   open: boolean

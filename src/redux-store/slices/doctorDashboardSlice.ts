@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { doctorAnalysisService } from '@/services/analysis.doctor.service'
-import type { ScheduleDTO } from '@/types/analysis.types'
 import type { RootState } from '@/redux-store'
+import { doctorService } from '@/services/doctor/doctor.service'
+import { ScheduleDTO } from '@/types/doctor.types'
 
 interface DoctorDashboardState {
   schedules: ScheduleDTO[]
@@ -30,7 +30,7 @@ export const fetchDoctorSchedules = createAsyncThunk(
   async ({ doctorId, page, size }: { doctorId: number; page: number; size: number }, { rejectWithValue }) => {
     try {
       // Pass page/size to service
-      const response = await doctorAnalysisService.getDoctorSchedules(doctorId, page, size)
+      const response = await doctorService.getDoctorSchedules(doctorId, page, size)
       return response
     } catch (err: any) {
       return rejectWithValue(err.message || 'Failed to fetch schedules')

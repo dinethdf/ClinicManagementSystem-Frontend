@@ -1,18 +1,19 @@
 import { encodeHideValue } from './encode'
 
 
-export function generateQueueTrackingCode(scheduleId: number, queueNo: number): string {
-  const data = `${scheduleId}:${queueNo}`
+export function generateQueueTrackingCode(scheduleId: number, queueNo: number, patientId: number): string {
+  const data = `${scheduleId}:${queueNo}:${patientId}`
   return encodeHideValue(data)
 }
 
 
 export function generateQueueTrackingUrl(
   scheduleId: number, 
-  queueNo: number,
+  queueNo: number,  
+  patientNo:number,
   baseUrl?: string
 ): string {
-  const encoded = generateQueueTrackingCode(scheduleId, queueNo)
+  const encoded = generateQueueTrackingCode(scheduleId, queueNo, patientNo)
   
   // Use provided baseUrl, or try to get from window/env
   const base = baseUrl 

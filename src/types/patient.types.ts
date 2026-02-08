@@ -14,7 +14,7 @@ export interface Patient {
   guardian: Guardian | null
   bloodGroup:string | null
   relationshipToGuardian :string | null
-  weight: number | null
+  weight: number | null 
   height: number | null
 
   profileImg?:string
@@ -51,6 +51,24 @@ export interface PatientResponceDTO {
   mobileNo: number | string
   registrationDate?: string
   isActive?: boolean
+}
+
+
+export type PatientDetailDTO = {
+  id: number
+  firstName: string
+  lastName: string
+  fullName: string
+  patientNo: string
+  nic: string
+  age: number
+  gender: number // 1: Male, 2: Female
+  bloodGroup: string
+  mobileNo: string
+  address: string
+  city: string
+  profileImg: string
+
 }
 
 export interface PatientDTO {

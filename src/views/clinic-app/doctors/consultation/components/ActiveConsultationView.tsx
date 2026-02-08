@@ -1,3 +1,5 @@
+
+import { memo, useMemo } from 'react' // ADDED: memo, useMemo
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -5,10 +7,10 @@ import Chip from '@mui/material/Chip'
 
 import PatientProfileSidebar from '../PatientProfileSidebar'
 import PrescriptionManager from '../PrescriptionManager'
-import LabRequestManager from './LabRequestManager' // Import your new component
+import LabRequestManager from './LabRequestManager'
 
 import type { AppointmentStatusDTO } from '@/types/appoinments.types'
-import type { PatientDetailDTO } from '@/types/consultation.types'
+import type { PatientDetailDTO } from '@/types/patient.types'
 
 interface Props {
   appointmentInfo: AppointmentStatusDTO | null
@@ -18,8 +20,10 @@ interface Props {
 }
 
 const ActiveConsultationView = ({ appointmentInfo, patientDetail, onEnd, onComplete }: Props) => {
-  const patientId = patientDetail?.id ? Number(patientDetail.id) : 0;
-  const appointmentId = appointmentInfo?.appointmentId ? Number(appointmentInfo.appointmentId) : 0;
+
+  // ADDED: Memoized values
+  const patientId = useMemo(() => patientDetail?.id ? Number(patientDetail.id) : 0, [patientDetail?.id]);
+  const appointmentId = useMemo(() => appointmentInfo?.appointmentId ? Number(appointmentInfo.appointmentId) : 0, [appointmentInfo?.appointmentId]);
 
   return (
     <div className='flex flex-col gap-4 animate-in slide-in-from-right duration-300'>
@@ -29,7 +33,7 @@ const ActiveConsultationView = ({ appointmentInfo, patientDetail, onEnd, onCompl
                 <Typography variant='h5' className='text-primary'>Consultation</Typography>
                 <Chip label="Active" color='success' size='small' />
             </div>
-            <Typography variant="caption" color='text.secondary'>Queue: <strong>#{appointmentInfo?.queueNo}</strong> | {patientDetail?.fullName}</Typography>
+            <Typography variant="caption" color='text.secondary'>Queue: <strong>#{appointmentInfo?.queuePosition}</strong> | {patientDetail?.fullName}</Typography>
         </div>
         <Button variant='outlined' color='error' size='small' startIcon={<i className='tabler-x' />} onClick={onEnd}>End</Button>
       </div>
@@ -50,4 +54,5 @@ const ActiveConsultationView = ({ appointmentInfo, patientDetail, onEnd, onCompl
   )
 }
 
-export default ActiveConsultationView
+ActiveConsultationView.displayName = 'ActiveConsultationView' // ADDED
+export default memo(ActiveConsultationView) // MODIFIED: Wrapped in memo
