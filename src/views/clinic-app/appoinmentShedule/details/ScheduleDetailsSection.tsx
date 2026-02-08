@@ -1,5 +1,5 @@
 'use client'
-import { useRouter } from 'next/navigation' // Added Import
+import { useRouter, useParams } from 'next/navigation' // Added useParams
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -17,10 +17,13 @@ import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementCli
 import EditScheduleDialog from '@/components/dialogs/edit-schedule'
 import { UpdatedDoctorScheduleDTO } from '@/types/doctor.types'
 import { encodeHideValue } from '@/utils/encode'
+import { getLocalizedUrl } from '@/utils/i18n' // Helper for localized URLs
+import type { Locale } from '@/configs/i18n' // Type for Locale
 
 const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: UpdatedDoctorScheduleDTO, role: string }) => {
   
-  const router = useRouter() // Initialize Router
+  const router = useRouter()
+  const { lang: locale } = useParams() // Get current locale
 
   if (!scheduleData) return null;
 
@@ -52,7 +55,6 @@ const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: Updated
                 <CustomAvatar skin='light' color='primary' variant='rounded' size={100} sx={{ width: 100, height: 100 }}>
                     <i className='tabler-calendar-time text-[48px]' />
                 </CustomAvatar>
-                {/* Status Chip overlaying bottom center */}
                 <Chip 
                     label={statusLabel} 
                     sx={{ 
@@ -113,7 +115,6 @@ const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: Updated
         <div className='flex flex-col gap-2'>
             <div className='flex justify-between items-center'>
                 <Typography variant='caption' className='uppercase text-gray-400 font-bold'>Fees & Payout</Typography>
-                {/* Payout Status Chip */}
                 {scheduleData.payoutStatus && (
                     <Chip 
                         label={scheduleData.payoutStatus.displayName} 
@@ -147,7 +148,22 @@ const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: Updated
             </div>
         </div>
 
-        {/* --- 5. Edit Button --- */}
+        {/* --- 5. Actions --- */}
+        <div className='flex flex-col gap-3'>
+            
+            {/* NEW: Queue Scanner Button (Accessible to Everyone) */}
+            <Button 
+                variant='contained' 
+                color='info' 
+                fullWidth 
+                // Navigate to: /en/clinic/appoinment-shedule/manage/[id]
+                onClick={() => router.push(getLocalizedUrl(`/clinic/appoinment-shedule/manage/${scheduleData.id}`, locale as Locale))} 
+                startIcon={<i className='tabler-scan' />}
+            >
+                Queue Scanner
+            </Button>
+
+            {/* Admin Only Actions */}
             {role === 'ADMIN' && (
             <>
                 <OpenDialogOnElementClick 
@@ -161,13 +177,15 @@ const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: Updated
                     variant='outlined' 
                     color='secondary' 
                     fullWidth 
-                    onClick={() => router.push(`financial/schedule-summary/${encodeHideValue(scheduleData.id)}`)} 
+                    onClick={() => router.push(getLocalizedUrl(`/financial/schedule-summary/${encodeHideValue(scheduleData.id)}`, locale as Locale))} 
                     startIcon={<i className='tabler-chart-pie' />}
                 >
                     Financial Overview
                 </Button>
             </>
             )}
+        </div>
+
       </CardContent>
     </Card>
   )

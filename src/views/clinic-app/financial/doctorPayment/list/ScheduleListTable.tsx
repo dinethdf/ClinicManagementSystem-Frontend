@@ -91,8 +91,8 @@ const ScheduleListTable = () => {
         const res : any = await getScheduleList(
             pagination.pageIndex, 
             pagination.pageSize, 
-            filters.doctorId, 
-            filters.specialization, 
+            Number(filters.doctorId), 
+            Number(filters.specialization), 
             filters.date
         )
 

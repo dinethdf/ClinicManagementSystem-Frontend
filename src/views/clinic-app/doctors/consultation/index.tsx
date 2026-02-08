@@ -9,7 +9,7 @@ import Button from '@mui/material/Button'
 // Component Imports
 import SessionAnalytics from './components/SessionAnalytics'
 import PatientSearchTabs from './components/PatientSearchTabs'
-import StartConsultationDialog from './components/StartConsultationDialog'
+import StartConsultationDialog from '@/components/dialogs/appointment-start/StartConsultationDialog'
 import EndSessionDialog from './components/EndSessionDialog'
 import ActiveConsultationView from './components/ActiveConsultationView'
 

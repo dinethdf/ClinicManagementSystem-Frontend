@@ -111,6 +111,8 @@ export type AppointmentApiResponse = {
 }
 
 export type ScheduleAppointmentDTO = {
+  statusColor: string
+  statusDisplayName: string
   id: number
   startTime: string
   status: string
@@ -143,7 +145,6 @@ export type ScheduleAppointmentResponse = {
 //   createdDate: string
   
 // }
-
 
 export interface AppointmentStatusDTO {
   statusColor: string
