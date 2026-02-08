@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react' // ADDED: useCallback, memo
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -29,7 +29,7 @@ import {
     searchActiveLabTests, 
     createLabRequest, 
     getPatientLabRequests, 
-    deleteLabRequest // <--- IMPORT THIS
+    deleteLabRequest
 } from '@/services/lab.server.service'
 import type { LabTestTypeDTO, LabRequestDTO } from '@/types/lab.types'
 
@@ -54,24 +54,25 @@ const LabRequestManager = ({ patientId, appointmentId }: Props) => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   
   // Delete State
-  const [deletingId, setDeletingId] = useState<number | null>(null) // Track which ID is deleting
+  const [deletingId, setDeletingId] = useState<number | null>(null)
+
+  // OPTIMIZATION: Memoize fetch function
+  const fetchHistory = useCallback(async () => {
+      setLoadingList(true)
+      const res = await getPatientLabRequests(patientId)
+      setRequestList(res.content || [])
+      setLoadingList(false)
+  }, [patientId])
 
   // --- INITIAL LOAD ---
   useEffect(() => {
     if (patientId) {
         fetchHistory()
     }
-  }, [patientId])
+  }, [patientId, fetchHistory]) // MODIFIED: Added fetchHistory to deps
 
-  const fetchHistory = async () => {
-      setLoadingList(true)
-      const res = await getPatientLabRequests(patientId)
-      setRequestList(res.content || [])
-      setLoadingList(false)
-  }
-
-  // --- HANDLE SEARCH ---
-  const handleSearchChange = async (event: any, value: string) => {
+  // OPTIMIZATION: Memoize search handler
+  const handleSearchChange = useCallback(async (event: any, value: string) => {
       if (value.length < 2) {
           setOptions([])
           return
@@ -80,10 +81,10 @@ const LabRequestManager = ({ patientId, appointmentId }: Props) => {
       const res = await searchActiveLabTests(value)
       setOptions(res.content || [])
       setSearchLoading(false)
-  }
+  }, [])
 
-  // --- HANDLE ADD ---
-  const handleAddRequest = async () => {
+  // OPTIMIZATION: Memoize add handler
+  const handleAddRequest = useCallback(async () => {
       if (!selectedTest || !patientId || !appointmentId) return
 
       setIsSubmitting(true)
@@ -92,16 +93,16 @@ const LabRequestManager = ({ patientId, appointmentId }: Props) => {
       const res = await createLabRequest(patientId, selectedTest.id, appointmentId)
 
       if (res.success) {
-          setSelectedTest(null) // Clear selection
-          fetchHistory() // Refresh list
+          setSelectedTest(null)
+          fetchHistory()
       } else {
           setErrorMsg(res.error || "Failed to add test")
       }
       setIsSubmitting(false)
-  }
+  }, [selectedTest, patientId, appointmentId, fetchHistory])
 
-  // --- HANDLE DELETE ---
-  const handleDeleteRequest = async (id: number) => {
+  // OPTIMIZATION: Memoize delete handler
+  const handleDeleteRequest = useCallback(async (id: number) => {
       if(!confirm("Are you sure you want to remove this test request?")) return;
 
       setDeletingId(id)
@@ -109,13 +110,12 @@ const LabRequestManager = ({ patientId, appointmentId }: Props) => {
 
       const res = await deleteLabRequest(id)
       if (res.success) {
-          // Remove from local list immediately for better UX
-          setRequestList(prev => prev.filter(item => item.id !== id))
+          setRequestList(prev => prev.filter(item => item.id !== id)) // MODIFIED: Use functional update
       } else {
           setErrorMsg(res.error || "Failed to delete request")
       }
       setDeletingId(null)
-  }
+  }, [])
 
   // --- RENDER ---
   return (
@@ -235,7 +235,6 @@ const LabRequestManager = ({ patientId, appointmentId }: Props) => {
                                                 size='small' 
                                                 color='error' 
                                                 onClick={() => handleDeleteRequest(req.id)}
-                                                // Only allow delete if PENDING (optional business rule)
                                                 disabled={deletingId === req.id || req.status !== 'PENDING'}
                                             >
                                                 {deletingId === req.id ? (
@@ -259,4 +258,5 @@ const LabRequestManager = ({ patientId, appointmentId }: Props) => {
   )
 }
 
-export default LabRequestManager
+LabRequestManager.displayName = 'LabRequestManager' // ADDED
+export default memo(LabRequestManager) // MODIFIED: Wrapped in memo

@@ -5,6 +5,7 @@ import { generateQueueTrackingUrl } from "@/utils/qrcode";
 
 // 1. Type Definition
 type InvoiceData = {
+  patientId?: number;
   invoiceId: number;
   dateIssued: string;
   datePaidDate?: string;
@@ -74,7 +75,7 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
       hour: '2-digit', minute: '2-digit', hour12: true
   });
 
-  const qrCodeUrl = generateQueueTrackingUrl(invoiceData.scheduleId, invoiceData.queuePosition)
+  const qrCodeUrl = generateQueueTrackingUrl(invoiceData.scheduleId, invoiceData.queuePosition, Number(invoiceData.patientId));
 
   const qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrCodeUrl)}`;
 

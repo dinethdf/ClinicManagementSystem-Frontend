@@ -154,6 +154,9 @@ importers:
       fs-extra:
         specifier: 11.3.2
         version: 11.3.2
+      html5-qrcode:
+        specifier: ^2.3.8
+        version: 2.3.8
       input-otp:
         specifier: 1.4.2
         version: 1.4.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -3279,6 +3282,9 @@ packages:
   html-tags@3.3.1:
     resolution: {integrity: sha512-ztqyC3kLto0e9WbNp0aeP+M3kTt+nbaIveGmUxAtZa+8iFgKLUOD4YKM5j+f3QD89bra7UeumolZHKuOXnTmeQ==}
     engines: {node: '>=8'}
+
+  html5-qrcode@2.3.8:
+    resolution: {integrity: sha512-jsr4vafJhwoLVEDW3n1KvPnCCXWaQfRng0/EEYk1vNcQGcG/htAdhJX0be8YyqMoSz7+hZvOZSTAepsabiuhiQ==}
 
   htmlparser2@9.1.0:
     resolution: {integrity: sha512-5zfg6mHUoaer/97TxnGpxmbR7zJtPwIYFMZ/H5ucTlPZhKvtum05yiPK3Mgai3a0DyVxv7qYqoweaEd2nrYQzQ==}
@@ -8322,6 +8328,8 @@ snapshots:
   html-entities@2.6.0: {}
 
   html-tags@3.3.1: {}
+
+  html5-qrcode@2.3.8: {}
 
   htmlparser2@9.1.0:
     dependencies:

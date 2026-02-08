@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { useState, useEffect, useCallback, memo } from 'react' // ADDED: useCallback, memo
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -85,14 +84,16 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
     setMainNote(note)
   }, [diagnosisTitle, diagnosisDesc])
 
+  // OPTIMIZATION: Memoize config loader
+  const loadConfig = useCallback(async () => {
+    const data = await prescriptionService.getPrescriptionConfig()
+    if (data) setConfig(data)
+  }, [])
+
   // Load Config
   useEffect(() => {
-    const loadConfig = async () => {
-      const data = await prescriptionService.getPrescriptionConfig()
-      if (data) setConfig(data)
-    }
     loadConfig()
-  }, [])
+  }, [loadConfig]) // MODIFIED: Added loadConfig to deps
 
   // --- SEARCH MEDICINES ---
   useEffect(() => {
@@ -114,16 +115,14 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
     return () => clearTimeout(timerId)
   }, [searchTerm, form.category])
 
-  // --- HANDLERS ---
-  
-  const handleOpenSearch = () => {
+  // OPTIMIZATION: Memoize all handlers
+  const handleOpenSearch = useCallback(() => {
       setSearchTerm('')
       setMedicineOptions([])
       setIsSearchOpen(true)
-  }
+  }, [])
 
-  const handleSelectMedicine = (med: any) => {
-
+  const handleSelectMedicine = useCallback((med: any) => {
       setForm(prev => ({
           ...prev,
           medicineName: med.name, 
@@ -132,9 +131,9 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
       }))
       setIsCategoryLocked(true)
       setIsSearchOpen(false)
-  }
+  }, [])
 
-  const handleClearMedicine = (e: any) => {
+  const handleClearMedicine = useCallback((e: any) => {
       e.stopPropagation()
       setForm(prev => ({
           ...prev, 
@@ -142,9 +141,9 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
           packSize: '', 
       }))
       setIsCategoryLocked(false)
-  }
+  }, [])
 
-  const handleResetForm = () => {
+  const handleResetForm = useCallback(() => {
       setForm({
         category: '',         
         medicineName: '',     
@@ -155,9 +154,9 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
       })
       setIsCategoryLocked(false)
       setErrorMsg(null)
-  }
+  }, [])
 
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     if (!form.medicineName || !form.frequency) {
         setErrorMsg("Please select a Medicine and Frequency")
         return;
@@ -176,7 +175,7 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
         instructions: combinedInstructions       
     }
 
-    setItems([...items, newItem])
+    setItems(prev => [...prev, newItem]) // MODIFIED: Use functional update
     
     setForm(prev => ({ 
         category: prev.category, 
@@ -187,13 +186,13 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
         prescriptionNote: '' 
     }))
     setIsCategoryLocked(false)
-  }
+  }, [form])
 
-  const handleRemove = (index: number) => {
-    setItems(items.filter((_, i) => i !== index))
-  }
+  const handleRemove = useCallback((index: number) => {
+    setItems(prev => prev.filter((_, i) => i !== index)) // MODIFIED: Use functional update
+  }, [])
 
-  const handleFinalize = async () => {
+  const handleFinalize = useCallback(async () => {
     if (!appointmentId) {
         setErrorMsg("Error: Invalid Appointment ID")
         return
@@ -215,7 +214,11 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
         setErrorMsg(res.error || "Failed to submit prescription")
     }
     setIsSubmitting(false)
-  }
+  }, [appointmentId, mainNote, items, onConsultationComplete])
+
+  const handleCloseDialog = useCallback(() => {
+    setIsSearchOpen(false)
+  }, [])
 
   return (
     <Card className='h-full'>
@@ -410,7 +413,7 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
       {/* --- MEDICINE SELECTION POPUP --- */}
       <Dialog 
         open={isSearchOpen} 
-        onClose={() => setIsSearchOpen(false)}
+        onClose={handleCloseDialog} // MODIFIED: Use memoized callback
         maxWidth="md"
         fullWidth
       >
@@ -418,7 +421,7 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
             Select Medicine
              <IconButton
                 aria-label="close"
-                onClick={() => setIsSearchOpen(false)}
+                onClick={handleCloseDialog} // MODIFIED: Use memoized callback
                 sx={{ position: 'absolute', right: 8, top: 8 }}
             >
                 <i className="tabler-x" />
@@ -503,4 +506,5 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
   )
 }
 
-export default PrescriptionManager
+PrescriptionManager.displayName = 'PrescriptionManager' // ADDED
+export default memo(PrescriptionManager) // MODIFIED: Wrapped in memo
