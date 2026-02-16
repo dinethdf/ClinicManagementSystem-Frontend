@@ -18,3 +18,29 @@ export function decodeHideValue(encoded: string): string {
   
   return decoded.replace(`${secret}-`, '')
 }
+
+
+const OBFUSCATION_KEY = process.env.NEXT_PUBLIC_OBFUSCATION_KEY || 'MySimpleKey';
+
+export function decryptClinicPlane(encryptedValue: string | undefined | null): string | null {
+  if (!encryptedValue) return null;
+
+  try {
+
+    const inputBuffer = Buffer.from(encryptedValue, 'base64');
+    
+
+    const keyBuffer = Buffer.from(OBFUSCATION_KEY, 'utf-8');
+
+    const output = new Uint8Array(inputBuffer.length);
+    for (let i = 0; i < inputBuffer.length; i++) {
+      output[i] = inputBuffer[i] ^ keyBuffer[i % keyBuffer.length];
+    }
+
+    return new TextDecoder('utf-8').decode(output);
+    
+  } catch (error) {
+    console.error("Decryption failed:", error);
+    return null;
+  }
+}
