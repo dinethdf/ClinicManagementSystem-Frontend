@@ -176,7 +176,7 @@ const DoctorsListTable = () => {
               Export
           </Button>
 
-          {user?.role === "ADMIN" && (
+          { user?.user?.role === "ADMIN" && (
             <Button 
                 variant='contained' 
                 onClick={() => router.push('/en/clinic/doctors/register')}

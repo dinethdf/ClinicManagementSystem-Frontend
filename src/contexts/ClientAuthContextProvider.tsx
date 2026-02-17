@@ -8,12 +8,12 @@ type UserData = {
   userName: string
   role: string
   sub: string // User ID
-  subscription?: string // <--- Added Subscription
+  subscription?: string
 }
 
 type AuthContextType = {
   user: UserData | null
-  can: (feature: Feature) => boolean // <--- The magic function
+  can: (feature: Feature) => boolean
 }
 
 const ClientAuthContext = createContext<AuthContextType | null>(null)
