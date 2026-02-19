@@ -1,42 +1,74 @@
 // Next Imports
 import { NextResponse } from 'next/server'
 
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-//   This File need To check Again
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-//@@@@@@@@@@@@@@@@@@@@@@@@@@
-// Mock data for demo purpose
-import { loginUser, loginPatient } from '@/libs/authentication'
+// Auth Services - Make sure all 4 functions are imported!
+import { 
+  loginUser, 
+  loginPatient, 
+  loginUserDefault, 
+  loginPatientDefault 
+} from '@/libs/authentication'
 
 export async function POST(req: Request) {
-  // Vars
-  const { email, password, type } = await req.json()
+  try {
+    // 1. Parse Request Body
+    const body = await req.json()
+    const { email, password, type, clinicCode } = body
 
-  if (type === "clinic"){
+    // 2. Validate Basic Input
+    if (!email || !password || !type) {
+      return NextResponse.json(
+        { message: 'Missing required fields (email, password, or type)' },
+        { status: 400 }
+      )
+    }
 
-    console.log("startRequest og")
-      const res = await loginUser(email, password)
-      return NextResponse.json(res, { status: 200 })
+    let res;
 
-  }else if (type === "patient"){
-    const res = await loginPatient(email, password)
+    // 3. Handle Login Types and Routing based on clinicCode
+    if (type === "clinic") {
+      
+      if (clinicCode) {
+        console.log(`[API] Clinic Login Request: ${email} for Clinic Code: ${clinicCode}`)
+        // User provided a clinic code
+        res = await loginUser(email, password, clinicCode)
+      } else {
+        console.log(`[API] Default Clinic Login Request: ${email}`)
+        // No clinic code provided, use the default ENV setup
+        res = await loginUserDefault(email, password)
+      }
+
+    } else if (type === "patient") {
+      
+      if (clinicCode) {
+        console.log(`[API] Patient Login Request: ${email} for Clinic Code: ${clinicCode}`)
+        // Patient provided a clinic code
+        res = await loginPatient(email, password, clinicCode)
+      } else {
+        console.log(`[API] Default Patient Login Request: ${email}`)
+        // No clinic code provided, use the default ENV setup
+        res = await loginPatientDefault(email, password)
+      }
+
+    } else {
+      return NextResponse.json({ message: "Invalid login type" }, { status: 400 })
+    }
+
+    // 4. Handle Response
+    if (!res || res.success === false) {
+      return NextResponse.json(
+        res || { message: 'Invalid credentials' }, 
+        { status: 401 }
+      )
+    }
+
     return NextResponse.json(res, { status: 200 })
-  }else{
-     return NextResponse.json(null, { status: 401 })
-  }
 
-  // } else {
-  //   // We return 401 status code and error message if user is not found
-  //   return NextResponse.json(
-  //     {
-  //       // We create object here to separate each error message for each field in case of multiple errors
-  //       message: ['Email or Password is invalid']
-  //     },
-  //     {
-  //       status: 401,
-  //       statusText: 'Unauthorized Access'
-  //     }
-  //   )
-  // }
+  } catch (error) {
+    console.error("[API] Login Error:", error)
+    return NextResponse.json(
+      { message: 'Internal Server Error' }, 
+      { status: 500 }
+    )
+  }
 }

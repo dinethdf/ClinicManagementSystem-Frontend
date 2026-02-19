@@ -16,14 +16,12 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Checkbox from '@mui/material/Checkbox'
 import Button from '@mui/material/Button'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 
 // Third-party Imports
-// import { signIn } from 'next-auth/react'
 import { Controller, useForm } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { email, object, minLength, string, pipe, nonEmpty } from 'valibot'
+import { email, object, minLength, string, pipe, nonEmpty, optional } from 'valibot'
 import type { SubmitHandler } from 'react-hook-form'
 import type { InferInput } from 'valibot'
 import classnames from 'classnames'
@@ -46,11 +44,16 @@ import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
-
-import { logoutAndRedirect, setLoginCookie, getClinicDetails} from '@/libs/authentication'
+import { logoutAndRedirect, setLoginCookie, getClinicDetails } from '@/libs/authentication'
 import BackDropFullScreen from '@/components/BackDropFullScreen'
-import data from './../data/searchData';
 import { saveClinicDetails, saveUserDetails } from '@/utils/common'
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 🔧 CUSTOMIZATION FLAG
+// true  → 3 fields: Clinic Code + Email + Password (+ info Alert)
+// false → 2 fields: Email + Password only (Alert hidden, autoFocus on email)
+// ─────────────────────────────────────────────────────────────────────────────
+const SHOW_CLINIC_CODE = false
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -59,12 +62,8 @@ const LoginIllustration = styled('img')(({ theme }) => ({
   maxBlockSize: 680,
   maxInlineSize: '100%',
   margin: theme.spacing(12),
-  [theme.breakpoints.down(1536)]: {
-    maxBlockSize: 550
-  },
-  [theme.breakpoints.down('lg')]: {
-    maxBlockSize: 450
-  }
+  [theme.breakpoints.down(1536)]: { maxBlockSize: 550 },
+  [theme.breakpoints.down('lg')]: { maxBlockSize: 450 }
 }))
 
 const MaskImg = styled('img')({
@@ -80,16 +79,24 @@ type ErrorType = {
   message: string[]
 }
 
-type FormData = InferInput<typeof schema>
-
-const schema = object({
+// ─── Schemas ───────────────────────────────────────────────────────────────
+const schemaWithCode = object({
+  clinicCode: pipe(string(), nonEmpty('Clinic Code is required'), minLength(3, 'Invalid Clinic Code')),
   email: pipe(string(), minLength(1, 'This field is required'), email('Email is invalid')),
-  password: pipe(
-    string(),
-    nonEmpty('This field is required'),
-    minLength(1, 'Password must be at least 1 characters long')
-  )
+  password: pipe(string(), nonEmpty('This field is required'), minLength(1, 'Password required'))
 })
+
+const schemaWithoutCode = object({
+  clinicCode: optional(string()),
+  email: pipe(string(), minLength(1, 'This field is required'), email('Email is invalid')),
+  password: pipe(string(), nonEmpty('This field is required'), minLength(1, 'Password required'))
+})
+
+type FormData = {
+  clinicCode?: string
+  email: string
+  password: string
+}
 
 const Login = ({ mode }: { mode: SystemMode }) => {
   // States
@@ -119,10 +126,11 @@ const Login = ({ mode }: { mode: SystemMode }) => {
     handleSubmit,
     formState: { errors }
   } = useForm<FormData>({
-    resolver: valibotResolver(schema),
+    resolver: valibotResolver(SHOW_CLINIC_CODE ? schemaWithCode : schemaWithoutCode),
     defaultValues: {
-      email: 'admin@cureguard.com',
-      password: 'admin'
+      clinicCode: '',
+      email: '',
+      password: ''
     }
   })
 
@@ -136,36 +144,45 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
+const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     setIsLoading(true)
-    setErrorState(null) // Clear previous errors
-console.log("start Run func fe api call")
+    setErrorState(null)
+
     try {
+      const body = SHOW_CLINIC_CODE
+        ? {
+            clinicCode: data.clinicCode?.trim(),
+            email: data.email.trim(),
+            password: data.password.trim(),
+            type: 'clinic'
+          }
+        : {
+            clinicCode: null,
+            email: data.email.trim(),
+            password: data.password.trim(),
+            type: 'clinic'
+          }
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login-next`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email: data.email.trim(), password: data.password.trim(), type: "clinic" })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
       })
 
-
-      // Handle non-OK response
       if (!res.ok) {
-          
         if (res.status === 401) {
-          setErrorState({ message: ['Invalid email or password'] })
+          setErrorState({ message: ['Invalid email, password, or clinic code'] })
+        } else if (res.status === 404) {
+          setErrorState({ message: ['Clinic not found'] })
         } else {
-          setErrorState({ message: [`Login failed Please try again later.`] })
+          setErrorState({ message: ['Login failed. Please try again.'] })
         }
-
         return
       }
 
       const result = await res.json()
 
-      if (result && result?.success === true && result?.data?.accessToken && result?.data?.refreshToken) {
-
+      if (result && result?.success === true && result?.data?.accessToken) {
         await setLoginCookie(result.data.accessToken, result.data.refreshToken)
 
         saveUserDetails({
@@ -175,105 +192,31 @@ console.log("start Run func fe api call")
           userRole: result.data.userRole
         })
 
-      try {
-          // We pass the accessToken explicitly because cookies might not be readable instantly by axios
-          const clinicInfo = await getClinicDetails(result.data.accessToken);
-          
-          if (clinicInfo) {
-         await saveClinicDetails(clinicInfo);
-          }
+        try {
+          const clinicInfo = await getClinicDetails(result.data.accessToken)
+          if (clinicInfo) await saveClinicDetails(clinicInfo)
         } catch (clinicError) {
-
-          console.error("Could not fetch clinic info", clinicError);
-        }        
-
-        const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
-
-        router.replace(getLocalizedUrl(redirectURL, locale as Locale))
-      } else {
-        setErrorState({ message: ['Email or Password is invalid'] })
-      }
-    } catch (error) {
-
-        console.log("hear Come errrer catch")
-      console.error('Login error:', error)
-      setErrorState({ message: ['Network error. Please try again later.'] })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // ===== NEW CODE START =====
-  // Helper function for quick logins
-  const handleQuickLogin = async (email: string, password: string) => {
-    setIsLoading(true)
-    setErrorState(null) // Clear previous errors
-
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login-next`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email: email.trim(), password: password.trim(), type: "clinic" })
-      })
-
-      // Handle non-OK response
-      if (!res.ok) {
-        if (res.status === 401) {
-          setErrorState({ message: ['Invalid email or password'] })
-        } else {
-          setErrorState({ message: [`Login failed Please try again later.`] })
+          console.error('Could not fetch clinic info', clinicError)
         }
 
-        return
-      }
-
-      const result = await res.json()
-
-      if (result && result?.success === true && result?.data?.accessToken && result?.data?.refreshToken) {
-        await setLoginCookie(result.data.accessToken, result.data.refreshToken)
-
-        saveUserDetails({
-          userName: result.data.userName,
-          userEmail: result.data.userEmail,
-          userImg: result.data.userImg,
-          userRole: result.data.userRole
-        })
-
-      try {
-          const clinicInfo = await getClinicDetails(result.data.accessToken);
-          if (clinicInfo) {
-         await saveClinicDetails(clinicInfo);
-          }
-        } catch (clinicError) {
-          console.error("Could not fetch clinic info", clinicError);
-        }    
-
         const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
-     
+        
         toast.success('Login Successful', {
-        className: 'custom-toast',
-        // progressStyle: {
-        //   backgroundColor: 'var(--mui-palette-primary-main)'
-        // }
-      })
-
+          className: 'custom-toast',
+          autoClose: 2000
+        })
+        
         router.replace(getLocalizedUrl(redirectURL, locale as Locale))
       } else {
-        setErrorState({ message: ['Email or Password is invalid'] })
+        setErrorState({ message: ['Authentication failed'] })
       }
     } catch (error) {
       console.error('Login error:', error)
       setErrorState({ message: ['Network error. Please try again later.'] })
     } finally {
       setIsLoading(false)
-
-
     }
   }
-
-  // ===== NEW CODE END =====
 
   const unAuthState = searchParams.get('unAuth') ?? ''
 
@@ -300,28 +243,66 @@ console.log("start Run func fe api call")
         <LoginIllustration src={characterIllustration} alt='character-illustration' />
         {!hidden && <MaskImg alt='mask' src={authBackground} />}
       </div>
+
       <div className='flex justify-center items-center bs-full bg-backgroundPaper min-is-full! p-6 md:min-is-[unset]! md:p-12 md:is-[480px]'>
         <div className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:start-[38px]'>
           <Logo />
         </div>
+
         <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-8 sm:mbs-11 md:mbs-0'>
           <div className='flex flex-col gap-1'>
             <Typography variant='h4'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</Typography>
-            <Typography>Please sign-in</Typography>
-          </div>
-          <Alert icon={false} className='bg-(--mui-palette-primary-lightOpacity)'>
-            <Typography variant='body2' color='primary.main'>
-              Email: <span className='font-medium'>admin@cureguard.com</span> / Pass:{' '}
-              <span className='font-medium'>admin</span>
+            <Typography>
+              {SHOW_CLINIC_CODE
+                ? 'Please sign-in to your account'
+                : 'Please sign-in to your account'}
             </Typography>
-          </Alert>
+          </div>
+
+          {/* Clinic Code info alert — only shown when SHOW_CLINIC_CODE is true */}
+          {SHOW_CLINIC_CODE && (
+            <Alert icon={false} className='bg-primary/10'>
+              <Typography variant='body2' color='primary.main'>
+                Enter your <span className='font-bold'>Clinic Code</span> to access your workspace.
+              </Typography>
+            </Alert>
+          )}
+
           <form
             noValidate
             autoComplete='off'
-            action={() => {}}
             onSubmit={handleSubmit(onSubmit)}
             className='flex flex-col gap-6'
           >
+            {/* Clinic Code field — only rendered when SHOW_CLINIC_CODE is true */}
+            {SHOW_CLINIC_CODE && (
+              <Controller
+                name='clinicCode'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    autoFocus
+                    fullWidth
+                    label='Clinic Code'
+                    placeholder='e.g. sunrise-dental'
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-building-hospital text-gray-500' />
+                        </InputAdornment>
+                      )
+                    }}
+                    {...((errors.clinicCode || errorState !== null) && {
+                      error: true,
+                      helperText: errors?.clinicCode?.message || errorState?.message[0]
+                    })}
+                  />
+                )}
+              />
+            )}
+
             <Controller
               name='email'
               control={control}
@@ -329,15 +310,11 @@ console.log("start Run func fe api call")
               render={({ field }) => (
                 <CustomTextField
                   {...field}
-                  autoFocus
+                  autoFocus={!SHOW_CLINIC_CODE}
                   fullWidth
                   type='email'
                   label='Email'
                   placeholder='Enter your email'
-                  onChange={e => {
-                    field.onChange(e.target.value)
-                    errorState !== null && setErrorState(null)
-                  }}
                   {...((errors.email || errorState !== null) && {
                     error: true,
                     helperText: errors?.email?.message || errorState?.message[0]
@@ -345,6 +322,7 @@ console.log("start Run func fe api call")
                 />
               )}
             />
+
             <Controller
               name='password'
               control={control}
@@ -355,31 +333,25 @@ console.log("start Run func fe api call")
                   fullWidth
                   label='Password'
                   placeholder='············'
-                  id='login-password'
                   type={isPasswordShown ? 'text' : 'password'}
-                  onChange={e => {
-                    field.onChange(e.target.value)
-                    errorState !== null && setErrorState(null)
-                  }}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position='end'>
-                          <IconButton
-                            edge='end'
-                            onClick={handleClickShowPassword}
-                            onMouseDown={e => e.preventDefault()}
-                          >
-                            <i className={isPasswordShown ? 'tabler-eye' : 'tabler-eye-off'} />
-                          </IconButton>
-                        </InputAdornment>
-                      )
-                    }
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position='end'>
+                        <IconButton
+                          edge='end'
+                          onClick={handleClickShowPassword}
+                          onMouseDown={e => e.preventDefault()}
+                        >
+                          <i className={isPasswordShown ? 'tabler-eye' : 'tabler-eye-off'} />
+                        </IconButton>
+                      </InputAdornment>
+                    )
                   }}
                   {...(errors.password && { error: true, helperText: errors.password.message })}
                 />
               )}
             />
+
             <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
               <FormControlLabel control={<Checkbox defaultChecked />} label='Remember me' />
               <Typography
@@ -391,85 +363,14 @@ console.log("start Run func fe api call")
                 Forgot password?
               </Typography>
             </div>
-            <Button fullWidth variant='contained' type='submit'>
-              Login
+
+            <Button fullWidth variant='contained' type='submit' disabled={isLoading}>
+              {isLoading ? 'Signing In...' : 'Login'}
             </Button>
-            <div className='flex justify-center items-center flex-wrap gap-2'>
-              <Typography>New on our platform?</Typography>
-              <Typography component={Link} href={getLocalizedUrl('/register', locale as Locale)} color='primary.main'>
-                Create an account
-              </Typography>
-            </div>
-            <Divider className='gap-2'>or</Divider>
-            <Button
-              color='secondary'
-              className='self-center text-textPrimary'
-              startIcon={<img src='/images/logos/google.png' alt='Google' width={22} />}
-              sx={{ '& .MuiButton-startIcon': { marginInlineEnd: 3 } }}
-
-              // onClick={() => signIn('google')}
-            >
-              Sign in with Google
-            </Button>
-
-            {/* ===== NEW CODE START ===== */}
-
-            <Divider className='gap-2'>or try</Divider>
-
-            <div className='flex flex-col gap-4'>
-              {/* Admin Login Section */}
-              <div className='flex justify-between items-center flex-wrap gap-2'>
-                <div className='flex flex-col'>
-                  <Typography variant='body2' className='font-medium'>
-                    Admin
-                  </Typography>
-                  <Typography variant='caption'>Email: dineth@admin.com</Typography>
-                  <Typography variant='caption'>Password: admin@123</Typography>
-                </div>
-                <Button variant='outlined' size='small' onClick={() => handleQuickLogin('dineth@admin.com', 'dd')}>
-                  Login
-                </Button>
-              </div>
-              {/* Doctor Login Section */}
-              <div className='flex justify-between items-center flex-wrap gap-2'>
-                <div className='flex flex-col'>
-                  <Typography variant='body2' className='font-medium'>
-                    Doctor
-                  </Typography>
-                  <Typography variant='caption'>Email: test1@doctor.com</Typography>
-                  <Typography variant='caption'>Password: test1</Typography>
-                </div>
-                <Button
-                  variant='outlined'
-                  size='small'
-                  onClick={() => handleQuickLogin('test1@doctor.com', 'test1')}
-                >
-                  Login
-                </Button>
-              </div>
-              {/* User Login Section */}
-              <div className='flex justify-between items-center flex-wrap gap-2'>
-                <div className='flex flex-col'>
-                  <Typography variant='body2' className='font-medium'>
-                    Staff
-                  </Typography>
-                  <Typography variant='caption'>Email: user@example.com</Typography>
-                  <Typography variant='caption'>Password: user@123</Typography>
-                </div>
-                <Button
-                  variant='outlined'
-                  size='small'
-                  onClick={() => handleQuickLogin('user@example.com', 'user@123')}
-                >
-                  Login
-                </Button>
-              </div>
-            </div>
-
-            {/* ===== NEW CODE END ===== */}
           </form>
         </div>
       </div>
+
       <BackDropFullScreen open={isLoading} />
     </div>
   )

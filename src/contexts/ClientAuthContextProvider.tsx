@@ -1,39 +1,54 @@
-'use client' // 👈 This is crucial!
+'use client'
 
-// components/ClientAuthContextProvider.tsx
+import { createContext, useContext, useMemo, ReactNode } from 'react'
+import { Feature, hasPermission } from '@/configs/subscriptionConfig'
 
-// for the context tocken Veryfy use this
-
-import { createContext, useContext } from 'react'
-
-// Define the type for your User/Auth State
+// Define the shape of your User Data
 type UserData = {
-  sub: string
-  role: string
   userName: string
-} | null
-
-const AuthContext = createContext<UserData>(null)
-
-// Custom hook for easy access
-
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an ClientAuthContextProvider')
-  }
-
-  return context
+  role: string
+  sub: string // User ID
+  subscription?: string
 }
 
-// The provider component
-export default function ClientAuthContextProvider({
-  children,
-  userData
-}: {
-  children: React.ReactNode
-  userData: UserData
+type AuthContextType = {
+  user: UserData | null
+  can: (feature: Feature) => boolean
+}
+
+const ClientAuthContext = createContext<AuthContextType | null>(null)
+
+export default function ClientAuthContextProvider({ 
+  children, 
+  userData 
+}: { 
+  children: ReactNode
+  userData: UserData | null 
 }) {
-  return <AuthContext.Provider value={userData}>{children}</AuthContext.Provider>
+  
+  const contextValue = useMemo(() => {
+    return {
+      user: userData,
+      // The 'can' function checks the config based on the user's subscription
+      can: (feature: Feature) => {
+        if (!userData?.subscription) return false
+        return hasPermission(userData.subscription, feature)
+      }
+    }
+  }, [userData])
+
+  return (
+    <ClientAuthContext.Provider value={contextValue}>
+      {children}
+    </ClientAuthContext.Provider>
+  )
+}
+
+// Custom Hook for usage in components
+export const useAuth = () => {
+  const context = useContext(ClientAuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within a ClientAuthContextProvider')
+  }
+  return context
 }
