@@ -1,0 +1,185 @@
+/* ─────────────────────────────────────────────
+   CUREGUARD HEADER
+───────────────────────────────────────────── */
+
+.cgHeader {
+  position: fixed !important;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 100;
+}
+
+.cgNavbar {
+  padding-inline: 5%;
+  block-size: 72px;
+  background: rgba(12, 26, 46, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-block-end: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.cgNavbarScrolled {
+  background: rgba(12, 26, 46, 0.96) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.cgNavbarContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  block-size: 100%;
+  max-inline-size: 1200px;
+  margin-inline: auto;
+}
+
+/* ─── Logo ─── */
+.cgLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.cgLogoIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--mui-palette-primary-main), var(--mui-palette-primary-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.cgLogoText {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Desktop Nav Links ─── */
+.cgNavLinks {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cgNavLink {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.cgNavLink:hover {
+  color: var(--mui-palette-primary-light);
+}
+
+/* ─── Buttons ─── */
+.cgBtnLogin {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  border-radius: 8px !important;
+  padding-inline: 20px !important;
+}
+
+.cgBtnLogin:hover {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+.cgBtnTrial {
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  border-radius: 8px !important;
+  padding-inline: 20px !important;
+  white-space: nowrap;
+}
+
+/* ─── Mobile Hamburger ─── */
+.cgHamburger {
+  color: white !important;
+  padding: 8px !important;
+}
+
+.cgHamburger i {
+  font-size: 1.4rem;
+}
+
+/* ─── Mobile Drawer ─── */
+.cgDrawer {
+  width: 280px !important;
+  background: #0c1a2e !important;
+  border-inline-end: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.cgDrawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-block-end: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cgDrawerClose {
+  color: rgba(255, 255, 255, 0.5) !important;
+  padding: 4px !important;
+}
+
+.cgDrawerClose:hover {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.cgDrawerNav {
+  flex: 1;
+  padding: 12px 12px;
+  overflow-y: auto;
+}
+
+.cgDrawerLinks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cgDrawerLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 12px 14px;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.cgDrawerLink:hover {
+  color: white;
+  background: rgba(13, 148, 136, 0.12);
+}
+
+.cgDrawerCtas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 20px 24px;
+  border-block-start: 1px solid rgba(255, 255, 255, 0.06);
+}

@@ -1,0 +1,590 @@
+/* ─────────────────────────────────────────────
+   HERO SECTION
+───────────────────────────────────────────── */
+
+.heroSection {
+  min-block-size: 100vh;
+  background: #0c1a2e;
+  position: relative;
+}
+
+.heroBgMesh {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(13, 148, 136, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 80% at 10% 80%, rgba(20, 184, 166, 0.1) 0%, transparent 60%);
+}
+
+.heroGridPattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: linear-gradient(rgba(20, 184, 166, 1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 184, 166, 1) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 100px;
+  background: rgba(13, 148, 136, 0.15);
+  border: 1px solid rgba(13, 148, 136, 0.3);
+  color: #5eead4;
+}
+
+.heroBadgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #5eead4;
+  animation: heroPulse 2s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes heroPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+
+.heroHeadline {
+  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+  line-height: 1.1;
+  color: #ffffff;
+  font-style: normal;
+}
+
+.heroHeadlineEm {
+  font-style: italic;
+  color: #5eead4;
+}
+
+.heroSubtitle {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  line-height: 1.7;
+  max-inline-size: 500px;
+}
+
+.btnHeroPrimary {
+  background: var(--mui-palette-primary-main) !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  padding: 12px 28px !important;
+  border-radius: 10px !important;
+  transition: all 0.25s !important;
+}
+
+.btnHeroPrimary:hover {
+  background: var(--mui-palette-primary-light) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(13, 148, 136, 0.4) !important;
+}
+
+.btnHeroSecondary {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+}
+
+.btnHeroSecondary:hover {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Avatar stack */
+.heroAvatarStack {
+  display: flex;
+}
+
+.heroAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #0c1a2e;
+  background: #0f766e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  margin-inline-start: -8px;
+}
+
+.heroAvatar:first-child {
+  margin-inline-start: 0;
+}
+
+.heroTrustText {
+  color: #94a3b8;
+}
+
+.heroTrustStrong {
+  color: #5eead4;
+}
+
+/* ─── Dashboard Preview Card ─── */
+.heroDashboardCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 28px;
+  backdrop-filter: blur(10px);
+}
+
+.dashboardCardTitle {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.statusChipLive {
+  background: rgba(13, 148, 136, 0.2) !important;
+  color: #5eead4 !important;
+  border: 1px solid rgba(13, 148, 136, 0.35) !important;
+  font-size: 0.75rem !important;
+}
+
+.queueItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.queueItemActive {
+  background: rgba(13, 148, 136, 0.15) !important;
+  border-color: rgba(13, 148, 136, 0.3) !important;
+}
+
+.queueNum {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #0f766e;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.queueNumActive {
+  background: var(--mui-palette-primary-main) !important;
+}
+
+.queueName {
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+.queueStatus {
+  color: #94a3b8 !important;
+}
+
+.queueStatusActive {
+  color: #5eead4 !important;
+}
+
+.qrMini {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #0c1a2e;
+  flex-shrink: 0;
+}
+
+.heroStatRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.heroStatItem {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  text-align: center;
+}
+
+.heroStatVal {
+  color: white !important;
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+.heroStatLabel {
+  color: #94a3b8 !important;
+  font-size: 0.68rem !important;
+  margin-block-start: 2px;
+}
+
+/* Floating tags */
+.floatingTag {
+  position: absolute;
+  background: white;
+  border-radius: 12px;
+  padding: 8px 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.floatingTag1 {
+  top: -18px;
+  inset-inline-end: -16px;
+  animation: floatAnim 3s ease-in-out infinite;
+}
+
+.floatingTag2 {
+  bottom: -14px;
+  inset-inline-start: -14px;
+  animation: floatAnim 3s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+@keyframes floatAnim {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ─────────────────────────────────────────────
+   STATS BAR
+───────────────────────────────────────────── */
+
+.statsBar {
+  background: var(--mui-palette-primary-dark);
+  padding-block: 32px;
+}
+
+.statsValue {
+  font-size: 2rem !important;
+  font-weight: 800 !important;
+  color: white !important;
+  display: block;
+  line-height: 1.1 !important;
+}
+
+.statsLabel {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 0.85rem !important;
+  margin-block-start: 4px;
+}
+
+/* ─────────────────────────────────────────────
+   PROBLEM SECTION
+───────────────────────────────────────────── */
+
+.painCard {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 18px 20px;
+  background: var(--mui-palette-background-paper);
+  border-radius: 14px;
+  border: 1px solid var(--mui-palette-divider);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s;
+}
+
+.painCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.painIcon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-block-start: 2px;
+}
+
+.solutionCard {
+  background: linear-gradient(135deg, #0c1a2e 0%, #1e3a52 100%);
+  border-radius: 20px;
+  padding: 36px;
+  position: relative;
+  overflow: hidden;
+  min-block-size: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.solutionCardGlow {
+  position: absolute;
+  top: -40px;
+  inset-inline-end: -40px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(13, 148, 136, 0.15);
+}
+
+.solutionCheck {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--mui-palette-primary-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-block-start: 2px;
+  font-size: 0.65rem;
+  color: white;
+  font-weight: 700;
+}
+
+/* ─────────────────────────────────────────────
+   FEATURES SECTION
+───────────────────────────────────────────── */
+
+.featureCard {
+  padding: 32px;
+  border-radius: 18px;
+  border: 1px solid var(--mui-palette-divider);
+  transition: all 0.3s;
+  position: relative;
+  block-size: 100%;
+}
+
+.featureCard:hover {
+  border-color: var(--mui-palette-primary-light);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(13, 148, 136, 0.12);
+}
+
+.featureCardBar {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: 3px;
+  background: linear-gradient(90deg, var(--mui-palette-primary-main), var(--mui-palette-primary-light));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+  border-radius: 18px 18px 0 0;
+}
+
+.featureCard:hover .featureCardBar {
+  transform: scaleX(1);
+}
+
+.featureIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-block-end: 20px;
+}
+
+/* ─────────────────────────────────────────────
+   HOW IT WORKS
+───────────────────────────────────────────── */
+
+.howItWorksSection {
+  background: #0c1a2e;
+}
+
+.chipOnDark {
+  background: rgba(13, 148, 136, 0.2) !important;
+  color: #5eead4 !important;
+  border: 1px solid rgba(13, 148, 136, 0.3) !important;
+}
+
+.headingOnDark {
+  color: white !important;
+}
+
+.headingEmOnDark {
+  font-style: italic;
+  color: #5eead4;
+}
+
+.subOnDark {
+  color: #94a3b8 !important;
+  line-height: 1.65 !important;
+}
+
+.stepsConnector {
+  position: absolute;
+  top: 48px;
+  inset-inline-start: 10%;
+  inset-inline-end: 10%;
+  block-size: 2px;
+  background: linear-gradient(90deg, transparent, rgba(13, 148, 136, 0.4), rgba(20, 184, 166, 0.4), rgba(13, 148, 136, 0.4), transparent);
+}
+
+@media (max-width: 1024px) {
+  .stepsConnector {
+    display: none;
+  }
+}
+
+.stepCard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 28px 24px;
+  text-align: center;
+  block-size: 100%;
+  transition: all 0.3s;
+}
+
+.stepCard:hover {
+  background: rgba(13, 148, 136, 0.1);
+  border-color: rgba(13, 148, 136, 0.3);
+  transform: translateY(-4px);
+}
+
+.stepNum {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0f766e, var(--mui-palette-primary-main));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline: auto;
+  margin-block-end: 16px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.stepIcon {
+  font-size: 1.5rem;
+  margin-block-end: 6px;
+}
+
+/* ─────────────────────────────────────────────
+   ROLES SECTION
+───────────────────────────────────────────── */
+
+.roleCard {
+  background: var(--mui-palette-background-paper);
+  border-radius: 20px;
+  padding: 36px;
+  border: 1px solid var(--mui-palette-divider);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.roleCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.09);
+}
+
+.roleCardCorner {
+  position: absolute;
+  bottom: -20px;
+  inset-inline-end: -20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  opacity: 0.07;
+}
+
+.roleAvatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.perkDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mui-palette-primary-main);
+  flex-shrink: 0;
+  margin-block-start: 7px;
+}
+
+/* ─────────────────────────────────────────────
+   PRICING SECTION
+───────────────────────────────────────────── */
+
+.sectionRadius {
+  border-radius: 60px 60px 0 0;
+}
+
+.featuredBadge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--mui-palette-primary-main);
+  color: white;
+  padding: 4px 20px;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ─────────────────────────────────────────────
+   FAQ SECTION
+───────────────────────────────────────────── */
+
+.faqCtaCard {
+  background: linear-gradient(135deg, #0c1a2e 0%, #1e3a52 100%);
+  border-radius: 20px;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.faqCtaGlow {
+  position: absolute;
+  bottom: -30px;
+  inset-inline-end: -30px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(13, 148, 136, 0.2);
+}
+
+/* ─────────────────────────────────────────────
+   CTA SECTION
+───────────────────────────────────────────── */
+
+.ctaSection {
+  background: linear-gradient(135deg, #0f766e 0%, #0c1a2e 60%);
+}
+
+.ctaBgGlow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 80% at 30% 50%, rgba(13, 148, 136, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
