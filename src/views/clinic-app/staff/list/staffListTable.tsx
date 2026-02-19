@@ -258,7 +258,7 @@ const StaffListTable = () => {
               <MenuItem value='50'>50</MenuItem> 
             </CustomTextField>
 
-            {user?.role === "ADMIN" && (
+            { user?.user?.role === "ADMIN" && (
                 <Button
                 variant='contained'
                 color='primary'
