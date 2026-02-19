@@ -25,6 +25,7 @@ import { email, object, minLength, string, pipe, nonEmpty, optional } from 'vali
 import type { SubmitHandler } from 'react-hook-form'
 import type { InferInput } from 'valibot'
 import classnames from 'classnames'
+import { toast } from 'react-toastify'
 
 // Type Imports
 import type { SystemMode } from '@/@core/types'
@@ -143,7 +144,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
+const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     setIsLoading(true)
     setErrorState(null)
 
@@ -199,6 +200,12 @@ const Login = ({ mode }: { mode: SystemMode }) => {
         }
 
         const redirectURL = searchParams.get('redirectTo') ?? '/clinic'
+        
+        toast.success('Login Successful', {
+          className: 'custom-toast',
+          autoClose: 2000
+        })
+        
         router.replace(getLocalizedUrl(redirectURL, locale as Locale))
       } else {
         setErrorState({ message: ['Authentication failed'] })
