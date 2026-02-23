@@ -1,15 +1,18 @@
 'use client';
 
-import { getClinicStorageDetails } from "@/utils/common"; // Adjust path if needed
+import { getClinicStorageDetails } from "@/utils/common";
 import { generateQueueTrackingUrl } from "@/utils/qrcode";
 
-// 1. Type Definition
 type InvoiceData = {
   patientId?: number;
   invoiceId: number;
   dateIssued: string;
   datePaidDate?: string;
-  status: string;
+  status: {
+    code: string;
+    displayName: string;
+    colorCode: string;
+  };
   patientNo: string;
   patientName: string;
   patientAddress: string;
@@ -25,7 +28,13 @@ type InvoiceData = {
   queuePosition: number;
   scheduleId: number;
   
-  items: Array<{ description: string; typeName: string; unitPrice: number; quantity: number; totalAmount: number; }>;
+  items: Array<{ 
+    description: string; 
+    typeName: string; 
+    unitPrice: number; 
+    quantity: number; 
+    totalAmount: number; 
+  }>;
   subtotal: number;
   totalDiscount: number;
   finalAmount: number;
@@ -36,23 +45,17 @@ type InvoiceData = {
 
 export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: () => void) {
   
-  // --- 1. Get Clinic Details from Storage ---
+  // Get Clinic Details from Storage
   const clinicData = getClinicStorageDetails();
 
   // Fallback defaults if storage is empty
   const clinicName = clinicData?.name || "YOUR CLINIC NAME";
-  
-  // Construct Address (Address + City)
-  const clinicAddressPart = clinicData?.address || "123 Medical Street";
-  const clinicCityPart = clinicData?.city ? `, ${clinicData.city}` : "";
-  const fullClinicAddress = `${clinicAddressPart}${clinicCityPart}`;
-  
-  // Use Landline, fallback to Mobile
-  const clinicTel = clinicData?.landNo || clinicData?.mobileNo || "011-2345678";
+  const clinicAddress = clinicData?.address || "123 Medical Street";
+  const clinicCity = clinicData?.city || "Colombo 07";
+  const fullAddress = clinicCity ? `${clinicAddress}, ${clinicCity}` : clinicAddress;
+  const clinicTel = clinicData?.landNo || clinicData?.mobileNo || "+94 11 234 5678";
+  const clinicEmail = clinicData?.email || "";
 
-
-  // --- 2. Data Processing ---
-  
   // Find the Main Item (Appointment/Consultation)
   const mainItem = invoiceData.items.find(item => item.typeName === 'APPOINTMENT');
   const consultationFee = mainItem?.totalAmount || 0;
@@ -60,26 +63,55 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
   
   const totalDiscount = Math.abs(invoiceData.totalDiscount);
   
-  // Format Date Helper
+  // Format Date
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleString('en-GB', {
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit'
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
     });
   };
 
-  const apptDateFormatted = new Date(invoiceData.appointmentDate).toLocaleDateString('en-GB');
-  // Format Time (e.g., 05:15:00 -> 05:15 PM)
-  const apptTimeFormatted = new Date(`1970-01-01T${invoiceData.appointmentTime}`).toLocaleTimeString('en-US', {
-      hour: '2-digit', minute: '2-digit', hour12: true
-  });
+  const formatDateTime = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
-  const qrCodeUrl = generateQueueTrackingUrl(invoiceData.scheduleId, invoiceData.queuePosition, Number(invoiceData.patientId));
+  // Format Time (e.g., 11:00:00 -> 11:00 AM)
+  const formatTime = (timeString: string) => {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
 
-  const qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrCodeUrl)}`;
+  const invoiceDate = formatDate(invoiceData.dateIssued);
+  const paidDate = invoiceData.datePaidDate ? formatDateTime(invoiceData.datePaidDate) : '';
+  const appointmentDate = formatDate(invoiceData.appointmentDate);
+  const appointmentTime = formatTime(invoiceData.appointmentTime);
 
-  // --- HTML Content ---
+  // Generate QR Code
+  const qrCodeUrl = generateQueueTrackingUrl(
+    invoiceData.scheduleId, 
+    invoiceData.queuePosition, 
+    Number(invoiceData.patientId)
+  );
+  const qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeUrl)}`;
+
+  // Status Badge Color
+  const statusColor = invoiceData.status.colorCode || '#4CAF50';
+
   const htmlContent = `
     <!DOCTYPE html>
     <html lang="en">
@@ -87,65 +119,46 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
       <meta charset="UTF-8">
       <title>Invoice #${invoiceData.invoiceId}</title>
       <style>
-        /* --- RESET --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: 'Arial', sans-serif; 
-            font-size: 12px; 
-            line-height: 1.2; 
-            color: #000; 
-            overflow: hidden; 
-            background-color: #525659; 
-        }
         
         body {
           font-family: 'Arial', sans-serif;
-          /* Increased base font from 9px to 11px */
           font-size: 11px;
           line-height: 1.3;
           color: #000;
-          width: 105mm;
-          min-height: 148mm; /* Changed to min-height to allow content to flow if needed */
+          width: 80mm;
           margin: 0;
           padding: 0;
           background: #fff;
         }
         
-        .page-container {
-          width: 105mm;
-          min-height: 148mm;
-          padding: 3mm; /* Reduced padding slightly to give more room for text */
-          display: flex;
-          flex-direction: column;
-        }
-        
-        /* --- PRINT VIEW --- */
         @media print {
           @page { size: 80mm auto; margin: 0mm; }
           html, body { width: 80mm; height: auto; background: none; }
-          #invoice-view { width: 80mm; padding: 3mm 4mm; box-shadow: none; margin: 0; }
-          #success-animation { display: none !important; }
+          .page-container { box-shadow: none; }
         }
-
-        /* --- ANIMATION STYLES --- */
-        #success-animation {
-          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-          background: #525659; 
-          display: flex; flex-direction: column; align-items: center; justify-content: center;
-          z-index: 999;
+        
+        .page-container {
+          width: 80mm;
+          padding: 3mm;
+        }
+        
+        .bill-header {
+          text-align: center;
+          margin-bottom: 2mm;
+          padding-bottom: 2mm;
+          border-bottom: 2px solid #000;
         }
         
         .clinic-name {
-          /* Increased from 11px to 14px */
-          font-size: 14px;
+          font-size: 13px;
           font-weight: bold;
-          margin-bottom: 1mm;
+          margin-bottom: 0.5mm;
           text-transform: uppercase;
         }
         
         .clinic-info {
-          /* Increased from 7px to 9px */
-          font-size: 9px;
+          font-size: 8px;
           line-height: 1.3;
         }
         
@@ -158,34 +171,24 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
         }
         
         .invoice-title {
-          /* Increased from 10px to 12px */
-          font-size: 12px;
+          font-size: 11px;
           font-weight: bold;
           letter-spacing: 0.5px;
         }
         
         .invoice-number {
-          /* Increased from 7px to 10px */
-          font-size: 10px;
-          margin-top: 1mm;
+          font-size: 8px;
+          margin-top: 0.5mm;
         }
-        .success-text { color: white; font-size: 18px; font-weight: bold; margin-top: 10px; opacity: 0; animation: fadeIn 0.5s forwards 0.8s; }
 
         .two-column-section {
           display: flex;
           gap: 2mm;
           margin-bottom: 2mm;
         }
-        @keyframes popIn { to { opacity: 1; transform: scale(1); } }
-        @keyframes fadeIn { to { opacity: 1; } }
 
         .column {
           flex: 1;
-        }
-        
-        .section {
-          /* Base size is body size (11px) */
-          font-size: 11px;
         }
         
         .section-title {
@@ -193,28 +196,59 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
           border-bottom: 1px solid #000;
           padding-bottom: 0.5mm;
           margin-bottom: 1mm;
-          /* Increased from 9px to 11px */
-          font-size: 11px;
-          background-color: #eee; /* Added background for clarity */
-          padding-left: 2px;
+          font-size: 9px;
+          background-color: #eee;
+          padding-left: 1.5mm;
         }
         
         .info-row {
           display: flex;
-          margin-bottom: 1mm; /* Increased spacing slightly */
+          margin-bottom: 0.8mm;
+          font-size: 8.5px;
         }
         
         .info-label {
           font-weight: bold;
-          min-width: 55px; /* Widened to fit larger text */
-          /* Increased from 7.5px to 10px */
-          font-size: 10px;
+          min-width: 30px;
         }
         
         .info-value {
-          /* Increased from 7.5px to 10px */
-          font-size: 10px;
           flex: 1;
+          word-wrap: break-word;
+        }
+        
+        .appointment-info {
+          margin-bottom: 2mm;
+          padding: 1.5mm;
+          background: #f9f9f9;
+          border: 1px dashed #999;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .appointment-info .info-row {
+          font-size: 9px;
+          font-weight: bold;
+        }
+
+        .queue-display {
+          text-align: center;
+          padding: 1mm;
+          background: #2196F3;
+          color: white;
+          border-radius: 3px;
+          min-width: 50px;
+        }
+
+        .queue-label {
+          font-size: 7px;
+        }
+
+        .queue-number {
+          font-size: 16px;
+          font-weight: bold;
+          line-height: 1;
         }
         
         .items-section {
@@ -228,8 +262,7 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
           border-top: 2px solid #000;
           border-bottom: 2px solid #000;
           font-weight: bold;
-          /* Increased from 8px to 11px */
-          font-size: 11px;
+          font-size: 9px;
           background: #f5f5f5;
         }
         
@@ -238,92 +271,106 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
           justify-content: space-between;
           padding: 1.5mm 1mm;
           border-bottom: 1px solid #ddd;
-          /* Increased from 8px to 11px */
-          font-size: 11px;
-        }
-        
-        .qr-section {
-          text-align: center;
-          margin: 2mm 0;
-          padding: 1mm;
-          border: 1px dashed #999;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-        }
-        
-        .qr-info-container {
-            text-align: left;
-        }
-
-        .qr-title {
-          font-weight: bold;
-          font-size: 10px;
-        }
-        
-        .qr-code {
-          width: 50px; /* Made slightly smaller to save vertical space */
-          height: 50px;
-          border: 1px solid #333;
-          padding: 1mm;
-        }
-        .queue-label { font-size: 9px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
-        .queue-number { font-size: 16px; font-weight: 900; line-height: 1; margin: 1mm 0; }
-        .appt-time { font-size: 11px; font-weight: bold; border-top: 1px dotted #ccc; padding-top: 1mm; margin-top: 1mm; }
-
-        .flex-row { display: flex; gap: 2mm; margin-bottom: 2mm; }
-        .col { flex: 1; }
-        
-        .qr-label {
-          font-size: 9px;
-          margin-top: 1mm;
-          font-weight: bold;
-        }
-        
-        .items-table { width: 100%; margin-top: 2mm; border-collapse: collapse; font-size: 11px; }
-        .items-table th { text-align: left; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 1mm 0; }
-        .items-table td { padding: 1.5mm 0; border-bottom: 1px dotted #ccc; }
-        .amount-col { text-align: right; }
-        
-        .total-row {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 1mm;
-          /* Increased from 9px to 11px */
-          font-size: 11px;
-          padding: 0 1mm;
+          font-size: 9.5px;
         }
         
         .total-final {
+          display: flex;
+          justify-content: space-between;
           font-weight: bold;
-          /* Increased from 11px to 14px */
-          font-size: 14px;
+          font-size: 13px;
           border-top: 2px solid #000;
           border-bottom: 3px double #000;
           padding: 2mm 1mm;
           margin-top: 1mm;
           background: #f5f5f5;
         }
+
+        .payment-info {
+          margin: 2mm 0;
+          padding: 1.5mm 2mm;
+          background: #e8f5e9;
+          border: 1px solid #4CAF50;
+          border-radius: 3px;
+        }
+
+        .payment-title {
+          font-weight: bold;
+          margin-bottom: 1mm;
+          font-size: 9px;
+          text-align: center;
+          border-bottom: 1px solid #4CAF50;
+          padding-bottom: 1mm;
+        }
+
+        .payment-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1mm 2mm;
+          font-size: 8.5px;
+        }
+
+        .payment-item {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .payment-label {
+          font-weight: bold;
+          font-size: 7.5px;
+          color: #2E7D32;
+        }
+
+        .payment-value {
+          font-size: 9px;
+          margin-top: 0.5mm;
+        }
+        
+        .qr-section {
+          text-align: center;
+          margin: 1mm 0;
+          padding: 1mm;
+          border: 2px dashed #2196F3;
+          border-radius: 4px;
+        }
+        
+        .qr-code {
+          width: 70px;
+          height: 70px;
+          border: 2px solid #333;
+          padding: 1mm;
+          margin: 1mm auto;
+        }
+
+        .qr-title {
+          font-weight: bold;
+          font-size: 9px;
+          margin-bottom: 1mm;
+          color: #2196F3;
+        }
+        
+        .qr-label {
+          font-size: 7.5px;
+          margin-top: 1mm;
+          color: #666;
+        }
         
         .footer {
           text-align: center;
           margin-top: 2mm;
-          padding-top: 2mm;
+          padding-top: 1mm;
           border-top: 1px dashed #999;
-          /* Increased from 6px to 9px */
-          font-size: 9px;
+          font-size: 7.5px;
           line-height: 1.4;
         }
         
         .status-badge {
           display: inline-block;
-          padding: 1px 4px;
-          background: #4CAF50;
+          padding: 1px 5px;
+          background: ${statusColor};
           color: white;
-          border-radius: 2px;
-          /* Increased from 7px to 9px */
-          font-size: 9px;
+          border-radius: 3px;
+          font-size: 8px;
           font-weight: bold;
           vertical-align: middle;
         }
@@ -331,120 +378,135 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
     </head>
     <body>
       <div class="page-container">
-        <div class="main-container">
-          <div class="bill-header">
-            <div class="clinic-name">YOUR CLINIC NAME</div>
-            <div class="clinic-info">
-              123 Medical Street, Colombo 07<br>
-              Tel: +94 11 234 5678
-            </div>
-          </div>
-
-          <div class="invoice-header">
-            <div class="invoice-title">MEDICAL INVOICE</div>
-            <div class="invoice-number">
-              #${String(invoiceData.invoiceId).padStart(6, '0')} | ${invoiceData.dateIssued} | 
-              <span class="status-badge">${invoiceData.status}</span>
-            </div>
+        <!-- Clinic Header -->
+        <div class="bill-header">
+          <div class="clinic-name">${clinicName}</div>
+          <div class="clinic-info">
+            ${fullAddress}<br>
+            Tel: ${clinicTel}${clinicEmail ? ` | ${clinicEmail}` : ''}
           </div>
         </div>
 
-          <div class="two-column-section">
-            <div class="column">
-              <div class="section">
-                <div class="section-title">PATIENT INFO</div>
-                <div class="info-row">
-                  <span class="info-label">No:</span>
-                  <span class="info-value">${invoiceData.patientNo}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Name:</span>
-                  <span class="info-value" style="font-weight:bold;">${invoiceData.patientName}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Tel:</span>
-                  <span class="info-value">${invoiceData.patientContactNo}</span>
-                </div>
+    <!-- Invoice Header -->
+        <div class="invoice-header">
+          <div class="invoice-title">MEDICAL INVOICE</div>
+          <div class="invoice-number">
+            #${String(invoiceData.invoiceId).padStart(6, '0')} | ${invoiceDate} | 
+            <span class="status-badge">${invoiceData.status.displayName}</span>
+          </div>
+          
+          <!-- Appointment Details Inside Header -->
+          <div style="margin-top: 2mm; padding-top: 2mm; border-top: 1px dashed #999; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 8.5px; margin-bottom: 0.5mm;">
+                <span style="font-weight: bold;">Date:</span>
+                <span>${appointmentDate} ${appointmentTime}</span>
               </div>
-            </div>
-
-            <div class="column">
-              <div class="section">
-                <div class="section-title">DOCTOR INFO</div>
-                <div class="info-row">
-                  <span class="info-label">Dr:</span>
-                  <span class="info-value">${invoiceData.doctorName}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Spec:</span>
-                  <span class="info-value">${invoiceData.doctorSpecialization}</span>
-                </div>
+              ${invoiceData.appointmentNote ? `
+              <div style="font-size: 8px; font-style: italic;">
+                <span style="font-weight: bold;">Note:</span>
+                <span>${invoiceData.appointmentNote}</span>
               </div>
+              ` : ''}
             </div>
+            <div class="queue-display">
+              <div class="queue-label">Queue</div>
+              <div class="queue-number">#${invoiceData.queuePosition}</div>
+            </div>
+          </div>
         </div>
 
-          <div class="items-section">
-            <div class="item-header">
-              <span>Description</span>
-              <span>Amount</span>
+        <!-- Two Column: Patient & Doctor Info -->
+        <div class="two-column-section">
+          <div class="column">
+            <div class="section-title">PATIENT</div>
+            <div class="info-row">
+              <span class="info-label">Name:</span>
+              <span class="info-value" style="font-weight:bold;">${invoiceData.patientName}</span>
             </div>
-            <div class="item-row">
-              <span>Consultation Fee</span>
-              <span>Rs. ${consultationFee.toFixed(2)}</span>
+            <div class="info-row">
+              <span class="info-label">Tel:</span>
+              <span class="info-value">${invoiceData.patientContactNo}</span>
             </div>
-            <div class="col">
-                <div class="section-header">Doctor</div>
-                <div class="info-row"><span class="info-value">${invoiceData.doctorName}</span></div>
-                <div class="info-row" style="font-size:10px;">${invoiceData.doctorSpecialization}</div>
+          </div>
+
+          <div class="column">
+            <div class="section-title">DOCTOR</div>
+            <div class="info-row">
+              <span class="info-value" style="font-weight:bold;">${invoiceData.doctorName}</span>
             </div>
+            <div class="info-row">
+              <span class="info-value">${invoiceData.doctorSpecialization}</span>
+            </div>
+          </div>
         </div>
 
-          <div class="qr-section">
-            <img src="${qrCodeImage}" alt="QR Code" class="qr-code">
-            <div class="qr-info-container">
-                 <div class="qr-title">Scan to Verify</div>
-                 <div class="qr-label">Ref: #${invoiceData.invoiceId}</div>
-            </div>
+        <!-- Items -->
+        <div class="items-section">
+          <div class="item-header">
+            <span>Description</span>
+            <span>Amount</span>
           </div>
+          <div class="item-row">
+            <span>${description}</span>
+            <span>Rs. ${consultationFee.toFixed(2)}</span>
+          </div>
+          ${totalDiscount > 0 ? `
+          <div class="item-row">
+            <span>Discount Applied</span>
+            <span style="color: #d32f2f;">- Rs. ${totalDiscount.toFixed(2)}</span>
+          </div>
+          ` : ''}
+          
+          <!-- Total Only -->
+          <div class="total-final">
+            <span>TOTAL:</span>
+            <span>Rs. ${invoiceData.finalAmount.toFixed(2)}</span>
+          </div>
+        </div>
 
-          <div class="totals">
-            <div class="total-row">
-              <span>Subtotal:</span>
-              <span>Rs. ${invoiceData.subtotal.toFixed(2)}</span>
+        <!-- Payment Info (if paid) - Grid Layout -->
+        ${invoiceData.status.code === 'PAID' ? `
+        <div class="payment-info">
+          <div class="payment-title">PAYMENT DETAILS</div>
+          <div class="payment-grid">
+            <div class="payment-item">
+              <span class="payment-label">Method</span>
+              <span class="payment-value">${invoiceData.paymentMethod || 'N/A'}</span>
             </div>
-            ${totalDiscount > 0 ? `
-            <div class="total-row">
-              <span>Discount:</span>
-              <span>- Rs. ${totalDiscount.toFixed(2)}</span>
-            </div>
-            ` : ''}
-            <div class="total-row total-final">
-              <span>TOTAL:</span>
-              <span>Rs. ${invoiceData.finalAmount.toFixed(2)}</span>
-            </div>
-          </div>
+            <div class="payment-item">
+              <span class="payment-label">Paid On</span>
+              <span class="payment-value">${paidDate}</span>
+            </div>            
 
-          <div class="footer">
-            <div style="font-weight: bold;">Thank you for your visit!</div>
-            <div>No signature required</div>
+
           </div>
+        </div>
+        ` : ''}
+
+        <!-- QR Code -->
+        <div class="qr-section">
+          <div class="qr-title">SCAN TO TRACK QUEUE</div>
+          <img src="${qrCodeImage}" alt="QR Code" class="qr-code">
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <div style="font-weight: bold;">Thank you for your visit!</div>
         </div>
       </div>
 
       <script>
         window.onload = function() {
           setTimeout(() => {
-             window.print();
+            window.print();
           }, 500);
         };
         
         window.onafterprint = function() {
-          document.getElementById('invoice-view').style.display = 'none';
-          document.getElementById('success-animation').style.display = 'flex';
-
           setTimeout(() => {
-             window.close();
-          }, 1600);
+            window.close();
+          }, 500);
         };
       </script>
     </body>
@@ -457,10 +519,10 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
     printWindow.document.close();
 
     const timer = setInterval(() => {
-        if (printWindow.closed) {
-            clearInterval(timer);
-            if (onComplete) onComplete(); 
-        }
+      if (printWindow.closed) {
+        clearInterval(timer);
+        if (onComplete) onComplete();
+      }
     }, 500);
   } else {
     alert('Please allow popups to print');
