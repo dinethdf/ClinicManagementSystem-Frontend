@@ -93,9 +93,11 @@ const PaymentHistoryDialog = ({ open, setOpen, invoiceId }: Props) => {
         <i className='tabler-x' />
       </DialogCloseButton>
       
-      <DialogTitle variant='h4' className='flex gap-2 flex-col text-center sm:pbs-8 sm:pbe-6 sm:pli-16'>
+<DialogTitle variant='h4' className='flex gap-2 flex-col text-center sm:pbs-8 sm:pbe-6 sm:pli-16'>
         Payment History
-        <Typography variant='subtitle2'>Transaction log for Invoice #{invoiceId}</Typography>
+        <Typography component='span' variant='subtitle2'>
+          Transaction log for Invoice #{invoiceId}
+        </Typography>
       </DialogTitle>
 
       <DialogContent className='pbs-0 sm:pli-16'>
