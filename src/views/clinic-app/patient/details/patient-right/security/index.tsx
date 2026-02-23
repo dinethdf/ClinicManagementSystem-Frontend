@@ -16,9 +16,9 @@ const SecurityTab = ({ patientId }: { patientId?: string }) => {
       </Grid>
 
 
-      <Grid size={{ xs: 12 }}>
+      {/* <Grid size={{ xs: 12 }}>
         <ChangePassword patientId = {patientId} />
-      </Grid>
+      </Grid> */}
 
 
 
