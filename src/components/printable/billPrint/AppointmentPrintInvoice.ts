@@ -494,18 +494,6 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
         <div class="footer">
           <div style="font-weight: bold;">Thank you for your visit!</div>
         </div>
-        ` : ''}
-
-        <!-- QR Code -->
-        <div class="qr-section">
-          <div class="qr-title">SCAN TO TRACK QUEUE</div>
-          <img src="${qrCodeImage}" alt="QR Code" class="qr-code">
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-          <div style="font-weight: bold;">Thank you for your visit!</div>
-        </div>
       </div>
 
       <script>
