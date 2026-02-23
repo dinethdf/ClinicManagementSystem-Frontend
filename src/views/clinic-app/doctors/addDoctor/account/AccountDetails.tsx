@@ -33,6 +33,7 @@ import { getDoctorValidationSchema } from '@/schemas/doctorDetailsValidation'
 import { doctorService } from '@/services/doctor/doctor.service'
 
 // Types (Define this in @/types/doctor.types.ts)
+// Types
 interface DoctorFormData {
   firstName: string
   lastName: string
@@ -46,7 +47,8 @@ interface DoctorFormData {
   email: string
   mobileNo: string
   slmcNumber: string
-  specializationId: string
+  // Update this line 👇
+  specializationId: { id: string; name: string } | null 
   qualification: string
   experienceYears: string
   availabilityStatus: string
@@ -65,7 +67,8 @@ const initialData: DoctorFormData = {
   email: '',
   mobileNo: '',
   slmcNumber: '',
-  specializationId: '',
+  // Update this line 👇
+  specializationId: null, 
   qualification: '',
   experienceYears: '',
   availabilityStatus: 'AVAILABLE'
@@ -91,14 +94,14 @@ const DoctorAccountDetails = () => {
 
   const handelFormSubmit = async (data: DoctorFormData) => {
     setIsLoading(true)
-
+    console.log(data)
     // Format data for API (match the structure you provided)
     const apiPayload = {
       
       ...data,
       gender: parseInt(data.gender), 
       specialization: {
-        id: data.specializationId
+        id: data.specializationId?.id || ''
       },
 
       specializationId: undefined, 
@@ -141,7 +144,7 @@ const DoctorAccountDetails = () => {
       />
       <Divider />
       <CardContent>
-        <form onSubmit={handleSubmit(handelFormSubmit)}>
+       <form onSubmit={handleSubmit(handelFormSubmit, (errors) => console.log('Validation Errors:', errors))}>
           <Grid container spacing={6}>
             
             {/* --- 1. Personal Info --- */}

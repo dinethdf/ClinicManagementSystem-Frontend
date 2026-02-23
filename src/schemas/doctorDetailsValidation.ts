@@ -1,6 +1,6 @@
 // src/schemas/doctorDetailsValidation.ts
 
-import { email, object, minLength, string, pipe, nonEmpty, regex } from 'valibot'
+import { email, object, minLength, string, pipe, nonEmpty, regex, number } from 'valibot'
 
 export const getDoctorValidationSchema = () => {
   return object({
@@ -65,9 +65,12 @@ export const getDoctorValidationSchema = () => {
       nonEmpty('SLMC Registration Number is required'),
       minLength(4, 'Invalid SLMC Number')
     ),
-    specializationId: pipe(
-      string(), 
-      nonEmpty('Specialization is required')
+    specializationId: object(
+     {
+      id: number(),
+      name: string(), 
+     },
+      'Specialization is required'
     ),
     qualification: pipe(
       string(),
