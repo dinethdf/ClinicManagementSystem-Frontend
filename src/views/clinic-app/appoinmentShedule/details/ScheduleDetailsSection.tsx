@@ -177,7 +177,7 @@ const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: Updated
                     variant='outlined' 
                     color='secondary' 
                     fullWidth 
-                    onClick={() => router.push(getLocalizedUrl(`/financial/schedule-summary/${encodeHideValue(scheduleData.id)}`, locale as Locale))} 
+                    onClick={() => router.push(getLocalizedUrl(`/clinic/appoinment-shedule/details/financial/schedule-summary/${encodeHideValue(scheduleData.id)}`, locale as Locale))} 
                     startIcon={<i className='tabler-chart-pie' />}
                 >
                     Financial Overview
