@@ -48,7 +48,7 @@ type ErrorType = {
 }
 
 const schema = object({
-  clinicCode: pipe(string(), nonEmpty('Clinic info missing')), // Validates that URL param exists
+  // clinicCode: pipe(string(), nonEmpty('Clinic info missing')), // Validates that URL param exists
   email: pipe(string(), minLength(1, 'This field is required'), email('Email is invalid')),
   password: pipe(string(), nonEmpty('This field is required'), minLength(1, 'Password required'))
 })
@@ -107,7 +107,7 @@ const LoginPatient = ({ mode }: { mode: SystemMode }) => {
   } = useForm<FormData>({
     resolver: valibotResolver(schema),
     defaultValues: {
-      clinicCode: clinicCodeParam, // Pre-fill from URL
+      // clinicCode: clinicCodeParam, // Pre-fill from URL
       email: '',
       password: ''
     }
@@ -125,7 +125,7 @@ const LoginPatient = ({ mode }: { mode: SystemMode }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-            clinicCode: data.clinicCode, // Send the code from URL
+            // clinicCode: data.clinicCode, // Send the code from URL
             email: data.email.trim(), 
             password: data.password.trim(), 
             type: "patient" 
@@ -200,7 +200,7 @@ const LoginPatient = ({ mode }: { mode: SystemMode }) => {
           <div className='flex justify-center mbe-6'>
             <Logo />
           </div>
-          <div className='flex flex-col gap-1 mbe-6 text-center'>
+          {/* <div className='flex flex-col gap-1 mbe-6 text-center'>
             <Typography variant='h4'>{`Patient Portal`}</Typography>
             {clinicCodeParam ? (
                 <Typography variant='body2' className="text-gray-500">
@@ -211,7 +211,7 @@ const LoginPatient = ({ mode }: { mode: SystemMode }) => {
                     No Clinic Selected. Please use the link provided by your clinic.
                 </Alert>
             )}
-          </div>
+          </div> */}
 
           {errorState && (
             <Alert severity='error' className='mbe-4'>
@@ -223,11 +223,11 @@ const LoginPatient = ({ mode }: { mode: SystemMode }) => {
             
             {/* HIDDEN / READ-ONLY Clinic Field */}
             <div className='hidden'>
-                <Controller
+                {/* <Controller
                     name='clinicCode'
                     control={control}
                     render={({ field }) => <input {...field} type="hidden" />}
-                />
+                /> */}
             </div>
 
             <Controller
@@ -290,7 +290,7 @@ const LoginPatient = ({ mode }: { mode: SystemMode }) => {
               </Typography>
             </div>
 
-            <Button fullWidth variant='contained' type='submit' disabled={isLoading || !clinicCodeParam}>
+            <Button fullWidth variant='contained' type='submit' disabled={isLoading}>
               {isLoading ? 'Loading...' : 'Login'}
             </Button>
 
