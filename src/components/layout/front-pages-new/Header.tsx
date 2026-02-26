@@ -12,7 +12,6 @@ import IconButton from '@mui/material/IconButton'
 import Drawer from '@mui/material/Drawer'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import useScrollTrigger from '@mui/material/useScrollTrigger'
-import Typography from '@mui/material/Typography'
 import type { Theme } from '@mui/material/styles'
 
 // Third-party Imports
@@ -25,10 +24,10 @@ import { frontLayoutClasses } from '@layouts/utils/layoutClasses'
 import styles from './styles.module.css'
 
 const navLinks = [
-  { label: 'Features', href: '#features' },
-  { label: 'How It Works', href: '#how-it-works' },
-  { label: 'For Your Team', href: '#roles' },
-  { label: 'Pricing', href: '#pricing' },
+  { label: 'Home', href: '#home' },
+  { label: 'Services', href: '#services' },
+  { label: 'Specialists', href: '#specialists' },
+  { label: 'About Us', href: '#about' },
   { label: 'FAQ', href: '#faq' }
 ]
 
@@ -56,9 +55,11 @@ const Header = () => {
         <div className={classnames(frontLayoutClasses.navbarContent, styles.cgNavbarContent)}>
 
           {/* ─── Logo ─── */}
-          <Link href='/' className={styles.cgLogo} aria-label='CureGuard home'>
-            <div className={styles.cgLogoIcon} aria-hidden='true'>✦</div>
-            <span className={styles.cgLogoText}>CureGuard</span>
+          <Link href='/' className={styles.cgLogo} aria-label='New Senara home'>
+            <div className={classnames(styles.cgLogoIcon, 'text-primary')} aria-hidden='true'>🏥</div>
+            <span className={styles.cgLogoText} style={{ fontFamily: "'Playfair Display', serif" }}>
+              New Senara
+            </span>
           </Link>
 
           {/* ─── Desktop Nav Links ─── */}
@@ -81,22 +82,24 @@ const Header = () => {
             <div className='flex items-center gap-3'>
               <Button
                 component={Link}
-                href='/login/clinic'
+                href='/login'
                 variant='outlined'
                 size='medium'
                 className={styles.cgBtnLogin}
+                sx={{ borderRadius: 50, fontWeight: 700 }}
               >
-                Login
+                Staff Login
               </Button>
               <Button
                 component={Link}
-                href='/register'
+                href='/login?type=patient'
                 variant='contained'
                 size='medium'
                 color='primary'
                 className={styles.cgBtnTrial}
+                sx={{ borderRadius: 50, fontWeight: 700, boxShadow: '0 4px 14px rgba(0,150,136,0.35)' }}
               >
-                Start Free Trial
+                Patient Portal
               </Button>
             </div>
           )}
@@ -128,10 +131,12 @@ const Header = () => {
             href='/'
             className={styles.cgLogo}
             onClick={() => setIsDrawerOpen(false)}
-            aria-label='CureGuard home'
+            aria-label='New Senara home'
           >
-            <div className={styles.cgLogoIcon} aria-hidden='true'>✦</div>
-            <span className={styles.cgLogoText}>CureGuard</span>
+            <div className={classnames(styles.cgLogoIcon, 'text-primary')} aria-hidden='true'>🏥</div>
+            <span className={styles.cgLogoText} style={{ fontFamily: "'Playfair Display', serif" }}>
+              New Senara
+            </span>
           </Link>
           <IconButton
             onClick={() => setIsDrawerOpen(false)}
@@ -164,24 +169,26 @@ const Header = () => {
         <div className={styles.cgDrawerCtas}>
           <Button
             component={Link}
-            href='/login/clinic'
+            href='/login'
             variant='outlined'
             fullWidth
             className={styles.cgBtnLogin}
             onClick={() => setIsDrawerOpen(false)}
+            sx={{ borderRadius: 50, fontWeight: 700 }}
           >
-            Login
+            Staff Login
           </Button>
           <Button
             component={Link}
-            href='/register'
+            href='/login?type=patient'
             variant='contained'
             color='primary'
             fullWidth
             className={styles.cgBtnTrial}
             onClick={() => setIsDrawerOpen(false)}
+            sx={{ borderRadius: 50, fontWeight: 700 }}
           >
-            Start Free Trial
+            Patient Portal
           </Button>
         </div>
       </Drawer>

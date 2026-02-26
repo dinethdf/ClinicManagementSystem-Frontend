@@ -8,7 +8,7 @@ const LandingPage = async () => {
   // Vars
   const mode = await getServerMode()
 
-  return <LandingPageWrapper mode={mode} />
+  return <LandingPageWrapper />
 }
 
 export default LandingPage
