@@ -82,7 +82,7 @@ const Header = () => {
             <div className='flex items-center gap-3'>
               <Button
                 component={Link}
-                href='/login'
+                href='/login/clinic'
                 variant='outlined'
                 size='medium'
                 className={styles.cgBtnLogin}
@@ -92,7 +92,7 @@ const Header = () => {
               </Button>
               <Button
                 component={Link}
-                href='/login?type=patient'
+                href='/login/patient'
                 variant='contained'
                 size='medium'
                 color='primary'
