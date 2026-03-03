@@ -1,3 +1,5 @@
+'use client'
+
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -7,6 +9,8 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
+import Alert from '@mui/material/Alert'
+import AlertTitle from '@mui/material/AlertTitle'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
@@ -24,15 +28,21 @@ const formatDate = (dateString?: string | null) => {
   return new Date(dateString).toLocaleDateString();
 };
 
-const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // Changed type to any to support your specific JSON structure for now
-
-  const buttonProps: ButtonProps = {
-    variant: 'contained',
-    fullWidth: true,
-    children: 'Edit Details'
-  }
+const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { 
 
   const isPatientActive = patientData?.isActive;
+  
+  // Check if patient is temporary (not approved)
+  const isTempPatient = patientData?.isApproved === false;
+
+  // Dynamically switch button props based on whether it's a temporary patient or not
+  const buttonProps: ButtonProps = {
+    variant: 'contained',
+    color: isTempPatient ? 'warning' : 'primary',
+    fullWidth: true,
+    startIcon: isTempPatient ? <i className='tabler-clipboard-check' /> : undefined,
+    children: isTempPatient ? 'Complete Registration' : 'Edit Details'
+  }
 
   const statusButtonProps: ButtonProps = {
     variant: 'outlined',
@@ -51,7 +61,6 @@ const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // C
   // Determine which contact info to show (Patient's own OR Guardian's if dependent)
   const displayMobile = hasGuardian ? patientData.guardian.mobileNo : patientData?.mobileNo;
   const displayEmail = hasGuardian ? patientData.guardian.email : patientData?.email;
-  // For address, children usually live with guardians, so fallback to guardian address if patient's is missing
   const displayAddress = patientData?.address || (hasGuardian ? patientData.guardian.address : null);
   const displayCity = patientData?.city || (hasGuardian ? patientData.guardian.city : null);
 
@@ -59,6 +68,14 @@ const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // C
     <Card>
       <CardContent className='flex flex-col gap-6'>
         
+        {/* --- NEW: TEMPORARY PATIENT ALERT INSIDE THE CARD --- */}
+        {isTempPatient && (
+          <Alert severity="warning" variant="standard" icon={<i className="tabler-alert-triangle text-xl" />}>
+            <AlertTitle className="font-bold mb-1">Temporary Profile</AlertTitle>
+            Click <strong>Complete Registration</strong> below to add mandatory details and approve this patient.
+          </Alert>
+        )}
+
         {/* --- HEADER SECTION --- */}
         <div className='flex flex-col items-center justify-center gap-4'>
             <div className='relative'>
@@ -75,12 +92,18 @@ const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // C
                 <Typography variant='h5' className='font-bold'>
                     {patientData?.firstName} {patientData?.lastName}
                 </Typography>
-                <Stack direction="row" spacing={1} alignItems="center">
+                <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" justifyContent="center" useFlexGap sx={{ mt: 1 }}>
                     {patientData?.isActive ? (
                         <Chip label='Active' color='success' size='medium' variant="tonal" sx={{ height: 30, fontSize: '0.9rem' }} />
                     ) : (
                         <Chip label='Inactive' color='error' size='medium' variant="tonal" sx={{ height: 30, fontSize: '0.9rem' }} />
                     )}
+                    
+                    {/* Show Temp Patient Tag */}
+                    {isTempPatient && (
+                        <Chip label='Temporary' color='warning' size='medium' variant="filled" sx={{ height: 30, fontSize: '0.9rem' }} />
+                    )}
+
                     {/* Show Dependent Tag if applicable */}
                     {hasGuardian && (
                          <Chip label='Dependent' color='info' size='medium' variant="tonal" sx={{ height: 30, fontSize: '0.9rem' }} />
@@ -107,7 +130,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // C
 
         <Divider />
 
-        {/* --- CONTACT INFORMATION (Smart Display) --- */}
+        {/* --- CONTACT INFORMATION --- */}
         <div className='flex flex-col gap-4'>
           <Typography variant='subtitle1' className='uppercase opacity-70 font-bold text-xs'>
             {hasGuardian ? "Contact Information (Guardian)" : "Contact Information"}
@@ -148,7 +171,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // C
           </Stack>
         </div>
 
-        {/* --- NEW SECTION: GUARDIAN SPECIFIC DETAILS --- */}
+        {/* --- GUARDIAN SPECIFIC DETAILS --- */}
         {hasGuardian && (
             <>
                 <Divider />
@@ -195,7 +218,6 @@ const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // C
         <Divider />
 
         {/* --- PERSONAL DETAILS --- */}
-{/* --- PERSONAL DETAILS --- */}
         <div className='flex flex-col gap-4'>
             <Typography variant='subtitle1' className='uppercase opacity-70 font-bold text-xs'>Personal Details</Typography>
             <ul className='flex flex-col gap-3 p-0 list-none'>
@@ -214,8 +236,6 @@ const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // C
                     <Typography variant='body2' className='font-medium' color='text.primary'>Marital Status:</Typography>
                     <Typography color='text.secondary'>{maritalMap[patientData?.maritalStatus as number] || 'N/A'}</Typography>
                 </li>
-                
-                {/* --- NEW FIELDS: Weight & Height --- */}
                 <li className='flex items-center gap-2'>
                     <i className='tabler-weight text-secondary text-xl' />
                     <Typography variant='body2' className='font-medium' color='text.primary'>Weight:</Typography>
@@ -243,25 +263,32 @@ const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { // C
             </Box>
         )}
 
-        {/* --- EDIT BUTTON --- */}
+        {/* --- ACTION BUTTONS --- */}
+        
+        {/* This triggers EditPatientDetails popup when clicking Complete Registration OR Edit Details */}
         <OpenDialogOnElementClick 
             element={Button} 
             elementProps={buttonProps} 
-            dialogProps={{patientData, bySelf: false }} 
+            dialogProps={{ patientData, bySelf: false }} 
             dialog={EditPatientDetails} 
         />
-        <OpenDialogOnElementClick
-            element={Button}
-            elementProps={statusButtonProps}
-            dialog={StateChangeDialog}
-            dialogProps={{ 
-                type: 'deactivate-account',
-                data: { 
-                    patientId: patientData?.id,
-                    isActive: patientData?.isActive 
-                } 
-            }}
-        />        
+
+        {/* Only show deactivate/activate button if it's a fully registered patient */}
+        {!isTempPatient && (
+            <OpenDialogOnElementClick
+                element={Button}
+                elementProps={statusButtonProps}
+                dialog={StateChangeDialog}
+                dialogProps={{ 
+                    type: 'deactivate-account',
+                    data: { 
+                        patientId: patientData?.id,
+                        isActive: patientData?.isActive 
+                    } 
+                }}
+            />  
+        )}
+
       </CardContent>
     </Card>
   )
