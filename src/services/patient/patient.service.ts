@@ -140,7 +140,6 @@ async getPatientById(id: string): Promise<Patient | null> {
 
 async updatePatient(id: string, patientData: Partial<Patient>): Promise<any> {
   try {
-    console.log(patientData)
     const response = await apiClient.put(`/api/patient/details/staff/${id}`, patientData)
     
     return response.data
