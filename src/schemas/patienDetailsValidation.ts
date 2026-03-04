@@ -1,4 +1,4 @@
-import { email, object, minLength, string, pipe, nonEmpty, custom, regex, union, literal, nullable, unknown, optional, nonNullable, number } from 'valibot'
+import { email, object, minLength, string, pipe, nonEmpty, custom, regex, union, literal, nullable, unknown, optional, nonNullable, number, transform } from 'valibot'
 
 export const getPatientValidationSchema = (isUnderAge: boolean) => {
   return object({
@@ -33,28 +33,25 @@ export const getPatientValidationSchema = (isUnderAge: boolean) => {
     gender: pipe(string(), minLength(1, 'Gender is required')),
     maritalStatus: pipe(string(), minLength(1, 'Marital status is required')),
     bloodGroup: string(),
-    weight: pipe(
-      number('Weight is required'),
-      custom(
-        (value) => value !== null && value !== undefined,
-        'Weight is required'
-      ),
-      custom(
-        (value: any) => value > 0,
-        'Weight must be greater than 0'
+weight: optional(
+      nullable(
+        pipe(
+          union([string(), number()]), // Accept both string from input or number from DB
+          transform((val) => (val === '' || val === null ? null : Number(val))), // Convert to number
+          custom((val: any) => val === null || val > 0, 'Weight must be greater than 0') // Validate > 0 if not null
+        )
       )
     ),
-    height: pipe(
-      number('Height is required'),
-      custom(
-        (value) => value !== null && value !== undefined,
-        'Height is required'
-      ),
-      custom(
-        (value: any) => value > 0,
-        'Height must be greater than 0'
+    
+    height: optional(
+      nullable(
+        pipe(
+          union([string(), number()]), // Accept both string from input or number from DB
+          transform((val) => (val === '' || val === null ? null : Number(val))), // Convert to number
+          custom((val: any) => val === null || val > 0, 'Height must be greater than 0') // Validate > 0 if not null
+        )
       )
-    ),       
+    ),   
     dob: pipe(string('Please select your Date of Birth'), minLength(1, 'Please select your Date of Birth')),    
     relationshipToGuardian: !isUnderAge
       ? optional(string())

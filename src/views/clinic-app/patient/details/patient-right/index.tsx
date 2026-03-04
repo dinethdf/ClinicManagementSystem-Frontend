@@ -39,12 +39,12 @@ const CustomerRight = ({ tabContentList }: { tabContentList: { [key: string]: Re
                 label='Identity Card' 
                 iconPosition='start' 
               />            
-              <Tab
+              {/* <Tab
                 icon={<i className='tabler-brand-revolut' />}
                 value='insurance'
                 label='Insurance Overview'
                 iconPosition='start'
-              />
+              /> */}
               <Tab icon={<i className='tabler-lock' />} value='security' label='Security' iconPosition='start' />
 
             </CustomTabList>
