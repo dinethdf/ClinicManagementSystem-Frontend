@@ -106,7 +106,7 @@ const UserDropdown = () => {
         <Avatar
           ref={anchorRef}
           alt={userData?.userName || 'User'} // <--- Updated
-          src={userData?.userImg || '/images/avatars/1.png'} // <--- Updated
+          src={userData?.userImg || '/images/avatars/common.png'} // <--- Updated
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
         />
@@ -132,7 +132,7 @@ const UserDropdown = () => {
                   <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
                     <Avatar 
                         alt={userData?.userName || 'User'} 
-                        src={userData?.userImg || '/images/avatars/1.png'} 
+                        src={userData?.userImg || '/images/avatars/common.png'} 
                     />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
