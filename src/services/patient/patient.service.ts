@@ -46,6 +46,23 @@ async createPatientDetails(patientData: Patient): Promise<any> {
     }
 }
 
+// Inside your patientService class/object
+async createTempPatientDetails(patientData: Partial<Patient>): Promise<any> {
+    try {
+      // As requested, using the same base endpoint with /temp appended
+      const response: any = await apiClient.post('/api/patient/details/temp-staff', {
+        ...patientData,
+        guardian: null,
+        patientAuthId: null,
+        insuranceId: null
+      })
+
+      return response.data
+    } catch (error: any) {
+      throw new Error(error.response?.data?.defaultMessage || 'Failed to create temporary patient')
+    }
+}
+
   async getGuardianForChildPatient(nicNo: string, guardianName: string): Promise<Guardian[]> {
     try {
       const response = await apiClient.get<Guardian[]>('/api/patient/search-guardian', {

@@ -34,6 +34,8 @@ export interface Patient {
 
   registrationDate?: string
   isActive?: boolean
+  isApproved?: boolean
+  isTemp?: boolean
 }
 
 export interface PatientResponceDTO {
