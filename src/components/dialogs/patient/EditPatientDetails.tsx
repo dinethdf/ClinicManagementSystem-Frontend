@@ -32,6 +32,7 @@ import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementCli
 import type { Patient, Guardian } from '@/types/patient.types'
 import { patientService } from '@/services/patient/patient.service'
 import { getPatientValidationSchema } from '@/schemas/patienDetailsValidation'
+import { toast } from 'react-toastify'
 
 type EditPatientDetailsProps = {
   open: boolean
@@ -67,7 +68,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
   // 1. Initialize Form Data on Open
   useEffect(() => {
     if (open && patientData) {
-      // Calculate age logic
+      // Calculate age logic safely
       let isChild = false
       if (patientData.dob) {
          const today = new Date()
@@ -79,30 +80,36 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
       }
       setIsUnderAge(isChild)
 
+      // Safely map all potential nulls to empty strings for controlled inputs
       reset({
         ...patientData,
+        firstName: patientData.firstName || '',
+        lastName: patientData.lastName || '',
+        fullName: patientData.fullName || '',
         dob: patientData.dob ? patientData.dob : null, 
-        gender: patientData.gender?.toString(),
-        ethnicity: patientData.ethnicity?.toString(),
-        maritalStatus: patientData.maritalStatus?.toString(),
+        gender: patientData.gender ? String(patientData.gender) : '',
+        ethnicity: patientData.ethnicity ? String(patientData.ethnicity) : '',
+        maritalStatus: patientData.maritalStatus ? String(patientData.maritalStatus) : '',
         bloodGroup: patientData.bloodGroup || '',
         
-        // FIX: Ensure null becomes empty string '' to avoid uncontrolled input errors
-        weight: patientData.weight !== null ? patientData.weight : null,
-        height: patientData.height !== null ? patientData.height : null,
+        weight: patientData.weight ?? '', 
+        height: patientData.height ?? '',
         
+        nic: patientData.nic || '',
+        address: patientData.address || '',
+        city: patientData.city || '',
+        district: patientData.district || '',
+        mobileNo: patientData.mobileNo || '',
+        landNo: patientData.landNo || '',
+        email: patientData.email || '',
+
         relationshipToGuardian: patientData.relationshipToGuardian || '',
         guardian: patientData.guardian || null,
         
-        // Ensure other potential nulls are handled for text fields
-        landNo: patientData.landNo || '',
         emergencyContactName: patientData.emergencyContactName || '',
         emergencyContactRelationship: patientData.emergencyContactRelationship || '',
         emergencyContactMobile: patientData.emergencyContactMobile || '',
         emergencyContactEmail: patientData.emergencyContactEmail || '',
-        address: patientData.address || '',
-        city: patientData.city || '',
-        district: patientData.district || ''
       } as any)
     }
   }, [open, patientData, reset])
@@ -113,19 +120,19 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
   }
 
   // 2. Guardian Selection Logic
-  const selectGuardian = (guardian:Guardian) =>{
-       setValue("nic", "")
-       setValue("address", guardian.address)
-       setValue("city", guardian.city)
-       setValue("district", guardian.district)
-       setValue("email", guardian.email)
-       setValue("mobileNo", guardian.mobileNo)
+  const selectGuardian = (guardian: Guardian) => {
+       setValue("nic", "") // Children don't usually use NIC if guardian is present
+       setValue("address", guardian.address || '')
+       setValue("city", guardian.city || '')
+       setValue("district", guardian.district || '')
+       setValue("email", guardian.email || '')
+       setValue("mobileNo", guardian.mobileNo || '')
        setValue("landNo", guardian?.landNo || "")
        setValue("guardian", guardian || null)
        clearErrors('guardian')
   } 
   
-  const resetGuardian = () =>{
+  const resetGuardian = () => {
        setValue("nic", '')
        setValue("address", '')
        setValue("city", '')
@@ -138,36 +145,32 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
   }   
 
   const onSubmit = async (data: Patient) => {
-    console.log("Patient data", data)
     if (!patientData?.id) return
-
-    console.log("patient data:", data)
     setIsLoading(true)
     setErrorMessage(null)
 
+    // 3. Build Payload & Enforce Guardian Rules
     const payload: Patient = {
       ...data,
-      // Ensure dropdown values are sent correctly
-      gender: data.gender,
-      ethnicity: data.ethnicity,
-      maritalStatus: data.maritalStatus,
-      bloodGroup: data.bloodGroup,
+      // Parse numbers safely
+      weight: !data.weight ? null : Number(data.weight),
+      height: !data.height ? null : Number(data.height),
       
-      // FIX: Ensure empty string is converted back to null or number for API
-      weight: data.weight === null ? null : Number(data.weight),
-      height: data.height === null ? null : Number(data.height),
-      
-      relationshipToGuardian: data.relationshipToGuardian
+      // Strictly enforce guardian logic for backend
+      guardian: isUnderAge ? data.guardian : null,
+      relationshipToGuardian: isUnderAge ? data.relationshipToGuardian : null,
+      nic: isUnderAge ? '' : (data.nic || '')
     }
 
     try {
-      if (bySelf){
+      if (bySelf) {
         await patientService.updatePatientBySelf(String(patientData.id), payload)
-      }else{
+      } else {
         await patientService.updatePatient(String(patientData.id), payload)
       }
       router.refresh()
       handleClose()
+      toast.success('Patient details updated successfully!', { className: 'custom-toast' })
     } catch (error: any) {
       setErrorMessage(error.message || 'Failed to update patient details')
     } finally {
@@ -188,8 +191,14 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
         <i className='tabler-x' />
       </DialogCloseButton>
 
-      <DialogTitle variant='h4' className='flex gap-2 flex-col text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
-        Edit Patient Information
+      {/* Changed variant to div to prevent HTML validation errors */}
+      <DialogTitle component="div" className='flex gap-2 flex-col text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
+        <Typography variant='h4'>Edit Patient Information</Typography>
+        {patientData?.isTemp === false && (
+          <Typography variant='body2' color='warning.main'>
+            Please complete the missing required fields to fully register this temporary patient.
+          </Typography>
+        )}
       </DialogTitle>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -208,14 +217,12 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               <Divider />
             </Grid>
 
-            {/* Names */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='firstName'
                 control={control}
-                rules={{ required: true }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='First Name' error={!!errors.firstName} helperText={errors.firstName?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='First Name' error={!!errors.firstName} helperText={errors.firstName?.message} />
                 )}
               />
             </Grid>
@@ -223,9 +230,8 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               <Controller
                 name='lastName'
                 control={control}
-                rules={{ required: true }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Last Name' error={!!errors.lastName} helperText={errors.lastName?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Last Name' error={!!errors.lastName} helperText={errors.lastName?.message} />
                 )}
               />
             </Grid>
@@ -234,22 +240,20 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               <Controller
                 name='fullName'
                 control={control}
-                rules={{ required: true }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Full Name' error={!!errors.fullName} helperText={errors.fullName?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Full Name' error={!!errors.fullName} helperText={errors.fullName?.message} />
                 )}
               />
             </Grid>            
+            
             {/* DOB & Age Logic */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='dob'
                 control={control}
-                rules={{ required: 'Date of Birth is required' }}
                 render={({ field }) => (
                   <CustomDatePicker 
                     {...field}
-                    // Handle Dayjs or String value
                     value={field.value ? dayjs(field.value) : null}
                     onChange={newValue => {
                       let age = 0
@@ -261,10 +265,11 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                         if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--
                       }
 
-                      if(isUnderAge && age > 18){
+                      // If they were underage, and now are an adult, clear the guardian
+                      if(isUnderAge && age >= 18){
                           resetGuardian()
                       }
-                      setIsUnderAge(age < 18)
+                      setIsUnderAge(age < 18 && newValue !== null) 
                       field.onChange(newValue ? newValue.format('YYYY-MM-DD') : null)
                     }} 
                     label='Date of Birth' 
@@ -283,13 +288,13 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               <Controller
                 name='nic'
                 control={control}
-                rules={{ required: !isUnderAge }} // Conditional Rule
                 render={({ field }) => (
                   <CustomTextField 
                     {...field} 
+                    value={field.value ?? ''}
                     fullWidth 
                     label='NIC' 
-                    disabled={isUnderAge} // Disabled logic
+                    disabled={isUnderAge} // Disabled if underage
                     error={!!errors.nic} 
                     helperText={errors.nic?.message} 
                   />
@@ -303,7 +308,8 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='gender'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} select fullWidth label='Gender' error={!!errors.gender} helperText={errors.gender?.message}>
+                  <CustomTextField {...field} value={field.value ?? ''} select fullWidth label='Gender' error={!!errors.gender} helperText={errors.gender?.message}>
+                    <MenuItem value=''>Select</MenuItem>
                     <MenuItem value="1">Male</MenuItem>
                     <MenuItem value="2">Female</MenuItem>
                     <MenuItem value="3">Other</MenuItem>
@@ -316,7 +322,8 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='ethnicity'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} select fullWidth label='Ethnicity' error={!!errors.ethnicity} helperText={errors.ethnicity?.message}>
+                  <CustomTextField {...field} value={field.value ?? ''} select fullWidth label='Ethnicity' error={!!errors.ethnicity} helperText={errors.ethnicity?.message}>
+                    <MenuItem value=''>Select</MenuItem>
                     <MenuItem value="0">Sinhala</MenuItem>
                     <MenuItem value="1">Tamil</MenuItem>
                     <MenuItem value="2">Muslims</MenuItem>
@@ -330,7 +337,8 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='maritalStatus'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} select fullWidth label='Marital Status' error={!!errors.maritalStatus} helperText={errors.maritalStatus?.message}>
+                  <CustomTextField {...field} value={field.value ?? ''} select fullWidth label='Marital Status' error={!!errors.maritalStatus} helperText={errors.maritalStatus?.message}>
+                    <MenuItem value=''>Select</MenuItem>
                     <MenuItem value="1">Single</MenuItem>
                     <MenuItem value="2">Married</MenuItem>
                     <MenuItem value="3">Divorced</MenuItem>
@@ -340,13 +348,13 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               />
             </Grid>
 
-            {/* Blood, Height, Weight */}
             <Grid size={{ xs: 12, sm: 4 }}>
               <Controller
                 name='bloodGroup'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} select fullWidth label='Blood Group' placeholder='Select' error={!!errors.bloodGroup} helperText={errors.bloodGroup?.message}>
+                  <CustomTextField {...field} value={field.value ?? ''} select fullWidth label='Blood Group' error={!!errors.bloodGroup} helperText={errors.bloodGroup?.message}>
+                    <MenuItem value=''>Select</MenuItem>
                     <MenuItem value='A+'>A+</MenuItem>
                     <MenuItem value='O+'>O+</MenuItem>
                     <MenuItem value='B+'>B+</MenuItem>
@@ -360,12 +368,10 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               />
             </Grid>
             
-            {/* <--- FIX: Weight & Height Logic ---> */}
             <Grid size={{ xs: 12, sm: 4 }}>
                 <Controller
                     name='weight'
                     control={control}
-                    rules={{ required: false }}
                     render={({ field }) => (
                     <CustomTextField
                         {...field}
@@ -375,11 +381,11 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                         placeholder='e.g. 65'
                         onChange={(e) => {
                             const val = e.target.value;
-                            // Ensure it sets as string for TextField, but logic will parse on submit
-                            field.onChange(val === '' ? null : Number(val));
+                            field.onChange(val === '' ? '' : val);
                         }}
-                        value={field.value ?? ''} // Ensure no null passed to input
-                        {...(errors.weight && { error: true, helperText: errors.weight.message })}
+                        value={field.value ?? ''} 
+                        error={!!errors.weight}
+                        helperText={errors.weight?.message}
                     />
                     )}
                 />
@@ -388,7 +394,6 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 <Controller
                     name='height'
                     control={control}
-                    rules={{ required: false }}
                     render={({ field }) => (
                     <CustomTextField
                         {...field}
@@ -398,10 +403,11 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                         placeholder='e.g. 170'
                         onChange={(e) => {
                             const val = e.target.value;
-                            field.onChange(val === '' ? null : Number(val));
+                            field.onChange(val === '' ? '' : val);
                         }}
-                        value={field.value ?? ''} // Ensure no null passed to input
-                        {...(errors.height && { error: true, helperText: errors.height.message })}
+                        value={field.value ?? ''} 
+                        error={!!errors.height}
+                        helperText={errors.height?.message}
                     />
                     )}
                 />
@@ -414,7 +420,6 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                     <Controller
                     name='guardian'
                     control={control}
-                    rules={{ required: true }}
                     render={({ field }) => {
                         const displayValue = field.value && typeof field.value === 'object'
                             ? `${field.value.firstName} ${field.value.lastName}` : ''          
@@ -423,7 +428,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                             ...field,
                             fullWidth: true,
                             label: 'Guardian',
-                            placeholder: 'Select Guardian',
+                            placeholder: 'Click to Select Guardian',
                             value: displayValue,
                             InputProps: {
                                 readOnly: true,
@@ -456,16 +461,17 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                     <Controller
                         name='relationshipToGuardian'
                         control={control}
-                        rules={{ required: true }}
                         render={({ field }) => (
                         <CustomTextField
                             {...field}
+                            value={field.value ?? ''}
                             select
                             fullWidth
                             label='Relationship to Guardian'
                             error={!!errors.relationshipToGuardian} 
                             helperText={errors.relationshipToGuardian?.message}
                         >
+                            <MenuItem value=''>Select</MenuItem>
                             <MenuItem value='Father'>Father</MenuItem>
                             <MenuItem value='Mother'>Mother</MenuItem>
                             <MenuItem value='Grandparent'>Grandparent</MenuItem>
@@ -487,9 +493,8 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               <Controller
                 name='mobileNo'
                 control={control}
-                rules={{ required: true }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Mobile No' disabled={isUnderAge} error={!!errors.mobileNo} helperText={errors.mobileNo?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Mobile No' disabled={isUnderAge} error={!!errors.mobileNo} helperText={errors.mobileNo?.message} />
                 )}
               />
             </Grid>
@@ -498,7 +503,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='landNo'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Land No' disabled={isUnderAge} error={!!errors.landNo} helperText={errors.landNo?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Land No' disabled={isUnderAge} error={!!errors.landNo} helperText={errors.landNo?.message} />
                 )}
               />
             </Grid>
@@ -506,9 +511,8 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               <Controller
                 name='email'
                 control={control}
-                rules={{ required: true }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Email' disabled={isUnderAge} error={!!errors.email} helperText={errors.email?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Email' disabled={isUnderAge} error={!!errors.email} helperText={errors.email?.message} />
                 )}
               />
             </Grid>
@@ -516,9 +520,8 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
               <Controller
                 name='address'
                 control={control}
-                rules={{ required: true }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Address' disabled={isUnderAge} error={!!errors.address} helperText={errors.address?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Address' disabled={isUnderAge} error={!!errors.address} helperText={errors.address?.message} />
                 )}
               />
             </Grid>
@@ -527,7 +530,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='city'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='City' disabled={isUnderAge} error={!!errors.city} helperText={errors.city?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='City' disabled={isUnderAge} error={!!errors.city} helperText={errors.city?.message} />
                 )}
               />
             </Grid>
@@ -536,7 +539,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='district'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='District' disabled={isUnderAge} error={!!errors.district} helperText={errors.district?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='District' disabled={isUnderAge} error={!!errors.district} helperText={errors.district?.message} />
                 )}
               />
             </Grid>
@@ -552,7 +555,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='emergencyContactName'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Contact Name' error={!!errors.emergencyContactName} helperText={errors.emergencyContactName?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Contact Name' error={!!errors.emergencyContactName} helperText={errors.emergencyContactName?.message} />
                 )}
               />
             </Grid>
@@ -561,7 +564,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='emergencyContactRelationship'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Relationship' error={!!errors.emergencyContactRelationship} helperText={errors.emergencyContactRelationship?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Relationship' error={!!errors.emergencyContactRelationship} helperText={errors.emergencyContactRelationship?.message} />
                 )}
               />
             </Grid>
@@ -570,7 +573,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='emergencyContactMobile'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Contact Mobile' error={!!errors.emergencyContactMobile} helperText={errors.emergencyContactMobile?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Contact Mobile' error={!!errors.emergencyContactMobile} helperText={errors.emergencyContactMobile?.message} />
                 )}
               />
             </Grid>
@@ -579,7 +582,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                 name='emergencyContactEmail'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Contact Email' error={!!errors.emergencyContactEmail} helperText={errors.emergencyContactEmail?.message} />
+                  <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Contact Email' error={!!errors.emergencyContactEmail} helperText={errors.emergencyContactEmail?.message} />
                 )}
               />
             </Grid>

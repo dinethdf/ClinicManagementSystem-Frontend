@@ -33,7 +33,7 @@ const PatientDetailsSection = ({ patientData }: { patientData?: any }) => {
   const isPatientActive = patientData?.isActive;
   
   // Check if patient is temporary (not approved)
-  const isTempPatient = patientData?.isApproved === false;
+  const isTempPatient = patientData?.isTemp === true;
 
   // Dynamically switch button props based on whether it's a temporary patient or not
   const buttonProps: ButtonProps = {
