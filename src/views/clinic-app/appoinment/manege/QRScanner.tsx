@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation' 
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
+import { Html5Qrcode } from 'html5-qrcode'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -21,11 +21,10 @@ import { checkAppointmentStatus } from '@/services/appointment/appoinment.server
 import type { AppointmentStatusDTO } from '@/types/appoinments.types'
 
 // Components
-import StartConsultationDialog from '@/components/dialogs/appointment-start/StartConsultationDialog'
+import StaffAppointmentActionDialog from '@/components/dialogs/appointment-start/StaffAppointmentActionDialog'
 
-// --- PROPS ---
 interface QRScannerProps {
-  requiredScheduleId: number // The ID from the URL to validate against
+  requiredScheduleId: number 
 }
 
 const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
@@ -45,7 +44,6 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
   const scannerRef = useRef<Html5Qrcode | null>(null)
   const qrCodeRegionId = 'qr-reader'
 
-  // --- 1. EXTRACT FROM URL ---
   const extractQueueValue = useCallback((url: string) => {
     try {
       const match = url.match(/\/queue-tracker\/([^/?#]+)/)
@@ -53,7 +51,6 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
     } catch (err) { return null }
   }, [])
 
-  // --- 2. STOP SCANNING ---
   const stopScanning = useCallback(async () => {
     if (scannerRef.current) {
       try {
@@ -65,7 +62,6 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
     setIsScanning(false)
   }, [])
 
-  // --- 3. HANDLE SUCCESSFUL SCAN ---
   const onScanSuccess = useCallback(async (decodedText: string) => {
     setScannedData(decodedText)
     const encodedValue = extractQueueValue(decodedText)
@@ -77,7 +73,7 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
 
         try {
             const realValue = decodeHideValue(encodedValue) 
-            const parts = realValue.split(':') // Format: ScheduleID:QueueNo:AppId
+            const parts = realValue.split(':') 
             
             if (parts.length > 0) {
                 const scheduleIdFromQR = Number(parts[0])
@@ -86,16 +82,12 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
 
                 if (!isNaN(scheduleIdFromQR) && !isNaN(appointmentId)) {
                     
-                    // --- VALIDATION: Check if QR belongs to this Schedule ---
                     if (scheduleIdFromQR !== requiredScheduleId) {
-                        setApiError(`Invalid Schedule. This QR belongs to Schedule #${scheduleIdFromQR}, but you are in Schedule #${requiredScheduleId}.`)
+                        setApiError(`Invalid Schedule. This QR belongs to Schedule #${scheduleIdFromQR}, but you are scanning for Schedule #${requiredScheduleId}.`)
                         setProcessing(false)
                         return
                     }
-
-                    console.log(`Processing Appointment ID: ${appointmentId} for Schedule: ${scheduleIdFromQR}`)
                     
-                    // Call API
                     const res = await checkAppointmentStatus(scheduleIdFromQR, appointmentId)
 
                     if (res.success && res.data) {
@@ -116,12 +108,9 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
         } finally {
             setProcessing(false)
         }
-    } else {
-        // console.warn('Invalid URL Pattern:', decodedText)
     }
   }, [extractQueueValue, stopScanning, requiredScheduleId])
 
-  // --- 4. START SCANNING ---
   const startScanning = useCallback(async () => {
     setScanError(null)
     setScannedData(null)
@@ -136,11 +125,7 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
 
       await html5QrCode.start(
         { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0
-        },
+        { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
         onScanSuccess,
         () => {} 
       )
@@ -159,13 +144,12 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
     }
   }, [])
 
-  // --- 5. ACTION HANDLERS ---
-  const handleStartConsultation = () => {
-     if(appointmentInfo) {
-         // Redirect to consultation room
-         router.push(`/doctor/consultation/${appointmentInfo.appointmentId}`)
-         setDialogOpen(false)
-     }
+  // --- REFRESH AFTER SUCCESS ---
+  const handleSuccessAction = () => {
+      setDialogOpen(false);
+      setAppointmentInfo(null);
+      // Optional: You can call startScanning() here if you want it to auto-resume camera
+      router.refresh(); 
   }
 
   return (
@@ -215,12 +199,11 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
         </CardContent>
       </Card>
 
-      <StartConsultationDialog 
+      <StaffAppointmentActionDialog 
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        onConfirm={handleStartConsultation}
-        loading={processing} 
         appointmentInfo={appointmentInfo}
+        onSuccessAction={handleSuccessAction}
       />
     </div>
   )
