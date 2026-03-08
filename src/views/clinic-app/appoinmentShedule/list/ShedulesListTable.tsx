@@ -88,7 +88,7 @@ const ScheduleListTable = () => {
                 searchParamKey='q'
                 placeholder='Enter Specialization'
                 getOptionLabel={(specialization: SpecializationDTO) => `${specialization.name}`}
-                fetchInputLenth={1}
+                fetchInputLenth={0}
                 fullWidth
                 size='small'
                 value={values.selectedSpecialization || null} 
