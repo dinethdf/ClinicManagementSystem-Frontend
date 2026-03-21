@@ -52,8 +52,6 @@ const EditStaffDetails = ({ open, setOpen, staffData }: EditStaffDetailsProps) =
   // Populate form
   useEffect(() => {
     if (open && staffData) {
-
-      console.log(staffData)
       reset({
         ...staffData,
         gender: typeof staffData.gender === 'number' ? staffData.gender : undefined,

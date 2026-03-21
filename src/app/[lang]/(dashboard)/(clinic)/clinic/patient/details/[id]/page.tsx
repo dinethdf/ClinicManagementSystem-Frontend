@@ -21,8 +21,6 @@ const CustomerDetailsPage = async (props: { params: Promise<{ id: string }> }) =
 
   const patient = res.data
 
-  console.log(patient)
-
   return <CustomerDetails patientData={patient} />
 }
 

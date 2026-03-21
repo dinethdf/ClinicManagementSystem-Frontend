@@ -142,7 +142,7 @@ const PatientDetailsHeader = ({
                     New Appointment
                 </Button>
 
-                {/* 2. Delete Button */}
+                {/* // 2. Delete Button
                 <div className='flex-1 md:flex-none'>
                     <OpenDialogOnElementClick
                         element={Button}
@@ -153,7 +153,7 @@ const PatientDetailsHeader = ({
                         dialog={ConfirmationDialog}
                         dialogProps={{ type: 'delete-customer' }} 
                     />
-                </div>
+                </div> */}
             </div>
 
             </div>

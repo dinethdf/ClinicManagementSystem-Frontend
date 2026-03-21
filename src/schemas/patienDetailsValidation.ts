@@ -29,26 +29,31 @@ export const getPatientValidationSchema = (isUnderAge: boolean) => {
         return validWords.length >= 2
       }, 'Please enter a full name with at least two valid words (letters only).')
     ),
-    ethnicity: pipe(string(), minLength(1, 'Ethnicity is required')),
+    
+    // --- UPDATED: Ethnicity is now optional ---
+    ethnicity: string(), 
+    
     gender: pipe(string(), minLength(1, 'Gender is required')),
-    maritalStatus: pipe(string(), minLength(1, 'Marital status is required')),
+    
+    // --- UPDATED: Marital status is now optional ---
+    maritalStatus: string(), 
+    
     bloodGroup: string(),
-weight: optional(
+    weight: optional(
       nullable(
         pipe(
-          union([string(), number()]), // Accept both string from input or number from DB
-          transform((val) => (val === '' || val === null ? null : Number(val))), // Convert to number
-          custom((val: any) => val === null || val > 0, 'Weight must be greater than 0') // Validate > 0 if not null
+          union([string(), number()]), 
+          transform((val) => (val === '' || val === null ? null : Number(val))), 
+          custom((val: any) => val === null || val > 0, 'Weight must be greater than 0') 
         )
       )
     ),
-    
     height: optional(
       nullable(
         pipe(
-          union([string(), number()]), // Accept both string from input or number from DB
-          transform((val) => (val === '' || val === null ? null : Number(val))), // Convert to number
-          custom((val: any) => val === null || val > 0, 'Height must be greater than 0') // Validate > 0 if not null
+          union([string(), number()]), 
+          transform((val) => (val === '' || val === null ? null : Number(val))), 
+          custom((val: any) => val === null || val > 0, 'Height must be greater than 0') 
         )
       )
     ),   
@@ -58,7 +63,7 @@ weight: optional(
       : pipe(
           string(),
           minLength(1, 'Relationship is required'),
-        ),     
+        ),    
     nic: isUnderAge
       ? string()
       : pipe(
@@ -67,19 +72,22 @@ weight: optional(
           regex(/(^([0-9]{9}[x|X|v|V]|[0-9]{12})$)/, 'Please enter a valid NIC number')
         ),
     address: isUnderAge
-      ? string() // If under age, NIC is optional (just a string, no rules)
+      ? string() 
       : pipe(string(), minLength(1, 'Address is required'), minLength(10, 'Please enter a more detailed address')),
-    city: isUnderAge
-      ? string() // If under age, NIC is optional (just a string, no rules)
-      : pipe(string(), minLength(3, 'City is required')),
-    district: isUnderAge
-      ? string() // If under age, NIC is optional (just a string, no rules)
-      : pipe(string(), minLength(3, 'District is required')),
-    email: isUnderAge
-      ? string() // If under age, NIC is optional (just a string, no rules)
-      : pipe(string(), minLength(5, 'Email is required'), email('Please enter a valid email address')),
+    city: union([
+      literal(''), 
+      pipe(string(), minLength(3, 'City must be at least 3 characters'))
+    ]),
+    district: union([
+      literal(''), 
+      pipe(string(), minLength(3, 'District must be at least 3 characters'))
+    ]),
+    email: union([
+      literal(''), 
+      pipe(string(), email('Please enter a valid email address'))
+    ]),
     mobileNo: isUnderAge
-      ? string() // If under age, NIC is optional (just a string, no rules)
+      ? string() 
       : pipe(
           string(),
           minLength(1, 'Mobile number is required'),
@@ -89,21 +97,18 @@ weight: optional(
       string(),
       union([literal(''), pipe(string(), regex(/^(?:0)?[0-9]{9}$/, 'Please enter a valid 10-digit land number'))])
     ),
-    emergencyContactName: pipe(
-      string(),
-      minLength(1, 'Emergency contact name is required'),
-      minLength(3, 'Name must be at least 3 characters')
-    ),
-    emergencyContactRelationship: pipe(string(), minLength(1, 'Relationship is required')),
-    emergencyContactMobile: pipe(
-      string(),
-      minLength(1, 'Emergency mobile number is required'),
-      regex(/^(?:0)?(7[0-9]{8})$/, 'Please enter a valid 10-digit mobile number')
-    ),
-
-    emergencyContactEmail: pipe(
-      string(),
-      union([literal(''), pipe(string(), email('Please enter a valid email address'))])
-    )
+    emergencyContactName: union([
+      literal(''), 
+      pipe(string(), minLength(3, 'Name must be at least 3 characters'))
+    ]),
+    emergencyContactRelationship: string(), 
+    emergencyContactMobile: union([
+      literal(''), 
+      pipe(string(), regex(/^(?:0)?(7[0-9]{8})$/, 'Please enter a valid 10-digit mobile number'))
+    ]),
+    emergencyContactEmail: union([
+      literal(''), 
+      pipe(string(), email('Please enter a valid email address'))
+    ])
   })
 }

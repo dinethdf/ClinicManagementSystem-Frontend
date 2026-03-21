@@ -16,7 +16,7 @@ import PatientLeftOverview from './patient-left-overview'
 import PatientRight from './patient-right'
 
 const OverViewTab = dynamic(() => import('@views/clinic-app/patient/details/patient-right/overview'))
-// const SecurityTab = dynamic(() => import('@views/clinic-app/patient/details/patient-right/security'))
+const SecurityTab = dynamic(() => import('@views/clinic-app/patient/details/patient-right/security'))
 const Analysis = dynamic(() => import('@/views/clinic-app/patient/details/patient-right/analysis'))
 
 const InsuranceOverview = dynamic(
@@ -29,7 +29,7 @@ const CustomerDetails = ({ patientData }: { patientData: Patient }) => {
   // Vars
   const tabContentList = useMemo(() => ({
     overview: <OverViewTab patientId={patientData.id} />,
-    // security: <SecurityTab patientId={patientData.id}/>,
+    security: <SecurityTab patientId={patientData.id}/>,
     insurance: <InsuranceOverview />,
     analysis: <Analysis patientId={Number(patientData?.id) || 0} />,
     identity: <PatientIdTab patientData={patientData} />

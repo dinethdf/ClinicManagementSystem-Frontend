@@ -297,7 +297,7 @@ const ScheduleListTable = () => {
 
                 <Button 
                     variant='contained' 
-                    onClick={() => router.push(getLocalizedUrl('/clinic/appoinment-shedule/create', locale as Locale))}
+                    onClick={() => router.push(getLocalizedUrl('/clinic/appoinment-shedule/add', locale as Locale))}
                     startIcon={<i className='tabler-plus' />}
                 >
                     Add Schedule

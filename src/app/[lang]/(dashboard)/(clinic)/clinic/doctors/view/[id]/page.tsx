@@ -13,7 +13,6 @@ const DoctorDetailsPage = async (props: { params: Promise<{ id: string }> }) => 
   // Fetch Doctor Profile (Server Side)
   const doctor = await getDoctorById(params.id)
 
-  // console.log("data", doctor)
 
   if (!doctor) {
     // If backend 404s or error, redirect or show not found
