@@ -353,13 +353,26 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                         <Controller
                                             name={`discounts.${index}.amount`}
                                             control={control}
-                                             render={({ field }) => (
+                                            render={({ field }) => (
                                                 <CustomTextField
-                                                    fullWidth type='number' label="Amount" size="small" placeholder='0.00'
-                                                    slotProps={{ input: { startAdornment: <InputAdornment position='start'>LKR</InputAdornment>, inputProps: { min: 0 } } }}
+                                                    fullWidth 
+                                                    type='text' // <-- 1. Change this to 'text'
+                                                    inputMode='decimal' // <-- 2. Shows number pad on mobile
+                                                    label="Amount" 
+                                                    size="small" 
+                                                    placeholder='0.00'
+                                                    slotProps={{ 
+                                                        input: { 
+                                                            startAdornment: <InputAdornment position='start'>LKR</InputAdornment>
+                                                        } 
+                                                    }}
                                                     {...field}
                                                     value={field.value === 0 ? '' : field.value ?? ''}
-                                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || null)}
+                                                    onChange={(e) => {
+                                                        // 3. Strip out any letters/symbols except numbers and decimals
+                                                        const cleanValue = e.target.value.replace(/[^0-9.]/g, '');
+                                                        field.onChange(cleanValue ? parseFloat(cleanValue) : null);
+                                                    }}
                                                     disabled={!isPayable}
                                                 />
                                             )}

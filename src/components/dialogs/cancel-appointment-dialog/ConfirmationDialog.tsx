@@ -15,23 +15,22 @@ import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import Select from '@mui/material/Select'
 import Box from '@mui/material/Box'
-import Divider from '@mui/material/Divider'
 
 import classnames from 'classnames'
 
 export type ConfirmationType = 'delete-account' | 'unsubscribe' | 'suspend-account' | 'delete-order' | 'delete-customer' | 'cancel-appointment'
 
-// Updated Props Interface
 type ConfirmationDialogProps = {
   open: boolean
   setOpen: (open: boolean) => void
   type: ConfirmationType
-  onConfirm?: (reason?: string) => Promise<{ success: boolean; message: string }>
+  // 1. UPDATED: onConfirm now accepts refundMethod
+  onConfirm?: (reason?: string, refundMethod?: string) => Promise<{ success: boolean; message: string }>
   paymentDetails?: { 
     invoiceStatus: string      
-    invoiceFinalAmount: number  // Total Bill Value
-    amountPaid: number          // NEW: Actual amount paid by patient
-    balanceRemaining?: number   // NEW: Remaining balance
+    invoiceFinalAmount: number  
+    amountPaid: number          
+    balanceRemaining?: number   
     doctorFee: number
     clinicFee: number
   } 
@@ -43,14 +42,16 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
   const [loading, setLoading] = useState(false)
   const [apiMessage, setApiMessage] = useState<string>('')
 
-  // Reason States
+  // Reason & Refund States
   const [reasonSelect, setReasonSelect] = useState<string>('Patient Request')
   const [customReason, setCustomReason] = useState<string>('')
+  const [refundMethod, setRefundMethod] = useState<string>('CASH')
 
   useEffect(() => {
     if (open) {
         setReasonSelect('Patient Request')
         setCustomReason('')
+        setRefundMethod('CASH')
     }
   }, [open])
 
@@ -73,7 +74,9 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
         setLoading(true)
         try {
             const finalReason = reasonSelect === 'Other' ? customReason : reasonSelect
-            const response = await onConfirm(finalReason)
+            // 3. UPDATED: Pass refundMethod only if a payment was made
+            const selectedRefundMethod = hasPaid ? refundMethod : undefined;
+            const response = await onConfirm(finalReason, selectedRefundMethod)
             
             if (response.success) {
                 setUserInput(true)
@@ -98,14 +101,10 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
   }
 
   // --- FINANCIAL LOGIC ---
-  // 1. Determine if any money has been paid
   const amountPaid = paymentDetails?.amountPaid || 0;
   const hasPaid = amountPaid > 0;
-
-  // 2. Total Value of the Appointment
   const totalAppointmentValue = (paymentDetails?.doctorFee || 0) + (paymentDetails?.clinicFee || 0);
 
-  // 3. Status Color Helper
   const getStatusColor = (status: string | undefined) => {
       switch (status) {
           case 'PAID': return 'text-success';
@@ -128,15 +127,12 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
               {type === 'cancel-appointment' ? 'Cancel Appointment?' : 'Are you sure?'}
             </Typography>
 
-            {/* --- REASON & PAYMENT INFO --- */}
             {type === 'cancel-appointment' && (
                 <div className='w-full text-left flex flex-col gap-4 mb-4'>
                     
                     {/* FINANCIAL INFO BOX */}
                     {paymentDetails && (
                         <Box className={`p-3 rounded border flex flex-col gap-2 ${hasPaid ? 'bg-red-50 border-red-100' : 'bg-gray-50 border-gray-200'}`}>
-                            
-                            {/* Row 1: Header & Status */}
                             <div className='flex justify-between items-center border-b border-dashed pb-2'>
                                 <Typography variant='caption' className='font-bold uppercase text-gray-500'>Payment Status</Typography>
                                 <Typography variant='subtitle2' className={`font-bold ${getStatusColor(paymentDetails.invoiceStatus)}`}>
@@ -144,19 +140,16 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
                                 </Typography>
                             </div>
 
-                            {/* Row 2: Total Cost */}
                             <div className='flex justify-between items-center'>
                                 <Typography variant='body2' className='text-gray-600'>Total Fee:</Typography>
                                 <Typography variant='body2' className='font-medium text-gray-600'>LKR {totalAppointmentValue.toFixed(2)}</Typography>
                             </div>
 
-                            {/* Row 3: Amount Paid (Crucial for Partial) */}
                             <div className='flex justify-between items-center'>
                                 <Typography variant='body2' className='text-gray-600'>Amount Paid:</Typography>
                                 <Typography variant='body2' className='font-bold text-gray-800'>LKR {amountPaid.toFixed(2)}</Typography>
                             </div>
                             
-                            {/* Row 4: Refund Highlight */}
                             <div className='flex justify-between items-center mt-1 bg-white p-2 rounded shadow-sm border border-gray-100'>
                                 <Typography variant='subtitle2' className='font-bold text-gray-800'>
                                     {hasPaid ? "Refund Amount:" : "No Refund Due"}
@@ -174,8 +167,23 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
                         </Box>
                     )}
 
+                  {/* REFUND METHOD SELECTOR */}
+                    {hasPaid && (
+                        <FormControl fullWidth size='small' className='mt-2'>
+                            <InputLabel>Refund Method</InputLabel>
+                            <Select
+                                label='Refund Method'
+                                value={refundMethod}
+                                onChange={(e) => setRefundMethod(e.target.value)}
+                            >
+                                <MenuItem value='CASH'>Cash</MenuItem>
+                                <MenuItem value='CARD'>Card</MenuItem>
+                            </Select>
+                        </FormControl>
+                    )}
+
                     {/* REASON SELECTOR */}
-                    <FormControl fullWidth size='small' className='mt-2'>
+                    <FormControl fullWidth size='small' className={hasPaid ? 'mt-2' : 'mt-4'}>
                         <InputLabel>Reason for Cancellation</InputLabel>
                         <Select
                             label='Reason for Cancellation'

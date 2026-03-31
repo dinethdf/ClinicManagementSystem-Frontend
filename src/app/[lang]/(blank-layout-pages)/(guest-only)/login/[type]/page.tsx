@@ -15,8 +15,7 @@ export const metadata: Metadata = {
 }
 
 const LoginPage = async (props: { params: Promise<{ type: string }> }) => {
-  // 1. Get the server mode
-  console.log("Rnnung Login page")
+
   const mode = await getServerMode()
 
   const params = await props.params

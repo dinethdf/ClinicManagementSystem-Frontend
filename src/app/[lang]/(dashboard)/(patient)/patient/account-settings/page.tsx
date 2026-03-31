@@ -8,8 +8,6 @@ const PatientDetailsPage = async () => {
 
   const patientData = await getPatientDetails()
 
-  console.log(patientData)
-
   if (!patientData) {
     return <div>Error loading patient data)</div>
   }

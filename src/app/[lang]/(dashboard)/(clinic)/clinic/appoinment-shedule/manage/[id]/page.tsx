@@ -37,7 +37,6 @@ const ScanPage =async (props: { params: Promise<{ id: string }> }) => {
   
     const params = await props.params
 
-    console.log(params)
 
   // Validation
   if (!params.id || isNaN(Number(params.id) || 0)) {

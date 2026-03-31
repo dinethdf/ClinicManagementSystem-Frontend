@@ -13,6 +13,7 @@ import Alert from '@mui/material/Alert'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
+import Box from '@mui/material/Box'
 
 // Component Imports
 import PatientIdCard from './PatientIdCard'
@@ -23,32 +24,41 @@ import { getPatientBarcode } from '@/services/patient/patient.server.service'
 // Type Imports
 import type { Patient } from '@/types/patient.types'
 
-const PatientIdWidget = ({ patient }: { patient: Patient }) => {
+const PatientIdWidget = ({ patient }: { patient: any }) => { // Using 'any' since your JSON has extra fields like 'isTemp'
   const componentRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(false)
   const [barcodeData, setBarcodeData] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
 
-  // 1. Fetch Logic
+  // 1. Validation Logic
+  const canGenerateId = patient.isActive === true && patient.isTemp === false
+
+  // 2. Fetch Logic
   const fetchBarcodeIfNeeded = async () => {
     if (barcodeData) return true
     setLoading(true)
     setError(null)
-    const res = await getPatientBarcode(Number(patient.id))
+    
+    try {
+        const res = await getPatientBarcode(Number(patient.id))
 
-    if (res.success && res.data) {
-      setBarcodeData(res.data)
-      setLoading(false)
-      return true
-    } else {
-      setError(res.error?.message || "Failed to load barcode")
-      setLoading(false)
-      return false
+        if (res.success && res.data) {
+            setBarcodeData(res.data)
+            return true
+        } else {
+            setError(res.error?.message || "Failed to load barcode from server.")
+            return false
+        }
+    } catch (err: any) {
+        setError(err.message || "An unexpected error occurred.")
+        return false
+    } finally {
+        setLoading(false)
     }
   }
 
-  // 2. Print Configuration
+  // 3. Print Configuration
   const pageStyle = `
     @page { 
       size: landscape; 
@@ -75,12 +85,18 @@ const PatientIdWidget = ({ patient }: { patient: Patient }) => {
 
   const triggerPrint = useReactToPrint({
     contentRef: componentRef,
-    documentTitle: `PatientID_${patient.id}`,
+    documentTitle: `PatientID_${patient.patientNo}`,
     pageStyle: pageStyle
   })
 
-  // 3. Handlers
+  // 4. Handlers
   const handlePreviewClick = async () => {
+    if (!canGenerateId) {
+        // Fallback catch, though the button should be disabled anyway
+        setError("Patient must be fully registered and active to generate an ID.")
+        return
+    }
+
     const success = await fetchBarcodeIfNeeded()
     if (success) setPreviewOpen(true)
   }
@@ -98,28 +114,54 @@ const PatientIdWidget = ({ patient }: { patient: Patient }) => {
                     View & Print Official ID
                 </Typography>
             </div>
-            {error && <Alert severity='error' onClose={() => setError(null)}>{error}</Alert>}
-            <Button variant='outlined' fullWidth onClick={handlePreviewClick} disabled={loading}>
-                {loading ? <CircularProgress size={16} /> : 'Preview ID Card'}
+
+            {/* Validation Alerts */}
+            {!canGenerateId && !error && (
+                <Alert severity='warning' className='text-left w-full'>
+                    ID card generation is unavailable. The patient profile must be <strong>active</strong> and <strong>fully registered</strong> (not temporary).
+                </Alert>
+            )}
+
+            {/* API Errors */}
+            {error && (
+                <Alert severity='error' onClose={() => setError(null)} className='text-left w-full'>
+                    {error}
+                </Alert>
+            )}
+
+            <Button 
+                variant='outlined' 
+                fullWidth 
+                onClick={handlePreviewClick} 
+                disabled={loading || !canGenerateId}
+            >
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Preview ID Card'}
             </Button>
         </CardContent>
       </Card>
 
       {/* Preview Dialog */}
       <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md" fullWidth>
-        <DialogContent sx={{ display: 'flex', justifyContent: 'center', bgcolor: '#ccc', py: 8 }}>
+        <DialogContent sx={{ display: 'flex', justifyContent: 'center', bgcolor: '#e0e0e0', py: 8 }}>
             
             {/* The Print Wrapper */}
-            <div ref={componentRef} className="print-wrapper">
+            <div ref={componentRef} className="print-wrapper shadow-2xl bg-white">
                <PatientIdCard patient={patient} barcodeString={barcodeData} />
             </div>
 
         </DialogContent>
-        <DialogActions>
-            <Button onClick={() => setPreviewOpen(false)} color='secondary'>Close</Button>
-            <Button onClick={() => triggerPrint()} variant='contained' startIcon={<i className='tabler-printer'/>}>
-                Print Now
-            </Button>
+        <DialogActions className='p-4 justify-between bg-gray-50 border-t border-gray-200'>
+            <Typography variant='body2' color='text.secondary' className='ml-2'>
+                Ensure your printer is set to <strong>Landscape</strong> mode.
+            </Typography>
+            <Box className='flex gap-2'>
+                <Button onClick={() => setPreviewOpen(false)} color='secondary' variant='tonal'>
+                    Close
+                </Button>
+                <Button onClick={() => triggerPrint()} variant='contained' startIcon={<i className='tabler-printer'/>}>
+                    Print Now
+                </Button>
+            </Box>
         </DialogActions>
       </Dialog>
     </>
