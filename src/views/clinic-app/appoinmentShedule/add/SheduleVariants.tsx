@@ -10,7 +10,7 @@ import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress' // 1. Import Loader
+import CircularProgress from '@mui/material/CircularProgress'
 
 // Components Imports
 import CustomTextField from '@core/components/mui/TextField'
@@ -20,11 +20,22 @@ import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 // Types Imports
 import type { DoctorSchedule } from '@/types/doctor.types'
 
+const initialScheduleState = { 
+  date: '', 
+  startTime: '', 
+  endTime: '', 
+  doctorFee: 0, 
+  clinicFee: 0, 
+  maxPatientCount: 0, 
+  registeredPatientCount: 0 
+}
+
 const SheduleVariants = () => {
   const {
     control,
     setValue,
-    formState: { errors, isSubmitting } // 2. Extract isSubmitting
+    reset, // <-- Import reset here
+    formState: { errors, isSubmitting }
   } = useFormContext<DoctorSchedule>()
 
   const { fields, append, remove } = useFieldArray({
@@ -34,7 +45,7 @@ const SheduleVariants = () => {
 
   useEffect(() => {
     if (fields.length === 0) {
-      append({ date: '', startTime: '', endTime: '', doctorFee: 0, clinicFee: 0, maxPatientCount: 0, registeredPatientCount: 0 })
+      append(initialScheduleState)
     }
   }, [])
 
@@ -58,6 +69,15 @@ const SheduleVariants = () => {
     if (!dateObj) return
     const time = dateObj.toTimeString().split(' ')[0].slice(0, 5)
     setValue(`schedules.${index}.endTime`, time, { shouldValidate: true })
+  }
+
+  // --- Discard Handler ---
+  const handleDiscard = () => {
+    // Reset the form state for schedules back to a single empty item
+    reset({
+      ...control._defaultValues, // Preserve any other form fields if they exist outside of schedules
+      schedules: [initialScheduleState] 
+    })
   }
 
   return (
@@ -225,23 +245,22 @@ const SheduleVariants = () => {
           <Grid size={{ xs: 12 }}>
             <Button
               variant='contained'
-              onClick={() => append({ date: '', startTime: '', endTime: '', doctorFee: 0, clinicFee: 0, maxPatientCount: 0, registeredPatientCount: 0 })}
+              onClick={() => append(initialScheduleState)}
             >
               Add Another Option
             </Button>
           </Grid>
           
           <Grid size={{ xs: 12 }}>
-            <div className='flex flex-wrap max-sm:flex-col gap-4'>
-              <Button variant='tonal' color='secondary' type='button' disabled={isSubmitting}>
+            <div className='flex flex-wrap max-sm:flex-col gap-4'>  
+              <Button variant='tonal' color='secondary' type='button' disabled={isSubmitting} onClick={handleDiscard}>
                 Discard
               </Button>
-              {/* 3. Updated Publish Button with Loading State */}
               <Button 
                 variant='contained' 
                 type='submit'
-                disabled={isSubmitting} // Disables click
-                startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null} // Shows loader
+                disabled={isSubmitting}
+                startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
               >
                 {isSubmitting ? 'Publishing...' : 'Publish'}
               </Button>

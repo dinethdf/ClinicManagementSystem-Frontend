@@ -155,7 +155,6 @@ const Analysis = ({ patientId }: { patientId: number | string }) => {
 
       try {
         const result = await patientAnalysisService.getPatientAnalysis(patientId)
-        console.log('Analysis Data:', result)
         
         if (isMounted) {
           setData(result)

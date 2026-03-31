@@ -31,16 +31,19 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
   const [openCancelDialog, setOpenCancelDialog] = useState(false)
   const [openRefundDialog, setOpenRefundDialog] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
-  // --- ACTIONS ---
-  const handleCancelConfirm = async (reason?: string) => {
-    const finalReason = reason || "No reason provided";
-    const result = await cancelAppointment(appointmentData.id, finalReason);
-    if (result.success) {
-        router.refresh(); 
-        return { success: true, message: result.message };
-    } 
-    return { success: false, message: result.message || "Failed to cancel appointment" };
-  }
+  
+
+  const handleCancelConfirm = async (reason?: string, refundMethod?: string) => {
+  const finalReason = reason || "No reason provided";
+  // Pass the refundMethod to the service
+  const result = await cancelAppointment(appointmentData.id, finalReason, refundMethod);
+  
+  if (result.success) {
+      router.refresh(); 
+      return { success: true, message: result.message };
+  } 
+  return { success: false, message: result.message || "Failed to cancel appointment" };
+}
 
   const handlePrintInvoice = async () => {
     try {

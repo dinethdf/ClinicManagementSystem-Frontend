@@ -197,11 +197,12 @@ export async function checkAppointmentStatus(scheduleId: number, patientId: numb
   }
 }
 
-export async function cancelAppointment(appointmentId: number, reason: string) {
+export async function cancelAppointment(appointmentId: number, reason: string, refundMethod?: string) {
   try {
-
-    const response = await http.post<CancelResponse>(`/api/appointments/cancel/${appointmentId}`, { reason }, true);
-
+    // Include refundMethod in the payload if it exists
+    const payload = refundMethod ? { reason, refundMethod } : { reason };
+    
+    const response = await http.post<any>(`/api/appointments/cancel/${appointmentId}`, payload, true);
 
     let displayMessage = response.message || 'Appointment Cancelled & Refund Recorded.';
     if (response.data?.refundAmount && response.data.refundAmount > 0) {

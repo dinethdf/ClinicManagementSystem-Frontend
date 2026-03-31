@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 // MUI Imports
 import Dialog from '@mui/material/Dialog'
@@ -12,6 +12,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Grid from '@mui/material/Grid'
 import Alert from '@mui/material/Alert'
 import InputAdornment from '@mui/material/InputAdornment'
+import CircularProgress from '@mui/material/CircularProgress'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
@@ -27,23 +28,23 @@ type Props = {
   onSuccess?: () => void
 }
 
-// --- PREDEFINED REASONS ---
 const DOCTOR_REASONS = [
-    "Doctor decided to waive fee",
-    "Service not satisfactory (Doctor issue)",
-    "Doctor unavailable / Left early"
+  "Doctor decided to waive fee",
+  "Service not satisfactory (Doctor issue)",
+  "Doctor unavailable / Left early"
 ]
 
 const CLINIC_REASONS = [
-    "Administrative / Billing Error",
-    "Appointment cancelled by Clinic",
-    "Equipment failure / Technical issue"
+  "Administrative / Billing Error",
+  "Appointment cancelled by Clinic",
+  "Equipment failure / Technical issue"
 ]
 
 const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
   // States
   const [amount, setAmount] = useState<string>('')
   const [category, setCategory] = useState<'DOCTOR' | 'CLINIC'>('DOCTOR')
+  const [refundMethod, setRefundMethod] = useState<string>('CASH') // NEW: Default to CASH
   const [reason, setReason] = useState('')
   const [authorizedBy, setAuthorizedBy] = useState('')
   
@@ -58,13 +59,13 @@ const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
   const resetForm = () => {
     setAmount('')
     setCategory('DOCTOR')
+    setRefundMethod('CASH') // Reset to default
     setReason('')
     setAuthorizedBy('')
     setError(null)
   }
 
   const handleSubmit = async () => {
-    // Basic Validation
     if (!amount || parseFloat(amount) <= 0) {
       setError("Please enter a valid amount")
       return
@@ -74,9 +75,9 @@ const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
       return
     }
     if (!authorizedBy) {
-        setError("Authorized By field is required")
-        return
-      }
+      setError("Authorized By field is required")
+      return
+    }
 
     setLoading(true)
     setError(null)
@@ -85,6 +86,7 @@ const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
       invoiceId: invoiceId,
       amount: parseFloat(amount),
       refundCategory: category,
+      refundMethod: refundMethod, // Pass to API
       reason: reason,
       authorizedBy: authorizedBy
     }
@@ -101,7 +103,6 @@ const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
     }
   }
 
-  // Determine which list to show based on category
   const currentReasonOptions = category === 'DOCTOR' ? DOCTOR_REASONS : CLINIC_REASONS
 
   return (
@@ -128,7 +129,7 @@ const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
         <Grid container spacing={5}>
           
           {/* 1. Category Selection */}
-          <Grid size={{ xs: 12 }}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <CustomTextField
               select
               fullWidth
@@ -136,15 +137,30 @@ const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
               value={category}
               onChange={e => {
                   setCategory(e.target.value as 'DOCTOR' | 'CLINIC')
-                  setReason('') // Clear reason when category changes to avoid confusion
+                  setReason('') 
               }}
             >
-              <MenuItem value='DOCTOR'>Doctor Fee Refund</MenuItem>
-              <MenuItem value='CLINIC'>Clinic/Hospital Fee Refund</MenuItem>
+              <MenuItem value='DOCTOR'>Doctor Fee</MenuItem>
+              <MenuItem value='CLINIC'>Clinic Fee</MenuItem>
             </CustomTextField>
           </Grid>
 
-          {/* 2. Amount */}
+          {/* 2. NEW: Refund Method Selection */}
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <CustomTextField
+              select
+              fullWidth
+              label='Refund Method'
+              value={refundMethod}
+              onChange={e => setRefundMethod(e.target.value)}
+            >
+              <MenuItem value='CASH'>Cash</MenuItem>
+              <MenuItem value='CARD'>Card</MenuItem>
+              <MenuItem value='ORIGINAL_METHOD'>Original Method</MenuItem>
+            </CustomTextField>
+          </Grid>
+
+          {/* 3. Amount */}
           <Grid size={{ xs: 12 }}>
             <CustomTextField
               fullWidth
@@ -158,7 +174,7 @@ const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
             />
           </Grid>
 
-          {/* 3. Authorized By */}
+          {/* 4. Authorized By */}
           <Grid size={{ xs: 12 }}>
             <CustomTextField
               fullWidth
@@ -169,15 +185,15 @@ const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
             />
           </Grid>
 
-          {/* 4. Quick Reason Select (New) */}
+          {/* 5. Quick Reason Select */}
           <Grid size={{ xs: 12 }}>
              <CustomTextField
               select
               fullWidth
               label='Quick Select Reason (Optional)'
               defaultValue=''
-              value={currentReasonOptions.includes(reason) ? reason : ''} // Only match if exact string matches
-              onChange={e => setReason(e.target.value)} // Sets the main reason state
+              value={currentReasonOptions.includes(reason) ? reason : ''} 
+              onChange={e => setReason(e.target.value)} 
              >
                 <MenuItem value="" disabled>Select a reason...</MenuItem>
                 {currentReasonOptions.map((opt, index) => (
@@ -186,7 +202,7 @@ const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
              </CustomTextField>
           </Grid>
 
-          {/* 5. Detailed Reason (Multiline) */}
+          {/* 6. Detailed Reason (Multiline) */}
           <Grid size={{ xs: 12 }}>
             <CustomTextField
               fullWidth
@@ -203,7 +219,7 @@ const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
       </DialogContent>
 
       <DialogActions className='justify-center pbs-0 sm:pbe-16 sm:pli-16'>
-        <Button variant='contained' onClick={handleSubmit} disabled={loading}>
+        <Button variant='contained' onClick={handleSubmit} disabled={loading} startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}>
           {loading ? 'Processing...' : 'Confirm Refund'}
         </Button>
         <Button variant='tonal' color='secondary' onClick={handleClose} disabled={loading}>

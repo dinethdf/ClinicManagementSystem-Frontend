@@ -88,7 +88,7 @@ const ScheduleListTable = () => {
                 searchParamKey='q'
                 placeholder='Enter Specialization'
                 getOptionLabel={(specialization: SpecializationDTO) => `${specialization.name}`}
-                fetchInputLenth={1}
+                fetchInputLenth={0}
                 fullWidth
                 size='small'
                 value={values.selectedSpecialization || null} 
@@ -297,7 +297,7 @@ const ScheduleListTable = () => {
 
                 <Button 
                     variant='contained' 
-                    onClick={() => router.push(getLocalizedUrl('/clinic/appoinment-shedule/create', locale as Locale))}
+                    onClick={() => router.push(getLocalizedUrl('/clinic/appoinment-shedule/add', locale as Locale))}
                     startIcon={<i className='tabler-plus' />}
                 >
                     Add Schedule

@@ -87,26 +87,109 @@ export async function changePassword(otp: string, newPassword: string, confirmPa
 }
 
 
+// export async function createPatientLogin(patientId: string) {
+//   try {
+//     const response = await http.post<{ message: string, data: string }>(`/api/patient/create-login/${patientId}`, {})
+//     return { success: true, message: response.data || response.message }
+//   } catch (err: any) {
+//     // Handle specific API errors
+//     if (err instanceof ApiError) {
+//       return { 
+//         success: false, 
+//         message: err.message, 
+//         errorCode: err.details // Assuming your ApiError stores the 'errorCode' in details
+//       }
+//     }
+    
+//     // Handle unexpected errors (like 403 Forbidden)
+//     console.error("Create Login Error:", err)
+//     return { 
+//       success: false, 
+//       message: err.message || "Failed to create login. Please contact support.",
+//       errorCode: 'UNKNOWN_ERROR'
+//     }
+//   }
+// } // Duplicate entru for checking error handling, see PatientLoginCreator.tsx for usage
+
+
+export interface PatientLoginStatus {
+  hasLogin: boolean;
+  emailOnFile: boolean;
+  loginStatus?: 'ACTIVE' | 'DISABLED'; 
+}
+
+// Helper to extract error code safely from ApiError details
+const getErrorCode = (details: any) => {
+  if (typeof details === 'string') return details;
+  return details?.errorCode || 'UNKNOWN_ERROR';
+}
+
+// 1. Check current login status
+export async function getPatientLoginStatus(patientId: string) {
+  try {
+    // Pass 'true' for isFullResponse to get the full { success, message, data } wrapper
+    const response = await http.get<{ success: boolean, message: string, data: PatientLoginStatus }>(
+      `/api/patient/${patientId}/login-status`, 
+      true
+    )
+    return { success: true, data: response.data, message: response.message }
+  } catch (err: any) {
+    if (err instanceof ApiError) {
+      return { success: false, message: err.message, errorCode: getErrorCode(err.details) }
+    }
+    return { success: false, message: err.message || "Failed to load status." }
+  }
+}
+
+// 2. Create Login
 export async function createPatientLogin(patientId: string) {
   try {
-    const response = await http.post<{ message: string, data: string }>(`/api/patient/create-login/${patientId}`, {})
-    return { success: true, message: response.data || response.message }
+    const response = await http.post<{ success: boolean, message: string, data: string }>(
+      `/api/patient/create-login/${patientId}`, 
+      {}, 
+      true
+    )
+    return { success: true, message: response.message }
   } catch (err: any) {
-    // Handle specific API errors
     if (err instanceof ApiError) {
-      return { 
-        success: false, 
-        message: err.message, 
-        errorCode: err.details // Assuming your ApiError stores the 'errorCode' in details
-      }
+      return { success: false, message: err.message, errorCode: getErrorCode(err.details) }
     }
-    
-    // Handle unexpected errors (like 403 Forbidden)
     console.error("Create Login Error:", err)
-    return { 
-      success: false, 
-      message: err.message || "Failed to create login. Please contact support.",
-      errorCode: 'UNKNOWN_ERROR'
+    return { success: false, message: err.message || "Failed to create login. Please contact support.", errorCode: 'UNKNOWN_ERROR' }
+  }
+}
+
+// 3. Trigger Password Reset Email
+export async function triggerPasswordReset(patientId: string) {
+  try {
+    const response = await http.post<{ success: boolean, message: string, data: string }>(
+      `/api/patient/${patientId}/password-reset`, 
+      {}, 
+      true
+    )
+    return { success: true, message: response.message }
+  } catch (err: any) {
+    if (err instanceof ApiError) {
+      return { success: false, message: err.message, errorCode: getErrorCode(err.details) }
     }
+    return { success: false, message: err.message || "Failed to send reset link." }
+  }
+}
+
+// 4. Disable/Enable Login Access
+export async function togglePatientLoginStatus(patientId: string, action: 'enable' | 'disable') {
+  try {
+    // The query param action must be exactly 'enable' or 'disable'
+    const response = await http.post<{ success: boolean, message: string, data: string }>(
+      `/api/patient/${patientId}/toggle-login?action=${action}`, 
+      {}, 
+      true
+    )
+    return { success: true, message: response.message }
+  } catch (err: any) {
+    if (err instanceof ApiError) {
+      return { success: false, message: err.message, errorCode: getErrorCode(err.details) }
+    }
+    return { success: false, message: err.message || `Failed to ${action} login.` }
   }
 }
