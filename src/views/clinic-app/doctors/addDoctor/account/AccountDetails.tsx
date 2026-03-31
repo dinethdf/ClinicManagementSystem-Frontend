@@ -385,6 +385,7 @@ const DoctorAccountDetails = () => {
                     searchParamKey='query'
                     placeholder='Select Specialization'
                     getOptionLabel={(option: any) => option.name || ''}
+                    fetchAllOnEmpty={true}
                     fetchInputLenth={0}
                     fullWidth
                     error={!!error}

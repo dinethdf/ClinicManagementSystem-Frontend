@@ -29,24 +29,26 @@ export type RefundPayload = {
   refundCategory: 'DOCTOR' | 'CLINIC';
   reason: string;
   authorizedBy: string;
+  refundMethod: string;
 }
 
 export async function processRefund(payload: RefundPayload) {
   try {
-    const response = await http.post('/api/payments/appointment/refund', payload);
-    
-    return { success: true, message: 'Refund processed successfully', data: response };
-  } catch (err) {
+    const response = await http.post<{ success: boolean, message: string, data: any }>(
+      `/api/payments/appointment/refund`, 
+      payload, 
+      true
+    )
+    console.log("Refunc xcall", response)
+    return { success: true, message: response.message }
+  } catch (err: any) {
+
+    console.log("Refunc erro coll", err)
+
     if (err instanceof ApiError) {
-      return { 
-        success: false, 
-        message: err.message || 'Refund Failed', 
-        details: err.details 
-      };
+      return { success: false, message: err.message, errorCode: err.details?.errorCode || err.details }
     }
-    
-    console.error("Unexpected refund error:", err);
-    return { success: false, message: "An unexpected error occurred during refund." };
+    return { success: false, message: err.message || "Failed to process refund." }
   }
 }
 
