@@ -46,6 +46,7 @@ type AddEditPaymentData = {
 type AddEditPaymentProps = {
   open: boolean
   setOpen: (open: boolean) => void
+  appointmentId: number
   finalTotal: number 
   invoiceId: string
   discounts: Discount[]
@@ -69,6 +70,7 @@ const paymentMethodes: CustomInputHorizontalData[] = [
 const PaymentFinalizer = ({ 
     open, 
     setOpen, 
+    appointmentId,
     finalTotal, 
     invoiceId, 
     discounts, 
@@ -168,7 +170,7 @@ const PaymentFinalizer = ({
       }
       
       handleClose();
-      router.replace(`/${params.lang}/clinic/appoinment/list`);
+      router.replace(`/${params.lang}/clinic/appoinment/details/${appointmentId}`);
     } else {
       toast.error(result?.error?.message || "Payment failed");
     }
