@@ -95,7 +95,22 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
           {role === 'ADMIN' && (
           <SubMenu label={dictionary['navigation'].clinic} icon={<i className='tabler-shopping-cart' />}>
             <MenuItem href={`/${locale}/clinic`}>{dictionary['navigation'].dashboard}</MenuItem>
-            <SubMenu label={dictionary['navigation'].patient}>
+            <MenuItem 
+                href={`/${locale}/clinic/patient/list`} 
+                exactMatch={false}
+                activeUrl='/clinic/patient/'
+              >
+              {dictionary['navigation'].patients}
+            </MenuItem>
+            <MenuItem 
+                href={`/${locale}/clinic/doctors/list`}
+                exactMatch={false}
+                activeUrl='/clinic/doctors/'
+              >
+               {dictionary['navigation'].doctor}
+            </MenuItem>
+
+            {/* <SubMenu label={dictionary['navigation'].patient}>
               <MenuItem href={`/${locale}/clinic/patient/list`}>{dictionary['navigation'].patientlist}</MenuItem>
               <MenuItem href={`/${locale}/clinic/patient/register`}>{dictionary['navigation'].patientAdd}</MenuItem>
               <MenuItem
@@ -106,8 +121,8 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
               >
                 {dictionary['navigation'].details}
               </MenuItem>
-            </SubMenu>
-            <SubMenu label={dictionary['navigation'].doctor}>
+            </SubMenu> */}
+            {/* <SubMenu label={dictionary['navigation'].doctor}>
               <MenuItem href={`/${locale}/clinic/doctors/list`}>{dictionary['navigation'].doctorList}</MenuItem>
               <MenuItem href={`/${locale}/clinic/doctors/register`}>{dictionary['navigation'].doctorAdd}</MenuItem>
               <MenuItem
@@ -118,7 +133,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
               >
                 {dictionary['navigation'].details}
               </MenuItem>              
-            </SubMenu>            
+            </SubMenu>    */}
             <SubMenu label={dictionary['navigation'].appoinmentShedule}>
               <MenuItem href={`/${locale}/clinic/appoinment-shedule/add`}>
                 {dictionary['navigation'].appoinmentSheduleAdd}
@@ -188,7 +203,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
           {role === 'STAFF' && (
           <SubMenu label={dictionary['navigation'].clinic} icon={<i className='tabler-shopping-cart' />}>
             <MenuItem href={`/${locale}/clinic`}>{dictionary['navigation'].dashboard}</MenuItem>
-            <SubMenu label={dictionary['navigation'].patient}>
+            <SubMenu label={dictionary['navigation'].patients}>
               <MenuItem href={`/${locale}/clinic/patient/list`}>{dictionary['navigation'].patientlist}</MenuItem>
               <MenuItem href={`/${locale}/clinic/patient/register`}>{dictionary['navigation'].patientAdd}</MenuItem>
               <MenuItem

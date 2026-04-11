@@ -25,17 +25,19 @@ interface StaffAppointmentActionDialogProps {
   onClose: () => void
   appointmentInfo: AppointmentStatusDTO | null
   onSuccessAction: () => void
-  userRole: string // 4. RECEIVE ROLE HERE
+  userRole: string
 }
 
 const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSuccessAction, userRole }: StaffAppointmentActionDialogProps) => {
   const [loadingAction, setLoadingAction] = useState<'booked' | 'ongoing' | 'completed' | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [showConfirmComplete, setShowConfirmComplete] = useState(false)
+  const [showRevertWarning, setShowRevertWarning] = useState<'booked' | 'ongoing' | null>(null) // NEW: Tracks revert action
 
   useEffect(() => {
     if (open) {
       setShowConfirmComplete(false)
+      setShowRevertWarning(null)
       setErrorMsg(null)
     }
   }, [open])
@@ -51,10 +53,32 @@ const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSucces
   const handleClose = () => {
     setErrorMsg(null)
     setShowConfirmComplete(false)
+    setShowRevertWarning(null)
     onClose()
   }
 
-  const handleStatusChange = async (action: 'booked' | 'ongoing' | 'completed') => {
+  // Interceptor Function: Decides whether to show a warning or proceed
+  const handleActionClick = (action: 'booked' | 'ongoing' | 'completed') => {
+      // If already completed and trying to go backwards, show the warning instead of firing API
+      if (isCompleted && (action === 'booked' || action === 'ongoing')) {
+          setShowRevertWarning(action)
+          setShowConfirmComplete(false) // Hide the other warning if open
+          return
+      }
+      
+      // If trying to complete, show the complete confirmation
+      if (action === 'completed' && !isCompleted) {
+          setShowConfirmComplete(true)
+          setShowRevertWarning(null) // Hide the other warning if open
+          return
+      }
+
+      // Otherwise, execute the API call
+      executeStatusChange(action)
+  }
+
+  // The actual API call function
+  const executeStatusChange = async (action: 'booked' | 'ongoing' | 'completed') => {
     if (!appointmentInfo?.appointmentId || !appointmentInfo?.patientId) {
       setErrorMsg("Missing appointment or patient ID.")
       return
@@ -86,6 +110,7 @@ const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSucces
     } finally {
       setLoadingAction(null)
       setShowConfirmComplete(false)
+      setShowRevertWarning(null)
     }
   }
 
@@ -99,9 +124,9 @@ const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSucces
   }
 
   const isCompleted = appointmentInfo.statusCode === 'COMPLETED';
-  const isDoctor = userRole === 'DOCTOR'; // 5. CHECK IF DOCTOR
+  const isDoctor = userRole === 'DOCTOR';
 
-return (
+  return (
     <Dialog 
       open={open} 
       onClose={handleClose} 
@@ -176,14 +201,14 @@ return (
                 Update Status
             </Typography>
 
-            {/* Inline Confirmation for Completed */}
+            {/* 1. INLINE CONFIRMATION FOR "COMPLETED" */}
             <Collapse in={showConfirmComplete}>
-                <Box className="bg-error/5 border border-error/20 p-4 rounded-xl flex flex-col items-center text-center mb-4">
-                    <Typography variant="subtitle1" color="error" className="font-bold mb-1">
-                    Mark as Completed?
+                <Box className="bg-success/5 border border-success/20 p-4 rounded-xl flex flex-col items-center text-center mb-4">
+                    <Typography variant="subtitle1" color="success.main" className="font-bold mb-1">
+                      Mark as Completed?
                     </Typography>
                     <Typography variant="body2" color="text.secondary" className="mb-3">
-                    This will remove the patient from the active queue.
+                      This will remove the patient from the active queue.
                     </Typography>
                     <div className="flex gap-3 w-full">
                     <Button 
@@ -197,18 +222,49 @@ return (
                     <Button 
                         fullWidth
                         variant="contained" 
-                        color="error"
+                        color="success"
                         disabled={loadingAction !== null}
-                        onClick={() => handleStatusChange('completed')}
+                        onClick={() => executeStatusChange('completed')}
                     >
-                        {loadingAction === 'completed' ? <CircularProgress size={20} color="inherit"/> : 'Confirm'}
+                        {loadingAction === 'completed' ? <CircularProgress size={20} color="inherit"/> : 'Confirm Complete'}
                     </Button>
                     </div>
                 </Box>
             </Collapse>
 
-            {/* Standard Action Buttons */}
-            {!showConfirmComplete && (
+            {/* 2. NEW: INLINE WARNING FOR REVERTING A COMPLETED APPOINTMENT */}
+            <Collapse in={showRevertWarning !== null}>
+                <Box className="bg-error/5 border border-error/20 p-4 rounded-xl flex flex-col items-center text-center mb-4">
+                    <Typography variant="subtitle1" color="error" className="font-bold mb-1 flex items-center gap-1">
+                      <i className="tabler-alert-triangle text-xl" /> Revert Appointment?
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" className="mb-3">
+                      This appointment is already <strong>Completed</strong>. Reverting it to <strong>{showRevertWarning?.toUpperCase()}</strong> will place the patient back into the active queue.
+                    </Typography>
+                    <div className="flex gap-3 w-full">
+                    <Button 
+                        fullWidth 
+                        variant="outlined" 
+                        color="secondary" 
+                        onClick={() => setShowRevertWarning(null)}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        fullWidth
+                        variant="contained" 
+                        color="error"
+                        disabled={loadingAction !== null}
+                        onClick={() => showRevertWarning && executeStatusChange(showRevertWarning)}
+                    >
+                        {loadingAction !== null ? <CircularProgress size={20} color="inherit"/> : 'Yes, Revert It'}
+                    </Button>
+                    </div>
+                </Box>
+            </Collapse>
+
+            {/* Standard Action Buttons (Only visible if no warnings are open) */}
+            {!showConfirmComplete && !showRevertWarning && (
                 <div className="flex flex-col sm:flex-row gap-3">
                 
                 {/* Conditionally render Booked and Ongoing buttons only if user is NOT a doctor */}
@@ -218,8 +274,8 @@ return (
                         variant={appointmentInfo.statusCode === 'BOOKED' ? "contained" : "tonal"} 
                         color="info"
                         className="flex-1 py-2.5"
-                        disabled={loadingAction !== null || isCompleted}
-                        onClick={() => handleStatusChange('booked')}
+                        disabled={loadingAction !== null || appointmentInfo.statusCode === 'BOOKED'}
+                        onClick={() => handleActionClick('booked')}
                         startIcon={loadingAction === 'booked' ? <CircularProgress size={20} color="inherit"/> : <i className='tabler-calendar-check' />}
                     >
                         Booked
@@ -229,8 +285,8 @@ return (
                         variant={appointmentInfo.statusCode === 'ONGOING' ? "contained" : "tonal"} 
                         color="warning"
                         className="flex-1 py-2.5"
-                        disabled={loadingAction !== null || isCompleted}
-                        onClick={() => handleStatusChange('ongoing')}
+                        disabled={loadingAction !== null || appointmentInfo.statusCode === 'ONGOING'}
+                        onClick={() => handleActionClick('ongoing')}
                         startIcon={loadingAction === 'ongoing' ? <CircularProgress size={20} color="inherit"/> : <i className='tabler-activity' />}
                     >
                         Ongoing
@@ -244,7 +300,7 @@ return (
                     color="success"
                     className="flex-1 py-2.5"
                     disabled={loadingAction !== null || isCompleted}
-                    onClick={() => setShowConfirmComplete(true)}
+                    onClick={() => handleActionClick('completed')}
                     startIcon={<i className='tabler-check' />}
                 >
                     {isCompleted ? 'Completed' : 'Complete'}
