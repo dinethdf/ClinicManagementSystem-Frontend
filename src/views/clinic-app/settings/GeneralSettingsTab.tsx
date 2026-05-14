@@ -34,9 +34,9 @@ const businessSettingsSchema = object({
   language: pipe(string(), minLength(1, 'Language is required')),
   invoicePrefix: pipe(string(), minLength(1, 'Invoice Prefix is required')),
   taxRate: pipe(number(), minValue(0, 'Tax Rate must be at least 0')),
-  otpSmsGateway: optional(union([string(), literal(null)])),
-  appointmentBookedSmsGateway: optional(union([string(), literal(null)])),
-  appointmentConfirmSmsGateway: optional(union([string(), literal(null)])),
+  otpSmsGateway: optional(union([string(), literal(null as const)])),
+  appointmentBookedSmsGateway: optional(union([string(), literal(null as const)])),
+  appointmentConfirmSmsGateway: optional(union([string(), literal(null as const)])),
 });
 
 const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) => {
@@ -352,11 +352,9 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
                         value={field.value || 'NONE'}
                         onChange={e => field.onChange(e.target.value === 'NONE' ? null : e.target.value)}
                       >
-                        <MenuItem value='NONE'>None</MenuItem>
-                        <MenuItem value='NOTIFY_LK'>NotifyLK (Sri Lanka)</MenuItem>
-                        <MenuItem value='TWILIO'>Twilio</MenuItem>
-                        <MenuItem value='MESSAGE_BIRD'>MessageBird</MenuItem>
-                        <MenuItem value='SMS_APP'>Local Gateway App</MenuItem>
+                        <MenuItem value='NONE'>None (Disabled)</MenuItem>
+                        <MenuItem value='SMS_GATEWAY'>SMS Gateway (International/Local)</MenuItem>
+                        <MenuItem value='SMS_APP'>SMS App (Android)</MenuItem>
                       </CustomTextField>
                     )}
                   />
@@ -374,11 +372,9 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
                         value={field.value || 'NONE'}
                         onChange={e => field.onChange(e.target.value === 'NONE' ? null : e.target.value)}
                       >
-                        <MenuItem value='NONE'>None</MenuItem>
-                        <MenuItem value='NOTIFY_LK'>NotifyLK (Sri Lanka)</MenuItem>
-                        <MenuItem value='TWILIO'>Twilio</MenuItem>
-                        <MenuItem value='MESSAGE_BIRD'>MessageBird</MenuItem>
-                        <MenuItem value='SMS_APP'>Local Gateway App</MenuItem>
+                        <MenuItem value='NONE'>None (Disabled)</MenuItem>
+                        <MenuItem value='SMS_GATEWAY'>SMS Gateway (International/Local)</MenuItem>
+                        <MenuItem value='SMS_APP'>SMS App (Android)</MenuItem>
                       </CustomTextField>
                     )}
                   />
@@ -396,11 +392,9 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
                         value={field.value || 'NONE'}
                         onChange={e => field.onChange(e.target.value === 'NONE' ? null : e.target.value)}
                       >
-                        <MenuItem value='NONE'>None</MenuItem>
-                        <MenuItem value='NOTIFY_LK'>NotifyLK (Sri Lanka)</MenuItem>
-                        <MenuItem value='TWILIO'>Twilio</MenuItem>
-                        <MenuItem value='MESSAGE_BIRD'>MessageBird</MenuItem>
-                        <MenuItem value='SMS_APP'>Local Gateway App</MenuItem>
+                        <MenuItem value='NONE'>None (Disabled)</MenuItem>
+                        <MenuItem value='SMS_GATEWAY'>SMS Gateway (International/Local)</MenuItem>
+                        <MenuItem value='SMS_APP'>SMS App (Android)</MenuItem>
                       </CustomTextField>
                     )}
                   />

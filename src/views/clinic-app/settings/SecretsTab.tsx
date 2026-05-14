@@ -88,7 +88,12 @@ const SecretsTab = () => {
           <Divider />
           <CardContent>
             <Alert severity='info' className='mb-4'>
-              Enter the keys exactly as required by your integrations (e.g., twilio_sid, notify_lk_api_key).
+              Enter the keys exactly as required by your integrations. For SMS:
+              <ul className='mt-2'>
+                <li><b>smsAppApiKey</b>: For CureGuard SMS App</li>
+                <li><b>smsGatewayApiToken</b>: For Text.lk Gateway</li>
+                <li><b>smsGatewaySenderId</b>: For Text.lk Sender Name (e.g. CureGuard)</li>
+              </ul>
             </Alert>
 
             <Grid container spacing={4}>
@@ -129,7 +134,7 @@ const SecretsTab = () => {
                 <CustomTextField
                   fullWidth
                   label='Key Name'
-                  placeholder='e.g. twilio_auth_token'
+                  placeholder='e.g. smsGatewayApiToken'
                   value={newKey}
                   onChange={(e) => setNewKey(e.target.value)}
                 />
