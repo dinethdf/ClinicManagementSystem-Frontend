@@ -132,7 +132,7 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
                   <CustomTextField
                     fullWidth
                     label='Email (Read-only)'
-                    value={initialData.email}
+                    value={initialData.email ?? ''}
                     disabled
                   />
                 </Grid>

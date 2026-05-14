@@ -66,7 +66,7 @@ const SubscriptionTab = ({ initialData }: { initialData: ClinicDetailsDTO }) => 
                 <Typography variant='h5' color='primary' className='mb-2'>
                   {currentPlan.name} Plan
                 </Typography>
-                <Typography variant='body2' className='mb-4'>
+                <Typography variant='body2' component='div' className='mb-4 flex items-center gap-2'>
                   Your current status: <Chip label={initialData.status} color={initialData.status === 'ACTIVE' ? 'success' : 'error'} size='small' />
                 </Typography>
                 <Alert severity='info' icon={<i className='tabler-info-circle' />}>

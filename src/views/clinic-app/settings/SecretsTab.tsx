@@ -102,7 +102,7 @@ const SecretsTab = () => {
                       <CustomTextField
                         fullWidth
                         type={showValues[key] ? 'text' : 'password'}
-                        value={secrets[key]}
+                        value={secrets[key] ?? ''}
                         onChange={(e) => handleSecretChange(key, e.target.value)}
                         placeholder='Enter secret value'
                         InputProps={{
