@@ -7,12 +7,13 @@ import TabPanel from '@mui/lab/TabPanel';
 import Grid from '@mui/material/Grid';
 
 import CustomTabList from '@core/components/mui/TabList';
-import type { ClinicSettingsDTO } from '@/services/clinic/settings.server.service';
+import type { ClinicDetailsDTO } from '@/services/settings.server.service';
 
 import GeneralSettingsTab from './GeneralSettingsTab';
 import SecretsTab from './SecretsTab';
+import SubscriptionTab from './SubscriptionTab';
 
-const SettingsTabsContainer = ({ settingsData }: { settingsData: ClinicSettingsDTO }) => {
+const SettingsTabsContainer = ({ settingsData }: { settingsData: ClinicDetailsDTO }) => {
   const [activeTab, setActiveTab] = useState('general');
 
   return (
@@ -22,6 +23,7 @@ const SettingsTabsContainer = ({ settingsData }: { settingsData: ClinicSettingsD
           <CustomTabList onChange={(_, val) => setActiveTab(val)} variant='scrollable' pill='true'>
             <Tab icon={<i className='tabler-settings' />} value='general' label='General Settings' iconPosition='start' />
             <Tab icon={<i className='tabler-key' />} value='secrets' label='API & Secrets' iconPosition='start' />
+            <Tab icon={<i className='tabler-credit-card' />} value='subscription' label='Subscription' iconPosition='start' />
           </CustomTabList>
         </Grid>
         
@@ -31,6 +33,9 @@ const SettingsTabsContainer = ({ settingsData }: { settingsData: ClinicSettingsD
           </TabPanel>
           <TabPanel value='secrets' className='p-0'>
             <SecretsTab />
+          </TabPanel>
+          <TabPanel value='subscription' className='p-0'>
+            <SubscriptionTab initialData={settingsData} />
           </TabPanel>
         </Grid>
       </Grid>

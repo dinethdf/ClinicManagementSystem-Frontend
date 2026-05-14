@@ -6,69 +6,125 @@ import { revalidatePath } from 'next/cache';
 export interface ClinicSettingsDTO {
   currency: string;
   timezone: string;
+  language: string;
   invoicePrefix: string;
   taxRate: number;
-  multiCurrency: boolean;
-  language: string;
-  secondaryLanguage: string | null;
-  appointmentBookedSmsGateway: 'SMS_GATEWAY' | 'SMS_APP' | 'NONE';
-  appointmentConfirmSmsGateway: 'SMS_GATEWAY' | 'SMS_APP' | 'NONE';
-  otpSmsGateway: 'SMS_GATEWAY' | 'SMS_APP' | 'NONE';
+  otpSmsGateway: string | null;
+  appointmentBookedSmsGateway: string | null;
+  appointmentConfirmSmsGateway: string | null;
+}
+
+export interface ClinicDetailsDTO {
+  id: number;
+  name: string;
+  subdomain: string;
+  email: string;
+  mobileNo1: string;
+  mobileNo2?: string;
+  landlineNo?: string;
+  address: string;
+  city?: string;
+  district?: string;
+  logoUrl?: string;
+  planCode: string;
+  status: string;
+  settings: ClinicSettingsDTO;
+}
+
+export interface ClinicBasicInfoUpdateDTO {
+  name: string;
+  mobileNo1: string;
+  mobileNo2?: string;
+  landlineNo?: string;
+  address: string;
+  city?: string;
+  district?: string;
+  logoUrl?: string;
 }
 
 export interface ClinicSecretsDTO {
-  smsAppApiKey: string;
-  smsGatewayApiToken: string;
-  smsGatewaySenderId: string;
+  [key: string]: string;
 }
 
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-// 1. Fetch Current Settings
+// 1. Fetch Current Details
 export async function getClinicSettings() {
   try {
-    const response = await http.get<ApiResponse<ClinicSettingsDTO>>('/api/clinic/info/details');
-    return response.data;
+    const response = await http.get<ClinicDetailsDTO>('/api/clinic/info/details');
+    return response;
   } catch (error) {
     console.error("Error fetching clinic settings:", error);
-    return null; // Return null so the UI can handle the error state
+    return null;
   }
 }
 
-// 2. Save General Settings
-export async function updateClinicSettings(data: Partial<ClinicSettingsDTO>) {
+// 2. Update Basic Information
+export async function updateClinicBasicInfo(data: ClinicBasicInfoUpdateDTO) {
   try {
-    const response = await http.put<ApiResponse<boolean>>('/api/clinic/info/settings', data);
-    revalidatePath('/[lang]/clinic/settings', 'layout'); // Refresh the page data
-    return { success: true, message: response.message };
+    await http.put('/api/clinic/info/update', data);
+    revalidatePath('/[lang]/clinic/settings', 'layout');
+    return { success: true, message: "Basic information updated successfully" };
   } catch (err) {
     if (err instanceof ApiError) {
       return { success: false, message: err.message };
     }
-    return { success: false, message: "Failed to update settings." };
+    return { success: false, message: "Failed to update basic information." };
   }
 }
 
-// 3. Save Secret Keys
-export async function updateClinicSecrets(data: Partial<ClinicSecretsDTO>) {
+// 3. Save Business Settings
+export async function updateBusinessSettings(data: Partial<ClinicSettingsDTO>) {
   try {
-    // Only send fields that are actually filled out
+    await http.put('/api/clinic/info/settings', data);
+    revalidatePath('/[lang]/clinic/settings', 'layout');
+    return { success: true, message: "Business settings updated successfully" };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { success: false, message: err.message };
+    }
+    return { success: false, message: "Failed to update business settings." };
+  }
+}
+
+// 4. Fetch Secrets
+export async function getClinicSecrets() {
+  try {
+    const response = await http.get<ClinicSecretsDTO>('/api/clinic/info/secrets');
+    return response;
+  } catch (error) {
+    console.error("Error fetching clinic secrets:", error);
+    return null;
+  }
+}
+
+// 5. Save Secret Keys
+export async function updateClinicSecrets(data: ClinicSecretsDTO) {
+  try {
     const payload = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== ''));
     
     if (Object.keys(payload).length === 0) {
         return { success: false, message: "No secrets provided to update." };
     }
 
-    const response = await http.put<ApiResponse<boolean>>('/api/clinic/info/secrets', payload);
+    await http.put('/api/clinic/info/secrets', payload);
     return { success: true, message: "Secrets updated securely." };
   } catch (err) {
     if (err instanceof ApiError) {
       return { success: false, message: err.message };
     }
     return { success: false, message: "Failed to update secrets." };
+  }
+}
+
+// 6. Change Subscription Plan
+export async function updateSubscriptionPlan(newPlanCode: string) {
+  try {
+    await http.put('/api/clinic/info/subscription', { newPlanCode });
+    revalidatePath('/[lang]/clinic/settings', 'layout');
+    return { success: true, message: "Subscription plan updated successfully" };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { success: false, message: err.message };
+    }
+    return { success: false, message: "Failed to update subscription plan." };
   }
 }
