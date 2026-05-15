@@ -8,8 +8,8 @@ This is a comprehensive management system for private clinics, built on the **Ne
 *   **Theme:** Vuexy (MUI-based) with custom layouts and components.
 *   **State Management:** Redux Toolkit for global application state.
 *   **Data Fetching:** Axios-based `apiClient` with request interceptors for JWT authentication.
-*   **Authentication:** NextAuth.js integrated with Prisma for session management.
-*   **Database:** Prisma ORM (configured with SQLite for development).
+*   **Authentication:** NextAuth.js integrated with backend services for session management.
+*   **Database:** Purely API-driven; the frontend does not manage a local database. All data persists via the backend services.
 *   **Form Handling:** React Hook Form with Valibot for schema validation.
 *   **Styling:** MUI (Emotion), TailwindCSS, and PostCSS.
 *   **Icons:** Iconify for a vast collection of icons, bundled for performance.
@@ -26,8 +26,16 @@ This is a comprehensive management system for private clinics, built on the **Ne
 *   `src/hocs`: High-Order Components for authentication guards and translation wrapping.
 *   `src/redux-store`: Redux slices and store configuration.
 *   `src/services`: API service modules organized by domain (patient, doctor, appointment, etc.).
-*   `src/prisma`: Prisma schema and database migrations.
 *   `src/remove-translation-scripts`: Custom utilities for managing or removing internationalization features.
+
+
+## Agentic Development Infrastructure
+
+This project is optimized for agentic development workflows. Private rules, skills, and memory are stored in the `.gemini/` directory (ignored by Git):
+
+*   **Rules:** `.gemini/rules/` - Architectural and UI/UX standards.
+*   **Skills:** `.gemini/skills/` - Procedural guidance for common tasks.
+*   **Memory:** `.gemini/memory/MEMORY.md` - Project state tracking.
 
 ## Building and Running
 

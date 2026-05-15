@@ -128,3 +128,16 @@ export async function updateSubscriptionPlan(newPlanCode: string) {
     return { success: false, message: "Failed to update subscription plan." };
   }
 }
+
+// 7. Test SMS Connection
+export async function testSmsConnection(gatewayType: string) {
+  try {
+    const response = await http.post('/api/clinic/info/test-sms', { gatewayType });
+    return { success: true, message: response.message || "Test SMS sent successfully!" };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { success: false, message: err.message };
+    }
+    return { success: false, message: "Failed to send test SMS. Check your API keys and configuration." };
+  }
+}

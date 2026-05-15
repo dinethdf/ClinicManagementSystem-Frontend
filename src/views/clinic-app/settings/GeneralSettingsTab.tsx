@@ -16,7 +16,7 @@ import { toast } from 'react-toastify';
 import Typography from '@mui/material/Typography';
 import CustomTextField from '@core/components/mui/TextField';
 import type { ClinicDetailsDTO, ClinicBasicInfoUpdateDTO, ClinicSettingsDTO } from '@/services/settings.server.service';
-import { updateClinicBasicInfo, updateBusinessSettings } from '@/services/settings.server.service';
+import { updateClinicBasicInfo, updateBusinessSettings, testSmsConnection } from '@/services/settings.server.service';
 
 const basicInfoSchema = object({
   name: pipe(string(), minLength(1, 'Name is required')),
@@ -42,6 +42,7 @@ const businessSettingsSchema = object({
 const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) => {
   const [isUpdatingBasic, setIsUpdatingBasic] = useState(false);
   const [isUpdatingBusiness, setIsUpdatingBusiness] = useState(false);
+  const [testingSms, setTestingSms] = useState<string | null>(null);
 
   // 1. Basic Info Form
   const {
@@ -121,6 +122,23 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
     setIsUpdatingBusiness(true);
     const result = await updateBusinessSettings(data);
     setIsUpdatingBusiness(false);
+    if (result.success) {
+      toast.success(result.message);
+    } else {
+      toast.error(result.message);
+    }
+  };
+
+  const onTestSms = async (gatewayType: string, currentGateway: string | null) => {
+    if (!currentGateway || currentGateway === 'NONE') {
+      toast.warning('Please select a gateway first');
+      return;
+    }
+
+    setTestingSms(gatewayType);
+    const result = await testSmsConnection(gatewayType);
+    setTestingSms(null);
+
     if (result.success) {
       toast.success(result.message);
     } else {
@@ -370,18 +388,30 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
                     name='otpSmsGateway'
                     control={businessControl}
                     render={({ field }) => (
-                      <CustomTextField
-                        {...field}
-                        select
-                        fullWidth
-                        label='OTP SMS Gateway'
-                        value={field.value || 'NONE'}
-                        onChange={e => field.onChange(e.target.value === 'NONE' ? null : e.target.value)}
-                      >
-                        <MenuItem value='NONE'>None (Disabled)</MenuItem>
-                        <MenuItem value='SMS_GATEWAY'>SMS Gateway (International/Local)</MenuItem>
-                        <MenuItem value='SMS_APP'>SMS App (Android)</MenuItem>
-                      </CustomTextField>
+                      <div className='flex flex-col gap-2'>
+                        <CustomTextField
+                          {...field}
+                          select
+                          fullWidth
+                          label='OTP SMS Gateway'
+                          value={field.value || 'NONE'}
+                          onChange={e => field.onChange(e.target.value === 'NONE' ? null : e.target.value)}
+                        >
+                          <MenuItem value='NONE'>None (Disabled)</MenuItem>
+                          <MenuItem value='SMS_GATEWAY'>SMS Gateway (International/Local)</MenuItem>
+                          <MenuItem value='SMS_APP'>SMS App (Android)</MenuItem>
+                        </CustomTextField>
+                        <Button 
+                          variant='tonal' 
+                          size='small' 
+                          color='secondary'
+                          disabled={field.value === 'NONE' || !field.value || testingSms === 'otp'}
+                          onClick={() => onTestSms('otp', field.value)}
+                          startIcon={testingSms === 'otp' ? <CircularProgress size={16} /> : <i className='tabler-send' />}
+                        >
+                          {testingSms === 'otp' ? 'Testing...' : 'Test Connection'}
+                        </Button>
+                      </div>
                     )}
                   />
                 </Grid>
@@ -390,18 +420,30 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
                     name='appointmentBookedSmsGateway'
                     control={businessControl}
                     render={({ field }) => (
-                      <CustomTextField
-                        {...field}
-                        select
-                        fullWidth
-                        label='Booking Confirmation Gateway'
-                        value={field.value || 'NONE'}
-                        onChange={e => field.onChange(e.target.value === 'NONE' ? null : e.target.value)}
-                      >
-                        <MenuItem value='NONE'>None (Disabled)</MenuItem>
-                        <MenuItem value='SMS_GATEWAY'>SMS Gateway (International/Local)</MenuItem>
-                        <MenuItem value='SMS_APP'>SMS App (Android)</MenuItem>
-                      </CustomTextField>
+                      <div className='flex flex-col gap-2'>
+                        <CustomTextField
+                          {...field}
+                          select
+                          fullWidth
+                          label='Booking Confirmation Gateway'
+                          value={field.value || 'NONE'}
+                          onChange={e => field.onChange(e.target.value === 'NONE' ? null : e.target.value)}
+                        >
+                          <MenuItem value='NONE'>None (Disabled)</MenuItem>
+                          <MenuItem value='SMS_GATEWAY'>SMS Gateway (International/Local)</MenuItem>
+                          <MenuItem value='SMS_APP'>SMS App (Android)</MenuItem>
+                        </CustomTextField>
+                        <Button 
+                          variant='tonal' 
+                          size='small' 
+                          color='secondary'
+                          disabled={field.value === 'NONE' || !field.value || testingSms === 'booking'}
+                          onClick={() => onTestSms('booking', field.value)}
+                          startIcon={testingSms === 'booking' ? <CircularProgress size={16} /> : <i className='tabler-send' />}
+                        >
+                          {testingSms === 'booking' ? 'Testing...' : 'Test Connection'}
+                        </Button>
+                      </div>
                     )}
                   />
                 </Grid>
@@ -410,18 +452,30 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
                     name='appointmentConfirmSmsGateway'
                     control={businessControl}
                     render={({ field }) => (
-                      <CustomTextField
-                        {...field}
-                        select
-                        fullWidth
-                        label='Reminders/Confirm Gateway'
-                        value={field.value || 'NONE'}
-                        onChange={e => field.onChange(e.target.value === 'NONE' ? null : e.target.value)}
-                      >
-                        <MenuItem value='NONE'>None (Disabled)</MenuItem>
-                        <MenuItem value='SMS_GATEWAY'>SMS Gateway (International/Local)</MenuItem>
-                        <MenuItem value='SMS_APP'>SMS App (Android)</MenuItem>
-                      </CustomTextField>
+                      <div className='flex flex-col gap-2'>
+                        <CustomTextField
+                          {...field}
+                          select
+                          fullWidth
+                          label='Reminders/Confirm Gateway'
+                          value={field.value || 'NONE'}
+                          onChange={e => field.onChange(e.target.value === 'NONE' ? null : e.target.value)}
+                        >
+                          <MenuItem value='NONE'>None (Disabled)</MenuItem>
+                          <MenuItem value='SMS_GATEWAY'>SMS Gateway (International/Local)</MenuItem>
+                          <MenuItem value='SMS_APP'>SMS App (Android)</MenuItem>
+                        </CustomTextField>
+                        <Button 
+                          variant='tonal' 
+                          size='small' 
+                          color='secondary'
+                          disabled={field.value === 'NONE' || !field.value || testingSms === 'confirm'}
+                          onClick={() => onTestSms('confirm', field.value)}
+                          startIcon={testingSms === 'confirm' ? <CircularProgress size={16} /> : <i className='tabler-send' />}
+                        >
+                          {testingSms === 'confirm' ? 'Testing...' : 'Test Connection'}
+                        </Button>
+                      </div>
                     )}
                   />
                 </Grid>
