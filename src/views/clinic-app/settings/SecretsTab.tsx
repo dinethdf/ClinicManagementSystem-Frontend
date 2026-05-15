@@ -11,17 +11,25 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
+import MenuItem from '@mui/material/MenuItem';
 import { toast } from 'react-toastify';
 
 import CustomTextField from '@core/components/mui/TextField';
 import { getClinicSecrets, updateClinicSecrets } from '@/services/settings.server.service';
 import type { ClinicSecretsDTO } from '@/services/settings.server.service';
 
+const REQUIRED_KEYS = [
+  { key: 'smsAppApiKey', label: 'CureGuard SMS App API Key', description: 'Required for Android SMS App integration' },
+  { key: 'smsGatewayApiToken', label: 'SMS Gateway API Token', description: 'API Token from your SMS provider (e.g. Text.lk)' },
+  { key: 'smsGatewaySenderId', label: 'SMS Gateway Sender ID', description: 'Approved Sender Name/ID for SMS' },
+];
+
 const SecretsTab = () => {
   const [secrets, setSecrets] = useState<ClinicSecretsDTO>({});
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  const [newKey, setNewKey] = useState('');
+  const [selectedKey, setSelectedKey] = useState('');
+  const [customKey, setCustomKey] = useState('');
   const [newValue, setNewValue] = useState('');
 
   useEffect(() => {
@@ -33,22 +41,8 @@ const SecretsTab = () => {
     try {
       const data = await getClinicSecrets();
       if (data) {
-        if (typeof data === 'string') {
-          try {
-            setSecrets(JSON.parse(data));
-          } catch (e) {
-            console.error('Failed to parse secrets string:', e);
-            setSecrets({});
-          }
-        } else if (typeof data === 'object' && !Array.isArray(data)) {
-          setSecrets(data);
-        } else {
-          setSecrets({});
-        }
+        setSecrets(data);
       } else {
-        // If data is null, it might be an error or just empty
-        // But our service logs the error. We can show a generic message here if we want.
-        // toast.error('Failed to load secrets. Please try again.');
         setSecrets({});
       }
     } catch (err: any) {
@@ -72,12 +66,15 @@ const SecretsTab = () => {
   };
 
   const handleAddSecret = () => {
-    if (!newKey || !newValue) {
+    const finalKey = selectedKey === 'custom' ? customKey : selectedKey;
+    
+    if (!finalKey || !newValue) {
       toast.error('Both key and value are required');
       return;
     }
-    setSecrets({ ...secrets, [newKey]: newValue });
-    setNewKey('');
+    setSecrets({ ...secrets, [finalKey]: newValue });
+    setSelectedKey('');
+    setCustomKey('');
     setNewValue('');
   };
 
@@ -106,52 +103,78 @@ const SecretsTab = () => {
           <Divider />
           <CardContent>
             <Alert severity='info' className='mb-4'>
-              Enter the keys exactly as required by your integrations. For SMS:
-              <ul className='mt-2'>
-                <li><b>smsAppApiKey</b>: For CureGuard SMS App</li>
-                <li><b>smsGatewayApiToken</b>: For Text.lk Gateway</li>
-                <li><b>smsGatewaySenderId</b>: For Text.lk Sender Name (e.g. CureGuard)</li>
-              </ul>
+              Select a key type or enter a custom key name to store your integration secrets.
             </Alert>
 
             <Grid container spacing={4}>
-              {Object.keys(secrets).map((key) => (
-                <Grid size={{ xs: 12 }} key={key}>
-                  <Grid container spacing={2} alignItems='center' className='bg-actionHover p-2 rounded'>
-                    <Grid size={{ xs: 12, sm: 10 }}>
-                      <Typography variant='subtitle1' className='font-bold'>{key}</Typography>
-                      <Typography variant='caption' color='text.secondary'>Secret value is stored and encrypted.</Typography>
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 2 }} className='flex justify-end'>
-                      <IconButton color='error' onClick={() => handleDeleteSecret(key)}>
-                        <i className='tabler-trash' />
-                      </IconButton>
+              {Object.keys(secrets).length > 0 ? (
+                Object.keys(secrets).map((key) => (
+                  <Grid size={{ xs: 12 }} key={key}>
+                    <Grid container spacing={2} alignItems='center' className='bg-actionHover p-2 rounded border border-dashed border-divider'>
+                      <Grid size={{ xs: 12, sm: 10 }}>
+                        <div className='flex items-center gap-2'>
+                          <i className='tabler-lock text-success' />
+                          <Typography variant='subtitle1' className='font-bold'>{key}</Typography>
+                        </div>
+                        <Typography variant='caption' color='text.secondary' className='ml-6'>
+                          Secret value is stored and encrypted.
+                        </Typography>
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 2 }} className='flex justify-end'>
+                        <IconButton color='error' onClick={() => handleDeleteSecret(key)} size='small'>
+                          <i className='tabler-trash' />
+                        </IconButton>
+                      </Grid>
                     </Grid>
                   </Grid>
+                ))
+              ) : (
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant='body2' color='text.secondary' align='center' className='py-4'>
+                    No secrets stored yet. Add your first API key below.
+                  </Typography>
                 </Grid>
-              ))}
+              )}
 
               <Grid size={{ xs: 12 }}>
                 <Divider sx={{ my: 4 }} />
                 <Typography variant='h6' sx={{ mb: 4 }}>Add or Update Secret</Typography>
               </Grid>
 
-              <Grid size={{ xs: 12, sm: 5 }}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <CustomTextField
+                  select
                   fullWidth
-                  id='clinic_secret_key'
-                  label='Key Name'
-                  placeholder='e.g. smsGatewayApiToken'
-                  value={newKey}
-                  onChange={(e) => setNewKey(e.target.value)}
-                  autoComplete='off'
-                />
+                  label='Select Key Type'
+                  value={selectedKey}
+                  onChange={(e) => setSelectedKey(e.target.value)}
+                >
+                  <MenuItem value=''>Select a key</MenuItem>
+                  {REQUIRED_KEYS.map((item) => (
+                    <MenuItem key={item.key} value={item.key}>
+                      {item.label}
+                    </MenuItem>
+                  ))}
+                  <MenuItem value='custom'>Other (Custom Key)</MenuItem>
+                </CustomTextField>
               </Grid>
-              <Grid size={{ xs: 12, sm: 5 }}>
+
+              {selectedKey === 'custom' && (
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <CustomTextField
+                    fullWidth
+                    label='Custom Key Name'
+                    placeholder='e.g. myServiceApiKey'
+                    value={customKey}
+                    onChange={(e) => setCustomKey(e.target.value)}
+                  />
+                </Grid>
+              )}
+
+              <Grid size={{ xs: 12, sm: selectedKey === 'custom' ? 4 : 5 }}>
                 <CustomTextField
                   fullWidth
-                  label='Value'
-                  id='clinic_secret'
+                  label='Secret Value'
                   type='password'
                   placeholder='Enter value'
                   value={newValue}
@@ -159,18 +182,33 @@ const SecretsTab = () => {
                   autoComplete='new-password'
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 2 }} className='flex items-end'>
-                <Button variant='tonal' fullWidth onClick={handleAddSecret}>Add</Button>
+
+              <Grid size={{ xs: 12 }} className='flex justify-end gap-4'>
+                <Button 
+                    variant='tonal' 
+                    onClick={handleAddSecret}
+                    startIcon={<i className='tabler-plus' />}
+                    disabled={!selectedKey || (selectedKey === 'custom' && !customKey) || !newValue}
+                  >
+                    Add to Vault
+                </Button>
               </Grid>
 
               <Grid size={{ xs: 12 }} className='mt-6'>
-                <Button 
-                  variant='contained' 
-                  onClick={handleUpdateSecrets} 
-                  disabled={updating || Object.keys(secrets).length === 0}
-                >
-                  {updating ? 'Saving Securely...' : 'Save All Secrets'}
-                </Button>
+                <Divider className='mb-6' />
+                <div className='flex justify-between items-center'>
+                  <Typography variant='caption' color='text.secondary italic'>
+                    * Remember to click "Save All Changes" to persist your updates to the server.
+                  </Typography>
+                  <Button 
+                    variant='contained' 
+                    onClick={handleUpdateSecrets} 
+                    disabled={updating}
+                    startIcon={updating ? <CircularProgress size={20} color='inherit' /> : <i className='tabler-device-floppy' />}
+                  >
+                    {updating ? 'Saving Securely...' : 'Save All Changes'}
+                  </Button>
+                </div>
               </Grid>
             </Grid>
           </CardContent>

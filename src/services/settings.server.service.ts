@@ -2,6 +2,7 @@
 
 import { http, ApiError } from '@/services/api.config.server';
 import { revalidatePath } from 'next/cache';
+import { encodeObject, decodeObject } from '@/utils/FEValueEncryption';
 
 export interface ClinicSettingsDTO {
   currency: string;
@@ -90,12 +91,19 @@ export async function updateBusinessSettings(data: Partial<ClinicSettingsDTO>) {
 // 4. Fetch Secrets
 export async function getClinicSecrets() {
   try {
-    const response = await http.get<ClinicSecretsDTO>('/api/clinic/info/secrets');
-    return response;
+    const encryptedData = await http.get<string>('/api/clinic/info/secrets');
+    
+    if (!encryptedData) return {};
+
+    const decryptedData = decodeObject<ClinicSecretsDTO>(encryptedData);
+    if (!decryptedData) {
+      console.error("Failed to decrypt secrets from backend");
+      return {};
+    }
+
+    return decryptedData;
   } catch (error: any) {
     console.error("Error fetching clinic secrets:", error);
-    // Return null so the component can handle the empty state, 
-    // but in a more complex app we might want to return an error object.
     return null;
   }
 }
@@ -109,7 +117,13 @@ export async function updateClinicSecrets(data: ClinicSecretsDTO) {
         return { success: false, message: "No secrets provided to update." };
     }
 
-    await http.put('/api/clinic/info/secrets', payload);
+    const encryptedData = encodeObject(payload);
+
+    if (!encryptedData) {
+      return { success: false, message: "Failed to secure the data before sending." };
+    }
+
+    await http.put('/api/clinic/info/secrets', { data: encryptedData });
     return { success: true, message: "Secrets updated securely." };
   } catch (err: any) {
     console.error("Error updating clinic secrets:", err);
