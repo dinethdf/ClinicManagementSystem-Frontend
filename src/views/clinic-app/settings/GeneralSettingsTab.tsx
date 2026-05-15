@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -47,6 +47,7 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
   const {
     control: basicControl,
     handleSubmit: handleBasicSubmit,
+    reset: resetBasic,
     formState: { errors: basicErrors },
   } = useForm<ClinicBasicInfoUpdateDTO>({
     resolver: valibotResolver(basicInfoSchema),
@@ -65,6 +66,7 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
   const {
     control: businessControl,
     handleSubmit: handleBusinessSubmit,
+    reset: resetBusiness,
     formState: { errors: businessErrors },
   } = useForm<ClinicSettingsDTO>({
     resolver: valibotResolver(businessSettingsSchema),
@@ -74,11 +76,35 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
       language: initialData.settings?.language || 'en',
       invoicePrefix: initialData.settings?.invoicePrefix || 'INV-',
       taxRate: initialData.settings?.taxRate || 0,
-      otpSmsGateway: initialData.settings?.otpSmsGateway || null,
-      appointmentBookedSmsGateway: initialData.settings?.appointmentBookedSmsGateway || null,
-      appointmentConfirmSmsGateway: initialData.settings?.appointmentConfirmSmsGateway || null,
+      otpSmsGateway: initialData.settings?.otpSmsGateway || (initialData as any).otpSmsGateway || null,
+      appointmentBookedSmsGateway: initialData.settings?.appointmentBookedSmsGateway || (initialData as any).appointmentBookedSmsGateway || null,
+      appointmentConfirmSmsGateway: initialData.settings?.appointmentConfirmSmsGateway || (initialData as any).appointmentConfirmSmsGateway || null,
     },
   });
+
+  // Sync with initialData when it changes
+  useEffect(() => {
+    resetBasic({
+      name: initialData.name || '',
+      mobileNo1: initialData.mobileNo1 || '',
+      mobileNo2: initialData.mobileNo2 || '',
+      landlineNo: initialData.landlineNo || '',
+      address: initialData.address || '',
+      city: initialData.city || '',
+      district: initialData.district || '',
+    });
+
+    resetBusiness({
+      currency: initialData.settings?.currency || 'LKR',
+      timezone: initialData.settings?.timezone || 'Asia/Colombo',
+      language: initialData.settings?.language || 'en',
+      invoicePrefix: initialData.settings?.invoicePrefix || 'INV-',
+      taxRate: initialData.settings?.taxRate || 0,
+      otpSmsGateway: initialData.settings?.otpSmsGateway || (initialData as any).otpSmsGateway || null,
+      appointmentBookedSmsGateway: initialData.settings?.appointmentBookedSmsGateway || (initialData as any).appointmentBookedSmsGateway || null,
+      appointmentConfirmSmsGateway: initialData.settings?.appointmentConfirmSmsGateway || (initialData as any).appointmentConfirmSmsGateway || null,
+    });
+  }, [initialData, resetBasic, resetBusiness]);
 
   const onBasicSubmit = async (data: ClinicBasicInfoUpdateDTO) => {
     setIsUpdatingBasic(true);

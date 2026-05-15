@@ -9,7 +9,6 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import { toast } from 'react-toastify';
@@ -24,7 +23,6 @@ const SecretsTab = () => {
   const [updating, setUpdating] = useState(false);
   const [newKey, setNewKey] = useState('');
   const [newValue, setNewValue] = useState('');
-  const [showValues, setShowValues] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchSecrets();
@@ -34,7 +32,20 @@ const SecretsTab = () => {
     setLoading(true);
     const data = await getClinicSecrets();
     if (data) {
-      setSecrets(data);
+      if (typeof data === 'string') {
+        try {
+          setSecrets(JSON.parse(data));
+        } catch (e) {
+          console.error('Failed to parse secrets string:', e);
+          setSecrets({});
+        }
+      } else if (typeof data === 'object' && !Array.isArray(data)) {
+        setSecrets(data);
+      } else {
+        setSecrets({});
+      }
+    } else {
+      setSecrets({});
     }
     setLoading(false);
   };
@@ -61,12 +72,10 @@ const SecretsTab = () => {
     setNewValue('');
   };
 
-  const handleSecretChange = (key: string, val: string) => {
-    setSecrets({ ...secrets, [key]: val });
-  };
-
-  const toggleShowValue = (key: string) => {
-    setShowValues({ ...showValues, [key]: !showValues[key] });
+  const handleDeleteSecret = (keyToDelete: string) => {
+    const newSecrets = { ...secrets };
+    delete newSecrets[keyToDelete];
+    setSecrets(newSecrets);
   };
 
   if (loading) {
@@ -99,27 +108,15 @@ const SecretsTab = () => {
             <Grid container spacing={4}>
               {Object.keys(secrets).map((key) => (
                 <Grid size={{ xs: 12 }} key={key}>
-                  <Grid container spacing={2} alignItems='center'>
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                      <Typography variant='subtitle2' className='font-bold'>{key}</Typography>
+                  <Grid container spacing={2} alignItems='center' className='bg-actionHover p-2 rounded'>
+                    <Grid size={{ xs: 12, sm: 10 }}>
+                      <Typography variant='subtitle1' className='font-bold'>{key}</Typography>
+                      <Typography variant='caption' color='text.secondary'>Secret value is stored and encrypted.</Typography>
                     </Grid>
-                    <Grid size={{ xs: 12, sm: 8 }}>
-                      <CustomTextField
-                        fullWidth
-                        type={showValues[key] ? 'text' : 'password'}
-                        value={secrets[key] ?? ''}
-                        onChange={(e) => handleSecretChange(key, e.target.value)}
-                        placeholder='Enter secret value'
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position='end'>
-                              <IconButton onClick={() => toggleShowValue(key)} edge='end'>
-                                <i className={showValues[key] ? 'tabler-eye' : 'tabler-eye-off'} />
-                              </IconButton>
-                            </InputAdornment>
-                          )
-                        }}
-                      />
+                    <Grid size={{ xs: 12, sm: 2 }} className='flex justify-end'>
+                      <IconButton color='error' onClick={() => handleDeleteSecret(key)}>
+                        <i className='tabler-trash' />
+                      </IconButton>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -127,26 +124,30 @@ const SecretsTab = () => {
 
               <Grid size={{ xs: 12 }}>
                 <Divider sx={{ my: 4 }} />
-                <Typography variant='h6' sx={{ mb: 4 }}>Add New Secret</Typography>
+                <Typography variant='h6' sx={{ mb: 4 }}>Add or Update Secret</Typography>
               </Grid>
 
               <Grid size={{ xs: 12, sm: 5 }}>
                 <CustomTextField
                   fullWidth
+                  id='clinic_secret_key'
                   label='Key Name'
                   placeholder='e.g. smsGatewayApiToken'
                   value={newKey}
                   onChange={(e) => setNewKey(e.target.value)}
+                  autoComplete='off'
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 5 }}>
                 <CustomTextField
                   fullWidth
                   label='Value'
+                  id='clinic_secret'
                   type='password'
                   placeholder='Enter value'
                   value={newValue}
                   onChange={(e) => setNewValue(e.target.value)}
+                  autoComplete='new-password'
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 2 }} className='flex items-end'>
