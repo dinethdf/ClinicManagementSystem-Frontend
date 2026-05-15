@@ -2,7 +2,7 @@
 
 import { http, ApiError } from '@/services/api.config.server';
 import { revalidatePath } from 'next/cache';
-import { encodeObject, decodeObject } from '@/utils/FEValueEncryption';
+import { encodeObject, decodeObject, transportDecrypt, transportEncrypt } from '@/utils/FEValueEncryption';
 
 export interface ClinicSettingsDTO {
   currency: string;
@@ -93,15 +93,17 @@ export async function getClinicSecrets() {
   try {
     const encryptedData = await http.get<string>('/api/clinic/info/secrets');
     
-    if (!encryptedData) return {};
+    if (!encryptedData) return null;
 
+    // Decrypt from Backend (AES)
     const decryptedData = decodeObject<ClinicSecretsDTO>(encryptedData);
     if (!decryptedData) {
       console.error("Failed to decrypt secrets from backend");
-      return {};
+      return null;
     }
 
-    return decryptedData;
+    // Encrypt for Transport (XOR) to hide from Network Tab
+    return transportEncrypt(JSON.stringify(decryptedData));
   } catch (error: any) {
     console.error("Error fetching clinic secrets:", error);
     return null;
@@ -109,14 +111,23 @@ export async function getClinicSecrets() {
 }
 
 // 5. Save Secret Keys
-export async function updateClinicSecrets(data: ClinicSecretsDTO) {
+export async function updateClinicSecrets(encryptedTransportData: string) {
   try {
+    // 1. Decrypt from Transport (XOR)
+    const decryptedJson = transportDecrypt(encryptedTransportData);
+    if (!decryptedJson) {
+        return { success: false, message: "Failed to secure the data for transmission." };
+    }
+
+    // 2. Parse and filter
+    const data = JSON.parse(decryptedJson) as ClinicSecretsDTO;
     const payload = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== ''));
     
     if (Object.keys(payload).length === 0) {
         return { success: false, message: "No secrets provided to update." };
     }
 
+    // 3. Encrypt for Backend (AES)
     const encryptedData = encodeObject(payload);
 
     if (!encryptedData) {

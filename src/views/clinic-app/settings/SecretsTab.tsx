@@ -17,6 +17,7 @@ import { toast } from 'react-toastify';
 import CustomTextField from '@core/components/mui/TextField';
 import { getClinicSecrets, updateClinicSecrets } from '@/services/settings.server.service';
 import type { ClinicSecretsDTO } from '@/services/settings.server.service';
+import { transportEncrypt, transportDecrypt } from '@/utils/FEValueEncryption';
 
 const REQUIRED_KEYS = [
   { key: 'smsAppApiKey', label: 'CureGuard SMS App API Key', description: 'Required for Android SMS App integration' },
@@ -39,9 +40,19 @@ const SecretsTab = () => {
   const fetchSecrets = async () => {
     setLoading(true);
     try {
-      const data = await getClinicSecrets();
-      if (data) {
-        setSecrets(data);
+      const encryptedData = await getClinicSecrets();
+      if (encryptedData) {
+        const decryptedJson = transportDecrypt(encryptedData);
+        if (decryptedJson) {
+            try {
+                setSecrets(JSON.parse(decryptedJson));
+            } catch (e) {
+                console.error("Failed to parse secrets JSON:", e);
+                setSecrets({});
+            }
+        } else {
+            setSecrets({});
+        }
       } else {
         setSecrets({});
       }
@@ -55,7 +66,17 @@ const SecretsTab = () => {
 
   const handleUpdateSecrets = async () => {
     setUpdating(true);
-    const result = await updateClinicSecrets(secrets);
+    
+    // Encrypt for transport to hide from Network Tab
+    const encryptedData = transportEncrypt(JSON.stringify(secrets));
+    
+    if (!encryptedData) {
+      toast.error('Failed to secure data for transmission');
+      setUpdating(false);
+      return;
+    }
+
+    const result = await updateClinicSecrets(encryptedData);
     setUpdating(false);
     if (result.success) {
       toast.success(result.message);

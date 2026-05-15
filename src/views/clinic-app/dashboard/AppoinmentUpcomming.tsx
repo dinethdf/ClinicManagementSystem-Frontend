@@ -188,6 +188,7 @@ const ScheduleListTable = ({
 // MAIN COMPONENT
 // =============================================================================
 const PublicScheduleManager = () => {
+  const [mounted, setMounted] = useState(false)
   const [schedules, setSchedules] = useState<DoctorScheduleDTO[]>([])
   const [loading, setLoading] = useState(false)
   const [totalRows, setTotalRows] = useState(0)
@@ -195,6 +196,10 @@ const PublicScheduleManager = () => {
   // Pagination
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 5 })
   const [filters, setFilters] = useState({ doctorName: '', specialization: '', date: '' })
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const fetchSchedules = useCallback(async () => {
     setLoading(true)
@@ -233,6 +238,8 @@ const PublicScheduleManager = () => {
     console.log("Book Schedule ID:", id)
     toast.info(`Booking initiated for Schedule #${id}`)
   }
+
+  if (!mounted) return null
 
   return (
     <div className='flex flex-col gap-6'>
