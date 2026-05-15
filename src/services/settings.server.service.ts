@@ -63,11 +63,12 @@ export async function updateClinicBasicInfo(data: ClinicBasicInfoUpdateDTO) {
     await http.put('/api/clinic/info/update', data);
     revalidatePath('/[lang]/clinic/settings', 'layout');
     return { success: true, message: "Basic information updated successfully" };
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return { success: false, message: err.message };
-    }
-    return { success: false, message: "Failed to update basic information." };
+  } catch (err: any) {
+    console.error("Error updating clinic basic info:", err);
+    return { 
+      success: false, 
+      message: err instanceof ApiError ? err.message : (err.message || "Failed to update basic information. Please check your connection.") 
+    };
   }
 }
 
@@ -77,11 +78,12 @@ export async function updateBusinessSettings(data: Partial<ClinicSettingsDTO>) {
     await http.put('/api/clinic/info/settings', data);
     revalidatePath('/[lang]/clinic/settings', 'layout');
     return { success: true, message: "Business settings updated successfully" };
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return { success: false, message: err.message };
-    }
-    return { success: false, message: "Failed to update business settings." };
+  } catch (err: any) {
+    console.error("Error updating business settings:", err);
+    return { 
+      success: false, 
+      message: err instanceof ApiError ? err.message : (err.message || "Failed to update business settings. Please check your connection.") 
+    };
   }
 }
 
@@ -90,8 +92,10 @@ export async function getClinicSecrets() {
   try {
     const response = await http.get<ClinicSecretsDTO>('/api/clinic/info/secrets');
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching clinic secrets:", error);
+    // Return null so the component can handle the empty state, 
+    // but in a more complex app we might want to return an error object.
     return null;
   }
 }
@@ -107,11 +111,12 @@ export async function updateClinicSecrets(data: ClinicSecretsDTO) {
 
     await http.put('/api/clinic/info/secrets', payload);
     return { success: true, message: "Secrets updated securely." };
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return { success: false, message: err.message };
-    }
-    return { success: false, message: "Failed to update secrets." };
+  } catch (err: any) {
+    console.error("Error updating clinic secrets:", err);
+    return { 
+      success: false, 
+      message: err instanceof ApiError ? err.message : (err.message || "Failed to update secrets. Please try again.") 
+    };
   }
 }
 
@@ -121,11 +126,12 @@ export async function updateSubscriptionPlan(newPlanCode: string) {
     await http.put('/api/clinic/info/subscription', { newPlanCode });
     revalidatePath('/[lang]/clinic/settings', 'layout');
     return { success: true, message: "Subscription plan updated successfully" };
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return { success: false, message: err.message };
-    }
-    return { success: false, message: "Failed to update subscription plan." };
+  } catch (err: any) {
+    console.error("Error updating subscription plan:", err);
+    return { 
+      success: false, 
+      message: err instanceof ApiError ? err.message : (err.message || "Failed to update subscription plan.") 
+    };
   }
 }
 
@@ -134,10 +140,11 @@ export async function testSmsConnection(gatewayType: string) {
   try {
     const response = await http.post('/api/clinic/info/test-sms', { gatewayType });
     return { success: true, message: response.message || "Test SMS sent successfully!" };
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return { success: false, message: err.message };
-    }
-    return { success: false, message: "Failed to send test SMS. Check your API keys and configuration." };
+  } catch (err: any) {
+    console.error("Error testing SMS connection:", err);
+    return { 
+      success: false, 
+      message: err instanceof ApiError ? err.message : (err.message || "Failed to send test SMS. Check your configuration and connection.") 
+    };
   }
 }

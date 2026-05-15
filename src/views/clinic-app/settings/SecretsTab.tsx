@@ -30,24 +30,33 @@ const SecretsTab = () => {
 
   const fetchSecrets = async () => {
     setLoading(true);
-    const data = await getClinicSecrets();
-    if (data) {
-      if (typeof data === 'string') {
-        try {
-          setSecrets(JSON.parse(data));
-        } catch (e) {
-          console.error('Failed to parse secrets string:', e);
+    try {
+      const data = await getClinicSecrets();
+      if (data) {
+        if (typeof data === 'string') {
+          try {
+            setSecrets(JSON.parse(data));
+          } catch (e) {
+            console.error('Failed to parse secrets string:', e);
+            setSecrets({});
+          }
+        } else if (typeof data === 'object' && !Array.isArray(data)) {
+          setSecrets(data);
+        } else {
           setSecrets({});
         }
-      } else if (typeof data === 'object' && !Array.isArray(data)) {
-        setSecrets(data);
       } else {
+        // If data is null, it might be an error or just empty
+        // But our service logs the error. We can show a generic message here if we want.
+        // toast.error('Failed to load secrets. Please try again.');
         setSecrets({});
       }
-    } else {
+    } catch (err: any) {
+      toast.error('Failed to load secrets. Please check your connection.');
       setSecrets({});
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleUpdateSecrets = async () => {

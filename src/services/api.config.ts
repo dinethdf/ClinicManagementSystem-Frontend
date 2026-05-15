@@ -6,7 +6,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_BACK_END_API_URL || 'http://localho
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json'
   },
@@ -28,15 +28,32 @@ apiClient.interceptors.request.use(
 )
 
 // ✅ Response interceptor - handle errors globally
-// apiClient.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response?.status === 401) {
-//       if (typeof window !== "undefined") {
-//         localStorage.removeItem("auth_token")
-//         window.location.href = "/login"
-//       }
-//     }
-//     return Promise.reject(error)
-//   }
-// )
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    let message = "An unexpected error occurred. Please try again.";
+    
+    if (error.code === 'ECONNABORTED') {
+      message = "The request timed out. Please check your internet connection and try again.";
+    } else if (error.message === 'Network Error' || !error.response) {
+      message = "Unable to connect to the server. Please check your internet connection.";
+    } else if (error.response) {
+      // Backend error with response
+      const data = error.response.data;
+      message = data?.defaultMessage || data?.message || error.message || message;
+    }
+
+    // Update error message for toast notifications
+    error.message = message;
+
+    if (error.response?.status === 401) {
+      if (typeof window !== "undefined") {
+        // Optional: handle logout or token refresh here
+        // localStorage.removeItem("auth_token")
+        // window.location.href = "/login"
+      }
+    }
+    
+    return Promise.reject(error)
+  }
+)
