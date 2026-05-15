@@ -12,6 +12,7 @@ import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import MenuItem from '@mui/material/MenuItem';
+import InputAdornment from '@mui/material/InputAdornment';
 import { toast } from 'react-toastify';
 
 import CustomTextField from '@core/components/mui/TextField';
@@ -29,6 +30,7 @@ const SecretsTab = () => {
   const [secrets, setSecrets] = useState<ClinicSecretsDTO>({});
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [selectedKey, setSelectedKey] = useState('');
   const [customKey, setCustomKey] = useState('');
   const [newValue, setNewValue] = useState('');
@@ -80,10 +82,15 @@ const SecretsTab = () => {
     setUpdating(false);
     if (result.success) {
       toast.success(result.message);
+      setIsEditing(false); // Disable editing after success
       fetchSecrets();
     } else {
       toast.error(result.message);
     }
+  };
+
+  const handleSecretChange = (key: string, value: string) => {
+    setSecrets(prev => ({ ...prev, [key]: value }));
   };
 
   const handleAddSecret = () => {
@@ -93,10 +100,16 @@ const SecretsTab = () => {
       toast.error('Both key and value are required');
       return;
     }
-    setSecrets({ ...secrets, [finalKey]: newValue });
+
+    if (secrets[finalKey]) {
+        toast.warn('Key already exists in the list above.');
+    }
+
+    setSecrets(prev => ({ ...prev, [finalKey]: newValue }));
     setSelectedKey('');
     setCustomKey('');
     setNewValue('');
+    toast.success(`${finalKey} added to the edit list.`);
   };
 
   const handleDeleteSecret = (keyToDelete: string) => {
@@ -104,6 +117,9 @@ const SecretsTab = () => {
     delete newSecrets[keyToDelete];
     setSecrets(newSecrets);
   };
+
+  // Filter out required keys that are already present in the secrets list
+  const availableRequiredKeys = REQUIRED_KEYS.filter(rk => !Object.keys(secrets).includes(rk.key));
 
   if (loading) {
     return (
@@ -119,112 +135,145 @@ const SecretsTab = () => {
         <Card>
           <CardHeader 
             title='Secure Vault (API Keys & Secrets)' 
-            subheader='Store your sensitive API keys for gateways here. Values are encrypted on the server.'
+            subheader='Manage your sensitive API keys. All values are stored securely and encrypted.'
+            action={
+                <Button 
+                    variant='tonal' 
+                    color={isEditing ? 'error' : 'primary'}
+                    startIcon={<i className={isEditing ? 'tabler-lock-open' : 'tabler-edit'} />}
+                    onClick={() => setIsEditing(!isEditing)}
+                    size='small'
+                >
+                    {isEditing ? 'Cancel Editing' : 'Edit Secrets'}
+                </Button>
+            }
           />
           <Divider />
           <CardContent>
-            <Alert severity='info' className='mb-4'>
-              Select a key type or enter a custom key name to store your integration secrets.
+            <Alert severity={isEditing ? 'warning' : 'info'} className='mb-6'>
+              {isEditing 
+                ? 'Editing mode is active. You can now modify your integration secrets below.' 
+                : 'Secrets are locked. Click the "Edit Secrets" button above to make changes.'
+              }
             </Alert>
 
-            <Grid container spacing={4}>
+            <Grid container spacing={5}>
               {Object.keys(secrets).length > 0 ? (
-                Object.keys(secrets).map((key) => (
-                  <Grid size={{ xs: 12 }} key={key}>
-                    <Grid container spacing={2} alignItems='center' className='bg-actionHover p-2 rounded border border-dashed border-divider'>
-                      <Grid size={{ xs: 12, sm: 10 }}>
-                        <div className='flex items-center gap-2'>
-                          <i className='tabler-lock text-success' />
-                          <Typography variant='subtitle1' className='font-bold'>{key}</Typography>
-                        </div>
-                        <Typography variant='caption' color='text.secondary' className='ml-6'>
-                          Secret value is stored and encrypted.
-                        </Typography>
-                      </Grid>
-                      <Grid size={{ xs: 12, sm: 2 }} className='flex justify-end'>
-                        <IconButton color='error' onClick={() => handleDeleteSecret(key)} size='small'>
-                          <i className='tabler-trash' />
-                        </IconButton>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                ))
+                Object.keys(secrets).map((key) => {
+                    const requiredInfo = REQUIRED_KEYS.find(rk => rk.key === key);
+                    const label = requiredInfo ? requiredInfo.label : key;
+                    const description = requiredInfo ? requiredInfo.description : 'Custom integration secret';
+
+                    return (
+                        <Grid size={{ xs: 12 }} key={key}>
+                            <CustomTextField
+                                fullWidth
+                                label={label}
+                                placeholder={description}
+                                type='password'
+                                value={secrets[key] || ''}
+                                onChange={(e) => handleSecretChange(key, e.target.value)}
+                                autoComplete='new-password'
+                                helperText={description}
+                                disabled={!isEditing}
+                                InputProps={{
+                                    endAdornment: isEditing && (
+                                        <InputAdornment position='end'>
+                                            <IconButton color='error' onClick={() => handleDeleteSecret(key)} size='small' title='Remove Secret'>
+                                                <i className='tabler-trash' />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }}
+                            />
+                        </Grid>
+                    );
+                })
               ) : (
                 <Grid size={{ xs: 12 }}>
-                  <Typography variant='body2' color='text.secondary' align='center' className='py-4'>
-                    No secrets stored yet. Add your first API key below.
+                  <Typography variant='body2' color='text.secondary' align='center' className='py-10 bg-actionHover rounded border border-dashed'>
+                    No secrets stored yet. {isEditing ? 'Add your first API key below.' : 'Click "Edit" to add a secret.'}
                   </Typography>
                 </Grid>
               )}
 
               <Grid size={{ xs: 12 }}>
-                <Divider sx={{ my: 4 }} />
-                <Typography variant='h6' sx={{ mb: 4 }}>Add or Update Secret</Typography>
+                <Divider sx={{ my: 6 }} />
+                <Typography variant='h6' sx={{ mb: 4 }} color={isEditing ? 'text.primary' : 'text.disabled'}>
+                    Add New Secret Key
+                </Typography>
               </Grid>
 
-              <Grid size={{ xs: 12, sm: 4 }}>
-                <CustomTextField
-                  select
-                  fullWidth
-                  label='Select Key Type'
-                  value={selectedKey}
-                  onChange={(e) => setSelectedKey(e.target.value)}
-                >
-                  <MenuItem value=''>Select a key</MenuItem>
-                  {REQUIRED_KEYS.map((item) => (
-                    <MenuItem key={item.key} value={item.key}>
-                      {item.label}
-                    </MenuItem>
-                  ))}
-                  <MenuItem value='custom'>Other (Custom Key)</MenuItem>
-                </CustomTextField>
-              </Grid>
-
-              {selectedKey === 'custom' && (
+              <Grid container spacing={4} className='items-end'>
                 <Grid size={{ xs: 12, sm: 4 }}>
-                  <CustomTextField
+                    <CustomTextField
+                    select
                     fullWidth
-                    label='Custom Key Name'
-                    placeholder='e.g. myServiceApiKey'
-                    value={customKey}
-                    onChange={(e) => setCustomKey(e.target.value)}
-                  />
+                    label='Select Key Type'
+                    value={selectedKey}
+                    onChange={(e) => setSelectedKey(e.target.value)}
+                    disabled={!isEditing}
+                    >
+                    <MenuItem value=''>Select a key</MenuItem>
+                    {availableRequiredKeys.map((item) => (
+                        <MenuItem key={item.key} value={item.key}>
+                        {item.label}
+                        </MenuItem>
+                    ))}
+                    <MenuItem value='custom'>Other (Custom Key)</MenuItem>
+                    </CustomTextField>
                 </Grid>
-              )}
 
-              <Grid size={{ xs: 12, sm: selectedKey === 'custom' ? 4 : 5 }}>
-                <CustomTextField
-                  fullWidth
-                  label='Secret Value'
-                  type='password'
-                  placeholder='Enter value'
-                  value={newValue}
-                  onChange={(e) => setNewValue(e.target.value)}
-                  autoComplete='new-password'
-                />
+                {selectedKey === 'custom' && (
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                    <CustomTextField
+                        fullWidth
+                        label='Custom Key Name'
+                        placeholder='e.g. myServiceApiKey'
+                        value={customKey}
+                        onChange={(e) => setCustomKey(e.target.value)}
+                        disabled={!isEditing}
+                    />
+                    </Grid>
+                )}
+
+                <Grid size={{ xs: 12, sm: selectedKey === 'custom' ? 4 : 5 }}>
+                    <CustomTextField
+                    fullWidth
+                    label='Secret Value'
+                    type='password'
+                    placeholder='Enter secure value'
+                    value={newValue}
+                    onChange={(e) => setNewValue(e.target.value)}
+                    autoComplete='new-password'
+                    disabled={!isEditing}
+                    />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 3 }} className='flex items-end'>
+                    <Button 
+                        variant='tonal' 
+                        onClick={handleAddSecret}
+                        startIcon={<i className='tabler-plus' />}
+                        disabled={!isEditing || !selectedKey || (selectedKey === 'custom' && !customKey) || !newValue}
+                        className='mb-1'
+                    >
+                        Add to List
+                    </Button>
+                </Grid>
               </Grid>
 
-              <Grid size={{ xs: 12 }} className='flex justify-end gap-4'>
-                <Button 
-                    variant='tonal' 
-                    onClick={handleAddSecret}
-                    startIcon={<i className='tabler-plus' />}
-                    disabled={!selectedKey || (selectedKey === 'custom' && !customKey) || !newValue}
-                  >
-                    Add to Vault
-                </Button>
-              </Grid>
-
-              <Grid size={{ xs: 12 }} className='mt-6'>
+              <Grid size={{ xs: 12 }} className='mt-10'>
                 <Divider className='mb-6' />
-                <div className='flex justify-between items-center'>
+                <div className='flex flex-wrap justify-between items-center gap-4'>
                   <Typography variant='caption' color='text.secondary italic'>
-                    * Remember to click "Save All Changes" to persist your updates to the server.
+                    * All changes made above are temporary until you click "Save All Changes".
                   </Typography>
                   <Button 
                     variant='contained' 
                     onClick={handleUpdateSecrets} 
-                    disabled={updating}
+                    disabled={!isEditing || updating}
+                    size='large'
                     startIcon={updating ? <CircularProgress size={20} color='inherit' /> : <i className='tabler-device-floppy' />}
                   >
                     {updating ? 'Saving Securely...' : 'Save All Changes'}
