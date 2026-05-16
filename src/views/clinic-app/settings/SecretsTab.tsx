@@ -224,70 +224,66 @@ const SecretsTab = () => {
                 </Typography>
               </Grid>
 
-              <Grid container spacing={4} alignItems='flex-start'>
-                <Grid size={{ xs: 12, md: selectedKey === 'custom' ? 3 : 4 }}>
-                    <CustomTextField
-                    select
-                    fullWidth
-                    size='small'
-                    label='Select Key Type'
-                    value={selectedKey}
-                    onChange={(e) => setSelectedKey(e.target.value)}
-                    >
-                    <MenuItem value=''>Select a key</MenuItem>
-                    {availableRequiredKeys.map((item) => (
-                        <MenuItem key={item.key} value={item.key}>
-                        {item.label}
-                        </MenuItem>
-                    ))}
-                    <MenuItem value='custom'>Other (Custom Key)</MenuItem>
-                    </CustomTextField>
-                </Grid>
+          {/* 1. Removed alignItems='flex-end' from the container so items don't stretch weirdly */}
+          <Grid container spacing={4}>
+            <Grid size={{ xs: 12, md: selectedKey === 'custom' ? 3 : 4 }}>
+              <CustomTextField
+                select
+                fullWidth
+                label='Select Key Type'
+                value={selectedKey}
+                onChange={(e) => setSelectedKey(e.target.value)}
+              >
+                <MenuItem value=''>Select a key</MenuItem>
+                {availableRequiredKeys.map((item) => (
+                  <MenuItem key={item.key} value={item.key}>
+                    {item.label}
+                  </MenuItem>
+                ))}
+                <MenuItem value='custom'>Other (Custom Key)</MenuItem>
+              </CustomTextField>
+            </Grid>
 
-                {selectedKey === 'custom' && (
-                    <Grid size={{ xs: 12, md: 3 }}>
-                    <CustomTextField
-                        fullWidth
-                        size='small'
-                        label='Custom Key Name'
-                        placeholder='e.g. myServiceApiKey'
-                        value={customKey}
-                        onChange={(e) => setCustomKey(e.target.value)}
-                    />
-                    </Grid>
-                )}
-
-                <Grid size={{ xs: 12, md: selectedKey === 'custom' ? 3 : 5 }}>
-                    <CustomTextField
-                    fullWidth
-                    size='small'
-                    label='Secret Value'
-                    type='password'
-                    placeholder='Enter secure value'
-                    value={newValue}
-                    onChange={(e) => setNewValue(e.target.value)}
-                    autoComplete='new-password'
-                    />
-                </Grid>
-
-                <Grid size={{ xs: 12, md: selectedKey === 'custom' ? 3 : 3 }}>
-                    <div className='flex flex-col h-full justify-start'>
-                        {/* Empty label placeholder to match textfields with labels */}
-                        <Typography variant='caption' className='mb-1 invisible'>Placeholder</Typography>
-                        <Button 
-                            fullWidth
-                            variant='tonal' 
-                            size='medium'
-                            onClick={handleAddSecret}
-                            startIcon={<i className='tabler-plus' />}
-                            disabled={!selectedKey || (selectedKey === 'custom' && !customKey) || !newValue}
-                            className='min-bs-[40px]'
-                        >
-                            Add to List
-                        </Button>
-                    </div>
-                </Grid>
+            {selectedKey === 'custom' && (
+              <Grid size={{ xs: 12, md: 3 }}>
+                <CustomTextField
+                  fullWidth
+                  label='Custom Key Name'
+                  placeholder='e.g. myServiceApiKey'
+                  value={customKey}
+                  onChange={(e) => setCustomKey(e.target.value)}
+                />
               </Grid>
+            )}
+
+            <Grid size={{ xs: 12, md: selectedKey === 'custom' ? 3 : 5 }}>
+              <CustomTextField
+                fullWidth
+                label='Secret Value'
+                type='password'
+                placeholder='Enter secure value'
+                value={newValue}
+                onChange={(e) => setNewValue(e.target.value)}
+                autoComplete='new-password'
+              />
+            </Grid>
+
+          <Grid size={{ xs: 12, md: selectedKey === 'custom' ? 3 : 3 }}>
+              <Button 
+                  fullWidth
+                  variant='tonal' 
+                  onClick={handleAddSecret}
+                  startIcon={<i className='tabler-plus' />}
+                  disabled={!selectedKey || (selectedKey === 'custom' && !customKey) || !newValue}
+                  sx={{ 
+                      mt: 5.5, // Pushes the button down by ~44px to account for the label space above the inputs
+                      height: 38 // Forces the button to be the exact height of the CustomTextField input
+                  }}
+              >
+                  Add to List
+              </Button>
+          </Grid>
+          </Grid>
 
               <Grid size={{ xs: 12 }} className='mt-10'>
                 <Divider className='mb-6' />
