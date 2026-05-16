@@ -224,8 +224,8 @@ const SecretsTab = () => {
                 </Typography>
               </Grid>
 
-          {/* 1. Removed alignItems='flex-end' from the container so items don't stretch weirdly */}
-          <Grid container spacing={4}>
+          <Grid container spacing={5} sx={{ width: '100%' }}>
+            
             <Grid size={{ xs: 12, md: selectedKey === 'custom' ? 3 : 4 }}>
               <CustomTextField
                 select
@@ -268,21 +268,27 @@ const SecretsTab = () => {
               />
             </Grid>
 
-          <Grid size={{ xs: 12, md: selectedKey === 'custom' ? 3 : 3 }}>
-              <Button 
-                  fullWidth
-                  variant='tonal' 
-                  onClick={handleAddSecret}
-                  startIcon={<i className='tabler-plus' />}
-                  disabled={!selectedKey || (selectedKey === 'custom' && !customKey) || !newValue}
-                  sx={{ 
-                      mt: 5.5, // Pushes the button down by ~44px to account for the label space above the inputs
-                      height: 38 // Forces the button to be the exact height of the CustomTextField input
-                  }}
-              >
-                  Add to List
-              </Button>
-          </Grid>
+            <Grid size={{ xs: 12, md: selectedKey === 'custom' ? 3 : 3 }}>
+              <div className='flex flex-col'>
+                {/* 1. Fake invisible label mimics the CustomTextField label height */}
+                <Typography variant='body2' sx={{ visibility: 'hidden'}}>
+                  Spacer
+                </Typography>
+                
+                {/* 2. Button sits exactly on the same baseline as the inputs */}
+                <Button 
+                    fullWidth
+                    variant='tonal' 
+                    onClick={handleAddSecret}
+                    startIcon={<i className='tabler-plus' />}
+                    disabled={!selectedKey || (selectedKey === 'custom' && !customKey) || !newValue}
+                    sx={{ height: 38 }} // Optional: Change to 40 if your inputs are slightly taller
+                >
+                    Add to List
+                </Button>
+              </div>
+            </Grid>
+
           </Grid>
 
               <Grid size={{ xs: 12 }} className='mt-10'>
