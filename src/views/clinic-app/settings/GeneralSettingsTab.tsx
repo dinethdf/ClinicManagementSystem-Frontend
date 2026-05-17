@@ -10,7 +10,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
 import { useForm, Controller } from 'react-hook-form';
 import { valibotResolver } from '@hookform/resolvers/valibot';
-import { object, string, minLength, pipe, number, optional, union, literal, minValue } from 'valibot';
+import { object, string, minLength, pipe, number, optional, union, literal, minValue, null_ } from 'valibot';
 import { toast } from 'react-toastify';
 
 import Typography from '@mui/material/Typography';
@@ -26,6 +26,7 @@ const basicInfoSchema = object({
   address: pipe(string(), minLength(1, 'Address is required')),
   city: optional(string()),
   district: optional(string()),
+  logoUrl: optional(string()),
 });
 
 const businessSettingsSchema = object({
@@ -34,9 +35,9 @@ const businessSettingsSchema = object({
   language: pipe(string(), minLength(1, 'Language is required')),
   invoicePrefix: pipe(string(), minLength(1, 'Invoice Prefix is required')),
   taxRate: pipe(number(), minValue(0, 'Tax Rate must be at least 0')),
-  otpSmsGateway: optional(union([string(), literal(null as const)])),
-  appointmentBookedSmsGateway: optional(union([string(), literal(null as const)])),
-  appointmentConfirmSmsGateway: optional(union([string(), literal(null as const)])),
+  otpSmsGateway: optional(union([string(), null_()])),
+  appointmentBookedSmsGateway: optional(union([string(), null_()])),
+  appointmentConfirmSmsGateway: optional(union([string(), null_()])),
 });
 
 const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) => {
