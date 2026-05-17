@@ -20,7 +20,7 @@ const StaffDetails = ({ staffData }: { staffData: ClinicStaffResponseDTO }) => {
       
       {/* RIGHT SIDE - Tabs/Overview */}
       <Grid size={{ xs: 12, md: 8 }}>
-        <StaffRight />
+        <StaffRight staffId={staffData.id} />
       </Grid>
     </Grid>
   )

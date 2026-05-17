@@ -1,20 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
 
 // MUI Imports
 import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import Grid from '@mui/material/Grid'
 import Chip from '@mui/material/Chip'
 import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
-import Divider from '@mui/material/Divider'
+import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
+import Collapse from '@mui/material/Collapse'
+import IconButton from '@mui/material/IconButton'
 
 // Service & Types
 import { appointmentManageService } from '@/services/appointment/appointmentManage.service'
@@ -24,19 +24,61 @@ interface StaffAppointmentActionDialogProps {
   open: boolean
   onClose: () => void
   appointmentInfo: AppointmentStatusDTO | null
-  onSuccessAction: () => void // Callback to reset scanner after success
+  onSuccessAction: () => void
+  userRole: string
 }
 
-const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSuccessAction }: StaffAppointmentActionDialogProps) => {
+const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSuccessAction, userRole }: StaffAppointmentActionDialogProps) => {
   const [loadingAction, setLoadingAction] = useState<'booked' | 'ongoing' | 'completed' | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [showConfirmComplete, setShowConfirmComplete] = useState(false)
+  const [showRevertWarning, setShowRevertWarning] = useState<'booked' | 'ongoing' | null>(null) // NEW: Tracks revert action
+
+  useEffect(() => {
+    if (open) {
+      setShowConfirmComplete(false)
+      setShowRevertWarning(null)
+      setErrorMsg(null)
+    }
+  }, [open])
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    if (errorMsg) {
+      timer = setTimeout(() => setErrorMsg(null), 5000)
+    }
+    return () => clearTimeout(timer)
+  }, [errorMsg])
 
   const handleClose = () => {
     setErrorMsg(null)
+    setShowConfirmComplete(false)
+    setShowRevertWarning(null)
     onClose()
   }
 
-  const handleStatusChange = async (action: 'booked' | 'ongoing' | 'completed') => {
+  // Interceptor Function: Decides whether to show a warning or proceed
+  const handleActionClick = (action: 'booked' | 'ongoing' | 'completed') => {
+      // If already completed and trying to go backwards, show the warning instead of firing API
+      if (isCompleted && (action === 'booked' || action === 'ongoing')) {
+          setShowRevertWarning(action)
+          setShowConfirmComplete(false) // Hide the other warning if open
+          return
+      }
+      
+      // If trying to complete, show the complete confirmation
+      if (action === 'completed' && !isCompleted) {
+          setShowConfirmComplete(true)
+          setShowRevertWarning(null) // Hide the other warning if open
+          return
+      }
+
+      // Otherwise, execute the API call
+      executeStatusChange(action)
+  }
+
+  // The actual API call function
+  const executeStatusChange = async (action: 'booked' | 'ongoing' | 'completed') => {
     if (!appointmentInfo?.appointmentId || !appointmentInfo?.patientId) {
       setErrorMsg("Missing appointment or patient ID.")
       return
@@ -64,97 +106,211 @@ const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSucces
       onSuccessAction()
       handleClose()
     } catch (error: any) {
-      // This catches the 'defaultMessage' we mapped in the service
       setErrorMsg(error.message)
     } finally {
       setLoadingAction(null)
+      setShowConfirmComplete(false)
+      setShowRevertWarning(null)
     }
   }
 
   if (!appointmentInfo) return null
 
+  // UI Helpers
+  const getInitials = (name: string) => {
+    const parts = name.trim().split(' ')
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+    return name ? name.substring(0, 2).toUpperCase() : 'PT'
+  }
+
+  const isCompleted = appointmentInfo.statusCode === 'COMPLETED';
+  const isDoctor = userRole === 'DOCTOR';
+
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle component="div">
-        <Typography variant="h4">Appointment Details</Typography>
-      </DialogTitle>
-      
-      <DialogContent dividers className="flex flex-col gap-4">
-        {errorMsg && (
-          <Alert severity="error" onClose={() => setErrorMsg(null)}>
-            {errorMsg}
-          </Alert>
-        )}
+    <Dialog 
+      open={open} 
+      onClose={handleClose} 
+      maxWidth="sm" 
+      fullWidth
+      PaperProps={{
+        sx: { borderRadius: 3, overflow: 'hidden' }
+      }}
+    >
+      {/* Header/Close Button */}
+      <Box className="absolute top-2 right-2 z-10">
+        <IconButton onClick={handleClose} size="small" disabled={loadingAction !== null}>
+          <i className="tabler-x text-gray-500" />
+        </IconButton>
+      </Box>
 
-        <Grid container spacing={4} className="mb-2">
-          <Grid size={{ xs: 6 }}>
-            <Typography variant="caption" color="text.secondary">Queue Number</Typography>
-            <Typography variant="h3" color="primary" className="font-bold">
-              {appointmentInfo.queuePosition || 'N/A'}
+      <DialogContent className="p-0 sm:p-0">
+        <div className="flex flex-col">
+          
+          {/* Top Section: Queue Number & Status (Ticket Style) */}
+          <div className="bg-primary/5 p-6 flex flex-col items-center justify-center border-b border-primary/10">
+            <Typography variant="overline" className="text-primary font-bold tracking-widest mb-1">
+              Queue Number
             </Typography>
-          </Grid>
-          <Grid size={{ xs: 6 }} className="text-right">
-            <Typography variant="caption" color="text.secondary">Current Status</Typography>
-            <div className="mt-1">
-              <Chip label={appointmentInfo.statusCode || 'UNKNOWN'} color={
-                appointmentInfo.statusCode === 'ONGOING' ? 'warning' :
-                appointmentInfo.statusCode === 'COMPLETED' ? 'success' : 'default'
-              } />
+            <Typography variant="h1" className="text-primary font-black text-6xl leading-none mb-4">
+              {appointmentInfo.queuePosition || '--'}
+            </Typography>
+            <Chip 
+                label={appointmentInfo.statusCode || 'UNKNOWN'} 
+                color={
+                  appointmentInfo.statusCode === 'ONGOING' ? 'warning' :
+                  appointmentInfo.statusCode === 'COMPLETED' ? 'success' : 'info'
+                } 
+                variant="filled"
+                size="small"
+                className="font-bold tracking-wider px-2"
+            />
+          </div>
+
+          {/* Error Message */}
+          <Collapse in={!!errorMsg}>
+            <div className="px-6 pt-4">
+                <Alert severity="error" onClose={() => setErrorMsg(null)}>
+                {errorMsg}
+                </Alert>
             </div>
-          </Grid>
-        </Grid>
+          </Collapse>
 
-        <Divider />
+          {/* Middle Section: Patient Info */}
+          <div className="p-6">
+            <div className="flex items-center gap-4 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
+              <Avatar className="bg-primary/10 text-primary font-bold h-14 w-14 text-xl">
+                {getInitials(appointmentInfo.patientName || '')}
+              </Avatar>
+              <div className="flex-1">
+                 <Typography variant="h5" className="font-bold text-gray-800">
+                   {appointmentInfo.patientName || 'Unknown Patient'}
+                 </Typography>
+                 <div className="flex gap-4 mt-1">
+                    <Typography variant="body2" color="text.secondary">
+                        <span className="font-semibold text-gray-500">Appt ID:</span> #{appointmentInfo.appointmentId}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        <span className="font-semibold text-gray-500">Patient ID:</span> #{appointmentInfo.patientId}
+                    </Typography>
+                 </div>
+              </div>
+            </div>
 
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12 }}>
-            <Typography variant="caption" color="text.secondary">Patient Name</Typography>
-            <Typography variant="body1" className="font-bold text-lg">
-              {appointmentInfo.patientName || 'Unknown Patient'}
+            {/* Bottom Section: Actions */}
+            <Typography variant="subtitle2" className="font-bold text-gray-600 mb-3 uppercase tracking-wider text-center">
+                Update Status
             </Typography>
-          </Grid>
-          <Grid size={{ xs: 6 }}>
-            <Typography variant="caption" color="text.secondary">Appointment ID</Typography>
-            <Typography variant="body2">#{appointmentInfo.appointmentId}</Typography>
-          </Grid>
-          <Grid size={{ xs: 6 }}>
-            <Typography variant="caption" color="text.secondary">Patient ID</Typography>
-            <Typography variant="body2">#{appointmentInfo.patientId}</Typography>
-          </Grid>
-        </Grid>
+
+            {/* 1. INLINE CONFIRMATION FOR "COMPLETED" */}
+            <Collapse in={showConfirmComplete}>
+                <Box className="bg-success/5 border border-success/20 p-4 rounded-xl flex flex-col items-center text-center mb-4">
+                    <Typography variant="subtitle1" color="success.main" className="font-bold mb-1">
+                      Mark as Completed?
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" className="mb-3">
+                      This will remove the patient from the active queue.
+                    </Typography>
+                    <div className="flex gap-3 w-full">
+                    <Button 
+                        fullWidth 
+                        variant="outlined" 
+                        color="secondary" 
+                        onClick={() => setShowConfirmComplete(false)}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        fullWidth
+                        variant="contained" 
+                        color="success"
+                        disabled={loadingAction !== null}
+                        onClick={() => executeStatusChange('completed')}
+                    >
+                        {loadingAction === 'completed' ? <CircularProgress size={20} color="inherit"/> : 'Confirm Complete'}
+                    </Button>
+                    </div>
+                </Box>
+            </Collapse>
+
+            {/* 2. NEW: INLINE WARNING FOR REVERTING A COMPLETED APPOINTMENT */}
+            <Collapse in={showRevertWarning !== null}>
+                <Box className="bg-error/5 border border-error/20 p-4 rounded-xl flex flex-col items-center text-center mb-4">
+                    <Typography variant="subtitle1" color="error" className="font-bold mb-1 flex items-center gap-1">
+                      <i className="tabler-alert-triangle text-xl" /> Revert Appointment?
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" className="mb-3">
+                      This appointment is already <strong>Completed</strong>. Reverting it to <strong>{showRevertWarning?.toUpperCase()}</strong> will place the patient back into the active queue.
+                    </Typography>
+                    <div className="flex gap-3 w-full">
+                    <Button 
+                        fullWidth 
+                        variant="outlined" 
+                        color="secondary" 
+                        onClick={() => setShowRevertWarning(null)}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        fullWidth
+                        variant="contained" 
+                        color="error"
+                        disabled={loadingAction !== null}
+                        onClick={() => showRevertWarning && executeStatusChange(showRevertWarning)}
+                    >
+                        {loadingAction !== null ? <CircularProgress size={20} color="inherit"/> : 'Yes, Revert It'}
+                    </Button>
+                    </div>
+                </Box>
+            </Collapse>
+
+            {/* Standard Action Buttons (Only visible if no warnings are open) */}
+            {!showConfirmComplete && !showRevertWarning && (
+                <div className="flex flex-col sm:flex-row gap-3">
+                
+                {/* Conditionally render Booked and Ongoing buttons only if user is NOT a doctor */}
+                {!isDoctor && (
+                  <>
+                    <Button 
+                        variant={appointmentInfo.statusCode === 'BOOKED' ? "contained" : "tonal"} 
+                        color="info"
+                        className="flex-1 py-2.5"
+                        disabled={loadingAction !== null || appointmentInfo.statusCode === 'BOOKED'}
+                        onClick={() => handleActionClick('booked')}
+                        startIcon={loadingAction === 'booked' ? <CircularProgress size={20} color="inherit"/> : <i className='tabler-calendar-check' />}
+                    >
+                        Booked
+                    </Button>
+
+                    <Button 
+                        variant={appointmentInfo.statusCode === 'ONGOING' ? "contained" : "tonal"} 
+                        color="warning"
+                        className="flex-1 py-2.5"
+                        disabled={loadingAction !== null || appointmentInfo.statusCode === 'ONGOING'}
+                        onClick={() => handleActionClick('ongoing')}
+                        startIcon={loadingAction === 'ongoing' ? <CircularProgress size={20} color="inherit"/> : <i className='tabler-activity' />}
+                    >
+                        Ongoing
+                    </Button>
+                  </>
+                )}
+
+                {/* Complete button is visible to everyone */}
+                <Button 
+                    variant={isCompleted ? "contained" : "tonal"} 
+                    color="success"
+                    className="flex-1 py-2.5"
+                    disabled={loadingAction !== null || isCompleted}
+                    onClick={() => handleActionClick('completed')}
+                    startIcon={<i className='tabler-check' />}
+                >
+                    {isCompleted ? 'Completed' : 'Complete'}
+                </Button>
+                </div>
+            )}
+            
+          </div>
+        </div>
       </DialogContent>
-
-      <DialogActions className="justify-center p-4 flex-wrap gap-2">
-        <Button 
-          variant="outlined" 
-          color="info"
-          disabled={loadingAction !== null}
-          onClick={() => handleStatusChange('booked')}
-          startIcon={loadingAction === 'booked' ? <CircularProgress size={20} color="inherit"/> : <i className='tabler-calendar-check' />}
-        >
-          Booked
-        </Button>
-
-        <Button 
-          variant="outlined" 
-          color="warning"
-          disabled={loadingAction !== null}
-          onClick={() => handleStatusChange('ongoing')}
-          startIcon={loadingAction === 'ongoing' ? <CircularProgress size={20} color="inherit"/> : <i className='tabler-activity' />}
-        >
-          Ongoing
-        </Button>
-
-        <Button 
-          variant="contained" 
-          color="success"
-          disabled={loadingAction !== null}
-          onClick={() => handleStatusChange('completed')}
-          startIcon={loadingAction === 'completed' ? <CircularProgress size={20} color="inherit"/> : <i className='tabler-check' />}
-        >
-          Completed
-        </Button>
-      </DialogActions>
     </Dialog>
   )
 }

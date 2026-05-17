@@ -17,7 +17,7 @@
     "dashboard": "පාලන පුවරුව",
     "products": "නිෂ්පාදන",
     "clinic": "සායන කළමනාකරණය",
-    "patient": "රෝගී",
+    "patients": "රෝගී",
     "patientlist": "රෝගීන්ගේ ලැයිස්තුව",
     "patientAdd": "රෝගියා එක් කරන්න",
     "doctor":"වෛද්‍යවරයා",
@@ -51,6 +51,7 @@
     "family": "Family Profiles",
 
     "reports": "Reports",
+    "clinicSettings": "සායන සැකසුම්",
 
     "category": "ප්‍රවර්ගය",
     "orders": "ඇණවුම්",

@@ -4,14 +4,38 @@ export type FinancialScheduleItem = {
   patientName: string
   patientMobile: string
   invoiceId: number
-  paymentStatus: string // "PAID", etc.
+
+  // Status Details
+  paymentStatus: string
+  paymentStatusCode: 'PAID' | 'PARTIAL' | 'UNPAID' | 'CANCELLED' | string
+  paymentStatusColor: string
+  appointmentStatus: string
+  appointmentStatusCode: 'BOOKED' | 'ONGOING' | 'COMPLETED' | 'CANCELLED' | string
+  appointmentStatusColor: string
+
+  // Fee & Discount Breakdown
   baseDoctorFee: number
   baseClinicFee: number
   doctorDiscountAmount: number
   netDoctorPayout: number
   clinicDiscountAmount: number
   netClinicProfit: number
+  
+  // Totals & Balances
+  subtotalAmount: number
+  totalDiscount: number
   totalPaidByPatient: number
+  amountPaid: number
+  balanceRemaining: number
+
+  // Payment Metadata
+  paymentDueDate: string | null
+  paymentPercentage: number
+  lastPaymentMethod: string | null
+  lastPaymentMethodCode: string | null
+  lastPaymentLocation: string | null
+  lastPaymentDate: string | null
+  totalPayments: number
 }
 
 export interface AppointmentFinancialDTO {

@@ -30,6 +30,7 @@ const FinancialSchedulePage = async (props: { params: Promise<{ id: string }> })
         // Fetch data
         const result = await getFinancialSchedule(Number(encodedId))
 
+        console.log(result)
         // Validate data (Ensure it is an array and not null)
         if (!result || !Array.isArray(result)) {
             redirect('/en/clinic/financial/list') 

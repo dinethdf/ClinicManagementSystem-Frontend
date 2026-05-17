@@ -17,9 +17,9 @@ const GoBack = ({ title, description }: goBackProps) => {
   }
 
   return (
-    <Box className='flex items-center gap-4 p-2 mb-4'>
+    <Box onClick={handleGoBack} className='flex items-center gap-4 p-2 mb-4'>
       <IconButton aria-label='back' className='border border-gray-300 rounded-lg h-10 w-10'>
-        <i onClick={handleGoBack} className='tabler-arrow-left' />
+        <i  className='tabler-arrow-left' />
       </IconButton>
 
       <Box>

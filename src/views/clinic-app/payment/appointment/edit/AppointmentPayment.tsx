@@ -492,6 +492,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                         dialog={PaymentFinalizer} 
                         dialogProps={{ 
                             finalTotal: balanceDue,
+                            appointmentId: parseInt(id),
                             invoiceId: appointmentInvDetails?.invoiceId || id,
                             discounts: watchedDiscounts, // Send current form discounts
                             patientMobileNo: appointmentInvDetails?.patientContactNo,
@@ -506,6 +507,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                         dialog={PaymentFinalizer} 
                         dialogProps={{ 
                             finalTotal: balanceDue,
+                            appointmentId: parseInt(id),
                             invoiceId: appointmentInvDetails?.invoiceId || id,
                             discounts: watchedDiscounts, // Send current form discounts
                             patientMobileNo: appointmentInvDetails?.patientContactNo,

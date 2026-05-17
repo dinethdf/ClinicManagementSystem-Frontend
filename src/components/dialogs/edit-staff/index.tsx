@@ -1,9 +1,13 @@
 'use client'
 
 // React Imports
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import dayjs from 'dayjs'
+
+// Form Imports
 import { useForm, Controller } from 'react-hook-form'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 
 // MUI Imports
 import Grid from '@mui/material/Grid'
@@ -18,44 +22,80 @@ import Alert from '@mui/material/Alert'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 
+// Custom Components
 import DialogCloseButton from '../DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
+import CustomDatePicker from '@/components/custome/DatePickerTextField'
 
-// Service & Types
+// Services & Schemas
 import { updateStaff, type ClinicStaffResponseDTO } from '@/services/staff/staff.server.service'
+import { getStaffValidationSchema } from '@/schemas/staffDetailsValidation'
+import { staffService, type RoleDTO } from '@/services/staff/staff.service'
 
 type EditStaffDetailsProps = {
   open: boolean
   setOpen: (open: boolean) => void
-  staffData?: ClinicStaffResponseDTO
+  staffData?: ClinicStaffResponseDTO & { assignedRoleId?: string; address?: string; district?: string } // Extend DTO if backend is missing these
 }
 
 const EditStaffDetails = ({ open, setOpen, staffData }: EditStaffDetailsProps) => {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [roles, setRoles] = useState<RoleDTO[]>([])
+
+  // Validation Schema
+  const validationSchema = useMemo(() => {
+    return getStaffValidationSchema()
+  }, [])
 
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors }
-  } = useForm<ClinicStaffResponseDTO>({
+  } = useForm<any>({ // Use 'any' or define a specific EditFormData type
+    resolver: valibotResolver(validationSchema) as any,
     defaultValues: {
-      gender: '', // 1. FIX: Set default value here to avoid undefined
       firstName: '',
       lastName: '',
-      mobileNo: ''
-    } as any
+      nameWithInitials: '',
+      gender: '',
+      nic: '',
+      dob: null,
+      address: '',
+      city: '',
+      district: '',
+      email: '',
+      mobileNo: '',
+      designation: '',
+      assignedRoleId: '',
+      status: 'ACTIVE'
+    }
   })
 
-  // Populate form
+  // Fetch Roles on Mount
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const fetchedRoles = await staffService.getStandardRoles();
+        const staffRoles = fetchedRoles.filter(r => r.name !== 'DOCTOR' && r.name !== 'PATIENT');
+        setRoles(staffRoles);
+      } catch (error) {
+        console.error('Failed to load system roles');
+      }
+    };
+    fetchRoles();
+  }, []);
+
+  // Populate form when dialog opens
   useEffect(() => {
     if (open && staffData) {
       reset({
         ...staffData,
-        gender: typeof staffData.gender === 'number' ? staffData.gender : undefined,
-        dob: staffData.dob ? new Date(staffData.dob).toISOString().split('T')[0] : '',
+        gender: staffData.gender ? String(staffData.gender) : '', // Convert back to string for Select
+        assignedRoleId: staffData.assignedRoleId ? String(staffData.assignedRoleId) : '',
+        dob: staffData.dob ? new Date(staffData.dob).toISOString().split('T')[0] : null,
       })
     }
   }, [open, staffData, reset])
@@ -65,7 +105,7 @@ const EditStaffDetails = ({ open, setOpen, staffData }: EditStaffDetailsProps) =
     setErrorMessage(null)
   }
 
-  const onSubmit = async (data: ClinicStaffResponseDTO) => {
+  const onSubmit = async (data: any) => {
     if (!staffData?.id) return
 
     setIsLoading(true)
@@ -74,7 +114,8 @@ const EditStaffDetails = ({ open, setOpen, staffData }: EditStaffDetailsProps) =
     try {
       const payload = {
          ...data,
-         gender: Number(data.gender), // Ensure number format
+         gender: parseInt(data.gender), 
+         assignedRoleId: parseInt(data.assignedRoleId),
          id: staffData.id
       }
 
@@ -114,8 +155,9 @@ const EditStaffDetails = ({ open, setOpen, staffData }: EditStaffDetailsProps) =
           )}
 
           <Grid container spacing={5}>
+            {/* --- 1. Personal Details --- */}
             <Grid size={{ xs: 12 }}>
-                <Typography variant='h6' color='primary'>Personal Details</Typography>
+                <Typography variant='h6' color='primary'>1. Personal Details</Typography>
                 <Divider />
             </Grid>
 
@@ -123,9 +165,8 @@ const EditStaffDetails = ({ open, setOpen, staffData }: EditStaffDetailsProps) =
               <Controller
                 name='firstName'
                 control={control}
-                rules={{ required: 'First Name is required' }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='First Name' error={!!errors.firstName} helperText={errors.firstName?.message} />
+                  <CustomTextField {...field} fullWidth label='First Name' error={!!errors.firstName} helperText={errors.firstName?.message as string} />
                 )}
               />
             </Grid>
@@ -133,32 +174,21 @@ const EditStaffDetails = ({ open, setOpen, staffData }: EditStaffDetailsProps) =
               <Controller
                 name='lastName'
                 control={control}
-                rules={{ required: 'Last Name is required' }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Last Name' error={!!errors.lastName} helperText={errors.lastName?.message} />
+                  <CustomTextField {...field} fullWidth label='Last Name' error={!!errors.lastName} helperText={errors.lastName?.message as string} />
                 )}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid size={{ xs: 12 }}>
               <Controller
                 name='nameWithInitials'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Name w/ Initials' />
-                )}
-              />
-            </Grid>
-             <Grid size={{ xs: 12, sm: 6 }}>
-              <Controller
-                name='designation'
-                control={control}
-                render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Designation' />
+                  <CustomTextField {...field} fullWidth label='Name with Initials' error={!!errors.nameWithInitials} helperText={errors.nameWithInitials?.message as string} />
                 )}
               />
             </Grid>
             
-            {/* 3. FIX: Updated Gender Logic & Added "Other" option */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='gender'
@@ -169,12 +199,13 @@ const EditStaffDetails = ({ open, setOpen, staffData }: EditStaffDetailsProps) =
                     select 
                     fullWidth 
                     label='Gender'
-                    // Ensure value is never undefined
                     value={field.value ?? ''}
+                    error={!!errors.gender}
+                    helperText={errors.gender?.message as string}
                   >
-                      <MenuItem value={1}>Male</MenuItem>
-                      <MenuItem value={2}>Female</MenuItem>
-                      <MenuItem value={3}>Other</MenuItem>
+                      <MenuItem value='1'>Male</MenuItem>
+                      <MenuItem value='2'>Female</MenuItem>
+                      <MenuItem value='3'>Other</MenuItem>
                   </CustomTextField>
                 )}
               />
@@ -185,53 +216,133 @@ const EditStaffDetails = ({ open, setOpen, staffData }: EditStaffDetailsProps) =
                 name='dob'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth type='date' label='Date of Birth' InputLabelProps={{ shrink: true }} />
-                )}
-              />
-            </Grid>
-             <Grid size={{ xs: 12, sm: 6 }}>
-              <Controller
-                name='nic'
-                control={control}
-                render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='NIC' />
+                  <CustomDatePicker
+                    {...field}
+                    value={field.value ? dayjs(field.value) : null}
+                    onChange={(newValue) => field.onChange(newValue ? newValue.format('YYYY-MM-DD') : null)}
+                    label='Date Of Birth'
+                    format='YYYY-MM-DD'
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        error: !!errors.dob,
+                        helperText: errors.dob?.message as string
+                      }
+                    }}
+                  />
                 )}
               />
             </Grid>
 
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Controller
+                name='nic'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField {...field} fullWidth label='NIC' error={!!errors.nic} helperText={errors.nic?.message as string} />
+                )}
+              />
+            </Grid>
+
+            {/* --- 2. Contact Details --- */}
             <Grid size={{ xs: 12 }} className='mt-2'>
-                <Typography variant='h6' color='primary'>Contact Details</Typography>
+                <Typography variant='h6' color='primary'>2. Contact Details</Typography>
                 <Divider />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <Controller
+                name='address'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField {...field} fullWidth label='Address' error={!!errors.address} helperText={errors.address?.message as string} />
+                )}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Controller
+                name='city'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField {...field} fullWidth label='City' error={!!errors.city} helperText={errors.city?.message as string} />
+                )}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Controller
+                name='district'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField {...field} fullWidth label='District' error={!!errors.district} helperText={errors.district?.message as string} />
+                )}
+              />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='mobileNo'
                 control={control}
-                rules={{ required: 'Mobile is required' }}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Mobile No' error={!!errors.mobileNo} helperText={errors.mobileNo?.message} />
+                  <CustomTextField {...field} fullWidth label='Mobile No' error={!!errors.mobileNo} helperText={errors.mobileNo?.message as string} />
                 )}
               />
             </Grid>
-             <Grid size={{ xs: 12, sm: 6 }}>
+            
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='email'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='Email' />
+                  <CustomTextField {...field} fullWidth label='Email' error={!!errors.email} helperText={errors.email?.message as string} />
                 )}
               />
             </Grid>
+
+            {/* --- 3. Job Information --- */}
+            <Grid size={{ xs: 12 }} className='mt-2'>
+                <Typography variant='h6' color='primary'>3. Job Information</Typography>
+                <Divider />
+            </Grid>
+
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
-                name='city'
+                name='designation'
                 control={control}
                 render={({ field }) => (
-                  <CustomTextField {...field} fullWidth label='City' />
+                  <CustomTextField {...field} fullWidth label='Designation' error={!!errors.designation} helperText={errors.designation?.message as string} />
                 )}
               />
             </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Controller
+                name='assignedRoleId'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    select
+                    fullWidth
+                    label='System Role'
+                    value={field.value ?? ''}
+                    error={!!errors.assignedRoleId}
+                    helperText={errors.assignedRoleId?.message as string}
+                  >
+                    {roles.map((role) => (
+                       <MenuItem key={role.id} value={role.id.toString()}>
+                          {role.name}
+                       </MenuItem>
+                    ))}
+                    {roles.length === 0 && (
+                        <MenuItem value='' disabled>Loading roles...</MenuItem>
+                    )}
+                  </CustomTextField>
+                )}
+              />
+            </Grid>
+
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
                 name='status'
@@ -248,7 +359,7 @@ const EditStaffDetails = ({ open, setOpen, staffData }: EditStaffDetailsProps) =
 
           </Grid>
         </DialogContent>
-        <DialogActions className='justify-center pbs-0 sm:pbe-16 sm:pli-16'>
+        <DialogActions className='justify-center pbs-0 sm:pbe-16 sm:pli-16 mt-6'>
           <Button variant='contained' type='submit' disabled={isLoading}>
             {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Save Changes'}
           </Button>

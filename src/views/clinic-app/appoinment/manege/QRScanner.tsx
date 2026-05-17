@@ -25,9 +25,10 @@ import StaffAppointmentActionDialog from '@/components/dialogs/appointment-start
 
 interface QRScannerProps {
   requiredScheduleId: number 
+  userRole: string 
 }
 
-const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
+const QRScanner = ({ requiredScheduleId, userRole }: QRScannerProps) => {
   const router = useRouter()
   
   // -- Scanner State --
@@ -204,6 +205,7 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
         onClose={() => setDialogOpen(false)}
         appointmentInfo={appointmentInfo}
         onSuccessAction={handleSuccessAction}
+        userRole={userRole} // 3. PASS ROLE TO DIALOG
       />
     </div>
   )
