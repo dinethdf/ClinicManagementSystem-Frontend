@@ -566,6 +566,20 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
           
         </div>
 
+        ` : ''}
+
+        <!-- QR Code -->
+        <div class="qr-section">
+          <div class="qr-title">SCAN TO TRACK QUEUE</div>
+          <img src="${qrCodeImage}" alt="QR Code" class="qr-code">
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <div style="font-weight: bold;">Thank you for your visit!</div>
+        </div>
+      </div>
+
         <script>
           window.onload = function() { setTimeout(() => { window.print(); }, 500); };
           window.onafterprint = function() { setTimeout(() => { window.close(); }, 500); };
