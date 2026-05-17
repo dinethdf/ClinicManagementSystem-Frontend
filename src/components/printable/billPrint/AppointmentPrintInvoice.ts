@@ -566,7 +566,7 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
           
         </div>
 
-        ` : ''}
+      
 
         <!-- QR Code -->
         <div class="qr-section">
