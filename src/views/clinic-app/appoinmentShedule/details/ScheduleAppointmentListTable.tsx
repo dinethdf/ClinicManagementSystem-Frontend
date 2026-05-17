@@ -138,18 +138,6 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
                 />
             )
         }
-      }),
-      columnHelper.accessor('id', {
-        id: 'actions',
-        header: 'Action',
-        cell: ({ row }) => (
-          <Link
-            href={getLocalizedUrl(`/clinic/appoinment/details/${row.original.id}`, locale as Locale)}
-            className='text-primary hover:underline text-sm font-medium flex items-center gap-1'
-          >
-            <i className='tabler-eye text-lg' /> View
-          </Link>
-        )
       })
     ],
     [locale]
@@ -168,11 +156,13 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
         <Typography variant='h5'>Scheduled Appointments</Typography>
       </CardContent>
       
-      <SimpleCommonTable 
+      <SimpleCommonTable<ScheduleAppointmentDTO>
         data={filteredData} 
         columns={columns} 
         isLoading={isLoading} 
         error={errorMessage} 
+        baseRowUrl={getLocalizedUrl('/clinic/appoinment/details', locale as Locale)}
+        getRowUrlParam={(row) => row.id}
         // Pass the Status Dropdown to the Common Table
         filters={
             <TextField 

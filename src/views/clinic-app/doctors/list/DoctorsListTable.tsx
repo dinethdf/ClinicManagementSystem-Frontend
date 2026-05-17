@@ -104,9 +104,8 @@ const DoctorsListTable = () => {
         cell: ({ row }) => (
           <div className='flex flex-col items-start'>
             <Typography 
-                className='font-medium hover:text-primary cursor-pointer' 
+                className='font-medium' 
                 color='text.primary'
-                onClick={() => router.push(`/en/clinic/doctors/view/${row.original.id}`)}
             >
               {row.original.firstName} {row.original.lastName}
             </Typography>
@@ -146,7 +145,10 @@ const DoctorsListTable = () => {
           <Tooltip title="View/Edit Details">
             <IconButton 
                 size="small" 
-                onClick={() => router.push(`/en/clinic/doctors/view/${row.original.id}`)}
+                onClick={(e) => {
+                    e.stopPropagation()
+                    router.push(`/en/clinic/doctors/view/${row.original.id}`)
+                }}
                 color="primary"
             >
                 <i className='tabler-edit' />
@@ -157,7 +159,7 @@ const DoctorsListTable = () => {
   ], [router])
 
   return (
-    <CommonServerTable
+    <CommonServerTable<DoctorResponseDTO>
       // Unique ID for Redux Persistence
       tableId="doctor-list-table"
       
@@ -169,7 +171,8 @@ const DoctorsListTable = () => {
       columns={columns}
       filterConfig={filterConfigs}
       sortingConfig={sortingConfig} // Pass Sorting Config
-      
+      baseRowUrl='/en/clinic/doctors/view'
+      getRowUrlParam={(row) => row.id}
       actionComponent={
         <>
           <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>

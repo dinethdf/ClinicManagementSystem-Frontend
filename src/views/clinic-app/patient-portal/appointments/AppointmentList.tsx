@@ -138,11 +138,9 @@ const AppointmentList = () => {
       columnHelper.accessor('appointmentId', {
         header: 'Reference',
         cell: ({ row }) => (
-          // CHANGED: Just a Typography with onClick, no Component wrapping it
           <Typography
-             className='font-medium cursor-pointer text-primary hover:underline'
+             className='font-medium text-primary'
              component='span'
-             onClick={() => handleViewDetails(row.original.appointmentId)} // <--- Sets state
           >
              #{row.original.appointmentId}
           </Typography>
@@ -195,28 +193,30 @@ const AppointmentList = () => {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => (
-        <OptionMenu
-          iconButtonProps={{ size: 'medium' }}
-          iconClassName='text-textSecondary'
-          options={[
-            {
-              text: 'View Details',
-              icon: 'tabler-eye',
-              // Use the same helper function
-              menuItemProps: {
-                onClick: () => handleViewDetails(row.original.appointmentId) 
-              }
-            },
-            ...(row.original.status !== 'CANCELLED' && row.original.status !== 'COMPLETED' ? [{
-                text: 'Cancel',
-                icon: 'tabler-circle-x', 
-                menuItemProps: { 
-                    onClick: () => handleCancel(row.original.id), 
-                    className: 'text-error hover:bg-red-50' 
+        <div onClick={(e) => e.stopPropagation()}>
+          <OptionMenu
+            iconButtonProps={{ size: 'medium' }}
+            iconClassName='text-textSecondary'
+            options={[
+              {
+                text: 'View Details',
+                icon: 'tabler-eye',
+                // Use the same helper function
+                menuItemProps: {
+                  onClick: () => handleViewDetails(row.original.appointmentId) 
                 }
-            }] : [])
-          ]}
-        />
+              },
+              ...(row.original.status !== 'CANCELLED' && row.original.status !== 'COMPLETED' ? [{
+                  text: 'Cancel',
+                  icon: 'tabler-circle-x', 
+                  menuItemProps: { 
+                      onClick: () => handleCancel(row.original.id), 
+                      className: 'text-error hover:bg-red-50' 
+                  }
+              }] : [])
+            ]}
+          />
+        </div>
       ),
       enableSorting: false
     })
@@ -245,12 +245,13 @@ const AppointmentList = () => {
 
         {/* --- UPCOMING TAB --- */}
         <TabPanel value="1" className='p-0'>
-            <SimpleCommonTable 
+            <SimpleCommonTable<PatientAppointmentDTO>
                 data={data}
                 columns={columns}
                 isLoading={loading}
                 error={error}
                 searchPlaceholder="Search upcoming appointments..."
+                onRowClick={(row) => handleViewDetails(row.appointmentId)}
             />
         </TabPanel>
 

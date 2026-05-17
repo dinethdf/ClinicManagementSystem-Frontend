@@ -2,6 +2,7 @@
 
 // React Imports
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -96,19 +97,28 @@ interface SimpleCommonTableProps<T> {
   // Slots for Buttons/Filters
   actions?: React.ReactNode // Left side (e.g. Create Button)
   filters?: React.ReactNode // Right side (e.g. Status Dropdown)
+// --- ROW CLICK PROPS ---
+baseRowUrl?: string
+getRowUrlParam?: (row: T) => string | number
+onRowClick?: (row: T) => void
 }
 
 // --- The Component ---
 const SimpleCommonTable = <T,>({
-  data,
-  columns,
-  isLoading = false,
-  error = null,
-  searchPlaceholder = 'Search...',
-  actions,
-  filters
+data,
+columns,
+isLoading = false,
+error = null,
+searchPlaceholder = 'Search...',
+actions,
+filters,
+baseRowUrl,
+getRowUrlParam,
+onRowClick
 }: SimpleCommonTableProps<T>) => {
   
+  const router = useRouter()
+
   // States
   const [globalFilter, setGlobalFilter] = useState('')
   const [rowSelection, setRowSelection] = useState({})
@@ -230,7 +240,22 @@ const SimpleCommonTable = <T,>({
               </tr>
             ) : (
               table.getRowModel().rows.map(row => (
-                <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                <tr 
+                  key={row.id} 
+                  className={classnames(
+                    { selected: row.getIsSelected() },
+                    (baseRowUrl || onRowClick) ? 'cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors' : 'transition-colors'
+                  )}
+                  onClick={() => {
+                    if (onRowClick) {
+                      onRowClick(row.original as T);
+                    } else if (baseRowUrl) {
+                      const param = getRowUrlParam ? getRowUrlParam(row.original as T) : '';
+                      const url = param ? `${baseRowUrl}/${param}` : baseRowUrl;
+                      router.push(url);
+                    }
+                  }}
+                >
                   {row.getVisibleCells().map(cell => (
                     <td key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
