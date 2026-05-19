@@ -33,16 +33,17 @@ import type { Locale } from '@configs/i18n'
 import TableFilters from './TableFilters'
 import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
+import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
+import { encodeHideValue } from '@/utils/encode'
 
 // Service Imports
 import { getScheduleList } from '@/services/doctor/doctor.shedule.server.service'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
-import { encodeHideValue } from '@/utils/encode'
 
 // --- Types ---
 export interface ScheduleDTO {
@@ -128,12 +129,9 @@ const ScheduleListTable = () => {
       columnHelper.accessor('id', {
         header: 'Ref #',
         cell: ({ row }) => (
-          <Link
-            href={getLocalizedUrl(`clinic/financial/doctor-payment/details/${encodeHideValue(row.original.id)}`, locale as Locale)}
-            className='font-medium text-primary hover:underline'
-          >
+          <Typography className='font-medium text-primary'>
             #{row.original.id}
-          </Link>
+          </Typography>
         )
       }),
 
@@ -221,7 +219,7 @@ const ScheduleListTable = () => {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => (
-          <div className='flex items-center'>
+          <div className='flex items-center' onClick={(e) => e.stopPropagation()}>
             <IconButton size='small'>
               <i className='tabler-edit text-textSecondary' />
             </IconButton>
@@ -239,71 +237,25 @@ const ScheduleListTable = () => {
       })
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [locale]
   )
-
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    manualPagination: true,
-    state: { pagination },
-    onPaginationChange: setPagination,
-    pageCount: Math.ceil(totalCount / pagination.pageSize),
-    filterFns: {} as any
-  })
 
   return (
     <Card>
       <CardHeader title='Schedule Management' />
       <TableFilters onFilterChange={setFilters} />
       
-      {isLoading && <div className='w-full p-4 flex justify-center'><CircularProgress /></div>}
-
-      {!isLoading && (
-        <>
-            <div className='overflow-x-auto'>
-                <table className={tableStyles.table}>
-                <thead>
-                    {table.getHeaderGroups().map(headerGroup => (
-                    <tr key={headerGroup.id}>
-                        {headerGroup.headers.map(header => (
-                        <th key={header.id}>
-                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                        </th>
-                        ))}
-                    </tr>
-                    ))}
-                </thead>
-                <tbody>
-                    {table.getRowModel().rows.length === 0 ? (
-                        <tr>
-                            <td colSpan={columns.length} className='text-center p-4'>No schedules found</td>
-                        </tr>
-                    ) : (
-                        table.getRowModel().rows.map(row => (
-                        <tr key={row.id}>
-                            {row.getVisibleCells().map(cell => (
-                            <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                            ))}
-                        </tr>
-                        ))
-                    )}
-                </tbody>
-                </table>
-            </div>
-
-            <TablePagination
-                component="div"
-                count={totalCount}
-                rowsPerPage={pagination.pageSize}
-                page={pagination.pageIndex}
-                onPageChange={(_, page) => setPagination(prev => ({ ...prev, pageIndex: page }))}
-                onRowsPerPageChange={e => setPagination({ pageIndex: 0, pageSize: Number(e.target.value) })}
-                rowsPerPageOptions={[10, 25, 50]}
-            />
-        </>
-      )}
+      <SimpleCommonTable<ScheduleDTO>
+        data={data}
+        columns={columns}
+        isLoading={isLoading}
+        baseRowUrl={getLocalizedUrl('clinic/financial/doctor-payment/details', locale as Locale)}
+        getRowUrlParam={(row) => encodeHideValue(row.id)}
+        manualPagination={true}
+        totalItems={totalCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+      />
     </Card>
   )
 }

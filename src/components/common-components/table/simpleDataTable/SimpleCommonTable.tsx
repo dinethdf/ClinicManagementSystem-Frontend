@@ -97,24 +97,34 @@ interface SimpleCommonTableProps<T> {
   // Slots for Buttons/Filters
   actions?: React.ReactNode // Left side (e.g. Create Button)
   filters?: React.ReactNode // Right side (e.g. Status Dropdown)
-// --- ROW CLICK PROPS ---
-baseRowUrl?: string
-getRowUrlParam?: (row: T) => string | number
-onRowClick?: (row: T) => void
+  // --- ROW CLICK PROPS ---
+  baseRowUrl?: string
+  getRowUrlParam?: (row: T) => string | number
+  onRowClick?: (row: T) => void
+
+  // --- MANUAL PAGINATION PROPS (Optional) ---
+  manualPagination?: boolean
+  totalItems?: number
+  pagination?: { pageIndex: number; pageSize: number }
+  onPaginationChange?: (pagination: { pageIndex: number; pageSize: number }) => void
 }
 
 // --- The Component ---
 const SimpleCommonTable = <T,>({
-data,
-columns,
-isLoading = false,
-error = null,
-searchPlaceholder = 'Search...',
-actions,
-filters,
-baseRowUrl,
-getRowUrlParam,
-onRowClick
+  data,
+  columns,
+  isLoading = false,
+  error = null,
+  searchPlaceholder = 'Search...',
+  actions,
+  filters,
+  baseRowUrl,
+  getRowUrlParam,
+  onRowClick,
+  manualPagination = false,
+  totalItems,
+  pagination,
+  onPaginationChange
 }: SimpleCommonTableProps<T>) => {
   
   const router = useRouter()
@@ -122,6 +132,23 @@ onRowClick
   // States
   const [globalFilter, setGlobalFilter] = useState('')
   const [rowSelection, setRowSelection] = useState({})
+  
+  // Internal pagination state for client-side mode
+  const [internalPagination, setInternalPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10
+  })
+
+  const currentPagination = manualPagination && pagination ? pagination : internalPagination;
+
+  const handlePaginationChange = (updater: any) => {
+    if (manualPagination && onPaginationChange) {
+       const newState = typeof updater === 'function' ? updater(pagination) : updater;
+       onPaginationChange(newState);
+    } else {
+       setInternalPagination(updater);
+    }
+  }
 
   // TanStack Table Instance
   const table = useReactTable({
@@ -130,13 +157,12 @@ onRowClick
     filterFns: { fuzzy: fuzzyFilter },
     state: {
       rowSelection,
-      globalFilter
+      globalFilter,
+      pagination: currentPagination
     },
-    initialState: {
-      pagination: {
-        pageSize: 10
-      }
-    },
+    manualPagination,
+    rowCount: manualPagination ? totalItems : undefined,
+    onPaginationChange: handlePaginationChange,
     enableRowSelection: true,
     globalFilterFn: fuzzyFilter,
     onRowSelectionChange: setRowSelection,
@@ -271,7 +297,7 @@ onRowClick
       {/* --- PAGINATION AREA (Standard MUI) --- */}
       <TablePagination
         component="div"
-        count={table.getFilteredRowModel().rows.length}
+        count={manualPagination && totalItems !== undefined ? totalItems : table.getFilteredRowModel().rows.length}
         rowsPerPage={table.getState().pagination.pageSize}
         page={table.getState().pagination.pageIndex}
         onPageChange={(_, page) => table.setPageIndex(page)}

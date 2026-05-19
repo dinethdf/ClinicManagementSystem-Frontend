@@ -49,6 +49,9 @@ export interface DoctorScheduleDTO {
   status?: string
 }
 
+// Component Imports
+import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable'
+
 // =============================================================================
 // SUB-COMPONENT: Table View
 // =============================================================================
@@ -116,12 +119,12 @@ const ScheduleListTable = ({
             const progress = max > 0 ? (current / max) * 100 : 0
             const isFull = current >= max
             return (
-                <div className='flex flex-col gap-1 is-[140px]'>
+                <div className='flex flex-col gap-1 w-[140px]'>
                     <div className='flex justify-between items-center'>
                         <Typography variant='caption' color='text.secondary'>Slots</Typography>
                         <Typography variant='caption' className={isFull ? 'text-error font-bold' : 'text-primary font-bold'}>{current} / {max}</Typography>
                     </div>
-                    <LinearProgress variant='determinate' value={progress} color={isFull ? 'error' : 'primary'} className='bs-1.5 rounded-sm'/>
+                    <LinearProgress variant='determinate' value={progress} color={isFull ? 'error' : 'primary'} className='h-1.5 rounded-sm'/>
                 </div>
             )
         }
@@ -135,52 +138,38 @@ const ScheduleListTable = ({
             if (isFull) return <Chip label='Full' color='warning' size='small' variant='tonal' />
             return <Chip label='Open' color='success' size='small' variant='tonal' />
         }
+      }),
+      columnHelper.display({
+        id: 'actions',
+        header: 'Action',
+        cell: ({ row }) => (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Button
+              variant='contained'
+              color='primary'
+              size='small'
+              disabled={row.original.status !== 'ACTIVE' || row.original.isActive === false || row.original.registeredPatientCount >= row.original.maxPatientCount}
+              onClick={() => onBookNow(row.original.id!)}
+            >
+              Book Now
+            </Button>
+          </div>
+        )
       })
     ],
     [onBookNow]
   )
 
-  const table = useReactTable({
-    data, columns, pageCount: Math.ceil(totalRows / pagination.pageSize),
-    state: { pagination }, manualPagination: true,
-    onPaginationChange: setPagination, getCoreRowModel: getCoreRowModel(),
-    filterFns: {} as any
-  })
-
   return (
-    <Card>
-      <div className='overflow-x-auto'>
-        <table className={tableStyles.table}>
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {isLoading ? (
-                <tr><td colSpan={columns.length} className='text-center py-10'><LinearProgress /></td></tr>
-            ) : table.getRowModel().rows.length === 0 ? (
-              <tr><td colSpan={columns.length} className='text-center py-10'><Typography color='text.secondary'>No schedules found.</Typography></td></tr>
-            ) : (
-              table.getRowModel().rows.map(row => (
-                <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                  {row.getVisibleCells().map(cell => (<td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      <TablePagination
-        component='div' count={totalRows} rowsPerPage={pagination.pageSize} page={pagination.pageIndex}
-        onPageChange={(_, page) => setPagination((prev: any) => ({ ...prev, pageIndex: page }))}
-        onRowsPerPageChange={e => setPagination({ pageIndex: 0, pageSize: Number(e.target.value) })}
-      />
-    </Card>
+    <SimpleCommonTable<DoctorScheduleDTO>
+      data={data}
+      columns={columns}
+      isLoading={isLoading}
+      manualPagination={true}
+      totalItems={totalRows}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+    />
   )
 }
 
