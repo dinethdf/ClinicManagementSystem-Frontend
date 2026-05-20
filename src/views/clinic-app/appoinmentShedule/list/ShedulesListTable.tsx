@@ -31,32 +31,7 @@ import type { Locale } from '@configs/i18n'
 import { getScheduleList } from '@/services/doctor/doctor.shedule.server.service'
 import { Typography } from '@mui/material'
 import { SpecializationDTO } from '@/types/public-booking.types'
-
-// --- Types ---
-export interface ScheduleDTO {
-  id: number
-  doctorId: number
-  doctorName: string
-  specialization: string
-  scheduleDate: string
-  startTime: string
-  endTime: string
-  doctorFee: number
-  clinicFee: number
-  maxPatientCount: number
-  registeredPatientCount: number
-  isBookingOpen: boolean
-  status: {
-    code: string
-    displayName: string
-    colorCode: string 
-  }
-  payoutStatus?: {
-    code: string
-    displayName: string
-    colorCode: string
-  }
-}
+import { ScheduleDTO } from '@/types/doctor.types'
 
 type Doctor = {
     id: number
@@ -287,7 +262,7 @@ const ScheduleListTable = () => {
         columns={columns}
         filterConfig={filterConfigs}      
         baseRowUrl={getLocalizedUrl('/clinic/appoinment-shedule/details', locale as Locale)}
-        getRowUrlParam={(row) => encodeHideValue(row.id)}
+        getRowUrlParam={(row) => row.id}
         actionComponent={
             <>
                 <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>

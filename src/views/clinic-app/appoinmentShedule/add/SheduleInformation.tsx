@@ -18,7 +18,7 @@ import AsyncAutocomplete from '@/components/form-components/AsyncAutocompletePro
 
 import SheduleVariants from './SheduleVariants'
 
-import type {Doctor, DoctorSchedule, DoctorScheduleDTO } from '@/types/doctor.types'
+import type {Doctor, DoctorSchedule, DoctorScheduleCreateDTO } from '@/types/doctor.types'
 
 import { doctorService } from '@/services/doctor/doctor.service';
 
@@ -44,7 +44,7 @@ const onSubmit = async (data: DoctorSchedule) => {
     return;
   }
 
-  const payload : DoctorScheduleDTO[] = data.schedules.map(schedule => ({
+  const payload : DoctorScheduleCreateDTO[] = data.schedules.map(schedule => ({
     doctorId: data?.doctor?.id ? data?.doctor?.id : 0,
     scheduleDate: schedule.date,
     startTime: schedule.startTime,

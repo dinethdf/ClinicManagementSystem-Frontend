@@ -1,7 +1,17 @@
 'use server';
 
 import { http, ApiError } from '@/services/api.config.server';
-import type { DoctorScheduleDTO, UpdatedDoctorScheduleDTO } from '@/types/doctor.types';
+import type { 
+  DoctorScheduleResponseDTO, 
+  DoctorScheduleDTO, 
+  DoctorScheduleCreateDTO,
+  DoctorScheduleUpdateDTO,
+  DoctorReassignDTO,
+  DelayNotificationDTO,
+  CurrentTicketDTO,
+  AppointmentCancelDTO,
+  DoctorScheduleListDTO
+} from '@/types/doctor.types';
 import type { PublicBookingRequest } from '@/types/public-booking.types';
 
 interface PaginatedResponse<T> {
@@ -12,9 +22,174 @@ interface PaginatedResponse<T> {
   number: number;
 }
 
+// --- Part 1: Lifecycle & Management Operations ---
+
+export async function closeBookingEarly(id: number) {
+  try {
+    const data = await http.post<DoctorScheduleResponseDTO>(`/api/schedules/${id}/close-booking`, {});
+    return { success: true, data, message: 'Booking closed successfully.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to close booking.');
+  }
+}
+
+export async function completeSchedule(id: number) {
+  try {
+    const data = await http.post<DoctorScheduleResponseDTO>(`/api/schedules/${id}/complete`, {});
+    return { success: true, data, message: 'Schedule marked as completed.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to complete schedule.');
+  }
+}
+
+export async function cancelScheduleCascade(id: number, payload: AppointmentCancelDTO) {
+  try {
+    const data = await http.post<DoctorScheduleResponseDTO>(`/api/schedules/${id}/cancel-cascade`, payload);
+    return { success: true, data, message: 'Schedule and appointments cancelled successfully.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to cancel schedule cascade.');
+  }
+}
+
+export async function syncFirebaseQueue(id: number) {
+  try {
+    await http.post(`/api/schedules/${id}/sync-queue`, {});
+    return { success: true, message: 'Firebase Queue synced successfully.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to sync firebase queue.');
+  }
+}
+
+// --- Part 2: Advanced Clinical operations & Queries ---
+
+export async function checkScheduleOverlap(params: {
+  doctorId: number;
+  date: string;
+  startTime: string;
+  endTime: string;
+  excludeScheduleId?: number;
+}) {
+  try {
+    const query = new URLSearchParams({
+      doctorId: params.doctorId.toString(),
+      date: params.date,
+      startTime: params.startTime,
+      endTime: params.endTime,
+    });
+    if (params.excludeScheduleId) query.append('excludeScheduleId', params.excludeScheduleId.toString());
+
+    const data = await http.get<boolean>(`/api/schedules/check-overlap?${query.toString()}`);
+    return { success: true, data };
+  } catch (error) {
+    return handleApiError(error, 'Failed to check overlap.');
+  }
+}
+
+export async function reassignDoctor(id: number, payload: DoctorReassignDTO) {
+  try {
+    const data = await http.post<DoctorScheduleResponseDTO>(`/api/schedules/${id}/reassign`, payload);
+    return { success: true, data, message: 'Schedule reassigned successfully.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to reassign doctor.');
+  }
+}
+
+export async function notifyDelay(id: number, payload: DelayNotificationDTO) {
+  try {
+    await http.post(`/api/schedules/${id}/notify-delay`, payload);
+    return { success: true, message: 'Delay notifications queued.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to send delay notification.');
+  }
+}
+
+export async function getCurrentTicketStatus(id: number) {
+  try {
+    const data = await http.get<CurrentTicketDTO>(`/api/schedules/${id}/current-ticket`);
+    return { success: true, data };
+  } catch (error) {
+    return handleApiError(error, 'Failed to fetch current ticket status.');
+  }
+}
+
+export async function getAllSchedules(includeInactive: boolean = false) {
+  try {
+    const data = await http.get<DoctorScheduleListDTO[]>(`/api/schedules/all?includeInactive=${includeInactive}`);
+    return { success: true, data };
+  } catch (error) {
+    return handleApiError(error, 'Failed to fetch all schedules.');
+  }
+}
+
+// --- Part 3 & 4: CRUD Operations ---
+
+export async function createSchedule(payload: DoctorScheduleCreateDTO) {
+  try {
+    const data = await http.post<DoctorScheduleResponseDTO>('/api/schedules', payload);
+    return { success: true, data, message: 'Schedule created successfully.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to create schedule.');
+  }
+}
+
+export async function createBatchSchedules(payload: DoctorScheduleCreateDTO[]) {
+  try {
+    const data = await http.post<DoctorScheduleResponseDTO[]>('/api/schedules/batch', payload);
+    return { success: true, data, message: 'Batch schedules created successfully.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to create batch schedules.');
+  }
+}
+
+export async function updateSchedule(id: number, payload: DoctorScheduleUpdateDTO) {
+  try {
+    const data = await http.put<DoctorScheduleResponseDTO>(`/api/schedules/${id}`, payload);
+    return { success: true, data, message: 'Schedule updated successfully.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to update schedule.');
+  }
+}
+
+export async function deleteSchedule(id: number) {
+  try {
+    await http.delete(`/api/schedules/${id}`);
+    return { success: true, message: 'Schedule deactivated successfully.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to deactivate schedule.');
+  }
+}
+
+export async function reactivateSchedule(id: number) {
+  try {
+    const data = await http.post<DoctorScheduleResponseDTO>(`/api/schedules/${id}/reactivate`, {});
+    return { success: true, data, message: 'Schedule reactivated successfully.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to reactivate schedule.');
+  }
+}
+
+export async function hardDeleteSchedule(id: number) {
+  try {
+    await http.delete(`/api/schedules/${id}/force-delete`);
+    return { success: true, message: 'Schedule permanently deleted.' };
+  } catch (error) {
+    return handleApiError(error, 'Failed to hard delete schedule.');
+  }
+}
+
+function handleApiError(error: any, defaultMessage: string) {
+  if (error instanceof ApiError) {
+    return { success: false, message: error.message, error: error.details };
+  }
+  console.error(defaultMessage, error);
+  return { success: false, message: defaultMessage };
+}
+
+// --- Existing methods with minor cleanup ---
+
 export async function getSchedulesList() {
   try {
-    const data = await http.get<PaginatedResponse<DoctorScheduleDTO>>('/api/schedules?size=100');
+    const data = await http.get<PaginatedResponse<DoctorScheduleResponseDTO>>('/api/schedules?size=100');
     return data.content || [];
   } catch (error) {
     console.error('Server-side get schedules failed:', error);
@@ -49,7 +224,7 @@ export async function getPublicSchedulesList({
     if (specialization) params.append('specialization', specialization);
     if (doctorName) params.append('doctorName', doctorName);
 
-    const data = await http.get<PaginatedResponse<DoctorScheduleDTO>>(
+    const data = await http.get<PaginatedResponse<DoctorScheduleResponseDTO>>(
       `/api/schedules/upcoming-public?${params.toString()}`
     );
     
@@ -75,7 +250,7 @@ export async function getSchedulesByDoctorId(
       sort: 'scheduleDate,desc'
     });
 
-    const data = await http.get<PaginatedResponse<DoctorScheduleDTO>>(
+    const data = await http.get<PaginatedResponse<DoctorScheduleResponseDTO>>(
       `/api/schedules/by-doctor/${doctorId}?${queryParams.toString()}`
     );
 
@@ -86,39 +261,16 @@ export async function getSchedulesByDoctorId(
     };
 
   } catch (error) {
-    if (error instanceof ApiError) {
-      return { 
-        success: false, 
-        message: error.message, 
-        data: null 
-      };
-    }
-    
-    console.error('Server-side get doctor schedules failed:', error);
-    return { 
-      success: false, 
-      message: 'Failed to fetch doctor schedules', 
-      data: null 
-    };
+    return handleApiError(error, 'Failed to fetch doctor schedules');
   }
 }
 
 /**
  * Get single schedule by ID
  */
-export async function getScheduleById(id: number): Promise<DoctorScheduleDTO | null> {
+export async function getScheduleById(id: number): Promise<DoctorScheduleResponseDTO | null> {
   try {
-    const data = await http.get<DoctorScheduleDTO>(`/api/schedules/${id}`);
-    return data;
-  } catch (error) {
-    console.error('Failed to fetch schedule:', error);
-    return null;
-  }
-}
-
-export async function getScheduleByIdUpdated(id: number): Promise<UpdatedDoctorScheduleDTO | null> {
-  try {
-    const data = await http.get<UpdatedDoctorScheduleDTO>(`/api/schedules/${id}`);
+    const data = await http.get<DoctorScheduleResponseDTO>(`/api/schedules/${id}`);
     return data;
   } catch (error) {
     console.error('Failed to fetch schedule:', error);
@@ -136,7 +288,7 @@ export async function getScheduleList(
 ) {
   try {
     const params = new URLSearchParams({
-      page: page.toString(), // TanStack table is 0-indexed, Spring Boot is 0-indexed.
+      page: page.toString(),
       size: pageSize.toString(),
     });
 
@@ -145,8 +297,7 @@ export async function getScheduleList(
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
 
-    console.log("urs", `/api/schedules?${params.toString()}`)
-    const data = await http.get<PaginatedResponse<DoctorScheduleDTO>>(
+    const data = await http.get<PaginatedResponse<DoctorScheduleResponseDTO>>(
       `/api/schedules?${params.toString()}`
     );
     

@@ -35,7 +35,7 @@ import type { Locale } from '@configs/i18n'
 import type { ThemeColor } from '@core/types'
 
 // --- Configuration ---
-const columnHelper = createColumnHelper<any>()
+const columnHelper = createColumnHelper<PatientAppointmentDTO>()
 
 type StatusType = {
   color: ThemeColor

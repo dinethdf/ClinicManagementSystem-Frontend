@@ -1,4 +1,4 @@
-import type { DoctorCreateDTO, DoctorScheduleApiResponse, DoctorScheduleDTO, GetDoctorsParams, PaginatedDoctorResponse } from '@/types/doctor.types'
+import type { DoctorCreateDTO, DoctorScheduleApiResponse, DoctorScheduleResponseDTO, DoctorScheduleCreateDTO, GetDoctorsParams, PaginatedDoctorResponse } from '@/types/doctor.types'
 import { apiClient } from '../api.config'
 import { ApiResponse } from '@/types/common.type'
 
@@ -60,10 +60,10 @@ async getDoctorList({ page, pageSize, sort, ...filters}: GetDoctorsParams): Prom
       }
   }
 
-async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorScheduleDTO[]> {
+async createBatchSchedules(payload: DoctorScheduleCreateDTO[]): Promise<DoctorScheduleResponseDTO[]> {
   try {
     
-    const response = await apiClient.post<ApiResponse<DoctorScheduleDTO[]>>(
+    const response = await apiClient.post<ApiResponse<DoctorScheduleResponseDTO[]>>(
       '/api/schedules/batch',
       payload
     )

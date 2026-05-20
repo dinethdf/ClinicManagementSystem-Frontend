@@ -31,23 +31,7 @@ import {
 // Service & Style Imports
 import { doctorSheduleService } from '@/services/doctor/doctor.shedule.service'
 import tableStyles from '@core/styles/table.module.css'
-
-// --- TYPES ---
-export interface DoctorScheduleDTO {
-  id?: number
-  doctorId: number
-  scheduleDate: string
-  doctorName?: string
-  specialization?: string
-  startTime: string
-  endTime: string
-  doctorFee: number
-  clinicFee: number
-  registeredPatientCount: number
-  maxPatientCount: number
-  isActive?: boolean
-  status?: string
-}
+import type { DoctorScheduleDTO } from '@/types/doctor.types'
 
 // Component Imports
 import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable'
@@ -133,7 +117,7 @@ const ScheduleListTable = ({
         header: 'Status',
         cell: ({ row }) => {
             const isFull = row.original.registeredPatientCount >= row.original.maxPatientCount
-            const isClosed = row.original.status !== 'ACTIVE' && row.original.isActive === false
+            const isClosed = row.original.status.code !== 'ACTIVE' && row.original.isBookingOpen === false
             if (isClosed) return <Chip label='Closed' color='error' size='small' variant='tonal' />
             if (isFull) return <Chip label='Full' color='warning' size='small' variant='tonal' />
             return <Chip label='Open' color='success' size='small' variant='tonal' />
@@ -148,7 +132,7 @@ const ScheduleListTable = ({
               variant='contained'
               color='primary'
               size='small'
-              disabled={row.original.status !== 'ACTIVE' || row.original.isActive === false || row.original.registeredPatientCount >= row.original.maxPatientCount}
+              disabled={row.original.status.code !== 'ACTIVE' || row.original.isBookingOpen === false || row.original.registeredPatientCount >= row.original.maxPatientCount}
               onClick={() => onBookNow(row.original.id!)}
             >
               Book Now

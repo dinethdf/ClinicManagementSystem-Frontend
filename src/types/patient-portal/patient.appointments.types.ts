@@ -2,14 +2,17 @@ export type AppointmentStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'PENDI
 
 export interface PatientAppointmentDTO {
   id: number;
+  appointmentId: number; // For compatibility
   doctorName: string;
   specialization: string;
   doctorImage?: string; // Optional URL
   scheduleId: number;
-  date: string; // ISO string e.g. "2026-01-05T10:30:00"
+  scheduleDate: string; // ISO string or formatted
+  date?: string; // Kept for backward compatibility
   startTime: string;
   endTime: string;
-  queueNo: number;
+  queuePosition: number;
+  queueNo?: number; // Kept for backward compatibility
   status: AppointmentStatus;
   clinicName: string;
   location: string;

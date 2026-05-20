@@ -4,7 +4,7 @@ import { verifyToken } from '@/libs/verifyToken';
 
 import ScheduleDetails from '@/views/clinic-app/appoinmentShedule/details'
 
-import { getScheduleByIdUpdated } from '@/services/doctor/doctor.shedule.server.service'
+import { getScheduleById } from '@/services/doctor/doctor.shedule.server.service'
 
 const ScheduleDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
 
@@ -13,7 +13,7 @@ const ScheduleDetailsPage = async (props: { params: Promise<{ id: string }> }) =
  
   const role = valid ? payload?.role : null;
 
-  const allowedRoles = ['ADMIN', 'USER', , 'STAFF'];
+  const allowedRoles = ['ADMIN', 'USER', 'STAFF'];
 
 
   if (role && allowedRoles.includes(role)) {
@@ -21,7 +21,7 @@ const ScheduleDetailsPage = async (props: { params: Promise<{ id: string }> }) =
       const scheduleId = Number(params.id)
       let scheduleData = null
       try {
-        scheduleData = await getScheduleByIdUpdated(scheduleId)
+        scheduleData = await getScheduleById(scheduleId)
       } catch (error) {
         console.error('Error fetching schedule details:', error)
       }

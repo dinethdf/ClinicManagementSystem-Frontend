@@ -66,8 +66,7 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
         
         console.log("schedule response", response)
 
-        if (response.success && response.data) {
-            // FIX: response.data IS the paginated object, so access .content directly
+        if (response.success && 'data' in response && response.data) {
             setData(response.data.content || []) 
             setRowCount(response.data.totalElements || 0)
         } else {
@@ -121,8 +120,7 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
             const max = row.original.maxPatientCount;
             const percent = (current / max) * 100;
             
-            // FIX: Access status object safely
-            const statusObj = row.original.status as any; 
+            const statusObj = row.original.status; 
             const bookingStatus = statusObj?.code || 'UNKNOWN';
            
             return (
@@ -148,8 +146,7 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
       columnHelper.accessor('status', {
         header: 'Status',
         cell: ({ row }) => {
-            // FIX: Handle Status Object structure { code, displayName, colorCode }
-            const statusObj = row.original.status as any;
+            const statusObj = row.original.status;
             
             return (
                 <Chip 
