@@ -228,7 +228,7 @@ const CommonServerTable = <T extends object>({
                  table.getRowModel().rows.map(row => (
                     <tr 
                       key={row.id} 
-                      className={`${row.getIsSelected() ? 'bg-primary/5' : ''} ${(baseRowUrl || onRowClick) ? 'cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors' : 'transition-colors'}`}
+                      className={`${row.getIsSelected() ? 'bg-primary/5' : ''} ${(baseRowUrl || onRowClick) ? 'cursor-pointer' : ''}`}
                       onClick={() => {
                         if (onRowClick) {
                           onRowClick(row.original as T);

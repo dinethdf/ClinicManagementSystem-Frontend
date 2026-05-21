@@ -109,9 +109,9 @@ const PatientListTable = () => {
       getRowUrlParam={(row: PatientResponceDTO) => row.id ?? 0}
       actionComponent={
         <>
-          <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>
+          {/* <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>
              Export
-          </Button>
+          </Button> */}
           <Button 
              variant='contained' 
              onClick={() => router.push(`/en/clinic/patient/register`)}

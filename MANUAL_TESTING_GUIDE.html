@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CureGuard — Manual Testing Guide</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #7c6ff7;
+      --accent2: #5eead4;
+      --pass: #22c55e;
+      --fail: #ef4444;
+      --warn: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e3a5f 100%);
+      padding: 32px 40px 28px;
+      border-bottom: 2px solid var(--accent);
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    }
+    .header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.5px; }
+    .header h1 span { color: var(--accent2); }
+    .header p { color: #a5b4fc; font-size: 0.88rem; margin-top: 4px; }
+    .progress-wrap { text-align: right; min-width: 200px; }
+    .progress-label { font-size: 0.82rem; color: var(--muted); margin-bottom: 6px; }
+    .progress-bar-bg { background: var(--border); border-radius: 99px; height: 10px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.4s ease; }
+    .progress-pct { font-size: 1.1rem; font-weight: 700; color: var(--accent2); margin-top: 4px; }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+
+    /* ── SECTION ── */
+    .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
+    .section-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px; cursor: pointer;
+      background: var(--surface2); border-bottom: 1px solid var(--border);
+      user-select: none;
+      transition: background 0.2s;
+    }
+    .section-header:hover { background: #2a2f4a; }
+    .section-icon { font-size: 1.3rem; }
+    .section-title { font-size: 1rem; font-weight: 600; flex: 1; }
+    .section-badge {
+      font-size: 0.75rem; padding: 2px 10px; border-radius: 99px;
+      background: var(--border); color: var(--muted); font-weight: 600;
+    }
+    .section-badge.done { background: #14532d; color: var(--pass); }
+    .section-chevron { color: var(--muted); transition: transform 0.25s; font-size: 1rem; }
+    .section.open .section-chevron { transform: rotate(90deg); }
+    .section-body { display: none; padding: 0; }
+    .section.open .section-body { display: block; }
+
+    /* ── SUBSECTION ── */
+    .subsection { padding: 18px 22px; border-bottom: 1px solid var(--border); }
+    .subsection:last-child { border-bottom: none; }
+    .subsection-title { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 14px; }
+
+    /* ── TEST CASE ── */
+    .test-case {
+      display: grid; grid-template-columns: 24px 1fr auto;
+      gap: 12px; align-items: start;
+      padding: 10px 12px; border-radius: 8px; margin-bottom: 6px;
+      border: 1px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+      cursor: pointer;
+    }
+    .test-case:hover { background: var(--surface2); border-color: var(--border); }
+    .test-case.pass { background: #052e16; border-color: #166534; }
+    .test-case.fail { background: #2d0a0a; border-color: #7f1d1d; }
+    .test-case.skip { background: #1c1a00; border-color: #713f12; }
+
+    /* Custom checkbox */
+    .cb-wrap { position: relative; width: 20px; height: 20px; margin-top: 2px; flex-shrink: 0; }
+    .cb-wrap input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; margin: 0; z-index: 2; }
+    .cb-box {
+      width: 20px; height: 20px; border-radius: 5px;
+      border: 2px solid var(--border); background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; font-size: 13px; pointer-events: none;
+    }
+    .test-case.pass .cb-box { background: var(--pass); border-color: var(--pass); color: #fff; }
+    .test-case.fail .cb-box { background: var(--fail); border-color: var(--fail); color: #fff; }
+    .test-case.skip .cb-box { background: var(--warn); border-color: var(--warn); color: #000; }
+
+    .test-label { font-size: 0.9rem; line-height: 1.5; padding-top: 1px; }
+    .test-label .tag { display: inline-block; font-size: 0.7rem; padding: 1px 7px; border-radius: 99px; margin-right: 5px; font-weight: 700; }
+    .tag.required { background: #7f1d1d; color: #fca5a5; }
+    .tag.optional { background: #1e3a5f; color: #7dd3fc; }
+    .tag.underage { background: #3b1f6e; color: #c4b5fd; }
+
+    .test-actions { display: flex; gap: 5px; flex-shrink: 0; padding-top: 1px; }
+    .btn-status {
+      font-size: 0.7rem; padding: 3px 9px; border-radius: 5px; border: none;
+      cursor: pointer; font-weight: 600; transition: opacity 0.15s;
+    }
+    .btn-status:hover { opacity: 0.8; }
+    .btn-pass { background: #166534; color: #bbf7d0; }
+    .btn-fail { background: #7f1d1d; color: #fecaca; }
+    .btn-skip { background: #713f12; color: #fef3c7; }
+    .btn-reset { background: var(--border); color: var(--muted); }
+
+    /* ── FIELD TABLE ── */
+    .field-table { width: 100%; border-collapse: collapse; margin: 14px 0 8px; font-size: 0.84rem; }
+    .field-table th { background: var(--surface2); color: var(--muted); font-weight: 600; padding: 8px 12px; text-align: left; border: 1px solid var(--border); }
+    .field-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+    .field-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    .field-table .good { color: #86efac; }
+    .field-table .bad { color: #fca5a5; }
+    .field-table .info { color: #7dd3fc; }
+    .field-table code { background: #0d1117; padding: 1px 6px; border-radius: 4px; font-size: 0.8rem; color: #c4b5fd; }
+
+    /* ── NOTES ── */
+    .note-area {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 8px 10px; color: var(--text);
+      font-size: 0.82rem; resize: vertical; min-height: 50px;
+      font-family: inherit; margin-top: 6px;
+      transition: border-color 0.2s;
+    }
+    .note-area:focus { outline: none; border-color: var(--accent); }
+    .note-label { font-size: 0.75rem; color: var(--muted); margin-top: 8px; margin-bottom: 2px; }
+
+    /* ── SCENARIO BOX ── */
+    .scenario {
+      background: var(--surface2); border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0;
+      font-size: 0.875rem;
+    }
+    .scenario strong { color: var(--accent2); display: block; margin-bottom: 6px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .scenario ol, .scenario ul { padding-left: 18px; }
+    .scenario li { margin-bottom: 4px; }
+
+    /* ── BUG LOG ── */
+    .bug-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .bug-table th { background: #200a0a; color: #fca5a5; padding: 10px 12px; border: 1px solid #7f1d1d; text-align: left; }
+    .bug-table td { padding: 8px 12px; border: 1px solid var(--border); }
+    .bug-table input, .bug-table select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      border-radius: 4px; padding: 5px 8px; font-size: 0.82rem; width: 100%;
+      font-family: inherit;
+    }
+    .bug-table input:focus, .bug-table select:focus { outline: none; border-color: var(--accent); }
+    .sev-critical { color: #ef4444; font-weight: 700; }
+    .sev-high { color: #f97316; font-weight: 700; }
+    .sev-medium { color: #eab308; font-weight: 700; }
+    .sev-low { color: #22c55e; font-weight: 700; }
+
+    /* ── SUMMARY ── */
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; padding: 20px; }
+    .stat-card { background: var(--surface2); border-radius: 8px; padding: 16px; text-align: center; border: 1px solid var(--border); }
+    .stat-num { font-size: 2rem; font-weight: 700; }
+    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+    .stat-pass .stat-num { color: var(--pass); }
+    .stat-fail .stat-num { color: var(--fail); }
+    .stat-skip .stat-num { color: var(--warn); }
+    .stat-total .stat-num { color: var(--accent); }
+
+    .top-nav { padding: 16px 20px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .nav-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 5px 13px; font-size: 0.8rem; cursor: pointer; transition: background 0.15s; }
+    .nav-btn:hover { background: var(--accent); color: #fff; }
+
+    .info-box { background: #0c1a2e; border: 1px solid #1e3a5f; border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; font-size: 0.85rem; color: #93c5fd; }
+    .info-box strong { color: var(--accent2); }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════ HEADER ════════════════════ -->
+<div class="header">
+  <div>
+    <h1>🏥 CureGuard <span>Testing Guide</span></h1>
+    <p>Manual End-to-End Test Checklist &nbsp;|&nbsp; Click ✔ Pass / ✘ Fail / ⏭ Skip on each test case</p>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">Overall Progress</div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="globalBar" style="width:0%"></div></div>
+    <div class="progress-pct" id="globalPct">0 / 0 done</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── SUMMARY CARDS ── -->
+  <div class="summary-grid" style="padding:0 0 24px">
+    <div class="stat-card stat-total"><div class="stat-num" id="sumTotal">0</div><div class="stat-label">Total Tests</div></div>
+    <div class="stat-card stat-pass"><div class="stat-num" id="sumPass">0</div><div class="stat-label">✔ Passed</div></div>
+    <div class="stat-card stat-fail"><div class="stat-num" id="sumFail">0</div><div class="stat-label">✘ Failed</div></div>
+    <div class="stat-card stat-skip"><div class="stat-num" id="sumSkip">0</div><div class="stat-label">⏭ Skipped</div></div>
+  </div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 1 — AUTHENTICATION
+════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-auth">
+  <div class="section-header" onclick="toggleSection('sec-auth')">
+    <span class="section-icon">🔐</span>
+    <span class="section-title">1. Authentication &amp; Access Control</span>
+    <span class="section-badge" id="badge-sec-auth">0/0</span>
+    <span class="section-chevron">▶</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection">
+      <div class="subsection-title">1.1 Clinic Admin Login &nbsp;<code>/en/login</code></div>
+      <div id="tc-auth"></div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">1.2 Patient Login &nbsp;|&nbsp; 1.3 Doctor Login &nbsp;|&nbsp; 1.4 Forgot Password</div>
+      <div id="tc-auth2"></div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">1.5 Route Guards &amp; Session</div>
+      <div id="tc-auth3"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 2 — REGISTER NEW PATIENT (DETAILED)
+════════════════════════════════════════════════════════ -->
+<div class="section open" id="sec-patient-reg">
+  <div class="section-header" onclick="toggleSection('sec-patient-reg')">
+    <span class="section-icon">🧑‍⚕️</span>
+    <span class="section-title">2. Register New Patient — Full Form Testing</span>
+    <span class="section-badge" id="badge-sec-patient-reg">0/0</span>
+    <span class="section-chevron">▶</span>
+  </div>
+  <div class="section-body">
+
+    <!-- ── PRE-CONDITIONS ── -->
+    <div class="subsection">
+      <div class="subsection-title">Pre-conditions</div>
+      <div class="info-box">
+        <strong>URL:</strong> <code>/en/clinic/patient/register</code><br>
+        <strong>Role needed:</strong> Clinic Admin or Staff login<br>
+        <strong>Note:</strong> Fields marked <span class="tag required">REQUIRED</span> must show error when blank.
+        Fields marked <span class="tag optional">OPTIONAL</span> can be left empty. Under-18 patients trigger special Guardian fields <span class="tag underage">UNDERAGE</span>.
+      </div>
+      <div id="tc-prereg"></div>
+    </div>
+
+    <!-- ── SCENARIO A: Submit completely empty form ── -->
+    <div class="subsection">
+      <div class="subsection-title">Scenario A — Submit Completely Empty Form</div>
+      <div class="scenario">
+        <strong>Steps</strong>
+        <ol>
+          <li>Open the Register Patient page</li>
+          <li>Leave ALL fields blank</li>
+          <li>Click <strong>Save Changes</strong></li>
+        </ol>
+      </div>
+      <table class="field-table">
+        <thead><tr><th>Field</th><th>Expected Error Message</th></tr></thead>
+        <tbody>
+          <tr><td><strong>First Name</strong></td><td class="bad">This field is required</td></tr>
+          <tr><td><strong>Last Name</strong></td><td class="bad">This field is required</td></tr>
+          <tr><td><strong>Full Name</strong></td><td class="bad">This field is required</td></tr>
+          <tr><td><strong>Gender</strong></td><td class="bad">Gender is required</td></tr>
+          <tr><td><strong>Date of Birth</strong></td><td class="bad">Please select your Date of Birth</td></tr>
+          <tr><td><strong>NIC Number</strong></td><td class="bad">NIC is required</td></tr>
+          <tr><td><strong>Address</strong></td><td class="bad">Address is required</td></tr>
+          <tr><td><strong>Mobile Number</strong></td><td class="bad">Mobile number is required</td></tr>
+          <tr><td><strong>Ethnicity</strong></td><td class="info">No error (optional)</td></tr>
+          <tr><td><strong>Marital Status</strong></td><td class="info">No error (optional)</td></tr>
+          <tr><td><strong>Blood Group</strong></td><td class="info">No error (optional)</td></tr>
+          <tr><td><strong>Weight / Height</strong></td><td class="info">No error (optional)</td></tr>
+          <tr><td><strong>City / District</strong></td><td class="info">No error (can be empty)</td></tr>
+          <tr><td><strong>Emergency Contact Name</strong></td><td class="info">No error (optional)</td></tr>
+          <tr><td><strong>Emergency Mobile</strong></td><td class="info">No error (optional)</td></tr>
+        </tbody>
+      </table>
+      <div id="tc-scenA"></div>
+    </div>
+
+    <!-- ── SCENARIO B: Invalid field values ── -->
+    <div class="subsection">
+      <div class="subsection-title">Scenario B — Enter Invalid Values (One Field at a Time)</div>
+      <div class="scenario">
+        <strong>Test each field below independently — enter the INVALID value, tab away or submit, and check the error</strong>
+      </div>
+      <table class="field-table">
+        <thead><tr><th>Field</th><th>Invalid Value to Enter</th><th>Expected Error Message</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>First Name</strong></td>
+            <td><code>Jo</code> (only 2 chars)</td>
+            <td class="bad">First Name must be at least 3 characters long</td>
+          </tr>
+          <tr>
+            <td><strong>Last Name</strong></td>
+            <td><code>Li</code> (only 2 chars)</td>
+            <td class="bad">Last Name must be at least 3 characters long</td>
+          </tr>
+          <tr>
+            <td><strong>Full Name</strong></td>
+            <td><code>John</code> (only one word)</td>
+            <td class="bad">Please enter a full name with at least two valid words (letters only).</td>
+          </tr>
+          <tr>
+            <td><strong>Full Name</strong></td>
+            <td><code>John 123</code> (number in name)</td>
+            <td class="bad">Please enter a full name with at least two valid words (letters only).</td>
+          </tr>
+          <tr>
+            <td><strong>NIC Number</strong></td>
+            <td><code>123456</code> (too short)</td>
+            <td class="bad">Please enter a valid NIC number</td>
+          </tr>
+          <tr>
+            <td><strong>NIC Number</strong></td>
+            <td><code>ABCDEFGHIJ</code> (letters)</td>
+            <td class="bad">Please enter a valid NIC number</td>
+          </tr>
+          <tr>
+            <td><strong>Address</strong></td>
+            <td><code>No 5</code> (less than 10 chars)</td>
+            <td class="bad">Please enter a more detailed address</td>
+          </tr>
+          <tr>
+            <td><strong>City</strong></td>
+            <td><code>AB</code> (only 2 chars)</td>
+            <td class="bad">City must be at least 3 characters</td>
+          </tr>
+          <tr>
+            <td><strong>District</strong></td>
+            <td><code>XY</code> (only 2 chars)</td>
+            <td class="bad">District must be at least 3 characters</td>
+          </tr>
+          <tr>
+            <td><strong>Email</strong></td>
+            <td><code>notanemail</code></td>
+            <td class="bad">Please enter a valid email address</td>
+          </tr>
+          <tr>
+            <td><strong>Email</strong></td>
+            <td><code>test@</code></td>
+            <td class="bad">Please enter a valid email address</td>
+          </tr>
+          <tr>
+            <td><strong>Mobile Number</strong></td>
+            <td><code>0112345678</code> (not 07x)</td>
+            <td class="bad">Please enter a valid 10-digit mobile number</td>
+          </tr>
+          <tr>
+            <td><strong>Mobile Number</strong></td>
+            <td><code>071234</code> (too short)</td>
+            <td class="bad">Please enter a valid 10-digit mobile number</td>
+          </tr>
+          <tr>
+            <td><strong>Mobile Number</strong></td>
+            <td><code>abc1234567</code></td>
+            <td class="bad">Please enter a valid 10-digit mobile number</td>
+          </tr>
+          <tr>
+            <td><strong>Land Number</strong></td>
+            <td><code>011234</code> (too short)</td>
+            <td class="bad">Please enter a valid 10-digit land number</td>
+          </tr>
+          <tr>
+            <td><strong>Weight</strong></td>
+            <td><code>0</code> or <code>-5</code></td>
+            <td class="bad">Weight must be greater than 0</td>
+          </tr>
+          <tr>
+            <td><strong>Height</strong></td>
+            <td><code>0</code> or <code>-10</code></td>
+            <td class="bad">Height must be greater than 0</td>
+          </tr>
+          <tr>
+            <td><strong>Emergency Contact Name</strong></td>
+            <td><code>Al</code> (only 2 chars)</td>
+            <td class="bad">Name must be at least 3 characters</td>
+          </tr>
+          <tr>
+            <td><strong>Emergency Mobile</strong></td>
+            <td><code>0114567890</code> (not 07x)</td>
+            <td class="bad">Please enter a valid 10-digit mobile number</td>
+          </tr>
+          <tr>
+            <td><strong>Emergency Email</strong></td>
+            <td><code>bademail#test</code></td>
+            <td class="bad">Please enter a valid email address</td>
+          </tr>
+        </tbody>
+      </table>
+      <div id="tc-scenB"></div>
+    </div>
+
+    <!-- ── SCENARIO C: Valid adult registration ── -->
+    <div class="subsection">
+      <div class="subsection-title">Scenario C — Successful Adult Patient Registration</div>
+      <div class="scenario">
+        <strong>Enter these exact values and submit — should succeed with no errors</strong>
+        <table class="field-table" style="margin-top:10px">
+          <thead><tr><th>Field</th><th>Value to Enter</th></tr></thead>
+          <tbody>
+            <tr><td>First Name</td><td><code>Kasun</code></td></tr>
+            <tr><td>Last Name</td><td><code>Perera</code></td></tr>
+            <tr><td>Full Name</td><td><code>Kasun Buddhika Perera</code></td></tr>
+            <tr><td>Ethnicity</td><td>Select: <code>Sinhala</code></td></tr>
+            <tr><td>Gender</td><td>Select: <code>Male</code></td></tr>
+            <tr><td>Marital Status</td><td>Select: <code>Single</code></td></tr>
+            <tr><td>Blood Group</td><td>Select: <code>B+</code></td></tr>
+            <tr><td>Weight (kg)</td><td><code>72</code></td></tr>
+            <tr><td>Height (cm)</td><td><code>175</code></td></tr>
+            <tr><td>Date of Birth</td><td>Select any date ≥ 18 years ago, e.g. <code>1995-06-15</code></td></tr>
+            <tr><td>NIC Number</td><td><code>950661234V</code> or <code>199506600123</code></td></tr>
+            <tr><td>Address</td><td><code>No 45, Kandy Road, Kadawatha</code></td></tr>
+            <tr><td>City</td><td><code>Kadawatha</code></td></tr>
+            <tr><td>District</td><td><code>Gampaha</code></td></tr>
+            <tr><td>Email</td><td><code>kasun.perera@gmail.com</code></td></tr>
+            <tr><td>Mobile Number</td><td><code>0771234567</code></td></tr>
+            <tr><td>Land Number</td><td><code>0112345678</code></td></tr>
+            <tr><td>Emergency Contact Name</td><td><code>Nimal Perera</code></td></tr>
+            <tr><td>Relationship</td><td><code>Brother</code></td></tr>
+            <tr><td>Emergency Mobile</td><td><code>0759876543</code></td></tr>
+            <tr><td>Emergency Email</td><td><code>nimal@gmail.com</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="tc-scenC"></div>
+    </div>
+
+    <!-- ── SCENARIO D: Underage patient ── -->
+    <div class="subsection">
+      <div class="subsection-title">Scenario D — Underage Patient (Under 18 years) <span class="tag underage">UNDERAGE MODE</span></div>
+      <div class="scenario">
+        <strong>Steps</strong>
+        <ol>
+          <li>Open Register Patient page</li>
+          <li>In Date of Birth, select any date less than 18 years ago (e.g. <code>2015-03-10</code>)</li>
+          <li>Verify that the form changes — Guardian and Relationship fields appear</li>
+          <li>Verify NIC, Address, Mobile, Email fields become <strong>disabled/locked</strong></li>
+          <li>Try to submit without selecting a Guardian → check error</li>
+          <li>Try to submit without selecting Relationship to Guardian → check error</li>
+          <li>Click the Guardian field → Guardian Search Dialog opens → search and select a guardian</li>
+          <li>Verify guardian's contact details auto-fill into NIC, Address, Mobile, Email fields</li>
+          <li>Select Relationship to Guardian (e.g. Mother) → submit with all other valid fields</li>
+        </ol>
+      </div>
+      <table class="field-table">
+        <thead><tr><th>What to Check</th><th>Expected Result</th></tr></thead>
+        <tbody>
+          <tr><td>DOB set to child's age (e.g. 2015)</td><td class="good">Guardian + Relationship fields appear dynamically</td></tr>
+          <tr><td>NIC field</td><td class="good">Disabled / grayed out (not editable)</td></tr>
+          <tr><td>Address, City, District fields</td><td class="good">Disabled / grayed out</td></tr>
+          <tr><td>Email &amp; Mobile fields</td><td class="good">Disabled / grayed out</td></tr>
+          <tr><td>Submit without Guardian selected</td><td class="bad">Guardian field shows error</td></tr>
+          <tr><td>Submit without Relationship selected</td><td class="bad">Relationship is required</td></tr>
+          <tr><td>After selecting Guardian</td><td class="good">Address/NIC/Mobile auto-populate from guardian's data</td></tr>
+          <tr><td>Change DOB back to adult (18+)</td><td class="good">Guardian fields disappear, NIC/address become editable again</td></tr>
+        </tbody>
+      </table>
+      <div id="tc-scenD"></div>
+    </div>
+
+    <!-- ── SCENARIO E: Quick Temp Register ── -->
+    <div class="subsection">
+      <div class="subsection-title">Scenario E — Quick Temp Register Button</div>
+      <div class="scenario">
+        <strong>Steps</strong>
+        <ol>
+          <li>Click the blue <strong>Quick Temp Register</strong> button (top right of form)</li>
+          <li>Temp patient dialog opens → fill minimal info → submit</li>
+          <li>Verify temp patient is created</li>
+        </ol>
+      </div>
+      <div id="tc-scenE"></div>
+    </div>
+
+    <!-- ── SCENARIO F: Reset button ── -->
+    <div class="subsection">
+      <div class="subsection-title">Scenario F — Reset Button</div>
+      <div id="tc-scenF"></div>
+    </div>
+
+    <!-- ── NIC FORMAT REFERENCE ── -->
+    <div class="subsection">
+      <div class="subsection-title">NIC Format Reference (Sri Lanka)</div>
+      <table class="field-table">
+        <thead><tr><th>Format</th><th>Example (Valid)</th><th>Example (Invalid)</th></tr></thead>
+        <tbody>
+          <tr><td>Old format (10 chars)</td><td class="good"><code>901234567V</code> or <code>901234567v</code></td><td class="bad"><code>90123456V</code> (9 digits)</td></tr>
+          <tr><td>New format (12 digits)</td><td class="good"><code>199012345678</code></td><td class="bad"><code>1990123456</code> (10 digits)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── MOBILE FORMAT REFERENCE ── -->
+    <div class="subsection">
+      <div class="subsection-title">Mobile Number Format Reference</div>
+      <table class="field-table">
+        <thead><tr><th>Format</th><th>Valid Examples</th><th>Invalid Examples</th></tr></thead>
+        <tbody>
+          <tr><td>Must start with 07x, 10 digits total</td>
+            <td class="good"><code>0771234567</code>, <code>0712345678</code>, <code>0761234567</code></td>
+            <td class="bad"><code>0112345678</code>, <code>077123456</code>, <code>+94771234567</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 3 — PATIENT MANAGEMENT (OTHER)
+════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-patient">
+  <div class="section-header" onclick="toggleSection('sec-patient')">
+    <span class="section-icon">👤</span>
+    <span class="section-title">3. Patient Management (List, Details, Clinical Profile)</span>
+    <span class="section-badge" id="badge-sec-patient">0/0</span>
+    <span class="section-chevron">▶</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection">
+      <div class="subsection-title">3.1 Patient List &nbsp;<code>/en/clinic/patient/list</code></div>
+      <div id="tc-plist"></div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">3.2 Patient Details &nbsp;<code>/en/clinic/patient/details/[id]</code></div>
+      <div id="tc-pdetails"></div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">3.3 Clinical Profile &nbsp;<code>/en/clinic/patient/clinical-profile/[id]</code></div>
+      <div id="tc-pclinical"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 4 — DOCTOR MANAGEMENT
+════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-doctor">
+  <div class="section-header" onclick="toggleSection('sec-doctor')">
+    <span class="section-icon">👨‍⚕️</span>
+    <span class="section-title">4. Doctor Management</span>
+    <span class="section-badge" id="badge-sec-doctor">0/0</span>
+    <span class="section-chevron">▶</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection">
+      <div class="subsection-title">4.1 Doctor List &nbsp;<code>/en/clinic/doctors/list</code></div>
+      <div id="tc-dlist"></div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">4.2 Register New Doctor &nbsp;<code>/en/clinic/doctors/register</code></div>
+      <div id="tc-dreg"></div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">4.3 Doctor View/Details</div>
+      <div id="tc-ddetails"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 5 — APPOINTMENTS
+════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-appt">
+  <div class="section-header" onclick="toggleSection('sec-appt')">
+    <span class="section-icon">📅</span>
+    <span class="section-title">5. Appointment Management</span>
+    <span class="section-badge" id="badge-sec-appt">0/0</span>
+    <span class="section-chevron">▶</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection">
+      <div class="subsection-title">5.1 Appointment List &nbsp;|&nbsp; 5.2 Create Appointment &nbsp;|&nbsp; 5.3 Details &amp; Payment</div>
+      <div id="tc-appt"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 6 — SCHEDULE, STAFF, LAB, PAYMENT, PAYOUTS, REPORTS, SETTINGS
+════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-other">
+  <div class="section-header" onclick="toggleSection('sec-other')">
+    <span class="section-icon">⚙️</span>
+    <span class="section-title">6. Schedule / Staff / Lab Tests / Payments / Payouts / Reports / Settings</span>
+    <span class="section-badge" id="badge-sec-other">0/0</span>
+    <span class="section-chevron">▶</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection"><div class="subsection-title">6.1 Appointment Schedule</div><div id="tc-sched"></div></div>
+    <div class="subsection"><div class="subsection-title">6.2 Staff Management</div><div id="tc-staff"></div></div>
+    <div class="subsection"><div class="subsection-title">6.3 Lab Tests</div><div id="tc-lab"></div></div>
+    <div class="subsection"><div class="subsection-title">6.4 Payments</div><div id="tc-pay"></div></div>
+    <div class="subsection"><div class="subsection-title">6.5 Doctor Payouts</div><div id="tc-payout"></div></div>
+    <div class="subsection"><div class="subsection-title">6.6 Reports</div><div id="tc-rep"></div></div>
+    <div class="subsection"><div class="subsection-title">6.7 Settings (General, Branding, Subscription, Secrets)</div><div id="tc-settings"></div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 7 — DOCTOR PORTAL
+════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-doctorportal">
+  <div class="section-header" onclick="toggleSection('sec-doctorportal')">
+    <span class="section-icon">🩺</span>
+    <span class="section-title">7. Doctor Portal (Dashboard, Consultation, Schedule, Financials)</span>
+    <span class="section-badge" id="badge-sec-doctorportal">0/0</span>
+    <span class="section-chevron">▶</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection"><div class="subsection-title">7.1 Doctor Dashboard</div><div id="tc-ddash"></div></div>
+    <div class="subsection"><div class="subsection-title">7.2 Consultation (Prescription Manager, Clinical Notes, Lab Order)</div><div id="tc-consult"></div></div>
+    <div class="subsection"><div class="subsection-title">7.3 Schedule Management</div><div id="tc-dsched"></div></div>
+    <div class="subsection"><div class="subsection-title">7.4 Financials &amp; Account Settings</div><div id="tc-dfin"></div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 8 — PATIENT PORTAL
+════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-patientportal">
+  <div class="section-header" onclick="toggleSection('sec-patientportal')">
+    <span class="section-icon">🧑</span>
+    <span class="section-title">8. Patient Portal (Dashboard, Appointments, Records, Billing, Family)</span>
+    <span class="section-badge" id="badge-sec-patientportal">0/0</span>
+    <span class="section-chevron">▶</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection"><div class="subsection-title">8.1 Patient Dashboard &amp; Live Queue</div><div id="tc-pdash"></div></div>
+    <div class="subsection"><div class="subsection-title">8.2 Appointments List &amp; Details</div><div id="tc-pappt"></div></div>
+    <div class="subsection"><div class="subsection-title">8.3 Medical Records (Health Profile, Lab Reports, Medications)</div><div id="tc-prec"></div></div>
+    <div class="subsection"><div class="subsection-title">8.4 Billing History &amp; Insurance</div><div id="tc-pbill"></div></div>
+    <div class="subsection"><div class="subsection-title">8.5 Family Management</div><div id="tc-pfam"></div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 9 — PUBLIC FEATURES
+════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-public">
+  <div class="section-header" onclick="toggleSection('sec-public')">
+    <span class="section-icon">🌐</span>
+    <span class="section-title">9. Public Features (Book Appointment, Queue Tracker, Print)</span>
+    <span class="section-badge" id="badge-sec-public">0/0</span>
+    <span class="section-chevron">▶</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection"><div class="subsection-title">9.1 Book Appointment (Public)</div><div id="tc-book"></div></div>
+    <div class="subsection"><div class="subsection-title">9.2 Queue Tracker</div><div id="tc-queue"></div></div>
+    <div class="subsection"><div class="subsection-title">9.3 Print Pages</div><div id="tc-print"></div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 10 — CROSS-CUTTING
+════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-cross">
+  <div class="section-header" onclick="toggleSection('sec-cross')">
+    <span class="section-icon">🔁</span>
+    <span class="section-title">10. Cross-Cutting (Navigation, Responsive, Errors, i18n)</span>
+    <span class="section-badge" id="badge-sec-cross">0/0</span>
+    <span class="section-chevron">▶</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection"><div class="subsection-title">10.1 Navigation &amp; Layout</div><div id="tc-nav"></div></div>
+    <div class="subsection"><div class="subsection-title">10.2 Responsive Design &amp; Error Handling</div><div id="tc-resp"></div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     BUG LOG
+════════════════════════════════════════════════════════ -->
+<div class="section open" id="sec-bugs" style="margin-top:32px">
+  <div class="section-header" onclick="toggleSection('sec-bugs')">
+    <span class="section-icon">🐛</span>
+    <span class="section-title">Bug / Issue Log</span>
+    <span class="section-chevron">▶</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection">
+      <table class="bug-table" id="bugTable">
+        <thead><tr><th>#</th><th>Module</th><th>Issue Description</th><th>Severity</th><th>Status</th></tr></thead>
+        <tbody id="bugRows">
+          <tr><td>1</td><td><input placeholder="e.g. Patient Registration"></td><td><input placeholder="Describe the issue..."></td><td><select><option value="">—</option><option value="🔴 Critical">🔴 Critical</option><option value="🟠 High">🟠 High</option><option value="🟡 Medium">🟡 Medium</option><option value="🟢 Low">🟢 Low</option></select></td><td><select><option value="">—</option><option value="Open">Open</option><option value="Fixed">Fixed</option><option value="Won't Fix">Won't Fix</option></select></td></tr>
+          <tr><td>2</td><td><input placeholder="Module"></td><td><input placeholder="Issue..."></td><td><select><option value="">—</option><option value="🔴 Critical">🔴 Critical</option><option value="🟠 High">🟠 High</option><option value="🟡 Medium">🟡 Medium</option><option value="🟢 Low">🟢 Low</option></select></td><td><select><option value="">—</option><option value="Open">Open</option><option value="Fixed">Fixed</option><option value="Won't Fix">Won't Fix</option></select></td></tr>
+          <tr><td>3</td><td><input placeholder="Module"></td><td><input placeholder="Issue..."></td><td><select><option value="">—</option><option value="🔴 Critical">🔴 Critical</option><option value="🟠 High">🟠 High</option><option value="🟡 Medium">🟡 Medium</option><option value="🟢 Low">🟢 Low</option></select></td><td><select><option value="">—</option><option value="Open">Open</option><option value="Fixed">Fixed</option><option value="Won't Fix">Won't Fix</option></select></td></tr>
+          <tr><td>4</td><td><input placeholder="Module"></td><td><input placeholder="Issue..."></td><td><select><option value="">—</option><option value="🔴 Critical">🔴 Critical</option><option value="🟠 High">🟠 High</option><option value="🟡 Medium">🟡 Medium</option><option value="🟢 Low">🟢 Low</option></select></td><td><select><option value="">—</option><option value="Open">Open</option><option value="Fixed">Fixed</option><option value="Won't Fix">Won't Fix</option></select></td></tr>
+          <tr><td>5</td><td><input placeholder="Module"></td><td><input placeholder="Issue..."></td><td><select><option value="">—</option><option value="🔴 Critical">🔴 Critical</option><option value="🟠 High">🟠 High</option><option value="🟡 Medium">🟡 Medium</option><option value="🟢 Low">🟢 Low</option></select></td><td><select><option value="">—</option><option value="Open">Open</option><option value="Fixed">Fixed</option><option value="Won't Fix">Won't Fix</option></select></td></tr>
+        </tbody>
+      </table>
+      <button onclick="addBugRow()" style="margin-top:10px; padding:7px 16px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.85rem;">+ Add Row</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- ════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════ -->
+<script>
+
+// ── TEST DATA ─────────────────────────────────────────────
+const TEST_DATA = {
+
+  // Section 1 — Auth
+  'tc-auth': [
+    { label: 'Navigate to <code>/en/login</code> — page loads without errors' },
+    { label: 'Enter <b>invalid</b> email + password → error message shown, no redirect' },
+    { label: 'Enter <b>blank email</b> → "Email is required" or form validation fires' },
+    { label: 'Enter <b>invalid email format</b> (e.g. <code>admin@</code>) → validation error' },
+    { label: 'Enter <b>blank password</b> → validation error' },
+    { label: 'Enter <b>valid admin credentials</b> → redirect to clinic dashboard' },
+    { label: 'Show/hide password toggle works' },
+    { label: 'Remember me (if present) — session persists after tab close' },
+  ],
+  'tc-auth2': [
+    { label: 'Patient login — valid credentials → redirected to patient portal dashboard' },
+    { label: 'Patient login — invalid credentials → error shown' },
+    { label: 'Doctor login — valid credentials → redirected to doctor portal' },
+    { label: 'Forgot Password page loads at <code>/en/forgot-password</code>' },
+    { label: 'Forgot Password — enter registered email → success message' },
+    { label: 'Forgot Password — enter unknown email → appropriate error' },
+    { label: 'Forgot Password — blank email → validation error' },
+  ],
+  'tc-auth3': [
+    { label: 'Unauthenticated → accessing clinic route → redirected to login' },
+    { label: 'Unauthenticated → accessing patient route → redirected to patient login' },
+    { label: 'Logged-in patient cannot access <code>/clinic/*</code> routes' },
+    { label: 'Logged-in doctor cannot access <code>/clinic/*</code> admin pages' },
+    { label: 'Logged-in admin cannot access <code>/patient/*</code> portal pages' },
+    { label: 'Logout button clears session and redirects to login page' },
+  ],
+
+  // Section 2 — Patient Registration pre-conditions
+  'tc-prereg': [
+    { label: 'Navigate to <code>/en/clinic/patient/register</code> — page loads correctly' },
+    { label: '<b>Patient Details</b> card heading visible' },
+    { label: '<b>Quick Temp Register</b> button visible in top-right of card' },
+    { label: 'Three sections visible: 1. Personal Info, 2. Contact Information, 3. Emergency Contact' },
+    { label: 'Save Changes and Reset buttons visible at bottom' },
+  ],
+
+  // Scenario A
+  'tc-scenA': [
+    { label: 'Click <b>Save Changes</b> with ALL fields empty → form stays on page (no submission)' },
+    { label: 'First Name field shows error: <b>"This field is required"</b>' },
+    { label: 'Last Name field shows error: <b>"This field is required"</b>' },
+    { label: 'Full Name field shows error: <b>"This field is required"</b>' },
+    { label: 'Gender field shows error: <b>"Gender is required"</b>' },
+    { label: 'Date of Birth field shows error: <b>"Please select your Date of Birth"</b>' },
+    { label: 'NIC Number field shows error: <b>"NIC is required"</b>' },
+    { label: 'Address field shows error: <b>"Address is required"</b>' },
+    { label: 'Mobile Number field shows error: <b>"Mobile number is required"</b>' },
+    { label: 'Ethnicity, Marital Status, Blood Group — <b>no error</b> (optional fields)' },
+    { label: 'Weight and Height fields — <b>no error</b> when empty (optional)' },
+    { label: 'Emergency Contact Name — <b>no error</b> when empty (optional)' },
+    { label: 'City and District — <b>no error</b> when empty (optional)' },
+  ],
+
+  // Scenario B
+  'tc-scenB': [
+    { label: 'First Name = <code>Jo</code> → error: <b>"First Name must be at least 3 characters long"</b>' },
+    { label: 'Last Name = <code>Li</code> → error: <b>"Last Name must be at least 3 characters long"</b>' },
+    { label: 'Full Name = <code>John</code> (one word) → error: <b>"Please enter a full name with at least two valid words"</b>' },
+    { label: 'Full Name = <code>John 123</code> (digit in name) → error: <b>"Please enter a full name with at least two valid words"</b>' },
+    { label: 'NIC = <code>123456</code> → error: <b>"Please enter a valid NIC number"</b>' },
+    { label: 'NIC = <code>ABCDEFGHIJ</code> → error: <b>"Please enter a valid NIC number"</b>' },
+    { label: 'Address = <code>No 5</code> (< 10 chars) → error: <b>"Please enter a more detailed address"</b>' },
+    { label: 'City = <code>AB</code> → error: <b>"City must be at least 3 characters"</b>' },
+    { label: 'District = <code>XY</code> → error: <b>"District must be at least 3 characters"</b>' },
+    { label: 'Email = <code>notanemail</code> → error: <b>"Please enter a valid email address"</b>' },
+    { label: 'Email = <code>test@</code> → error: <b>"Please enter a valid email address"</b>' },
+    { label: 'Mobile = <code>0112345678</code> (not 07x) → error: <b>"Please enter a valid 10-digit mobile number"</b>' },
+    { label: 'Mobile = <code>071234</code> (too short) → error: <b>"Please enter a valid 10-digit mobile number"</b>' },
+    { label: 'Mobile = <code>abc1234567</code> → error: <b>"Please enter a valid 10-digit mobile number"</b>' },
+    { label: 'Land No = <code>011234</code> → error: <b>"Please enter a valid 10-digit land number"</b>' },
+    { label: 'Weight = <code>0</code> → error: <b>"Weight must be greater than 0"</b>' },
+    { label: 'Weight = <code>-5</code> → error: <b>"Weight must be greater than 0"</b>' },
+    { label: 'Height = <code>0</code> → error: <b>"Height must be greater than 0"</b>' },
+    { label: 'Emergency Contact Name = <code>Al</code> → error: <b>"Name must be at least 3 characters"</b>' },
+    { label: 'Emergency Mobile = <code>0114567890</code> → error: <b>"Please enter a valid 10-digit mobile number"</b>' },
+    { label: 'Emergency Email = <code>bademail#test</code> → error: <b>"Please enter a valid email address"</b>' },
+  ],
+
+  // Scenario C
+  'tc-scenC': [
+    { label: 'Enter all valid adult values from the table above' },
+    { label: 'No validation errors visible after filling all fields' },
+    { label: 'Click <b>Save Changes</b> → loading backdrop appears' },
+    { label: 'On success → toast shows patient number (e.g. <b>"Patient Created - P001"</b>)' },
+    { label: 'Redirected to Patient Details page (<code>/details/[id]</code>) after success' },
+    { label: 'Patient appears in the Patient List page' },
+    { label: 'NIC format <code>950661234V</code> (old format) is accepted ✓' },
+    { label: 'NIC format <code>199506600123</code> (new format) is accepted ✓' },
+  ],
+
+  // Scenario D
+  'tc-scenD': [
+    { label: 'Select DOB < 18 years ago → Guardian and Relationship fields appear dynamically' },
+    { label: 'NIC field becomes disabled/grayed after underage DOB selected' },
+    { label: 'Address, City, District fields become disabled' },
+    { label: 'Email and Mobile fields become disabled' },
+    { label: 'Submit without selecting Guardian → Guardian field shows error' },
+    { label: 'Submit without selecting Relationship to Guardian → "Relationship is required"' },
+    { label: 'Click Guardian field → Guardian Select Dialog opens' },
+    { label: 'Search for a guardian by name → results appear in dialog' },
+    { label: 'Select a guardian → dialog closes, guardian name shown in field' },
+    { label: 'Guardian auto-fill: NIC, Address, City, District, Mobile, Email all auto-populate' },
+    { label: 'Select Relationship (e.g. Mother) → valid submission succeeds' },
+    { label: 'Change DOB back to adult (18+) → Guardian fields disappear, contact fields re-enable' },
+  ],
+
+  // Scenario E
+  'tc-scenE': [
+    { label: 'Click <b>Quick Temp Register</b> button → Temp Patient Dialog opens' },
+    { label: 'Fill minimal required info in dialog → submit' },
+    { label: 'Temp patient created successfully → confirmation shown' },
+    { label: 'Close dialog without saving → no data saved' },
+  ],
+
+  // Scenario F
+  'tc-scenF': [
+    { label: 'Fill several fields with data' },
+    { label: 'Click <b>Reset</b> button → ALL fields clear back to empty' },
+    { label: 'After reset — no validation errors shown' },
+    { label: 'After reset — Guardian fields disappear (if previously in underage mode)' },
+  ],
+
+  // Section 3 — Patient management
+  'tc-plist': [
+    { label: 'Patient list page loads with data' },
+    { label: 'Search by patient name → results filter correctly' },
+    { label: 'Search by phone number → results filter' },
+    { label: 'Pagination next/prev works' },
+    { label: 'Clicking patient row → navigates to patient details' },
+    { label: 'Empty filter result → empty state shown' },
+  ],
+  'tc-pdetails': [
+    { label: 'Patient details page loads for valid ID' },
+    { label: 'All patient info displayed (name, DOB, NIC, contact)' },
+    { label: 'Edit patient info → save → changes persist on reload' },
+    { label: 'Invalid/non-existent patient ID → 404 or not-found shown' },
+  ],
+  'tc-pclinical': [
+    { label: 'Clinical profile page loads' },
+    { label: 'Patient header shows correct name' },
+    { label: 'Profile tabs (medical history, visits, etc.) switch without page reload' },
+    { label: 'Medical/visit data displayed correctly' },
+  ],
+
+  // Section 4 — Doctor
+  'tc-dlist': [
+    { label: 'Doctor list loads with data' },
+    { label: 'Search by name or specialization works' },
+    { label: 'Pagination works' },
+    { label: 'Doctor status (Active/Inactive) shown correctly' },
+    { label: 'Click doctor row → navigates to doctor view' },
+  ],
+  'tc-dreg': [
+    { label: 'Doctor registration form loads all fields' },
+    { label: 'Submit with all valid data → doctor created, success message' },
+    { label: 'Submit with blank required fields → validation errors shown' },
+    { label: 'Duplicate email → error shown' },
+    { label: 'Doctor appears in list after registration' },
+  ],
+  'tc-ddetails': [
+    { label: 'Doctor profile view loads correctly' },
+    { label: 'All details shown (name, specialization, contact)' },
+    { label: 'Edit doctor info → saves successfully' },
+  ],
+
+  // Section 5 — Appointments
+  'tc-appt': [
+    { label: 'Appointment list loads with data' },
+    { label: 'Filter by date range → results update' },
+    { label: 'Filter by doctor → only that doctor shown' },
+    { label: 'Filter by status (Pending/Confirmed/Completed/Cancelled)' },
+    { label: 'Create appointment form loads' },
+    { label: 'Select patient, doctor, date, time → submit → appointment created' },
+    { label: 'Submit create form missing required fields → validation errors' },
+    { label: 'Double booking same slot → error shown' },
+    { label: 'Appointment details page loads, shows patient + doctor info' },
+    { label: 'Change appointment status (Confirm, Cancel, Complete) → updates' },
+    { label: 'Appointment payment page loads, process payment → success' },
+  ],
+
+  // Section 6
+  'tc-sched': [
+    { label: 'Schedule list loads (doctor, day, time shown)' },
+    { label: 'Add new schedule (select doctor, day, times) → created' },
+    { label: 'Overlapping schedule → error or warning' },
+    { label: 'Manage/deactivate schedule → deactivated schedule not available for booking' },
+  ],
+  'tc-staff': [
+    { label: 'Staff list loads with data' },
+    { label: 'Register new staff with valid data → created' },
+    { label: 'Missing required fields → validation' },
+    { label: 'Staff details view loads, edit works' },
+    { label: 'Staff queue view loads and shows current queue' },
+  ],
+  'tc-lab': [
+    { label: 'Lab test types list loads' },
+    { label: 'Add new test type → success' },
+    { label: 'Edit existing test type → saved' },
+    { label: 'Lab test requests list loads, filter works' },
+  ],
+  'tc-pay': [
+    { label: 'Payment list loads with data' },
+    { label: 'Filter by date/status works' },
+    { label: 'Process payment for unpaid appointment → success' },
+  ],
+  'tc-payout': [
+    { label: 'Doctor payouts list loads' },
+    { label: 'Payout amounts calculated correctly' },
+    { label: 'Process payout → confirmation shown' },
+    { label: 'Filter by doctor / date range works' },
+  ],
+  'tc-rep': [
+    { label: 'Reports page loads without errors' },
+    { label: 'Revenue report shows correct totals' },
+    { label: 'Appointment count report renders' },
+    { label: 'Date range filter updates charts' },
+    { label: 'Export PDF/CSV downloads correctly (if available)' },
+  ],
+  'tc-settings': [
+    { label: 'General Settings tab — clinic info editable and saves' },
+    { label: 'Invalid data in general settings → validation error' },
+    { label: 'Branding tab — logo upload (valid image) works, preview updates' },
+    { label: 'Branding — invalid file type → error shown' },
+    { label: 'Subscription tab — plan info and expiry shown' },
+    { label: 'Secrets/API tab — key value masked by default, toggle shows it' },
+  ],
+
+  // Section 7 — Doctor Portal
+  'tc-ddash': [
+    { label: 'Doctor dashboard loads without errors' },
+    { label: "Today's appointment count shown" },
+    { label: 'Upcoming appointments listed' },
+    { label: 'Quick action links navigate correctly' },
+  ],
+  'tc-consult': [
+    { label: 'Consultation page loads for given appointment ID' },
+    { label: 'Patient info sidebar shows name, DOB, allergies' },
+    { label: 'Add medicine to prescription → appears in list' },
+    { label: 'Medicine search/autocomplete works' },
+    { label: 'Set dosage, frequency, duration for drug' },
+    { label: 'Remove medicine from prescription' },
+    { label: 'Save prescription → persisted (reload and check)' },
+    { label: 'Type and save clinical notes → saved correctly' },
+    { label: 'Order lab test → appears in lab test list' },
+    { label: 'Mark consultation complete → status updates' },
+  ],
+  'tc-dsched': [
+    { label: "Doctor's current schedules listed" },
+    { label: 'Set availability (days, times) → saved' },
+    { label: 'Finish/close a schedule → schedule closed' },
+    { label: 'Changes reflected in clinic admin view' },
+  ],
+  'tc-dfin': [
+    { label: 'Doctor financials page loads' },
+    { label: 'Summary (total earnings, pending, completed payouts) shown' },
+    { label: 'Filter by date range → figures update' },
+    { label: 'Session-wise breakdown table shown' },
+    { label: 'Account settings — profile edit and save works' },
+    { label: 'Change password — wrong current password → error' },
+    { label: 'Change password — mismatch new passwords → error' },
+    { label: 'Change password — valid change → success message' },
+  ],
+
+  // Section 8 — Patient Portal
+  'tc-pdash': [
+    { label: 'Patient dashboard loads without errors' },
+    { label: 'Welcome message with patient name shown' },
+    { label: 'Upcoming appointments summary shown' },
+    { label: 'Live Queue Card shows current position (if in session)' },
+  ],
+  'tc-pappt': [
+    { label: 'Appointments list loads with upcoming and past' },
+    { label: 'Each appointment shows doctor, date, time, status' },
+    { label: 'Click appointment → Appointment Details Dialog opens' },
+    { label: 'All appointment info shown in dialog' },
+    { label: 'Cancel appointment (if allowed) → confirmation prompt → cancelled' },
+    { label: 'Live Queue Card — position and estimated wait time shown' },
+  ],
+  'tc-prec': [
+    { label: 'Health Profile tab — blood type, allergies, conditions shown' },
+    { label: 'Edit and save health info works' },
+    { label: 'Lab Reports tab — test name, date, result status listed' },
+    { label: 'View lab result → normal/abnormal flags shown' },
+    { label: 'Medications tab — current and past medications listed' },
+    { label: 'Active vs completed medications differentiated' },
+  ],
+  'tc-pbill': [
+    { label: 'Billing history list loads' },
+    { label: 'Each bill shows date, service, amount, payment status' },
+    { label: 'Filter by date range works' },
+    { label: 'Download invoice (if available) → file downloads' },
+    { label: 'Insurance card section loads — provider, policy, expiry shown' },
+    { label: 'Add/edit insurance info → saved correctly' },
+  ],
+  'tc-pfam': [
+    { label: 'Family list loads, existing dependents shown' },
+    { label: 'Add Dependent dialog opens correctly' },
+    { label: 'Fill required fields → dependent added' },
+    { label: 'Missing required fields in dialog → validation errors' },
+    { label: 'Remove dependent (if allowed) → confirmation prompt' },
+  ],
+
+  // Section 9 — Public
+  'tc-book': [
+    { label: 'Book appointment page loads without login' },
+    { label: 'Select doctor → available schedules shown' },
+    { label: 'Select date → available time slots shown' },
+    { label: 'Select time slot → patient details form appears' },
+    { label: 'Submit valid booking → confirmation shown' },
+    { label: 'Submit missing fields → validation errors' },
+    { label: 'Already booked slot → unavailable shown' },
+  ],
+  'tc-queue': [
+    { label: 'Queue tracker page loads without login' },
+    { label: 'Enter valid appointment token → queue status shown' },
+    { label: 'Queue position and estimated wait time shown' },
+    { label: '"Now serving" state shown when at front of queue' },
+    { label: 'Invalid token → not-found/error shown' },
+    { label: 'Clinic and doctor name shown on tracker' },
+  ],
+  'tc-print': [
+    { label: 'Print page loads with correct data' },
+    { label: 'No overflow or broken layout on print preview (Ctrl+P)' },
+    { label: 'Appointment receipt/slip print works' },
+  ],
+
+  // Section 10 — Cross-cutting
+  'tc-nav': [
+    { label: 'All sidebar navigation links go to correct pages' },
+    { label: 'Active menu item highlighted' },
+    { label: 'Breadcrumbs (if present) show correct path' },
+    { label: 'Browser back/forward works without breaking state' },
+    { label: 'Page titles (browser tab) are descriptive' },
+    { label: 'Logo click → goes to dashboard' },
+  ],
+  'tc-resp': [
+    { label: 'Desktop (1920×1080) — all layouts correct' },
+    { label: 'Laptop (1366×768) — no overflow, sidebar collapsible' },
+    { label: 'Tablet (768px) — layout adapts' },
+    { label: 'Mobile (375px) — key features accessible' },
+    { label: 'API failure → error toast shown (not blank screen)' },
+    { label: 'Non-existent route → 404 page shown' },
+    { label: 'Success action → green toast auto-dismisses' },
+    { label: 'Error action → red toast shown' },
+    { label: 'Loading spinners visible while data fetches' },
+    { label: 'Buttons show loading state while processing' },
+    { label: 'Language switch changes all UI text (if i18n enabled)' },
+  ],
+};
+
+// ── STATE ─────────────────────────────────────────────────
+const state = JSON.parse(localStorage.getItem('cgTestState') || '{}');
+
+// ── SECTION MAP ───────────────────────────────────────────
+const SECTION_MAP = {
+  'sec-auth':          ['tc-auth','tc-auth2','tc-auth3'],
+  'sec-patient-reg':   ['tc-prereg','tc-scenA','tc-scenB','tc-scenC','tc-scenD','tc-scenE','tc-scenF'],
+  'sec-patient':       ['tc-plist','tc-pdetails','tc-pclinical'],
+  'sec-doctor':        ['tc-dlist','tc-dreg','tc-ddetails'],
+  'sec-appt':          ['tc-appt'],
+  'sec-other':         ['tc-sched','tc-staff','tc-lab','tc-pay','tc-payout','tc-rep','tc-settings'],
+  'sec-doctorportal':  ['tc-ddash','tc-consult','tc-dsched','tc-dfin'],
+  'sec-patientportal': ['tc-pdash','tc-pappt','tc-prec','tc-pbill','tc-pfam'],
+  'sec-public':        ['tc-book','tc-queue','tc-print'],
+  'sec-cross':         ['tc-nav','tc-resp'],
+};
+
+// ── RENDER ────────────────────────────────────────────────
+function renderTests() {
+  Object.entries(TEST_DATA).forEach(([groupId, tests]) => {
+    const container = document.getElementById(groupId);
+    if (!container) return;
+    container.innerHTML = '';
+    tests.forEach((test, idx) => {
+      const key = `${groupId}-${idx}`;
+      const st = state[key] || 'none';
+      const div = document.createElement('div');
+      div.className = 'test-case ' + (st === 'pass' ? 'pass' : st === 'fail' ? 'fail' : st === 'skip' ? 'skip' : '');
+      div.dataset.key = key;
+      div.innerHTML = `
+        <div class="cb-wrap">
+          <input type="checkbox" ${st === 'pass' ? 'checked' : ''} onclick="event.stopPropagation()">
+          <div class="cb-box">${st === 'pass' ? '✔' : st === 'fail' ? '✘' : st === 'skip' ? '⏭' : ''}</div>
+        </div>
+        <div class="test-label">${test.label}</div>
+        <div class="test-actions">
+          <button class="btn-status btn-pass" onclick="setStatus('${key}','pass',event)">✔</button>
+          <button class="btn-status btn-fail" onclick="setStatus('${key}','fail',event)">✘</button>
+          <button class="btn-status btn-skip" onclick="setStatus('${key}','skip',event)">⏭</button>
+          <button class="btn-status btn-reset" onclick="setStatus('${key}','none',event)">↺</button>
+        </div>`;
+      div.querySelector('input').addEventListener('change', (e) => {
+        setStatus(key, e.target.checked ? 'pass' : 'none', e);
+      });
+      container.appendChild(div);
+
+      // Notes area
+      const noteKey = key + '-note';
+      const noteDiv = document.createElement('div');
+      noteDiv.style.paddingLeft = '36px';
+      if (st === 'fail') {
+        noteDiv.innerHTML = `<div class="note-label">📝 Notes / Bug description:</div><textarea class="note-area" placeholder="Describe the issue..." onchange="saveNote('${noteKey}',this.value)">${state[noteKey]||''}</textarea>`;
+        container.appendChild(noteDiv);
+      }
+    });
+  });
+  updateAll();
+}
+
+function setStatus(key, status, e) {
+  if (e) e.stopPropagation();
+  state[key] = status;
+  localStorage.setItem('cgTestState', JSON.stringify(state));
+  renderTests();
+}
+
+function saveNote(key, val) {
+  state[key] = val;
+  localStorage.setItem('cgTestState', JSON.stringify(state));
+}
+
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function updateAll() {
+  let total=0, pass=0, fail=0, skip=0;
+  Object.entries(SECTION_MAP).forEach(([secId, groups]) => {
+    let sTotal=0, sPass=0;
+    groups.forEach(gid => {
+      const tests = TEST_DATA[gid] || [];
+      tests.forEach((_, idx) => {
+        const key = `${gid}-${idx}`;
+        const st = state[key] || 'none';
+        sTotal++; total++;
+        if (st === 'pass') { sPass++; pass++; }
+        else if (st === 'fail') fail++;
+        else if (st === 'skip') skip++;
+      });
+    });
+    const badge = document.getElementById('badge-' + secId);
+    if (badge) {
+      badge.textContent = `${sPass}/${sTotal}`;
+      badge.className = 'section-badge' + (sPass === sTotal && sTotal > 0 ? ' done' : '');
+    }
+  });
+  document.getElementById('sumTotal').textContent = total;
+  document.getElementById('sumPass').textContent  = pass;
+  document.getElementById('sumFail').textContent  = fail;
+  document.getElementById('sumSkip').textContent  = skip;
+  const done = pass + fail + skip;
+  const pct  = total > 0 ? Math.round((pass / total) * 100) : 0;
+  document.getElementById('globalBar').style.width = pct + '%';
+  document.getElementById('globalPct').textContent = `${pass} / ${total} passed (${pct}%)`;
+}
+
+function addBugRow() {
+  const tbody = document.getElementById('bugRows');
+  const idx = tbody.rows.length + 1;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${idx}</td><td><input placeholder="Module"></td><td><input placeholder="Issue..."></td><td><select><option value="">—</option><option>🔴 Critical</option><option>🟠 High</option><option>🟡 Medium</option><option>🟢 Low</option></select></td><td><select><option value="">—</option><option>Open</option><option>Fixed</option><option>Won't Fix</option></select></td>`;
+  tbody.appendChild(tr);
+}
+
+// Initial render
+renderTests();
+</script>
+
+</body>
+</html>

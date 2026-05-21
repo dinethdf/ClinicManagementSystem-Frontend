@@ -270,7 +270,7 @@ const SimpleCommonTable = <T,>({
                   key={row.id} 
                   className={classnames(
                     { selected: row.getIsSelected() },
-                    (baseRowUrl || onRowClick) ? 'cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors' : 'transition-colors'
+                    { 'cursor-pointer': (baseRowUrl || onRowClick) }
                   )}
                   onClick={() => {
                     if (onRowClick) {

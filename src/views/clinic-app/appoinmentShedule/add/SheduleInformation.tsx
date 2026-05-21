@@ -1,5 +1,7 @@
 'use client'
 
+import { useParams, useRouter } from 'next/navigation'
+
 // MUI Imports
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
@@ -23,6 +25,8 @@ import type {Doctor, DoctorSchedule, DoctorScheduleCreateDTO } from '@/types/doc
 import { doctorService } from '@/services/doctor/doctor.service';
 
 const SheduleInformation = ({role}: { role: string }) => {
+  const router = useRouter()
+  const params = useParams()
   
   const methods = useForm<DoctorSchedule>({
     defaultValues: {
@@ -57,11 +61,14 @@ const onSubmit = async (data: DoctorSchedule) => {
   
   try {
 
-    await doctorService.createBatchSchedules(payload);
+    const result = await doctorService.createBatchSchedules(payload);
     reset();
     
     toast.success("Schedules published successfully!");
     
+    if (result && result.length > 0) {
+      router.push(`/${params.lang}/clinic/appoinment-shedule/details/${result[0].id}`);
+    }
 
   } catch (error:any) {
     toast.error(error.message || "An unknown error occurred.");

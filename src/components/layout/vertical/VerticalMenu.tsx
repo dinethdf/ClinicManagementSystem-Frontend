@@ -133,24 +133,24 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
               >
                 {dictionary['navigation'].details}
               </MenuItem>              
-            </SubMenu>    */}
-            <SubMenu label={dictionary['navigation'].appoinmentShedule}>
-              <MenuItem href={`/${locale}/clinic/appoinment-shedule/add`}>
-                {dictionary['navigation'].appoinmentSheduleAdd}
-              </MenuItem>
-              <MenuItem href={`/${locale}/clinic/appoinment-shedule/list`}>
-                {dictionary['navigation'].appoinmentSheduleList}
-              </MenuItem>
-              <MenuItem
-                href={`/${locale}/clinic/appoinment-shedule/details`}
+            </SubMenu>    */}   
+            
+            <MenuItem 
+                href={`/${locale}/clinic/appoinment-shedule/list`} 
                 exactMatch={false}
-                disabled
-                activeUrl='/clinic/appoinment-shedule/details'
+                activeUrl='/clinic/appoinment-shedule/'
               >
-                {dictionary['navigation'].details}
-              </MenuItem>               
-            </SubMenu>           
+              {dictionary['navigation'].appoinmentShedule}
+            </MenuItem>      
 
+            <MenuItem 
+                href={`/${locale}/clinic/appoinment/list`} 
+                exactMatch={false}
+                activeUrl='/clinic/appoinment/'
+              >
+              {dictionary['navigation'].appoinments}
+            </MenuItem>                              
+{/* 
             <SubMenu label={dictionary['navigation'].appoinments}>
               <MenuItem href={`/${locale}/clinic/appoinment/list`}>{dictionary['navigation'].appoinmentList}</MenuItem>
               <MenuItem href={`/${locale}/clinic/appoinment/create`}>
@@ -164,7 +164,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
               >
                 {dictionary['navigation'].details}
               </MenuItem>              
-            </SubMenu>
+            </SubMenu> */}
 
 
             <SubMenu label={dictionary['navigation'].payOuts}>

@@ -76,6 +76,10 @@
     }
     tr {
       border-block-start: 1px solid var(--border-color);
+      transition: background-color 0.15s ease-in-out;
+      &:hover {
+        background-color: var(--mui-palette-action-hover);
+      }
     }
   }
 }
