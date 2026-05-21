@@ -60,12 +60,12 @@ const PatientListTable = () => {
     columnHelper.accessor('firstName', {
       header: 'Patient Name',
       cell: ({ row }) => (
-        <div className='flex items-center gap-3 cursor-pointer' onClick={() => router.push(`/en/clinic/patient/clinical-profile/${row.original.id}`)}>
+        <div className='flex items-center gap-3'>
           <CustomAvatar skin='light' size={34} color='primary'>
             {getInitials(row.original.firstName + " " + row.original.lastName)}
           </CustomAvatar>
           <div className='flex flex-col'>
-            <Typography className='font-medium hover:text-primary transition-colors' color='text.primary'>
+            <Typography className='font-medium' color='text.primary'>
               {row.original.firstName} {row.original.lastName}
             </Typography>
             <Typography variant='caption'>{row.original.city}</Typography>
@@ -98,18 +98,20 @@ const PatientListTable = () => {
   ], [router])
 
   return (
-    <CommonServerTable
+    <CommonServerTable<PatientResponceDTO>
       tableId="patient-list-table-staff"
       title='Patient Registry'
       fetchDataFunction={patientService.getPatients}
       columns={columns}
       filterConfig={filterConfigs}
       sortingConfig={sortingConfig}
+      baseRowUrl='/en/clinic/patient/clinical-profile'
+      getRowUrlParam={(row: PatientResponceDTO) => row.id ?? 0}
       actionComponent={
         <>
-          <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>
+          {/* <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>
              Export
-          </Button>
+          </Button> */}
           <Button 
              variant='contained' 
              onClick={() => router.push(`/en/clinic/patient/register`)}

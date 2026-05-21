@@ -31,32 +31,7 @@ import type { Locale } from '@configs/i18n'
 import { getScheduleList } from '@/services/doctor/doctor.shedule.server.service'
 import { Typography } from '@mui/material'
 import { SpecializationDTO } from '@/types/public-booking.types'
-
-// --- Types ---
-export interface ScheduleDTO {
-  id: number
-  doctorId: number
-  doctorName: string
-  specialization: string
-  scheduleDate: string
-  startTime: string
-  endTime: string
-  doctorFee: number
-  clinicFee: number
-  maxPatientCount: number
-  registeredPatientCount: number
-  isBookingOpen: boolean
-  status: {
-    code: string
-    displayName: string
-    colorCode: string 
-  }
-  payoutStatus?: {
-    code: string
-    displayName: string
-    colorCode: string
-  }
-}
+import { ScheduleDTO } from '@/types/doctor.types'
 
 type Doctor = {
     id: number
@@ -167,12 +142,9 @@ const ScheduleListTable = () => {
     columnHelper.accessor('id', {
       header: 'Ref #',
       cell: ({ row }) => (
-        <Link
-          href={getLocalizedUrl(`/clinic/appoinment-shedule/details/${row.original.id}`, locale as Locale)}
-          className='font-medium text-primary hover:underline'
-        >
+        <Typography className='font-medium text-primary'>
           #{row.original.id}
-        </Link>
+        </Typography>
       )
     }),
 
@@ -263,7 +235,7 @@ const ScheduleListTable = () => {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }: any) => (
-        <div className='flex items-center'>
+        <div className='flex items-center' onClick={(e) => e.stopPropagation()}>
             <Tooltip title="Edit">
                 <IconButton size='small' onClick={() => router.push(getLocalizedUrl(`/clinic/appoinment-shedule/edit/${encodeHideValue(row.original.id)}`, locale as Locale))}>
                     <i className='tabler-edit text-textSecondary' />
@@ -283,12 +255,14 @@ const ScheduleListTable = () => {
   ], [locale, router])
 
   return (
-    <CommonServerTable
+    <CommonServerTable<ScheduleDTO>
         tableId="schedule-list-table"
         title="Schedule Management"
         fetchDataFunction={fetchSchedulesWrapper}
         columns={columns}
         filterConfig={filterConfigs}      
+        baseRowUrl={getLocalizedUrl('/clinic/appoinment-shedule/details', locale as Locale)}
+        getRowUrlParam={(row) => row.id}
         actionComponent={
             <>
                 <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>

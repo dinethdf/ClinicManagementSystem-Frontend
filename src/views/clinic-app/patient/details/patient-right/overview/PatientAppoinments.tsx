@@ -71,8 +71,6 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
         header: 'Ref #',
         cell: ({ row }) => (
           <Typography 
-            component={Link} 
-            href={getLocalizedUrl(`/clinic/appoinment/details/${row.original.appointmentId}`, locale as Locale)}
             color='primary.main'
             className='font-medium'
           >
@@ -134,7 +132,7 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => (
-          <div className='flex items-center'>
+          <div className='flex items-center' onClick={(e) => e.stopPropagation()}>
             <OptionMenu
               iconButtonProps={{ size: 'medium' }}
               iconClassName='text-textSecondary text-[22px]'
@@ -160,13 +158,14 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
   }, [data, statusFilter]);
 
   return (
-    <SimpleCommonTable 
+    <SimpleCommonTable<PatientAppointmentDTO>
       data={filteredData} 
       columns={columns} 
       isLoading={isLoading} 
       error={errorMessage} 
       searchPlaceholder="Search Appointments..."
-      
+      baseRowUrl={getLocalizedUrl('/clinic/appoinment/details', locale as Locale)}
+      getRowUrlParam={(row) => row.appointmentId}
       // Pass the Status Dropdown to the Common Table
       filters={
          <TextField 

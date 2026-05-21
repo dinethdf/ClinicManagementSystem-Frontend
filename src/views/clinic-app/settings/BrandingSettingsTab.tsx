@@ -18,8 +18,12 @@ import CustomTextField from '@core/components/mui/TextField';
 import type { ClinicDetailsDTO, ClinicBasicInfoUpdateDTO } from '@/services/settings.server.service';
 import { updateClinicBasicInfo } from '@/services/settings.server.service';
 
+type BrandingFormData = {
+  logoUrl: string;
+};
+
 const brandingSchema = object({
-  logoUrl: optional(string()),
+  logoUrl: string(),
 });
 
 const BrandingSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) => {
@@ -30,26 +34,23 @@ const BrandingSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO })
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<ClinicBasicInfoUpdateDTO>({
+  } = useForm<BrandingFormData>({
     resolver: valibotResolver(brandingSchema),
     defaultValues: {
-      name: initialData.name,
-      mobileNo1: initialData.mobileNo1,
-      address: initialData.address,
       logoUrl: initialData.logoUrl || '',
     },
   });
 
   const logoUrl = watch('logoUrl');
 
-  const onSubmit = async (data: ClinicBasicInfoUpdateDTO) => {
+  const onSubmit = async (data: BrandingFormData) => {
     setIsUpdating(true);
     // We only want to update the logoUrl part, but the service expects ClinicBasicInfoUpdateDTO
     const result = await updateClinicBasicInfo({
-        ...data,
         name: initialData.name,
         mobileNo1: initialData.mobileNo1,
-        address: initialData.address
+        address: initialData.address,
+        logoUrl: data.logoUrl
     });
     setIsUpdating(false);
     

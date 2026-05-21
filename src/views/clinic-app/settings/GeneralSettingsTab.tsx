@@ -8,13 +8,18 @@ import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress'; // Added missing import for your testing spinners
+
+// Form & Validation Imports
 import { useForm, Controller } from 'react-hook-form';
 import { valibotResolver } from '@hookform/resolvers/valibot';
-import { object, string, minLength, pipe, number, optional, union, literal, minValue } from 'valibot';
+import { object, string, minLength, pipe, number, optional, union, minValue, null_ } from 'valibot';
 import { toast } from 'react-toastify';
 
-import Typography from '@mui/material/Typography';
 import CustomTextField from '@core/components/mui/TextField';
+
+// Service & Types Imports
 import type { ClinicDetailsDTO, ClinicBasicInfoUpdateDTO, ClinicSettingsDTO } from '@/services/settings.server.service';
 import { updateClinicBasicInfo, updateBusinessSettings, testSmsConnection } from '@/services/settings.server.service';
 
@@ -26,17 +31,19 @@ const basicInfoSchema = object({
   address: pipe(string(), minLength(1, 'Address is required')),
   city: optional(string()),
   district: optional(string()),
+  logoUrl: optional(string()),
 });
 
+// FIX APPLIED HERE: Removed 'optional()' to strictly match 'string | null' from DTO
 const businessSettingsSchema = object({
   currency: pipe(string(), minLength(1, 'Currency is required')),
   timezone: pipe(string(), minLength(1, 'Timezone is required')),
   language: pipe(string(), minLength(1, 'Language is required')),
   invoicePrefix: pipe(string(), minLength(1, 'Invoice Prefix is required')),
   taxRate: pipe(number(), minValue(0, 'Tax Rate must be at least 0')),
-  otpSmsGateway: optional(union([string(), literal(null as const)])),
-  appointmentBookedSmsGateway: optional(union([string(), literal(null as const)])),
-  appointmentConfirmSmsGateway: optional(union([string(), literal(null as const)])),
+  otpSmsGateway: union([string(), null_()]),
+  appointmentBookedSmsGateway: union([string(), null_()]),
+  appointmentConfirmSmsGateway: union([string(), null_()]),
 });
 
 const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) => {
