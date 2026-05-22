@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/ClientAuthContextProvider'
+import PermissionGuard from '@/components/auth/PermissionGuard'
 
 // MUI Imports
 import Button from '@mui/material/Button'
@@ -179,7 +180,7 @@ const DoctorsListTable = () => {
               Export
           </Button>
 
-          { user?.user?.role === "ADMIN" && (
+          <PermissionGuard requiredPermission="manage_users">
             <Button 
                 variant='contained' 
                 onClick={() => router.push('/en/clinic/doctors/register')}
@@ -187,7 +188,7 @@ const DoctorsListTable = () => {
             >
                 Add Doctor
             </Button>
-          )}
+          </PermissionGuard>
         </>
       }
     />

@@ -12,14 +12,16 @@ import { decryptClinicPlane } from '@/utils/encode' // <--- Import Decryption Ut
 
 // Config
 import { Feature, hasPermission } from '@/configs/subscriptionConfig'
+import { Roles } from '@/configs/roleConfig'
 
 interface Props extends ChildrenType {
   locale: Locale
   notAllowedRoles?: string[]
+  allowedRoles?: Roles[]
   requiredFeature?: Feature
 }
 
-export default async function AuthGuard({ children, locale, notAllowedRoles, requiredFeature }: Props) {
+export default async function AuthGuard({ children, locale, notAllowedRoles, allowedRoles, requiredFeature }: Props) {
   const user = await verifyToken()
   
   if (!user.valid) {
@@ -32,6 +34,15 @@ export default async function AuthGuard({ children, locale, notAllowedRoles, req
   
   if (notAllowedRoles && notAllowedRoles.includes(role)) {
     console.log(`User role ${role} is not allowed on this Route.`)
+    if (role === 'PATIENT') {
+      return <NotAuthorizedGoBack mode={"light"} />
+    } else {
+      return <AuthRedirect lang={locale} />
+    }
+  }
+
+  if (allowedRoles && !allowedRoles.includes(role as Roles)) {
+    console.log(`User role ${role} is missing from allowed roles on this Route.`)
     if (role === 'PATIENT') {
       return <NotAuthorizedGoBack mode={"light"} />
     } else {

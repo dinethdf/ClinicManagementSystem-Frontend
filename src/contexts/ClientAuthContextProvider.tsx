@@ -1,7 +1,8 @@
 'use client'
 
 import { createContext, useContext, useMemo, ReactNode } from 'react'
-import { Feature, hasPermission } from '@/configs/subscriptionConfig'
+import { Feature, hasPermission as checkSubscriptionFeature } from '@/configs/subscriptionConfig'
+import { Roles, Permission, rolePermissions } from '@/configs/roleConfig'
 
 // Define the shape of your User Data
 type UserData = {
@@ -14,6 +15,8 @@ type UserData = {
 type AuthContextType = {
   user: UserData | null
   can: (feature: Feature) => boolean
+  hasRole: (allowedRoles: Roles[] | Roles) => boolean
+  hasPermission: (requiredPermission: Permission) => boolean
 }
 
 const ClientAuthContext = createContext<AuthContextType | null>(null)
@@ -32,7 +35,23 @@ export default function ClientAuthContextProvider({
       // The 'can' function checks the config based on the user's subscription
       can: (feature: Feature) => {
         if (!userData?.subscription) return false
-        return hasPermission(userData.subscription, feature)
+        return checkSubscriptionFeature(userData.subscription, feature)
+      },
+      // Check if user has the specified role(s)
+      hasRole: (allowedRoles: Roles[] | Roles) => {
+        if (!userData?.role) return false
+        
+        const rolesToCheck = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]
+        return rolesToCheck.includes(userData.role as Roles)
+      },
+      // Check if user has a specific permission based on their role
+      hasPermission: (requiredPermission: Permission) => {
+        if (!userData?.role) return false
+        
+        const userRole = userData.role as Roles;
+        const permissionsForRole = rolePermissions[userRole] || [];
+        
+        return permissionsForRole.includes(requiredPermission);
       }
     }
   }, [userData])
