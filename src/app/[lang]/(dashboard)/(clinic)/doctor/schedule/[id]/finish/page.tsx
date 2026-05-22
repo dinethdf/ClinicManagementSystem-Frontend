@@ -2,9 +2,12 @@ import { verifyToken } from '@/libs/verifyToken'
 import { validateScheduleOwnership } from '@/services/doctor/doctor.shedule.server.service' // Check path
 import ScheduleFinishView from '@/views/clinic-app/doctors/schedule/ScheduleFinishView'
 import { redirect } from 'next/navigation'
+import AuthGuard from '@/hocs/AuthGuard'
+import { Roles } from '@/configs/roleConfig'
+import type { Locale } from '@/configs/i18n'
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export default async function Page({ params }: { params: Promise<{ id: string, lang: Locale }> }) {
+  const { id, lang } = await params
 
     const { valid, payload } = await verifyToken()
   
@@ -25,5 +28,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   }
 
   // 3. Load the Client View
-  return <ScheduleFinishView scheduleId={Number(id)} />
+  return (
+    <AuthGuard locale={lang} allowedRoles={[Roles.DOCTOR]}>
+      <ScheduleFinishView scheduleId={Number(id)} />
+    </AuthGuard>
+  )
 }

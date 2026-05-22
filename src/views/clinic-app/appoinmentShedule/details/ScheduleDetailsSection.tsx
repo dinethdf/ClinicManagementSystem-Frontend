@@ -25,10 +25,13 @@ import type { Locale } from '@/configs/i18n' // Type for Locale
 import { closeBookingEarly, completeSchedule, syncFirebaseQueue } from '@/services/doctor/doctor.shedule.server.service'
 import { toast } from 'react-toastify'
 import { useState } from 'react'
+import { useAuth } from '@/contexts/ClientAuthContextProvider'
 
-const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: DoctorScheduleResponseDTO, role: string }) => {
+const ScheduleDetailsSection = ({ scheduleData }: { scheduleData?: DoctorScheduleResponseDTO }) => {
   
   const router = useRouter()
+  const { user } = useAuth()
+  const role = user?.role || 'GUEST'
   const { lang: locale } = useParams() // Get current locale
   const [isCancelOpen, setIsCancelOpen] = useState(false)
 

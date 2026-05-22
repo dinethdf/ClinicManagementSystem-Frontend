@@ -16,19 +16,20 @@ import Box from '@mui/material/Box'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 
-// Service & Types
 import { appointmentManageService } from '@/services/appointment/appointmentManage.service'
 import type { AppointmentStatusDTO } from '@/types/appoinments.types'
+import { useAuth } from '@/contexts/ClientAuthContextProvider'
 
 interface StaffAppointmentActionDialogProps {
   open: boolean
   onClose: () => void
   appointmentInfo: AppointmentStatusDTO | null
   onSuccessAction: () => void
-  userRole: string
 }
 
-const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSuccessAction, userRole }: StaffAppointmentActionDialogProps) => {
+const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSuccessAction }: StaffAppointmentActionDialogProps) => {
+  const { user } = useAuth()
+  const userRole = user?.role || 'GUEST'
   const [loadingAction, setLoadingAction] = useState<'booked' | 'ongoing' | 'completed' | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [showConfirmComplete, setShowConfirmComplete] = useState(false)

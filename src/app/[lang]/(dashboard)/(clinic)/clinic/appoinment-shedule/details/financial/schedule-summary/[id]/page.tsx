@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
-
-import { verifyToken } from '@/libs/verifyToken';
+import AuthGuard from '@/hocs/AuthGuard'
+import { Roles } from '@/configs/roleConfig'
+import type { Locale } from '@/configs/i18n'
 
 // Component Imports
 import SchedulePaymentDetails from '@/views/clinic-app/financial/doctorPayment/details/index'
@@ -11,43 +12,26 @@ import { getFinancialSchedule } from '@/services/financial/financial.server.serv
 // Utils
 import { decodeHideValue } from '@/utils/encode'
 
-const FinancialSchedulePage = async (props: { params: Promise<{ id: string }> }) => {
+const FinancialSchedulePage = async (props: { params: Promise<{ id: string, lang: Locale }> }) => {
+  const params = await props.params
 
-
-  const { valid, payload } = await verifyToken();
- 
-  const role = valid ? payload?.role : null;
-
-  const allowedRoles = ['ADMIN', 'USER'];
-
-
-  if (role && allowedRoles.includes(role)) {
-        const params = await props.params
-
-        // Decode the hidden ID
-        const encodedId = decodeHideValue(params.id)
-        
-        // Fetch data
-        const result = await getFinancialSchedule(Number(encodedId))
-
-        console.log(result)
-        // Validate data (Ensure it is an array and not null)
-        if (!result || !Array.isArray(result)) {
-            redirect('/en/clinic/financial/list') 
-        }
-
-        return (
-            <SchedulePaymentDetails data={result} scheduleId={encodedId} />
-        )        
-  }
+  // Decode the hidden ID
+  const encodedId = decodeHideValue(params.id)
   
-    return (
-        <div>
-        <h1>Not Authorized</h1>
-        <p>You do not have permission to view this page.</p>
-        </div>
-    );  
+  // Fetch data
+  const result = await getFinancialSchedule(Number(encodedId))
 
+  console.log(result)
+  // Validate data (Ensure it is an array and not null)
+  if (!result || !Array.isArray(result)) {
+      redirect(`/${params.lang}/clinic/financial/list`) 
+  }
+
+  return (
+    <AuthGuard locale={params.lang} allowedRoles={[Roles.ADMIN]}>
+        <SchedulePaymentDetails data={result} scheduleId={encodedId} />
+    </AuthGuard>
+  )        
 }
 
 export default FinancialSchedulePage

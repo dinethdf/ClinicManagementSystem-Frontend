@@ -22,14 +22,16 @@ import type { AppointmentStatusDTO } from '@/types/appoinments.types'
 
 // Components
 import StaffAppointmentActionDialog from '@/components/dialogs/appointment-start/StaffAppointmentActionDialog'
+import { useAuth } from '@/contexts/ClientAuthContextProvider'
 
 interface QRScannerProps {
   requiredScheduleId: number 
-  userRole: string 
 }
 
-const QRScanner = ({ requiredScheduleId, userRole }: QRScannerProps) => {
+const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
   const router = useRouter()
+  const { user } = useAuth()
+  const userRole = user?.role || 'GUEST'
   
   // -- Scanner State --
   const [isScanning, setIsScanning] = useState(false)
@@ -205,7 +207,6 @@ const QRScanner = ({ requiredScheduleId, userRole }: QRScannerProps) => {
         onClose={() => setDialogOpen(false)}
         appointmentInfo={appointmentInfo}
         onSuccessAction={handleSuccessAction}
-        userRole={userRole} // 3. PASS ROLE TO DIALOG
       />
     </div>
   )
