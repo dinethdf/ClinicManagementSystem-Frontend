@@ -1,7 +1,7 @@
 'use server';
 
 import { http, ApiError } from '@/services/api.config.server';
-import { AppointmentFinancialDTO } from '@/types/financial.types';
+import type { AppointmentFinancialDTO } from '@/types/financial.types';
 import type { PayoutBillDTO, BulkPaymentRequest, PaymentSuccessResponse, PayoutSearchResponse } from '@/types/payout.types';
 
 
@@ -28,7 +28,9 @@ export async function getDoctorPayoutsList(params: GetPayoutsParams) {
 
    
     const response = await http.get<any>(`/api/payouts/doctor/list?${query.toString()}`);
-    return response; 
+
+    
+return response; 
 
   } catch (err) {
     if (err instanceof ApiError) {
@@ -36,7 +38,8 @@ export async function getDoctorPayoutsList(params: GetPayoutsParams) {
     }
     
     console.error('Unexpected error in getDoctorPayoutsList:', err);
-    return { success: false, error: { message: 'An unknown server error occurred.' } };
+    
+return { success: false, error: { message: 'An unknown server error occurred.' } };
   }
 }
 
@@ -58,7 +61,9 @@ export async function getPendingPayouts(
 
     const url = `/api/payouts/doctor/pending?${queryParams.toString()}`
     const response = await http.get<{ content: PayoutBillDTO[], totalElements: number }>(url)
-    return { success: true, data: response }
+
+    
+return { success: true, data: response }
 
   } catch (err) {
     if (err instanceof ApiError) {
@@ -66,7 +71,8 @@ export async function getPendingPayouts(
     }
     
     console.error('Unexpected error in getPendingPayouts:', err)
-    return { success: false, error: { message: 'An unknown server error occurred.' } }
+    
+return { success: false, error: { message: 'An unknown server error occurred.' } }
   }
 }
 
@@ -84,7 +90,8 @@ export async function processBulkPayment(payload: BulkPaymentRequest) {
     }
 
     console.error('Unexpected error in processBulkPayment:', err);
-    return { success: false, error: { message: 'An unknown server error occurred.' } };
+    
+return { success: false, error: { message: 'An unknown server error occurred.' } };
   }
 }
 
@@ -100,7 +107,8 @@ export async function generateBill(scheduleId: number) {
     }
 
     console.error('Unexpected error in generateBill:', err);
-    return { success: false, error: { message: 'An unknown server error occurred.' } };
+    
+return { success: false, error: { message: 'An unknown server error occurred.' } };
   }
 }
 
@@ -139,6 +147,8 @@ export async function getFinancialScheduleDetails(scheduleId: number) {
     } else {
        console.error('Unexpected error fetching details:', err);
     }
-    return [];
+
+    
+return [];
   }
 }

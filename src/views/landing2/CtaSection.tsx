@@ -6,12 +6,13 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
 // Type Imports
+import classnames from 'classnames'
+
 import type { SystemMode } from '@core/types'
 
 // Styles Imports
 import styles from './styles.module.css'
 import frontCommonStyles from '@views/front-pages/styles.module.css'
-import classnames from 'classnames'
 
 const CtaSection = ({ mode }: { mode: SystemMode }) => {
   return (

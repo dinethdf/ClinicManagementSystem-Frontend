@@ -44,4 +44,6 @@ const ConsultationPage = async (props: { params: Promise<{ id: string, lang: Loc
       <ConsultationView scheduleId={params.id} />
     </AuthGuard>
   )
+}
+
 export default ConsultationPage

@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+
 import { useRouter } from 'next/navigation'
 
 // Components
@@ -10,8 +11,9 @@ import Chip from '@mui/material/Chip'
 
 // Table Tools
 import { createColumnHelper } from '@tanstack/react-table'
+
 import CommonServerTable from '@/components/common-components/table/CommonServerTable'
-import { FilterConfig, SortingConfig } from '@/components/common-components/table/TableTypes'
+import type { FilterConfig, SortingConfig } from '@/components/common-components/table/TableTypes'
 
 // Service & Types
 import { patientService } from '@/services/patient/patient.service'

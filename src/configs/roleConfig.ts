@@ -12,6 +12,7 @@ export type Permission =
   | 'view_patients' 
   | 'manage_prescriptions' 
   | 'view_own_appointments'
+
   // Add other permissions here
   | string;
 

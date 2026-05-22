@@ -1,7 +1,8 @@
+import { redirect } from 'next/navigation'
+
 import { verifyToken } from '@/libs/verifyToken'
 import { validateScheduleOwnership } from '@/services/doctor/doctor.shedule.server.service' // Check path
 import ScheduleFinishView from '@/views/clinic-app/doctors/schedule/ScheduleFinishView'
-import { redirect } from 'next/navigation'
 import AuthGuard from '@/hocs/AuthGuard'
 import { Roles } from '@/configs/roleConfig'
 import type { Locale } from '@/configs/i18n'

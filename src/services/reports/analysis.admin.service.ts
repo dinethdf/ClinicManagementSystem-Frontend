@@ -9,6 +9,7 @@ class AdminAnalysisService {
   async getMonthlyRevenue(year: number): Promise<MonthlyRevenueDTO[]> {
     try {
       console.log("Call API getMonthlyRevenue")
+
       const response = await apiClient.get<RevenueAnalysisResponse>(
         `/api/admin-analysis/revenue-monthly`, 
         {
@@ -27,6 +28,7 @@ class AdminAnalysisService {
 async getDashboardSummary(): Promise<DashboardSummaryDTO | null> {
     try {
           console.log("Call API getDashboardSummary")
+
       const response = await apiClient.get<{ success: boolean; data: DashboardSummaryDTO }>(
         '/api/admin-analysis/summary'
       )
@@ -45,6 +47,7 @@ async getSpecializationSummary(): Promise<SpecializationSummaryResponse | null> 
 
     try {
          console.log("Call API getSpecializationSummary")
+
       const response = await apiClient.get<{ success: boolean; data: SpecializationSummaryResponse }>(
         '/api/admin-analysis/appointments/specialization-summary'
       )

@@ -11,8 +11,9 @@ import { verifyToken } from '@/libs/verifyToken'
 import { decryptClinicPlane } from '@/utils/encode' // <--- Import Decryption Utility
 
 // Config
-import { Feature, hasPermission } from '@/configs/subscriptionConfig'
-import { Roles } from '@/configs/roleConfig'
+import type { Feature} from '@/configs/subscriptionConfig';
+import { hasPermission } from '@/configs/subscriptionConfig'
+import type { Roles } from '@/configs/roleConfig'
 
 interface Props extends ChildrenType {
   locale: Locale
@@ -34,6 +35,7 @@ export default async function AuthGuard({ children, locale, notAllowedRoles, all
   
   if (notAllowedRoles && notAllowedRoles.includes(role)) {
     console.log(`User role ${role} is not allowed on this Route.`)
+
     if (role === 'PATIENT') {
       return <NotAuthorizedGoBack mode={"light"} />
     } else {
@@ -43,6 +45,7 @@ export default async function AuthGuard({ children, locale, notAllowedRoles, all
 
   if (allowedRoles && !allowedRoles.includes(role as Roles)) {
     console.log(`User role ${role} is missing from allowed roles on this Route.`)
+
     if (role === 'PATIENT') {
       return <NotAuthorizedGoBack mode={"light"} />
     } else {
@@ -54,7 +57,8 @@ export default async function AuthGuard({ children, locale, notAllowedRoles, all
     // Use the DECRYPTED plan for the check
     if (!realSubscription || !hasPermission(realSubscription, requiredFeature)) {
       console.log(`User subscription (${realSubscription}) missing feature: ${requiredFeature}`)
-      return <NotAuthorizedGoBack mode={"light"} /> 
+      
+return <NotAuthorizedGoBack mode={"light"} /> 
     }
   }
 

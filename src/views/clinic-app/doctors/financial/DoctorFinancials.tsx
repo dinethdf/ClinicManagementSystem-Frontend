@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+
 import { 
   Card, CardContent, Typography, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, Chip, IconButton, 
@@ -11,7 +12,7 @@ import {
 import { getDoctorSelfPayouts, getFinancialScheduleDetails } from '@/services/financial/payout.server.service'
 
 import type { PayoutSummaryDTO } from '@/types/payout.types'
-import { AppointmentFinancialDTO } from '@/types/financial.types'
+import type { AppointmentFinancialDTO } from '@/types/financial.types'
 
 export default function DoctorFinancials({ doctorId }: { doctorId: number }) {
   // State for Main Table
@@ -29,9 +30,11 @@ export default function DoctorFinancials({ doctorId }: { doctorId: number }) {
     const loadPayouts = async () => {
       setLoading(true)
       const result = await getDoctorSelfPayouts()
+
       if (result?.success) {
         setPayouts(result.data.content)
       }
+
       setLoading(false)
     }
 
@@ -45,6 +48,7 @@ export default function DoctorFinancials({ doctorId }: { doctorId: number }) {
     setLoadingDetails(true)
 
     const appointmentData = await getFinancialScheduleDetails(payout.scheduleId)
+
     setDetails(appointmentData)
     setLoadingDetails(false)
   }

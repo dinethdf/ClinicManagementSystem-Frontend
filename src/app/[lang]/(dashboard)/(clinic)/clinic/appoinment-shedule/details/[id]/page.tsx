@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+
 import AuthGuard from '@/hocs/AuthGuard'
 import { Roles } from '@/configs/roleConfig'
 import type { Locale } from '@/configs/i18n'
@@ -11,6 +12,7 @@ const ScheduleDetailsPage = async (props: { params: Promise<{ id: string, lang: 
   const params = await props.params
   const scheduleId = Number(params.id)
   let scheduleData = null
+
   try {
     scheduleData = await getScheduleById(scheduleId)
   } catch (error) {

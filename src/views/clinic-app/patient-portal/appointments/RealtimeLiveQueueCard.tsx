@@ -41,7 +41,8 @@ const RealtimeLiveQueueCard = ({ scheduleId, yourToken }: Props) => {
     // Get all appointments before your token that are WAITING
     const waitingBeforeYou = list.filter((appt: any) => {
         if (!appt) return false
-        return appt.queueNo < yourToken && appt.status === 'WAITING'
+        
+return appt.queueNo < yourToken && appt.status === 'WAITING'
     }).sort((a: any, b: any) => a.queueNo - b.queueNo)
     
     return {
@@ -340,6 +341,7 @@ const RealtimeLiveQueueCard = ({ scheduleId, yourToken }: Props) => {
 
                             {/* The Waiting List Logic */}
                             {waitingList.length > 3 ? (
+
                                 // COLLAPSED VIEW
                                 <div className="flex items-center gap-3">
                                     <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'text.disabled', flexShrink: 0, ml: '17px' }} />
@@ -364,6 +366,7 @@ const RealtimeLiveQueueCard = ({ scheduleId, yourToken }: Props) => {
                                     </Box>
                                 </div>
                             ) : (
+
                                 // DETAILED VIEW
                                 <div className="space-y-2">
                                     {waitingList.map((appt: any) => (

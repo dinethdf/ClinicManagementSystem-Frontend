@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
@@ -14,6 +15,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import type { ColumnDef, PaginationState } from '@tanstack/react-table'
 
 import { useDispatch, useSelector } from 'react-redux'
+
 import type { AppDispatch, RootState } from '@/redux-store'
 import { fetchDoctorSchedules } from '@/redux-store/slices/doctorDashboardSlice'
 
@@ -22,7 +24,7 @@ import SimpleCommonTable from '@/components/common-components/table/simpleDataTa
 import { getLocalizedUrl } from '@/utils/i18n'
 import { encodeHideValue } from '@/utils/encode'
 import type { Locale } from '@/configs/i18n'
-import { ScheduleDTO } from '@/types/doctor.types'
+import type { ScheduleDTO } from '@/types/doctor.types'
 
 const columnHelper = createColumnHelper<ScheduleDTO>()
 

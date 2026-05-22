@@ -9,10 +9,13 @@ class PatientAnalysisService {
       const response = await apiClient.get<PatientAnalysisResponse>(
         `/api/patient-analysis/${patientId}`
       )
-      return response.data.data
+
+      
+return response.data.data
     } catch (error) {
       console.error('Failed to fetch patient analysis:', error)
-      return null
+      
+return null
     }
   }
 }

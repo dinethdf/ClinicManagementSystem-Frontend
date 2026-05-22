@@ -1,4 +1,5 @@
 import Grid from '@mui/material/Grid'
+
 import PayoutListTable from '@/views/clinic-app/payouts/list/PayoutListTable'
 
 const PayoutsPage = () => {

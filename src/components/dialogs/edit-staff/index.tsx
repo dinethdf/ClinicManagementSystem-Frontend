@@ -2,7 +2,9 @@
 
 // React Imports
 import { useState, useEffect, useMemo } from 'react'
+
 import { useRouter } from 'next/navigation'
+
 import dayjs from 'dayjs'
 
 // Form Imports
@@ -80,11 +82,13 @@ const EditStaffDetails = ({ open, setOpen, staffData }: EditStaffDetailsProps) =
       try {
         const fetchedRoles = await staffService.getStandardRoles();
         const staffRoles = fetchedRoles.filter(r => r.name !== 'DOCTOR' && r.name !== 'PATIENT');
+
         setRoles(staffRoles);
       } catch (error) {
         console.error('Failed to load system roles');
       }
     };
+
     fetchRoles();
   }, []);
 

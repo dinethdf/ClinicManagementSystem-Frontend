@@ -74,6 +74,7 @@ const PaymentHistoryDialog = ({ open, setOpen, invoiceId }: Props) => {
     } else {
         setError(result.message || "Failed to load history")
     }
+
     setLoading(false)
   }
 
@@ -117,6 +118,7 @@ const PaymentHistoryDialog = ({ open, setOpen, invoiceId }: Props) => {
                 sx={{ 
                     my: 0, 
                     py: 0,
+
                     // FIX: Remove the left-side space reserved for opposite content
                     [`& .${timelineItemClasses.root}:before`]: {
                         flex: 0,

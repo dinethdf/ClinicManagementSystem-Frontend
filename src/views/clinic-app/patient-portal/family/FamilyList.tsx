@@ -36,6 +36,7 @@ const FamilyList = () => {
 
   const fetchMembers = async () => {
       const data = await getFamilyMembers()
+
       setMembers(data)
       setLoading(false)
   }
@@ -43,10 +44,13 @@ const FamilyList = () => {
   const handleSwitch = async (id: number) => {
       setSwitching(id)
       const res = await switchActiveProfile(id)
+
       if (res.success) {
           setActiveProfileId(id)
+
           // In real app: window.location.reload() or Router.refresh() to update global context
       }
+
       setSwitching(null)
   }
 
@@ -89,7 +93,9 @@ const FamilyList = () => {
             {/* Member Cards */}
             {members.map((member) => {
                 const isActive = member.id === activeProfileId;
-                return (
+
+                
+return (
                     <Grid key={member.id} size={{ xs: 12, md: 4 }}>
                         <Card className={`h-full relative overflow-hidden transition-all ${isActive ? 'border-2 border-primary shadow-lg' : 'border border-gray-100 hover:shadow-md'}`}>
                             

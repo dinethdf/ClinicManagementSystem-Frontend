@@ -1,6 +1,6 @@
 import type { DoctorCreateDTO, DoctorScheduleApiResponse, DoctorScheduleResponseDTO, DoctorScheduleCreateDTO, GetDoctorsParams, PaginatedDoctorResponse } from '@/types/doctor.types'
 import { apiClient } from '../api.config'
-import { ApiResponse } from '@/types/common.type'
+import type { ApiResponse } from '@/types/common.type'
 
 
 class DoctorService {
@@ -92,10 +92,13 @@ async updateDoctor(id: string, doctorData: Partial<any>): Promise<any> {
       const response = await apiClient.get<DoctorScheduleApiResponse>(
         `/api/schedules/by-doctor/${doctorId}?includeInactive=true&page=${page}&size=${size}`
       )
-      return response.data.data
+
+      
+return response.data.data
     } catch (error) {
       console.error('Failed to fetch doctor schedules:', error)
-      return null
+      
+return null
     }
   }  
 

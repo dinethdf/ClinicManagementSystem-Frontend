@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -45,6 +46,8 @@ const BrandingSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO })
 
   const onSubmit = async (data: BrandingFormData) => {
     setIsUpdating(true);
+
+
     // We only want to update the logoUrl part, but the service expects ClinicBasicInfoUpdateDTO
     const result = await updateClinicBasicInfo({
         name: initialData.name,
@@ -52,6 +55,7 @@ const BrandingSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO })
         address: initialData.address,
         logoUrl: data.logoUrl
     });
+
     setIsUpdating(false);
     
     if (result.success) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -117,7 +118,9 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
   const onBasicSubmit = async (data: ClinicBasicInfoUpdateDTO) => {
     setIsUpdatingBasic(true);
     const result = await updateClinicBasicInfo(data);
+
     setIsUpdatingBasic(false);
+
     if (result.success) {
       toast.success(result.message);
     } else {
@@ -128,7 +131,9 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
   const onBusinessSubmit = async (data: ClinicSettingsDTO) => {
     setIsUpdatingBusiness(true);
     const result = await updateBusinessSettings(data);
+
     setIsUpdatingBusiness(false);
+
     if (result.success) {
       toast.success(result.message);
     } else {
@@ -139,11 +144,13 @@ const GeneralSettingsTab = ({ initialData }: { initialData: ClinicDetailsDTO }) 
   const onTestSms = async (gatewayType: string, currentGateway: string | null) => {
     if (!currentGateway || currentGateway === 'NONE') {
       toast.warning('Please select a gateway first');
-      return;
+      
+return;
     }
 
     setTestingSms(gatewayType);
     const result = await testSmsConnection(gatewayType);
+
     setTestingSms(null);
 
     if (result.success) {

@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef, SyntheticEvent } from 'react'
+import type { SyntheticEvent } from 'react';
+import { useState, useEffect, useRef } from 'react'
 
 // MUI Imports
 import Dialog from '@mui/material/Dialog'
@@ -83,6 +84,7 @@ const PatientSelectorDialog = ({ open, setOpen, onPatientSelect, initialTab = '1
 
   const handleBarcodeSubmit = async (codeOverride?: string) => {
       const scannedCode = codeOverride || barcodeVal;
+
       if (!scannedCode.trim()) return;
 
       setLoading(true); setError(null);
@@ -195,6 +197,7 @@ const PatientSelectorDialog = ({ open, setOpen, onPatientSelect, initialTab = '1
                             disabled={loading}
                             onChange={(e) => {
                                 const newVal = e.target.value;
+
                                 if (!/^\d*$/.test(newVal)) return; 
                                 setBarcodeVal(newVal);
                                 if (newVal.length === 10) handleBarcodeSubmit(newVal);

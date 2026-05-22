@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -45,10 +46,13 @@ const SecretsTab = () => {
 
   const fetchSecrets = async () => {
     setLoading(true);
+
     try {
       const encryptedData = await getClinicSecrets();
+
       if (encryptedData) {
         const decryptedJson = transportDecrypt(encryptedData);
+
         if (decryptedJson) {
             try {
                 setSecrets(JSON.parse(decryptedJson));
@@ -79,11 +83,14 @@ const SecretsTab = () => {
     if (!encryptedData) {
       toast.error('Failed to secure data for transmission');
       setUpdating(false);
-      return;
+      
+return;
     }
 
     const result = await updateClinicSecrets(encryptedData);
+
     setUpdating(false);
+
     if (result.success) {
       toast.success(result.message);
       setEditableKeys([]); // Reset editable keys
@@ -110,7 +117,8 @@ const SecretsTab = () => {
     
     if (!finalKey || !newValue) {
       toast.error('Both key and value are required');
-      return;
+      
+return;
     }
 
     if (secrets[finalKey]) {
@@ -118,6 +126,8 @@ const SecretsTab = () => {
     }
 
     setSecrets(prev => ({ ...prev, [finalKey]: newValue }));
+
+
     // Automatically enable editing for the newly added secret
     if (!editableKeys.includes(finalKey)) {
         setEditableKeys([...editableKeys, finalKey]);
@@ -131,6 +141,7 @@ const SecretsTab = () => {
 
   const handleDeleteSecret = (keyToDelete: string) => {
     const newSecrets = { ...secrets };
+
     delete newSecrets[keyToDelete];
     setSecrets(newSecrets);
     setEditableKeys(editableKeys.filter(k => k !== keyToDelete));

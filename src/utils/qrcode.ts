@@ -3,7 +3,9 @@ import { encodeHideValue } from './encode'
 
 export function generateQueueTrackingCode(scheduleId: number, queueNo: number, patientId: number): string {
   const data = `${scheduleId}:${queueNo}:${patientId}`
-  return encodeHideValue(data)
+
+  
+return encodeHideValue(data)
 }
 
 

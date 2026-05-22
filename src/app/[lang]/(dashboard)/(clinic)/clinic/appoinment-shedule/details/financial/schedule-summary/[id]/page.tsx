@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+
 import AuthGuard from '@/hocs/AuthGuard'
 import { Roles } from '@/configs/roleConfig'
 import type { Locale } from '@/configs/i18n'
@@ -22,6 +23,8 @@ const FinancialSchedulePage = async (props: { params: Promise<{ id: string, lang
   const result = await getFinancialSchedule(Number(encodedId))
 
   console.log(result)
+
+
   // Validate data (Ensure it is an array and not null)
   if (!result || !Array.isArray(result)) {
       redirect(`/${params.lang}/clinic/financial/list`) 

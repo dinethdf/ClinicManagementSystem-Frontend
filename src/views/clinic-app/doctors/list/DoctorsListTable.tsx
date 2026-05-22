@@ -1,9 +1,9 @@
 'use client'
 
 import { useMemo } from 'react'
+
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/ClientAuthContextProvider'
-import PermissionGuard from '@/components/auth/PermissionGuard'
+
 
 // MUI Imports
 import Button from '@mui/material/Button'
@@ -16,9 +16,12 @@ import Tooltip from '@mui/material/Tooltip'
 // TanStack Table
 import { createColumnHelper } from '@tanstack/react-table'
 
+import PermissionGuard from '@/components/auth/PermissionGuard'
+import { useAuth } from '@/contexts/ClientAuthContextProvider'
+
 // Common Components
 import CommonServerTable from '@/components/common-components/table/CommonServerTable'
-import { FilterConfig, SortingConfig } from '@/components/common-components/table/TableTypes' // 1. Import SortingConfig
+import type { FilterConfig, SortingConfig } from '@/components/common-components/table/TableTypes' // 1. Import SortingConfig
 
 // Service & Types
 import { doctorService } from '@/services/doctor/doctor.service' 
@@ -161,6 +164,7 @@ const DoctorsListTable = () => {
 
   return (
     <CommonServerTable<DoctorResponseDTO>
+
       // Unique ID for Redux Persistence
       tableId="doctor-list-table"
       

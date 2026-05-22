@@ -147,7 +147,8 @@ const Analysis = ({ patientId }: { patientId: number | string }) => {
       if (!patientId || patientId === '0' || patientId === 0) {
         setLoading(false)
         setError('Invalid patient ID')
-        return
+        
+return
       }
 
       setLoading(true)
@@ -161,6 +162,7 @@ const Analysis = ({ patientId }: { patientId: number | string }) => {
         }
       } catch (err: any) {
         console.error('Failed to load patient analysis:', err)
+
         if (isMounted) {
           setError(err.message || 'Failed to load analysis data')
         }
@@ -181,7 +183,8 @@ const Analysis = ({ patientId }: { patientId: number | string }) => {
   // ✅ Memoize expensive calculations
   const paidPercentage = useMemo(() => {
     if (!data?.financials) return 0
-    return data.financials.totalBilled > 0 
+    
+return data.financials.totalBilled > 0 
       ? (data.financials.totalPaid / data.financials.totalBilled) * 100 
       : 0
   }, [data?.financials])

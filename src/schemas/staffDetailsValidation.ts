@@ -31,6 +31,7 @@ export const getStaffValidationSchema = () => {
     nic: pipe(
       string(),
       nonEmpty('NIC is required'),
+
       // Using your exact NIC Regex from the Doctor schema
       regex(/(^([0-9]{9}[x|X|v|V]|[0-9]{12})$)/, 'Please enter a valid NIC number')
     ),
@@ -57,6 +58,7 @@ export const getStaffValidationSchema = () => {
     mobileNo: pipe(
       string(),
       nonEmpty('Mobile number is required'),
+
       // Using your exact Mobile Regex
       regex(/^(?:0)?(7[0-9]{8})$/, 'Please enter a valid 10-digit mobile number')
     ),

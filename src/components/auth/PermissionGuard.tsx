@@ -1,8 +1,9 @@
 'use client'
 
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
+
 import { useAuth } from '@/contexts/ClientAuthContextProvider'
-import { Permission } from '@/configs/roleConfig'
+import type { Permission } from '@/configs/roleConfig'
 
 interface PermissionGuardProps {
   children: ReactNode

@@ -144,6 +144,7 @@ const FinancialDoctorDetailsCard = ({ data }: { data: FinancialScheduleItem[] })
         const code = row.original.appointmentStatusCode
         
         let aptColor: 'info' | 'error' | 'warning' | 'primary' | 'default' = 'default'
+
         if (code === 'COMPLETED') aptColor = 'info'
         else if (code === 'ONGOING') aptColor = 'primary'
         else if (code === 'BOOKED') aptColor = 'warning'
@@ -216,7 +217,9 @@ const FinancialDoctorDetailsCard = ({ data }: { data: FinancialScheduleItem[] })
       header: 'Net Payout',
       cell: ({ row }) => {
         const state = getRowState(row.original)
-        return state === 'CONFIRMED'
+
+        
+return state === 'CONFIRMED'
           ? <Typography color='primary.main' className='font-bold'>Rs. {row.original.netDoctorPayout?.toFixed(2) || '0.00'}</Typography>
           : <Typography color='text.disabled'>-</Typography>
       }

@@ -21,7 +21,7 @@ import RealtimeLiveQueueCard from './RealtimeLiveQueueCard'
 
 // Service & Types
 import { patientAppointmentService} from '@/services/patient-portal/patient.appointments.service'
-import { PrescriptionDTO, AppointmentDetailsDTO } from '@/types/patient-portal/patient.appointments.types'
+import type { PrescriptionDTO, AppointmentDetailsDTO } from '@/types/patient-portal/patient.appointments.types'
 
 // Types
 interface Props {
@@ -46,6 +46,7 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
     setLoading(true)
     setError(null)
     setPrescription(null) // Reset previous data
+
     try {
       // Fetch both Details and Prescription in parallel
       const [detailsData, prescriptionData] = await Promise.all([
@@ -68,7 +69,9 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
 
   const getStatusColor = (status: string) => {
     const map: any = { BOOKED: 'primary', SCHEDULED: 'primary', COMPLETED: 'success', CANCELLED: 'error', PENDING: 'warning' }
-    return map[status] || 'default'
+
+    
+return map[status] || 'default'
   }
 
   const getInvoiceColor = (status: string) => {

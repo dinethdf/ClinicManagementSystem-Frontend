@@ -63,12 +63,14 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
   // Format Date & Time helpers
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    
+return new Date(dateString).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   const formatDateTime = (dateString: string) => {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    
+return new Date(dateString).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
   const formatTime = (timeString: string) => {
@@ -77,7 +79,9 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
     const hour = parseInt(hours);
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
+
+    
+return `${hour12}:${minutes} ${ampm}`;
   };
 
   const invoiceDate = formatDate(invoiceData.dateIssued);
@@ -206,6 +210,7 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
       </html>
     `;
   }
+
   // ─────────────────────────────────────────────────────────────────────
   // TEMPLATE 2: FULL STANDARD INVOICE
   // ─────────────────────────────────────────────────────────────────────
@@ -634,6 +639,7 @@ export function appointmentPrintInvoice(invoiceData: InvoiceData, onComplete?: (
   }
 
   const printWindow = window.open('', '_blank');
+
   if (printWindow) {
     printWindow.document.write(htmlContent);
     printWindow.document.close();

@@ -68,15 +68,20 @@ const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
   const handleSubmit = async () => {
     if (!amount || parseFloat(amount) <= 0) {
       setError("Please enter a valid amount")
-      return
+      
+return
     }
+
     if (!reason) {
       setError("Please provide a reason")
-      return
+      
+return
     }
+
     if (!authorizedBy) {
       setError("Authorized By field is required")
-      return
+      
+return
     }
 
     setLoading(true)

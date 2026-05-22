@@ -1,11 +1,10 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+
 import { useRouter } from 'next/navigation'
 
 // Auth Context
-import { useAuth } from '@/contexts/ClientAuthContextProvider'
-import PermissionGuard from '@/components/auth/PermissionGuard'
 
 // MUI Components
 import Card from '@mui/material/Card'
@@ -28,12 +27,16 @@ import {
 } from '@tanstack/react-table'
 import type { ColumnDef } from '@tanstack/react-table'
 
+import PermissionGuard from '@/components/auth/PermissionGuard'
+import { useAuth } from '@/contexts/ClientAuthContextProvider'
+
 // Custom Components
 import CustomTextField from '@core/components/mui/TextField'
 import tableStyles from '@core/styles/table.module.css'
 
 // --- IMPORT THE SERVER ACTION ---
-import { getStaffList, ClinicStaffResponseDTO } from '@/services/staff/staff.server.service'
+import type { ClinicStaffResponseDTO } from '@/services/staff/staff.server.service';
+import { getStaffList } from '@/services/staff/staff.server.service'
 
 // --- DEBOUNCED INPUT ---
 const DebouncedInput = ({
@@ -56,12 +59,16 @@ const DebouncedInput = ({
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
-      return;
+      
+return;
     }
+
     const timeout = setTimeout(() => {
       onChange(value)
     }, debounce)
-    return () => clearTimeout(timeout)
+
+    
+return () => clearTimeout(timeout)
   }, [value, onChange, debounce])
 
   return <CustomTextField {...props} value={value} onChange={e => setValue(e.target.value)} />
@@ -86,6 +93,7 @@ const StaffListTable = () => {
   // --- LOCAL STATE (Replaces Redux) ---
   const [data, setData] = useState<ClinicStaffResponseDTO[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
   const [pagination, setPagination] = useState({
     pageIndex: 0, // 0-based for API
     pageSize: 10,
@@ -101,6 +109,7 @@ const StaffListTable = () => {
   // --- FETCH DATA FUNCTION ---
   const fetchData = useCallback(async () => {
     setIsLoading(true);
+
     try {
       // Call the Server Action
       const result: any = await getStaffList(pagination.pageIndex, pagination.pageSize);
@@ -128,8 +137,10 @@ const StaffListTable = () => {
   // --- HANDLERS ---
   const handleSearch = useCallback((value: string | number) => {
     const query = String(value);
+
     if (query.length >= 3 || query.length === 0) {
         setSearchQuery(query);
+
         // Reset to first page on search
         setPagination(prev => ({ ...prev, pageIndex: 0 }));
     }
@@ -304,9 +315,11 @@ const StaffListTable = () => {
                   <tr key={row.id} className={classnames({ selected: row.getIsSelected() })} style={{ cursor: 'pointer' }}
                       onClick={(e) => {
                         const target = e.target as HTMLElement;
+
                         if (target.closest('.MuiCheckbox-root') || target.closest('button') || target.closest('input')) {
                             return;
                           }
+
                           router.push(`/en/clinic/staff/view/${row.original.id}`);
                   }}>
                     {row.getVisibleCells().map(cell => (

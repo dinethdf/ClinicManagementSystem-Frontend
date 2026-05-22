@@ -69,10 +69,12 @@ export async function getPatientAppointments(type: 'UPCOMING' | 'HISTORY', page:
   await new Promise(resolve => setTimeout(resolve, 800));
 
   const today = new Date();
+
   today.setHours(0, 0, 0, 0);
 
   const filtered = MOCK_APPOINTMENTS.filter(a => {
     const apptDate = new Date(a.date || a.scheduleDate);
+
     if (type === 'UPCOMING') {
       return apptDate >= today && a.status !== 'COMPLETED' && a.status !== 'CANCELLED';
     } else {
@@ -98,6 +100,7 @@ export async function getPatientAppointments(type: 'UPCOMING' | 'HISTORY', page:
 // 2. Cancel Appointment
 export async function cancelAppointment(appointmentId: number) {
   await new Promise(resolve => setTimeout(resolve, 1000));
+
   // In real implementation: await http.patch(...)
   return { success: true, message: "Appointment cancelled successfully." };
 }

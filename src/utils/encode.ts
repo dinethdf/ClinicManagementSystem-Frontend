@@ -30,6 +30,7 @@ export function encryptClinicPlane(plainText: string | undefined | null): string
     const keyBuffer = Buffer.from(OBFUSCATION_KEY, 'utf-8');
 
     const output = new Uint8Array(inputBuffer.length);
+
     for (let i = 0; i < inputBuffer.length; i++) {
       output[i] = inputBuffer[i] ^ keyBuffer[i % keyBuffer.length];
     }
@@ -37,7 +38,8 @@ export function encryptClinicPlane(plainText: string | undefined | null): string
     return Buffer.from(output).toString('base64');
   } catch (error) {
     console.error("Encryption failed:", error);
-    return null;
+    
+return null;
   }
 }
 
@@ -49,6 +51,7 @@ export function decryptClinicPlane(encryptedValue: string | undefined | null): s
     const keyBuffer = Buffer.from(OBFUSCATION_KEY, 'utf-8');
 
     const output = new Uint8Array(inputBuffer.length);
+
     for (let i = 0; i < inputBuffer.length; i++) {
       output[i] = inputBuffer[i] ^ keyBuffer[i % keyBuffer.length];
     }
@@ -56,6 +59,7 @@ export function decryptClinicPlane(encryptedValue: string | undefined | null): s
     return new TextDecoder('utf-8').decode(output);
   } catch (error) {
     console.error("Decryption failed:", error);
-    return null;
+    
+return null;
   }
 }

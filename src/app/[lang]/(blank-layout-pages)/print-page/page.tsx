@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef, forwardRef } from 'react'
+
 import { useReactToPrint } from 'react-to-print'
 
 // --- 1. CONFIGURATION ---
@@ -22,6 +23,7 @@ const ThermalReceipt = forwardRef<HTMLDivElement, { data: ReceiptData }>((props,
   const { data } = props
 
   return (
+
     // We set the width dynamically here
     <div ref={ref} className="p-4 bg-white text-black font-mono text-xs leading-tight mx-auto" style={{ width: PRINT_WIDTH }}>
         {/* Header */}
@@ -140,6 +142,7 @@ const ThermalReceipt = forwardRef<HTMLDivElement, { data: ReceiptData }>((props,
     </div>
   )
 })
+
 ThermalReceipt.displayName = 'ThermalReceipt'
 
 
@@ -178,6 +181,7 @@ const PrintTestPage = () => {
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
     documentTitle: `Receipt-${sampleData.id}`,
+
     // INJECT THE CSS HERE
     pageStyle: pageStyle,
   })

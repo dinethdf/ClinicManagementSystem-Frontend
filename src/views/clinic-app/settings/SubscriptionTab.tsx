@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -45,6 +46,7 @@ const SubscriptionTab = ({ initialData }: { initialData: ClinicDetailsDTO }) => 
     
     setUpdating(true);
     const result = await updateSubscriptionPlan(planCode);
+
     setUpdating(false);
     
     if (result.success) {

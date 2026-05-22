@@ -30,4 +30,5 @@ const StepSearch = ({ identifier, setIdentifier, loading, onSearch, onBack }: Pr
     </div>
   )
 }
+
 export default StepSearch

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
@@ -35,23 +36,35 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
 
   const handleCancelConfirm = async (reason?: string, refundMethod?: string) => {
   const finalReason = reason || "No reason provided";
+
   // Pass the refundMethod to the service
   const result = await cancelAppointment(appointmentData.id, finalReason, refundMethod);
   
   if (result.success) {
       router.refresh(); 
-      return { success: true, message: result.message };
-  } 
-  return { success: false, message: result.message || "Failed to cancel appointment" };
+      
+return { success: true, message: result.message };
+  }
+ 
+  
+return { success: false, message: result.message || "Failed to cancel appointment" };
 }
 
   const handlePrintInvoice = async () => {
     try {
       setIsPrinting(true)
-      const invoiceId = appointmentData.id 
-      if (!invoiceId) { alert('Invoice not found'); return }
+      const invoiceId = appointmentData.id
+ 
+      if (!invoiceId) { alert('Invoice not found'); 
+
+return }
+
       const invoiceDetails = await getInvoiceDetails(invoiceId)
-      if (!invoiceDetails) { alert('Failed to load invoice details'); return }
+
+      if (!invoiceDetails) { alert('Failed to load invoice details'); 
+
+return }
+
       appointmentPrintInvoice(invoiceDetails)
     } catch (error) {
       console.error('Print error:', error)
@@ -154,6 +167,7 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
                 startIcon={<i className='tabler-credit-card' />}
                 onClick={() => {
                   const encoded = encodeHideValue(appointmentData.id);
+
                   router.push(`./../payment/${encoded}`)
                 }}
                 disabled={appointmentData.status === 'CANCELLED'}

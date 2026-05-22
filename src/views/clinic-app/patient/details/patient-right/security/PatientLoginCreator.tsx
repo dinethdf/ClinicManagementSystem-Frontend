@@ -37,8 +37,10 @@ const PatientLoginCreator = ({ patientId }: { patientId: string }) => {
     const fetchStatus = async () => {
       if (!patientId) return
       setIsInitializing(true)
+
       try {
         const res = await getPatientLoginStatus(patientId)
+
         if (res.success && res.data) {
           setLoginStatus(res.data)
         } else {
@@ -50,6 +52,7 @@ const PatientLoginCreator = ({ patientId }: { patientId: string }) => {
         setIsInitializing(false)
       }
     }
+
     fetchStatus()
   }, [patientId])
 
@@ -78,6 +81,7 @@ const PatientLoginCreator = ({ patientId }: { patientId: string }) => {
 
       setFeedback({ type: 'error', title: errorTitle, message: res.message })
     }
+
     setIsLoading(false)
   }
 
@@ -94,6 +98,7 @@ const PatientLoginCreator = ({ patientId }: { patientId: string }) => {
     } else {
       setFeedback({ type: 'error', title: 'Failed to Send', message: res.message })
     }
+
     setIsLoading(false)
   }
 
@@ -112,6 +117,7 @@ const PatientLoginCreator = ({ patientId }: { patientId: string }) => {
     } else {
       setFeedback({ type: 'error', message: res.message })
     }
+
     setIsLoading(false)
   }
 

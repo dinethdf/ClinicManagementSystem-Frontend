@@ -60,6 +60,7 @@ const UserDropdown = () => {
   // --- FETCH USER DATA ON MOUNT ---
   useEffect(() => {
     const data = getUserDetails()
+
     setUserData(data)
   }, [])
 

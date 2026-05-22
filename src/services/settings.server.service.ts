@@ -1,7 +1,8 @@
 'use server';
 
-import { http, ApiError } from '@/services/api.config.server';
 import { revalidatePath } from 'next/cache';
+
+import { http, ApiError } from '@/services/api.config.server';
 import { encodeObject, decodeObject, transportDecrypt, transportEncrypt } from '@/utils/FEValueEncryption';
 
 export interface ClinicSettingsDTO {
@@ -51,10 +52,13 @@ export interface ClinicSecretsDTO {
 export async function getClinicSettings() {
   try {
     const response = await http.get<ClinicDetailsDTO>('/api/clinic/info/details');
-    return response;
+
+    
+return response;
   } catch (error) {
     console.error("Error fetching clinic settings:", error);
-    return null;
+    
+return null;
   }
 }
 
@@ -63,10 +67,12 @@ export async function updateClinicBasicInfo(data: ClinicBasicInfoUpdateDTO) {
   try {
     await http.put('/api/clinic/info/update', data);
     revalidatePath('/[lang]/clinic/settings', 'layout');
-    return { success: true, message: "Basic information updated successfully" };
+    
+return { success: true, message: "Basic information updated successfully" };
   } catch (err: any) {
     console.error("Error updating clinic basic info:", err);
-    return { 
+    
+return { 
       success: false, 
       message: err instanceof ApiError ? err.message : (err.message || "Failed to update basic information. Please check your connection.") 
     };
@@ -78,10 +84,12 @@ export async function updateBusinessSettings(data: Partial<ClinicSettingsDTO>) {
   try {
     await http.put('/api/clinic/info/settings', data);
     revalidatePath('/[lang]/clinic/settings', 'layout');
-    return { success: true, message: "Business settings updated successfully" };
+    
+return { success: true, message: "Business settings updated successfully" };
   } catch (err: any) {
     console.error("Error updating business settings:", err);
-    return { 
+    
+return { 
       success: false, 
       message: err instanceof ApiError ? err.message : (err.message || "Failed to update business settings. Please check your connection.") 
     };
@@ -97,16 +105,19 @@ export async function getClinicSecrets() {
 
     // Decrypt from Backend (AES)
     const decryptedData = decodeObject<ClinicSecretsDTO>(encryptedData);
+
     if (!decryptedData) {
       console.error("Failed to decrypt secrets from backend");
-      return null;
+      
+return null;
     }
 
     // Encrypt for Transport (XOR) to hide from Network Tab
     return transportEncrypt(JSON.stringify(decryptedData));
   } catch (error: any) {
     console.error("Error fetching clinic secrets:", error);
-    return null;
+    
+return null;
   }
 }
 
@@ -115,6 +126,7 @@ export async function updateClinicSecrets(encryptedTransportData: string) {
   try {
     // 1. Decrypt from Transport (XOR)
     const decryptedJson = transportDecrypt(encryptedTransportData);
+
     if (!decryptedJson) {
         return { success: false, message: "Failed to secure the data for transmission." };
     }
@@ -135,10 +147,12 @@ export async function updateClinicSecrets(encryptedTransportData: string) {
     }
 
     await http.put('/api/clinic/info/secrets', { data: encryptedData });
-    return { success: true, message: "Secrets updated securely." };
+    
+return { success: true, message: "Secrets updated securely." };
   } catch (err: any) {
     console.error("Error updating clinic secrets:", err);
-    return { 
+    
+return { 
       success: false, 
       message: err instanceof ApiError ? err.message : (err.message || "Failed to update secrets. Please try again.") 
     };
@@ -150,10 +164,12 @@ export async function updateSubscriptionPlan(newPlanCode: string) {
   try {
     await http.put('/api/clinic/info/subscription', { newPlanCode });
     revalidatePath('/[lang]/clinic/settings', 'layout');
-    return { success: true, message: "Subscription plan updated successfully" };
+    
+return { success: true, message: "Subscription plan updated successfully" };
   } catch (err: any) {
     console.error("Error updating subscription plan:", err);
-    return { 
+    
+return { 
       success: false, 
       message: err instanceof ApiError ? err.message : (err.message || "Failed to update subscription plan.") 
     };
@@ -164,10 +180,13 @@ export async function updateSubscriptionPlan(newPlanCode: string) {
 export async function testSmsConnection(gatewayType: string) {
   try {
     const response = await http.post('/api/clinic/info/test-sms', { gatewayType });
-    return { success: true, message: response.message || "Test SMS sent successfully!" };
+
+    
+return { success: true, message: response.message || "Test SMS sent successfully!" };
   } catch (err: any) {
     console.error("Error testing SMS connection:", err);
-    return { 
+    
+return { 
       success: false, 
       message: err instanceof ApiError ? err.message : (err.message || "Failed to send test SMS. Check your configuration and connection.") 
     };

@@ -18,8 +18,10 @@ export async function getPatientByBarcode(barcode: string) {
         error: { message: err.message || "Invalid barcode", status: err.status } 
       };
     }
+
     console.error('Barcode service error:', err);
-    return { success: false, error: { message: 'System error processing barcode.' } };
+    
+return { success: false, error: { message: 'System error processing barcode.' } };
   }
 }
 
@@ -42,10 +44,13 @@ export async function getAllergies(patientId: number) {
   try {
     // The http helper automatically extracts response.data based on your config
     const data = await http.get<AllergyDTO[]>(`/api/patient/health/${patientId}/allergies`);
-    return { success: true, data: data || [] };
+
+    
+return { success: true, data: data || [] };
   } catch (error: any) {
     console.error('Fetch allergies failed:', error);
-    return { success: false, data: [] };
+    
+return { success: false, data: [] };
   }
 }
 
@@ -55,6 +60,7 @@ export async function addAllergy(patientId: number, req: AddHealthRecordRequest)
       allergyName: req.name,
       notes: req.notes
     };
+
     const data = await http.post<AllergyDTO>(`/api/patient/health/${patientId}/allergies`, payload);
     
     // Optional: Revalidate if you are using server components for the main page
@@ -69,7 +75,8 @@ export async function addAllergy(patientId: number, req: AddHealthRecordRequest)
 export async function deleteAllergy(id: number) {
   try {
     await http.delete(`/api/patient/health/allergies/${id}`);
-    return { success: true };
+    
+return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Failed to delete allergy' };
   }
@@ -80,10 +87,13 @@ export async function deleteAllergy(id: number) {
 export async function getDiseases(patientId: number) {
   try {
     const data = await http.get<DiseaseDTO[]>(`/api/patient/health/${patientId}/diseases`);
-    return { success: true, data: data || [] };
+
+    
+return { success: true, data: data || [] };
   } catch (error: any) {
     console.error('Fetch diseases failed:', error);
-    return { success: false, data: [] };
+    
+return { success: false, data: [] };
   }
 }
 
@@ -93,8 +103,11 @@ export async function addDisease(patientId: number, req: AddHealthRecordRequest)
       diseaseName: req.name,
       notes: req.notes
     };
+
     const data = await http.post<DiseaseDTO>(`/api/patient/health/${patientId}/diseases`, payload);
-    return { success: true, data };
+
+    
+return { success: true, data };
   } catch (error: any) {
     return { success: false, error: error.message || 'Failed to add disease' };
   }
@@ -103,7 +116,8 @@ export async function addDisease(patientId: number, req: AddHealthRecordRequest)
 export async function deleteDisease(id: number) {
   try {
     await http.delete(`/api/patient/health/diseases/${id}`);
-    return { success: true };
+    
+return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Failed to delete disease' };
   }

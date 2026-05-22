@@ -2,6 +2,7 @@
 
 // React Imports
 import { useState, useEffect, useMemo } from 'react'
+
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
@@ -60,6 +61,7 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
       if (!scheduleId) return
       
       setIsLoading(true)
+
       try {
         const result = await appointmentService.getAppointmentsByScheduleId(
             scheduleId, 
@@ -146,6 +148,7 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
   // 3. Client-side Filtering (on current page)
   const filteredData = useMemo(() => {
       if(!statusFilter) return data;
+
       // Filter by the raw status code (e.g., 'BOOKED', 'PENDING_PAYMENT')
       return data.filter(item => item.status === statusFilter);
   }, [data, statusFilter]);
@@ -163,6 +166,7 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
         error={errorMessage} 
         baseRowUrl={getLocalizedUrl('/clinic/appoinment/details', locale as Locale)}
         getRowUrlParam={(row) => row.id}
+
         // Pass the Status Dropdown to the Common Table
         filters={
             <TextField 

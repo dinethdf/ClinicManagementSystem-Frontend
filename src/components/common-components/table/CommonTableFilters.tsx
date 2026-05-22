@@ -9,9 +9,10 @@ import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 
 // Types
-import { FilterConfig } from './TableTypes'
+import type { FilterConfig } from './TableTypes'
 
 interface Props {
+
   // Filter Props (For inline filters - usually optional if using the Dialog)
   filtersConfig: FilterConfig[]
   filterState: any 
@@ -39,6 +40,7 @@ const CommonTableFilters = ({
   // Handle value change (Instant Update)
   const handleChange = (key: string, value: any) => {
     const newFilters = { ...filterState, [key]: value }
+
     onFilterChange(newFilters)
   }
 

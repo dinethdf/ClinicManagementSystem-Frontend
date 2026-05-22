@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 
@@ -16,8 +17,10 @@ import Grid from '@mui/material/Grid'
 import { createColumnHelper } from '@tanstack/react-table'
 
 // Common Components
+import { Typography } from '@mui/material'
+
 import CommonServerTable from '@/components/common-components/table/CommonServerTable'
-import { FilterConfig } from '@/components/common-components/table/TableTypes'
+import type { FilterConfig } from '@/components/common-components/table/TableTypes'
 import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
 import AsyncAutocomplete from '@/components/form-components/AsyncAutocompleteProps' 
@@ -29,9 +32,8 @@ import type { Locale } from '@configs/i18n'
 
 // Service Imports
 import { getScheduleList } from '@/services/doctor/doctor.shedule.server.service'
-import { Typography } from '@mui/material'
-import { SpecializationDTO } from '@/types/public-booking.types'
-import { ScheduleDTO } from '@/types/doctor.types'
+import type { SpecializationDTO } from '@/types/public-booking.types'
+import type { ScheduleDTO } from '@/types/doctor.types'
 
 type Doctor = {
     id: number
@@ -123,8 +125,8 @@ const ScheduleListTable = () => {
     const specializationId = selectedSpecialization?.id
     
     // 3. Map Date to Start/End Range
-    let startDate = params.startDate
-    let endDate = params.endDate
+    const startDate = params.startDate
+    const endDate = params.endDate
 
 
     return await getScheduleList(
@@ -215,7 +217,9 @@ const ScheduleListTable = () => {
       header: 'Status',
       cell: ({ row }) => {
         const statusObj = row.original.status;
-        return (
+
+        
+return (
           <Chip
             label={statusObj.displayName || statusObj.code}
             size='small'

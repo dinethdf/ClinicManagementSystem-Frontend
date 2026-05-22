@@ -35,10 +35,13 @@ export async function getCachedMedicines(): Promise<RawMedicine[]> {
   // 2. If empty, read from disk and save to RAM
   try {
     const fileContents = await fs.readFile(filePath, 'utf8');
+
     cachedData = JSON.parse(fileContents);
-    return cachedData || [];
+    
+return cachedData || [];
   } catch (error) {
     console.error("CRITICAL ERROR: Could not read medicines.json", error);
-    return []; // Return empty array so app doesn't crash
+    
+return []; // Return empty array so app doesn't crash
   }
 }

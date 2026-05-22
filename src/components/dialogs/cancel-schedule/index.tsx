@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+
 import { useRouter } from 'next/navigation'
+
 import { useForm, Controller } from 'react-hook-form'
 
 // MUI Imports
@@ -17,15 +19,16 @@ import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
 
 // Component Imports
+import { toast } from 'react-toastify'
+
 import CustomTextField from '@core/components/mui/TextField'
 import DialogCloseButton from '../DialogCloseButton'
 
 // Type Imports
-import { AppointmentCancelDTO } from '@/types/doctor.types'
+import type { AppointmentCancelDTO } from '@/types/doctor.types'
 
 // Service Imports
 import { cancelScheduleCascade } from '@/services/doctor/doctor.shedule.server.service'
-import { toast } from 'react-toastify'
 
 interface CancelScheduleProps {
   open: boolean
@@ -53,8 +56,10 @@ const CancelScheduleDialog = ({ open, setOpen, scheduleId }: CancelScheduleProps
   const onSubmit = async (data: AppointmentCancelDTO) => {
     setIsLoading(true)
     setError(null)
+
     try {
       const res = await cancelScheduleCascade(scheduleId, data)
+
       if (res.success) {
         toast.success(res.message)
         router.refresh()

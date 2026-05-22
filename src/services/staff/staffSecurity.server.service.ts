@@ -1,7 +1,8 @@
 'use server';
 
-import { http, ApiError } from '@/services/api.config.server';
 import { revalidatePath } from 'next/cache';
+
+import { http, ApiError } from '@/services/api.config.server';
 
 // --- DTOs matching your Java Backend ---
 export interface SystemAccountStatusDTO {
@@ -24,14 +25,18 @@ export async function getAccountStatus(staffId: number) {
     const response = await http.get<ApiResponse<SystemAccountStatusDTO>>(
       `/api/staff/${staffId}/security/status`
     );
-    return response;
+
+    
+return response;
   } catch (err) {
     if (err instanceof ApiError) {
       console.error(`API Error fetching security status (${err.status}):`, err.message);
     } else {
       console.error('Unexpected error fetching security status:', err);
     }
-    return null;
+
+    
+return null;
   }
 }
 
@@ -42,12 +47,16 @@ export async function manualPasswordReset(staffId: number, password: string) {
       `/api/staff/${staffId}/security/manual-reset`,
       { password }
     );
-    return response;
+
+    
+return response;
   } catch (err) {
     if (err instanceof ApiError) {
       return { success: false, message: err.message, data: false };
     }
-    return { success: false, message: "Failed to reset password.", data: false };
+
+    
+return { success: false, message: "Failed to reset password.", data: false };
   }
 }
 
@@ -58,14 +67,19 @@ export async function toggleSuspension(staffId: number, isSuspended: boolean) {
       `/api/staff/${staffId}/security/toggle-suspension`,
       { isSuspended }
     );
+
+
     // Refresh the staff page data cache
     revalidatePath(`/[lang]/clinic/staff/view/${staffId}`, 'page');
-    return response;
+    
+return response;
   } catch (err) {
     if (err instanceof ApiError) {
       return { success: false, message: err.message, data: false };
     }
-    return { success: false, message: "Failed to change account status.", data: false };
+
+    
+return { success: false, message: "Failed to change account status.", data: false };
   }
 }
 
@@ -76,14 +90,19 @@ export async function disableTwoFactor(staffId: number) {
       `/api/staff/${staffId}/security/disable-2fa`,
       {}
     );
+
+
     // Refresh the staff page data cache
     revalidatePath(`/[lang]/clinic/staff/view/${staffId}`, 'page');
-    return response;
+    
+return response;
   } catch (err) {
     if (err instanceof ApiError) {
       return { success: false, message: err.message, data: false };
     }
-    return { success: false, message: "Failed to disable 2FA.", data: false };
+
+    
+return { success: false, message: "Failed to disable 2FA.", data: false };
   }
 }
 
@@ -94,11 +113,15 @@ export async function sendResetLink(staffId: number) {
       `/api/staff/${staffId}/security/send-reset-link`,
       {}
     );
-    return response;
+
+    
+return response;
   } catch (err) {
     if (err instanceof ApiError) {
       return { success: false, message: err.message, data: false };
     }
-    return { success: false, message: "Failed to send reset link.", data: false };
+
+    
+return { success: false, message: "Failed to send reset link.", data: false };
   }
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
@@ -36,6 +37,7 @@ const MedicationsTab = () => {
         p.items.forEach(item => {
             const startDate = new Date(item.startDate);
             const endDate = new Date(startDate);
+
             endDate.setDate(startDate.getDate() + item.duration);
             
             if (endDate >= today) {
@@ -43,7 +45,8 @@ const MedicationsTab = () => {
             }
         })
     })
-    return active;
+    
+return active;
   }
 
   const activeMeds = getActiveMeds();

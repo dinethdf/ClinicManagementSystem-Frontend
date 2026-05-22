@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
@@ -11,8 +12,9 @@ import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
 
 // Type Imports
-import type { PatientAppointmentDTO } from '@/types/appoinments.types'
 import { createColumnHelper } from '@tanstack/react-table'
+
+import type { PatientAppointmentDTO } from '@/types/appoinments.types'
 
 // Service & Component Imports
 import { appointmentService } from '@/services/appointment/appoinment.service'
@@ -53,8 +55,10 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
     const fetchAppointments = async () => {
         if (!patientId) return;
         setIsLoading(true);
+
         try {
             const result = await appointmentService.getAppointmentsByPatientId(patientId);
+
             setData(result);
         } catch (error: any) {
             setErrorMessage(error.message || 'Error fetching data');
@@ -62,6 +66,7 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
             setIsLoading(false);
         }
     };
+
     fetchAppointments();
   }, [patientId]);
 
@@ -114,7 +119,9 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
         header: 'Status',
         cell: ({ row }) => {
             const status = appointmentStatusObj[row.original.status] || { color: 'primary', label: row.original.status }
-            return (
+
+            
+return (
                 <Chip 
                   label={status.label} 
                   color={status.color} 
@@ -154,7 +161,8 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
   // 3. Filter Data (Client-side)
   const filteredData = useMemo(() => {
      if(!statusFilter) return data;
-     return data.filter(item => item.status === statusFilter);
+     
+return data.filter(item => item.status === statusFilter);
   }, [data, statusFilter]);
 
   return (
@@ -166,6 +174,7 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
       searchPlaceholder="Search Appointments..."
       baseRowUrl={getLocalizedUrl('/clinic/appoinment/details', locale as Locale)}
       getRowUrlParam={(row) => row.appointmentId}
+
       // Pass the Status Dropdown to the Common Table
       filters={
          <TextField 
@@ -174,6 +183,7 @@ const PatientAppoinmentsListTable = ({ patientId }: { patientId: string }) => {
             onChange={e => setStatusFilter(e.target.value)} 
             size="small" 
             className='max-sm:is-full sm:is-40'
+
             // Use slotProps for newer MUI versions
             slotProps={{ select: { displayEmpty: true } }}
          >

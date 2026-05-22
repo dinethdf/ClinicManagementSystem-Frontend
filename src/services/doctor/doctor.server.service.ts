@@ -37,10 +37,13 @@ const PASSWORD_API_BASE = '/api/auth/staff/password';
   export async function getDoctorDetailsByTocken() {
     try {
       const doctorData = await http.get<Doctor>('/api/doctor/get-my-details');
-      return doctorData;
+
+      
+return doctorData;
     } catch (error) {
       console.error('Server-side get doctor details failed:', error);
-      return null;
+      
+return null;
     }
   }
 
@@ -50,13 +53,17 @@ const PASSWORD_API_BASE = '/api/auth/staff/password';
   export async function requestDoctorOtp() {
     try {
       const response = await http.post<{ message: string, data: string }>(`${PASSWORD_API_BASE}/request-otp`, {});
-      return { success: true, data: response };
+
+      
+return { success: true, data: response };
     } catch (err) {
       if (err instanceof ApiError) {
         return { success: false, error: { message: err.message } };
       }
+
       console.error("Request OTP Error:", err);
-      return { success: false, error: { message: "Failed to send OTP." } };
+      
+return { success: false, error: { message: "Failed to send OTP." } };
     }
   }
 
@@ -67,12 +74,16 @@ const PASSWORD_API_BASE = '/api/auth/staff/password';
     try {
       const payload = { otp, newPassword, confirmPassword };
       const response = await http.post<{ message: string, data: string }>(`${PASSWORD_API_BASE}/change`, payload);
-      return { success: true, data: response };
+
+      
+return { success: true, data: response };
     } catch (err) {
       if (err instanceof ApiError) {
         return { success: false, error: { message: err.message } };
       }
+
       console.error("Change Password Error:", err);
-      return { success: false, error: { message: "Failed to update password." } };
+      
+return { success: false, error: { message: "Failed to update password." } };
     }
   }

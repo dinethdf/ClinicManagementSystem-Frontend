@@ -1,4 +1,6 @@
 import { redirect } from 'next/navigation'
+
+
 // MUI Imports
 import Grid from '@mui/material/Grid'
 
@@ -23,8 +25,10 @@ const DashboardCRM = async () => {
   const serverMode = await getServerMode()
 
  await redirect('/clinic')
- return null
-  return (
+ 
+return null
+  
+return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
         <DistributedBarChartOrder />

@@ -14,6 +14,7 @@ export async function getPatientDetails() {
 
   } catch (error) {
     console.error('Server-side get patient details failed:', error);
-    return null;
+    
+return null;
   }
 }

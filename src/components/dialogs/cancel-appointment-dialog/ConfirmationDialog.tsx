@@ -24,6 +24,7 @@ type ConfirmationDialogProps = {
   open: boolean
   setOpen: (open: boolean) => void
   type: ConfirmationType
+
   // 1. UPDATED: onConfirm now accepts refundMethod
   onConfirm?: (reason?: string, refundMethod?: string) => Promise<{ success: boolean; message: string }>
   paymentDetails?: { 
@@ -67,13 +68,16 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
     if (!value) {
       setUserInput(false)
       setOpen(false)
-      return
+      
+return
     }
 
     if (onConfirm) {
         setLoading(true)
+
         try {
             const finalReason = reasonSelect === 'Other' ? customReason : reasonSelect
+
             // 3. UPDATED: Pass refundMethod only if a payment was made
             const selectedRefundMethod = hasPaid ? refundMethod : undefined;
             const response = await onConfirm(finalReason, selectedRefundMethod)

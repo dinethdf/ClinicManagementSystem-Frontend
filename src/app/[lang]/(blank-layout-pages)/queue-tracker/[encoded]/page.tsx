@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+
 import PublicQueueTrackerView from '@/views/clinic-app/public/queue/Publicqueuetrackerview'
 import { decodeHideValue } from '@/utils/encode'
 

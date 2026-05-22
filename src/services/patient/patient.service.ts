@@ -1,4 +1,4 @@
-import {ApiResponse} from '@/types/common.type'
+import type {ApiResponse} from '@/types/common.type'
 import type { Patient, Guardian, PatientResponceDTO, GetPatientsParams, PaginatedPatientResponse } from '../../types/patient.types'
 import { apiClient } from '../api.config'
 
@@ -7,6 +7,7 @@ class PatientService {
 async getPatients({ page, pageSize, sort, ...filters }: GetPatientsParams): Promise<PaginatedPatientResponse<PatientResponceDTO>> {
   try {
     console.log("get patients")
+
       const response = await apiClient.get<ApiResponse<PaginatedPatientResponse<PatientResponceDTO>>>('/api/patient/list', {
         params: {
           page: page, // API is 0-based, Table is 1-based
@@ -35,6 +36,7 @@ async createPatientDetails(patientData: Patient): Promise<any> {
         ...patientData,
         guardian: patientData.guardian,
         patientAuthId: null,
+
         // bloodGroup: 'ab-',
         profileImg: 'https://example.com/images/john.png',
         insuranceId: null

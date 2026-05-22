@@ -2,6 +2,7 @@
 
 // React Imports
 import { useState, useEffect } from 'react'
+
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
@@ -38,6 +39,7 @@ declare module '@tanstack/table-core' {
   interface FilterFns {
     fuzzy: FilterFn<unknown>
   }
+
 //   interface FilterMeta {
 //     itemRank: any
 //   }
@@ -46,8 +48,10 @@ declare module '@tanstack/table-core' {
 // --- Helper: Fuzzy Filter ---
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   const itemRank = rankItem(row.getValue(columnId), value)
+
   addMeta({ itemRank })
-  return itemRank.passed
+  
+return itemRank.passed
 }
 
 // --- Helper: Debounced Input ---
@@ -71,7 +75,9 @@ const DebouncedInput = ({
     const timeout = setTimeout(() => {
       onChange(value)
     }, debounce)
-    return () => clearTimeout(timeout)
+
+    
+return () => clearTimeout(timeout)
   }, [value, debounce, onChange])
 
   return (
@@ -144,6 +150,7 @@ const SimpleCommonTable = <T,>({
   const handlePaginationChange = (updater: any) => {
     if (manualPagination && onPaginationChange) {
        const newState = typeof updater === 'function' ? updater(pagination) : updater;
+
        onPaginationChange(newState);
     } else {
        setInternalPagination(updater);
@@ -278,6 +285,7 @@ const SimpleCommonTable = <T,>({
                     } else if (baseRowUrl) {
                       const param = getRowUrlParam ? getRowUrlParam(row.original as T) : '';
                       const url = param ? `${baseRowUrl}/${param}` : baseRowUrl;
+
                       router.push(url);
                     }
                   }}

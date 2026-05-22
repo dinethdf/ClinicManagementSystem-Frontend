@@ -3,6 +3,7 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
+
 import type { PublicScheduleDTO } from '@/types/public-booking.types'
 
 const ScheduleSummaryCard = ({ selectedSchedule }: { selectedSchedule: PublicScheduleDTO }) => {
@@ -24,4 +25,5 @@ const ScheduleSummaryCard = ({ selectedSchedule }: { selectedSchedule: PublicSch
     </Card>
   )
 }
+
 export default ScheduleSummaryCard

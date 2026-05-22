@@ -2,7 +2,9 @@
 
 // React Imports
 import { useMemo, useState, useEffect } from 'react'
+
 import { useRouter } from 'next/navigation'
+
 import dayjs from 'dayjs'
 
 // Form Imports
@@ -121,6 +123,8 @@ const StaffAccountDetails = () => {
 
     } catch (error: any) {
       console.error(error)
+
+
       // Enhanced Error Handling
       const errorMessage = error.response?.data?.message 
                            || error.response?.data?.defaultMessage 

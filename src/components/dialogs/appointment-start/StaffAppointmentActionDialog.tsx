@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+
 import { toast } from 'react-toastify'
 
 // MUI Imports
@@ -45,10 +46,13 @@ const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSucces
 
   useEffect(() => {
     let timer: NodeJS.Timeout
+
     if (errorMsg) {
       timer = setTimeout(() => setErrorMsg(null), 5000)
     }
-    return () => clearTimeout(timer)
+
+    
+return () => clearTimeout(timer)
   }, [errorMsg])
 
   const handleClose = () => {
@@ -64,14 +68,16 @@ const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSucces
       if (isCompleted && (action === 'booked' || action === 'ongoing')) {
           setShowRevertWarning(action)
           setShowConfirmComplete(false) // Hide the other warning if open
-          return
+          
+return
       }
       
       // If trying to complete, show the complete confirmation
       if (action === 'completed' && !isCompleted) {
           setShowConfirmComplete(true)
           setShowRevertWarning(null) // Hide the other warning if open
-          return
+          
+return
       }
 
       // Otherwise, execute the API call
@@ -82,7 +88,8 @@ const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSucces
   const executeStatusChange = async (action: 'booked' | 'ongoing' | 'completed') => {
     if (!appointmentInfo?.appointmentId || !appointmentInfo?.patientId) {
       setErrorMsg("Missing appointment or patient ID.")
-      return
+      
+return
     }
 
     setLoadingAction(action)
@@ -95,6 +102,7 @@ const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSucces
 
     try {
       let res;
+
       if (action === 'booked') {
         res = await appointmentManageService.markAsBooked(payload)
       } else if (action === 'ongoing') {
@@ -120,8 +128,10 @@ const StaffAppointmentActionDialog = ({ open, onClose, appointmentInfo, onSucces
   // UI Helpers
   const getInitials = (name: string) => {
     const parts = name.trim().split(' ')
+
     if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
-    return name ? name.substring(0, 2).toUpperCase() : 'PT'
+    
+return name ? name.substring(0, 2).toUpperCase() : 'PT'
   }
 
   const isCompleted = appointmentInfo.statusCode === 'COMPLETED';

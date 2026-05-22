@@ -40,6 +40,7 @@ apiClient.interceptors.response.use(
     } else if (error.response) {
       // Backend error with response
       const data = error.response.data;
+
       message = data?.defaultMessage || data?.message || error.message || message;
     }
 

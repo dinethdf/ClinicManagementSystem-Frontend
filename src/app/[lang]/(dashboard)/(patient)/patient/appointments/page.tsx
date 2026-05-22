@@ -1,6 +1,7 @@
+import Typography from '@mui/material/Typography'
+
 import { requireUser } from '@/libs/auth-guard';
 import { ROLES } from '@/constants/roles';
-import Typography from '@mui/material/Typography'
 import AppointmentList from '@/views/clinic-app/patient-portal/appointments/AppointmentList';
 
 const MyAppointmentsPage = async () => {

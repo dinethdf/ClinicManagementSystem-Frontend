@@ -59,8 +59,10 @@ const FeaturesSection = () => {
       ([entry]) => {
         if (skipIntersection.current) {
           skipIntersection.current = false
-          return
+          
+return
         }
+
         updateIntersections({ [entry.target.id]: entry.isIntersecting })
       },
       { threshold: 0.35 }

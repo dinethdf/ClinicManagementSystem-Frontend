@@ -8,7 +8,8 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 export async function getBillingSummary() {
   await delay(500);
-  return {
+  
+return {
     totalPaid: 45000.00,
     totalPending: 3500.00, // Simulating an outstanding amount to trigger alerts
     lastPaymentDate: "2025-12-20"
@@ -17,7 +18,8 @@ export async function getBillingSummary() {
 
 export async function getInvoices() {
   await delay(800);
-  return [
+  
+return [
     {
       id: 101, invoiceNo: "INV-2026-001", date: "2026-01-02",
       serviceType: 'Consultation', description: "Consultation with Dr. Kamal Gunawardena",
@@ -43,7 +45,8 @@ export async function getInvoices() {
 
 export async function getInsuranceDetails() {
   await delay(600);
-  return {
+  
+return {
     providerName: "Allianz Insurance",
     policyNumber: "P-99887766",
     holderName: "Isuru Abeywickrama",
@@ -54,6 +57,7 @@ export async function getInsuranceDetails() {
 
 export async function updateInsuranceDetails(data: PatientInsuranceDTO) {
     await delay(1000);
+
     // In a real app, this would be a POST/PUT request
     return { success: true, message: "Insurance details updated successfully." };
 }

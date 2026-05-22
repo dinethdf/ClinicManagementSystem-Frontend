@@ -55,6 +55,7 @@ async function apiFetch(endpoint: string, options: RequestInit = {}, isFullRespo
       
       try {
         const errorBody = await res.json();
+
         errorMessage = errorBody.defaultMessage || errorBody.message || errorBody.error || res.statusText || errorMessage;
         errorCode = errorBody.errorCode || errorBody.code || errorBody;
       } catch {
@@ -75,7 +76,9 @@ async function apiFetch(endpoint: string, options: RequestInit = {}, isFullRespo
     }
 
     const json = await res.json();
-    return json.data == undefined || isFullResponse ? json : json.data; 
+
+    
+return json.data == undefined || isFullResponse ? json : json.data; 
 
   } catch (error: any) {
     clearTimeout(timeoutId);

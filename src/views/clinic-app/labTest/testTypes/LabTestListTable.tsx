@@ -39,13 +39,20 @@ import type { LabTestTypeDTO } from '@/types/lab.types'
 const DebouncedInput = ({ value: initialValue, onChange, debounce = 500, ...props }: any) => {
   const [value, setValue] = useState(initialValue)
   const isInitialMount = useRef(true)
+
   useEffect(() => { setValue(initialValue) }, [initialValue])
   useEffect(() => {
-    if (isInitialMount.current) { isInitialMount.current = false; return; }
+    if (isInitialMount.current) { isInitialMount.current = false; 
+
+return; }
+
     const timeout = setTimeout(() => { onChange(value) }, debounce)
-    return () => clearTimeout(timeout)
+
+    
+return () => clearTimeout(timeout)
   }, [value, onChange, debounce])
-  return <CustomTextField {...props} value={value} onChange={(e: any) => setValue(e.target.value)} />
+  
+return <CustomTextField {...props} value={value} onChange={(e: any) => setValue(e.target.value)} />
 }
 
 const columnHelper = createColumnHelper<LabTestTypeDTO>()
@@ -67,8 +74,10 @@ const LabTestListTable = () => {
   // Fetch Data
   const fetchData = useCallback(async () => {
     setIsLoading(true);
+
     try {
       const result = await getLabTestList(pagination.pageIndex, pagination.pageSize, searchQuery);
+
       setData(result.content || []);
       setPagination(prev => ({ ...prev, totalItems: result.totalElements, totalPages: result.totalPages }));
     } catch (error) { console.error(error); } 
@@ -100,7 +109,10 @@ const LabTestListTable = () => {
   }
 
   const handleSubmit = async () => {
-      if(!formData.name || !formData.code || !formData.testFee) { setSubmitError("Fill required fields"); return; }
+      if(!formData.name || !formData.code || !formData.testFee) { setSubmitError("Fill required fields"); 
+
+return; }
+
       setIsSubmitting(true); setSubmitError(null);
 
       const payload = {
@@ -108,13 +120,14 @@ const LabTestListTable = () => {
           testFee: Number(formData.testFee), clinicFee: Number(formData.clinicFee), isActive: formData.isActive
       }
 
-      let res = editingTest ? await updateLabTest(editingTest.id, payload) : await createLabTest(payload);
+      const res = editingTest ? await updateLabTest(editingTest.id, payload) : await createLabTest(payload);
 
       if (res.success) {
           setOpenDialog(false); fetchData();
       } else {
           setSubmitError(res.error || "Failed");
       }
+
       setIsSubmitting(false);
   }
 

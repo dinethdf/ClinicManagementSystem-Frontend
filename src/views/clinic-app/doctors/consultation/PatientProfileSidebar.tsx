@@ -37,7 +37,8 @@ const PatientProfileSidebar = ({ patient }: { patient: PatientDetailDTO }) => {
   const genderLabel = useMemo(() => {
     if (patient.gender === 1) return 'Male';
     if (patient.gender === 2) return 'Female';
-    return 'Other';
+    
+return 'Other';
   }, [patient.gender]);
 
   // --- STATES ---
@@ -53,6 +54,7 @@ const PatientProfileSidebar = ({ patient }: { patient: PatientDetailDTO }) => {
   // ADDED: Memoized fetch function
   const fetchHealthData = useCallback(async () => {
     setLoading(true)
+
     const [allergiesRes, diseasesRes] = await Promise.all([
       getAllergies(patient.id),
       getDiseases(patient.id)
@@ -86,17 +88,20 @@ const PatientProfileSidebar = ({ patient }: { patient: PatientDetailDTO }) => {
 
     if (openDialog === 'allergy') {
       const res = await addAllergy(patient.id, formData)
+
       if (res.success && res.data) {
         setAllergies([...allergies, res.data])
         handleCloseDialog()
       }
     } else if (openDialog === 'disease') {
       const res = await addDisease(patient.id, formData)
+
       if (res.success && res.data) {
         setDiseases([...diseases, res.data])
         handleCloseDialog()
       }
     }
+
     setSubmitting(false)
   }, [formData, openDialog, patient.id, allergies, diseases, handleCloseDialog])
 
@@ -105,11 +110,13 @@ const PatientProfileSidebar = ({ patient }: { patient: PatientDetailDTO }) => {
 
     if (type === 'allergy') {
         const res = await deleteAllergy(id)
+
         if (res.success) {
             setAllergies(allergies.filter(a => a.id !== id))
         }
     } else {
         const res = await deleteDisease(id)
+
         if (res.success) {
             setDiseases(diseases.filter(d => d.id !== id))
         }

@@ -33,6 +33,7 @@ const BillingHistory = () => {
     const fetchData = async () => {
         try {
             const [invData, sumData] = await Promise.all([getInvoices(), getBillingSummary()])
+
             setInvoices(invData)
             setSummary(sumData)
         } catch (err) {
@@ -41,6 +42,7 @@ const BillingHistory = () => {
             setLoading(false)
         }
     }
+
     fetchData()
   }, [])
 

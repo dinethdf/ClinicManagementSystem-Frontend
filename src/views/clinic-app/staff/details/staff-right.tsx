@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+
 import { toast } from 'react-toastify'
 
 // MUI Imports
@@ -26,9 +27,11 @@ import CustomTabList from '@core/components/mui/TabList'
 // Services
 import { 
   getAccountStatus, 
+
   // createAccount, 
   sendResetLink, 
   disableTwoFactor, 
+
   // revokeAllSessions, 
   toggleSuspension,
   type SystemAccountStatusDTO 
@@ -50,9 +53,11 @@ const StaffRight = ({ staffId }: StaffRightProps) => {
   const fetchSecurityStatus = async () => {
     setLoading(true)
     const data : any = await getAccountStatus(staffId)
+
     if (data?.success) {
         setSecurityData(data.data)
     }
+
     setLoading(false)
   }
 
@@ -80,8 +85,10 @@ const StaffRight = ({ staffId }: StaffRightProps) => {
 
   const handleSendResetLink = async () => {
     setActionLoading('resetLink')
+
     try {
       const res = await sendResetLink(staffId)
+
       if (res.success) {
           toast.success(res.message || "Password reset link sent.")
       } else {
@@ -97,8 +104,10 @@ const StaffRight = ({ staffId }: StaffRightProps) => {
   const handleDisable2FA = async () => {
       // In a real app, add a confirmation dialog here before calling API
       setActionLoading('disable2FA')
+
       try {
         const res = await disableTwoFactor(staffId)
+
         if (res.success) {
             toast.success(res.message || "Two-Factor Authentication disabled.")
             fetchSecurityStatus() 
@@ -114,6 +123,7 @@ const StaffRight = ({ staffId }: StaffRightProps) => {
 
   const handleRevokeSessions = async () => {
       setActionLoading('revoke')
+
       try {
         // const res = await revokeAllSessions(staffId)
         // if (res.success) {
@@ -130,8 +140,10 @@ const StaffRight = ({ staffId }: StaffRightProps) => {
 
   const handleToggleSuspension = async (isCurrentlySuspended: boolean) => {
       setActionLoading('suspend')
+
       try {
         const res = await toggleSuspension(staffId, !isCurrentlySuspended)
+
         if (res.success) {
             toast.success(res.message || (isCurrentlySuspended ? "Account reactivated." : "Account suspended."))
             fetchSecurityStatus()
@@ -193,6 +205,7 @@ const StaffRight = ({ staffId }: StaffRightProps) => {
                 
                 {/* Check state from API */}
                 {!securityData?.hasAccount ? (
+
                     // --- STATE 1: NO ACCOUNT YET ---
                     <Grid size={{ xs: 12 }}>
                         <Card>
@@ -225,6 +238,7 @@ const StaffRight = ({ staffId }: StaffRightProps) => {
                         </Card>
                     </Grid>
                 ) : (
+
                     // --- STATE 2: HAS ACCOUNT ---
                     <>
                         {/* SECTION A: CREDENTIALS */}

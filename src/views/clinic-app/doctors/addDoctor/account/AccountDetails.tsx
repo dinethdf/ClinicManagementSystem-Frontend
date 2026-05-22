@@ -47,6 +47,7 @@ interface DoctorFormData {
   email: string
   mobileNo: string
   slmcNumber: string
+
   // Update this line 👇
   specializationId: { id: string; name: string } | null 
   qualification: string
@@ -67,6 +68,7 @@ const initialData: DoctorFormData = {
   email: '',
   mobileNo: '',
   slmcNumber: '',
+
   // Update this line 👇
   specializationId: null, 
   qualification: '',
@@ -95,6 +97,8 @@ const DoctorAccountDetails = () => {
   const handelFormSubmit = async (data: DoctorFormData) => {
     setIsLoading(true)
     console.log(data)
+
+
     // Format data for API (match the structure you provided)
     const apiPayload = {
       

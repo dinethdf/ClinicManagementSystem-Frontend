@@ -2,6 +2,7 @@
 
 // React Imports
 import { useState } from 'react'
+
 import { useRouter, useParams } from 'next/navigation'
 
 // MUI Imports
@@ -12,6 +13,8 @@ import Button from '@mui/material/Button'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
+import { toast } from 'react-toastify'
+
 import type { ThemeColor } from '@core/types'
 import type { DoctorScheduleDTO } from '@/types/doctor.types' // Ensure this path is correct based on your project
 
@@ -23,7 +26,6 @@ import DoctorSheduleSelect from '@/components/dialogs/doctor-shedule-select' // 
 // Service & Utils Imports
 import { createAppointment } from '@/services/appointment/appoinment.server.service'
 import { encodeHideValue } from '@/utils/encode'
-import { toast } from 'react-toastify'
 
 type PatientHeaderProps = {
   patientId: string
@@ -83,6 +85,7 @@ const PatientDetailsHeader = ({
             
             // 3. Encode ID and Redirect
             const encodedId = encodeHideValue(result.data.id)
+
             router.replace(`/${params.lang}/clinic/appoinment/payment/${encodedId}`)
 
         } else {

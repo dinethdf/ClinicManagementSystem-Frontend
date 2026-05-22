@@ -2,6 +2,7 @@
 
 // React Imports
 import { Fragment, useState } from 'react'
+
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
@@ -40,6 +41,7 @@ const StateChangeDialog = ({ open, setOpen, type, data }: ConfirmationDialogProp
   const handleSecondDialogClose = () => {
     setSecondDialog(false)
     setOpen(false)
+
     if (userInput) {
         router.refresh() 
     }
@@ -49,7 +51,8 @@ const handleState = async (value: boolean) => {
     if (!value) {
       setUserInput(false)
       setOpen(false)
-      return
+      
+return
     }
 
 
@@ -78,6 +81,7 @@ const handleState = async (value: boolean) => {
 
   if (type === 'deactivate-account') {
      const isCurrentlyActive = data?.isActive
+
      titleText = isCurrentlyActive ? 'Are you sure you want to deactivate this user?' : 'Are you sure you want to activate this user?'
      subText = isCurrentlyActive ? "User won't be able to access services!" : "User will regain access to services."
      confirmBtnText = isCurrentlyActive ? 'Yes, Deactivate!' : 'Yes, Activate!'

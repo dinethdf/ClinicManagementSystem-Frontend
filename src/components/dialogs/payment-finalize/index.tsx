@@ -2,6 +2,7 @@
 
 // React Imports
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+
 import { useRouter, useParams } from 'next/navigation'
 
 // MUI Imports
@@ -101,6 +102,7 @@ const PaymentFinalizer = ({
 
   const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
+
     setPaymentDetails(prev => ({
       ...prev,
       [name]: name === 'payAmount' ? (value === '' ? null : parseFloat(value)) : value
@@ -109,6 +111,7 @@ const PaymentFinalizer = ({
 
   const handleMethodChange = (prop: string | ChangeEvent<HTMLInputElement>) => {
     const value = typeof prop === 'string' ? prop : (prop.target as HTMLInputElement).value
+
     setSelectedMethod(value)
     
     if (mode === 'FULL' && value !== 'Cash') {
@@ -142,10 +145,11 @@ const PaymentFinalizer = ({
 
     if (selectedMethod !== 'Cash' && !paymentDetails.transactionId) {
       alert("Transaction ID is required for non-cash payments.");
-      return;
+      
+return;
     }
     
-    let finalPayableAmount = (mode === 'PARTIAL') ? enteredAmount : targetAmount;
+    const finalPayableAmount = (mode === 'PARTIAL') ? enteredAmount : targetAmount;
 
     // --- UPDATED PAYLOAD TO MATCH API REQUIREMENT ---
     const paymentPayload = {
@@ -165,6 +169,7 @@ const PaymentFinalizer = ({
       toast.success("Payment successful!");
       
       const invoiceDetails = await getInvoiceDetails(parseInt(invoiceId));
+
       if (invoiceDetails) {
         appointmentPrintInvoice(invoiceDetails);
       }
@@ -178,6 +183,7 @@ const PaymentFinalizer = ({
 
   // Label Logic
   let inputLabel = 'Payment Amount';
+
   if (mode === 'FULL') {
       inputLabel = selectedMethod === 'Cash' ? 'Cash Received' : 'Charge Amount';
   }

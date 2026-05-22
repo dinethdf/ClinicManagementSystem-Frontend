@@ -1,5 +1,6 @@
 // src/components/clinic/patient/PatientIdCard.tsx
 import React, { useEffect, useState } from 'react'
+
 import Barcode from 'react-barcode'
 
 // MUI Imports
@@ -9,7 +10,8 @@ import Divider from '@mui/material/Divider'
 import CircularProgress from '@mui/material/CircularProgress'
 
 // Service & Type Imports
-import { getCompanyDetails, CompanyDetails } from '@/services/company.server.service'
+import type { CompanyDetails } from '@/services/company.server.service';
+import { getCompanyDetails } from '@/services/company.server.service'
 import type { Patient } from '@/types/patient.types'
 
 interface PatientIdCardProps {
@@ -24,11 +26,13 @@ const PatientIdCard = ({ patient, barcodeString }: PatientIdCardProps) => {
     const fetchCompany = async () => {
       try {
         const data = await getCompanyDetails();
+
         setCompany(data);
       } catch (e) {
         console.error("Failed to load company details", e);
       }
     }
+
     fetchCompany();
   }, [])
 
@@ -95,6 +99,7 @@ const PatientIdCard = ({ patient, barcodeString }: PatientIdCardProps) => {
         <Box sx={{ 
             width: 40, 
             height: 40, 
+
             // Optional: Remove border if logo has its own background
             // border: '1px solid #ccc', 
             display: 'flex',

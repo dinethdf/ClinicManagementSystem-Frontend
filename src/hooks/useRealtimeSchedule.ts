@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+
 import { ref, onValue } from 'firebase/database';
+
 import { database } from '@/services/firebase';
 import type { FirebaseSchedule } from '@/types/firebase.types';
 
@@ -13,7 +15,8 @@ export const useRealtimeSchedule = (scheduleId: number | string) => {
   useEffect(() => {
     if (!scheduleId) {
         setLoading(false);
-        return;
+        
+return;
     }
 
     // 1. Reference
@@ -22,11 +25,13 @@ export const useRealtimeSchedule = (scheduleId: number | string) => {
     // 2. Listener (onValue returns the unsubscribe function directly)
     const unsubscribe = onValue(scheduleRef, (snapshot) => {
       const val = snapshot.val();
+
       if (val) {
         setData(val as FirebaseSchedule);
       } else {
         setData(null); 
       }
+
       setLoading(false);
     }, (err) => {
       console.error("Firebase Read Error:", err);
@@ -39,5 +44,6 @@ export const useRealtimeSchedule = (scheduleId: number | string) => {
     
   }, [scheduleId]);
 console.log(data)
-  return { schedule: data, loading, error };
+  
+return { schedule: data, loading, error };
 };

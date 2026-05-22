@@ -52,4 +52,5 @@ const StepSelectPatient = ({ foundPatients, onSelect, onRegisterNew, onCancel }:
     </div>
   )
 }
+
 export default StepSelectPatient

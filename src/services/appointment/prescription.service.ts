@@ -1,4 +1,5 @@
-import axios from 'axios' 
+import axios from 'axios'
+ 
 import type { PrescriptionConfigDTO, MedicineDTO } from '@/types/prescription.types'
 
 // --- MOCK CONFIG DATA (Dropdowns) ---
@@ -55,10 +56,13 @@ class PrescriptionService {
           }
         }
       )
-      return response.data.data || []
+
+      
+return response.data.data || []
     } catch (error) {
       console.error('Failed to search medicines:', error)
-      return []
+      
+return []
     }
   }
 }

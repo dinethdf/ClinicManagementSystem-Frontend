@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+
 import { patientPortalService } from '@/services/patient-portal/patient.portal.service'
 import type { PatientAnalysisResponse } from '@/types/patient-portal/patient.portal.types'
 
@@ -10,7 +11,9 @@ export const fetchPatientDashboard = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await patientPortalService.getPatientProfileAnalysis()
-      return response
+
+      
+return response
     } catch (err: any) {
       return rejectWithValue(err.message || 'Failed to fetch dashboard data')
     }
@@ -23,6 +26,7 @@ export const fetchPatientDashboard = createAsyncThunk(
 
 // --- STATE STRUCTURE ---
 interface PatientPortalState {
+
   // Section 1: Dashboard Analysis
   dashboard: {
     data: PatientAnalysisResponse | null
@@ -55,6 +59,7 @@ export const patientPortalSlice = createSlice({
   }, 
   extraReducers: builder => {
     builder
+
       // Dashboard Cases
       .addCase(fetchPatientDashboard.pending, state => {
         state.dashboard.status = 'loading'

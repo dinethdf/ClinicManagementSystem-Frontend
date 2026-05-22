@@ -33,9 +33,11 @@ const PayoutListTable = () => {
           params.page,  // CommonTable sends 0, 1, 2...
           params.pageSize  // CommonTable sends 10, 25...
       )
+
       if (response.success && response.data) {
           console.log(response.data)
-          return response.data 
+          
+return response.data 
       }
 
       // Fallback if error

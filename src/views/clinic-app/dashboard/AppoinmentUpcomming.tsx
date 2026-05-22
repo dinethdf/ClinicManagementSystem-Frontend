@@ -92,7 +92,9 @@ const ScheduleListTable = ({
         header: 'Total Fee',
         cell: ({ row }) => {
             const total = (row.original.doctorFee || 0) + (row.original.clinicFee || 0)
-            return <Typography variant='body2' className='font-bold'>Rs. {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</Typography>
+
+            
+return <Typography variant='body2' className='font-bold'>Rs. {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</Typography>
         }
       }),
       columnHelper.accessor('registeredPatientCount', {
@@ -102,7 +104,9 @@ const ScheduleListTable = ({
             const current = row.original.registeredPatientCount
             const progress = max > 0 ? (current / max) * 100 : 0
             const isFull = current >= max
-            return (
+
+            
+return (
                 <div className='flex flex-col gap-1 w-[140px]'>
                     <div className='flex justify-between items-center'>
                         <Typography variant='caption' color='text.secondary'>Slots</Typography>
@@ -118,9 +122,11 @@ const ScheduleListTable = ({
         cell: ({ row }) => {
             const isFull = row.original.registeredPatientCount >= row.original.maxPatientCount
             const isClosed = row.original.status.code !== 'ACTIVE' && row.original.isBookingOpen === false
+
             if (isClosed) return <Chip label='Closed' color='error' size='small' variant='tonal' />
             if (isFull) return <Chip label='Full' color='warning' size='small' variant='tonal' />
-            return <Chip label='Open' color='success' size='small' variant='tonal' />
+            
+return <Chip label='Open' color='success' size='small' variant='tonal' />
         }
       }),
       columnHelper.display({
@@ -176,6 +182,7 @@ const PublicScheduleManager = () => {
 
   const fetchSchedules = useCallback(async () => {
     setLoading(true)
+
     try {
       const response = await doctorSheduleService.getUpcomingSchedules({
         page: pagination.pageIndex, 

@@ -60,7 +60,10 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
 
   // --- LOGIC: SEARCH ---
   const handleSearchPatient = async () => {
-    if (!identifier.trim()) { setErrorMsg("Please enter an NIC or Mobile Number"); return; }
+    if (!identifier.trim()) { setErrorMsg("Please enter an NIC or Mobile Number"); 
+
+return; }
+
     setLoading(true); setErrorMsg(''); setSuccessMsg('');
 
     try {
@@ -69,7 +72,8 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
         if (!res.success && res.message !== "No patient found") {
             setErrorMsg(res.message || "Patient verification failed.");
             setLoading(false);
-            return;
+            
+return;
         }
 
         const patientsList = Array.isArray(res.data) ? res.data : [];
@@ -112,6 +116,7 @@ const PatientIdentification = ({ selectedSchedule, onBack, onSubmitBooking }: Pr
 
   const handleSelectPatient = async (patient: any) => {
       setExistingPatient(patient);
+
       if (patient.mobileNo) {
           setMobileToVerify(patient.mobileNo);
           await handleSendOtp(patient.mobileNo, patient.email || '');
@@ -130,6 +135,7 @@ const handleSendOtp = async (mobile: string, email: string = '') => {
           if(res.success) {
               setIsOtpSent(true); 
               setStep('VERIFY_OTP'); 
+
               // UPDATED: Use API message (e.g. "Unable to send SMS...")
               setSuccessMsg(res.message || "OTP sent successfully.") 
           } else {
@@ -168,6 +174,7 @@ const handleSendOtp = async (mobile: string, email: string = '') => {
       } catch (err: any) { 
           setErrorMsg(err.message || "Verification failed due to a system error.") 
       }
+
       setLoading(false)
   }
 
@@ -179,7 +186,10 @@ const handleSendOtp = async (mobile: string, email: string = '') => {
 
   // --- LOGIC: BOOKING ---
   const handleBookAppointment = async () => {
-        if(!isVerified) { setErrorMsg("Mobile number not verified!"); return; }
+        if(!isVerified) { setErrorMsg("Mobile number not verified!"); 
+
+return; }
+
         setLoading(true); setErrorMsg(''); setSuccessMsg('');
 
         try {
@@ -196,14 +206,18 @@ const handleSendOtp = async (mobile: string, email: string = '') => {
                 payload.email = existingPatient.email;
             } else {
                 if(!regForm.firstName || !regForm.lastName || !regForm.dob || !regForm.nic) {
-                    setErrorMsg("Please fill in all required fields."); setLoading(false); return;
+                    setErrorMsg("Please fill in all required fields."); setLoading(false); 
+
+return;
                 }
+
                 payload.firstName = regForm.firstName; payload.lastName = regForm.lastName;
                 payload.nic = regForm.nic; payload.mobileNo = regForm.mobileNo; 
                 payload.dob = regForm.dob; payload.gender = regForm.gender; payload.email = regForm.email;
             }
 
             const response = await bookPublicAppointment(payload)
+
             if (response.success) {
                 setSuccessMsg(response.message || "Booking Successful!")
                 if(onSubmitBooking) onSubmitBooking(response.data)

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
+
 import { useParams } from 'next/navigation'
 
 // MUI Imports
@@ -17,6 +18,8 @@ import Button from '@mui/material/Button'
 import { createColumnHelper } from '@tanstack/react-table'
 
 // Component Imports
+import { toast } from 'react-toastify'
+
 import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable'
 import OptionMenu from '@core/components/option-menu'
 import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick'
@@ -30,7 +33,6 @@ import type { DoctorScheduleDTO } from '@/types/doctor.types'
 
 // Utils
 import { getLocalizedUrl } from '@/utils/i18n'
-import { toast } from 'react-toastify'
 import type { Locale } from '@configs/i18n'
 import type { ThemeColor } from '@core/types'
 
@@ -70,9 +72,11 @@ const AppointmentList = () => {
   const fetchData = useCallback(async () => {
     setLoading(true)
     setError(null)
+
     try {
       const requestType = tabValue === '1' ? 'UPCOMING' : 'HISTORY'
       const result = await patientAppointmentService.getPatientAppointments(requestType)
+
       setData(result)
     } catch (err: any) {
       console.error(err)
@@ -186,7 +190,9 @@ const AppointmentList = () => {
       header: 'Status',
       cell: ({ row }) => {
         const status = appointmentStatusObj[row.original.status] || { color: 'secondary', label: row.original.status }
-        return <Chip label={status.label} color={status.color} size='small' variant="tonal" />
+
+        
+return <Chip label={status.label} color={status.color} size='small' variant="tonal" />
       }
     }),
     columnHelper.accessor('appointmentId', {
@@ -201,6 +207,7 @@ const AppointmentList = () => {
               {
                 text: 'View Details',
                 icon: 'tabler-eye',
+
                 // Use the same helper function
                 menuItemProps: {
                   onClick: () => handleViewDetails(row.original.appointmentId) 

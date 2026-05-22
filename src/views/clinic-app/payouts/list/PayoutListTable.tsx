@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
@@ -57,7 +58,8 @@ const PayoutListTable = () => {
       const res: any = await getDoctorPayoutsList({
           page: pagination.pageIndex,
           size: pagination.pageSize,
-      }) 
+      })
+ 
       if (res.content) {     
         setData(res.content)          
         setTotalCount(res.totalElements) 
@@ -133,7 +135,9 @@ const PayoutListTable = () => {
         cell: info => {
             const status = info.getValue();
             const color = status === 'PAID' ? 'success' : status === 'PENDING' ? 'warning' : 'default';
-            return <Chip label={status} color={color as any} variant='tonal' size='small' />
+
+            
+return <Chip label={status} color={color as any} variant='tonal' size='small' />
         }
       }),
 

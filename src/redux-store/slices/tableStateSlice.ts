@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit'
 
 interface TableState {
   data: any[]
@@ -34,6 +35,7 @@ export const tableStateSlice = createSlice({
     // 1. Initialize Table (Only if not already present)
     initTable: (state, action: PayloadAction<{ tableId: string; defaultValues: Partial<TableState> }>) => {
       const { tableId, defaultValues } = action.payload
+
       if (!state[tableId]) {
         state[tableId] = {
           data: [],
@@ -51,12 +53,14 @@ export const tableStateSlice = createSlice({
     // 2. Set Loading State
     setTableLoading: (state, action: PayloadAction<{ tableId: string; isLoading: boolean }>) => {
       const { tableId, isLoading } = action.payload
+
       if (state[tableId]) state[tableId].isLoading = isLoading
     },
 
     // 3. Set Data (Success)
     setTableData: (state, action: PayloadAction<{ tableId: string; data: any[]; totalItems: number }>) => {
       const { tableId, data, totalItems } = action.payload
+
       if (state[tableId]) {
         state[tableId].data = data
         state[tableId].totalItems = totalItems
@@ -68,6 +72,7 @@ export const tableStateSlice = createSlice({
     // 4. Set Error
     setTableError: (state, action: PayloadAction<{ tableId: string; error: string }>) => {
       const { tableId, error } = action.payload
+
       if (state[tableId]) {
         state[tableId].isLoading = false
         state[tableId].error = error
@@ -82,11 +87,13 @@ export const tableStateSlice = createSlice({
       pagination?: { pageIndex: number; pageSize: number }
     }>) => {
       const { tableId, filters, sorting, pagination } = action.payload
+
       if (state[tableId]) {
         if (filters) {
           state[tableId].filters = filters
           state[tableId].pagination.pageIndex = 0 // Reset page on filter change
         }
+
         if (sorting) state[tableId].sorting = sorting
         if (pagination) state[tableId].pagination = pagination
       }

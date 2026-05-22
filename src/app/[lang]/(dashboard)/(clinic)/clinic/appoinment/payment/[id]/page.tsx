@@ -12,7 +12,9 @@ const EditPage = async (props: { params: Promise<{ id: string }> }) => {
 
   const encoded = decodeHideValue(params.id);
 
-  const result = await getInvoiceDetails(Number(encoded));  
+  const result = await getInvoiceDetails(Number(encoded));
+  
+
   // Update: Check if result exists and has an invoiceId (since it returns a single object)
   if (!result || !result.invoiceId) {
       redirect('/en/clinic/appoinment/list');

@@ -30,7 +30,7 @@ import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementCl
 import tableStyles from '@core/styles/table.module.css'
 
 // Types
-import { FilterConfig, SortingConfig } from './TableTypes'
+import type { FilterConfig, SortingConfig } from './TableTypes'
 
 interface Props<T> {
   tableId: string
@@ -75,6 +75,7 @@ const CommonServerTable = <T extends object>({
 
   // ... [Keep Selection State & Redux Connection exactly the same] ...
   const [rowSelection, setRowSelection] = useState({})
+
   const { 
     data, totalItems, isLoading, pagination, filters, sorting, 
     onPageChange, onFilterChange 
@@ -83,7 +84,8 @@ const CommonServerTable = <T extends object>({
   // ... [Keep Column Config & TanStack Setup exactly the same] ...
   const tableColumns = useMemo(() => {
     if (!enableRowSelection) return columns;
-    return [
+    
+return [
       {
         id: 'select',
         header: ({ table }: any) => (
@@ -235,6 +237,7 @@ const CommonServerTable = <T extends object>({
                         } else if (baseRowUrl) {
                           const param = getRowUrlParam ? getRowUrlParam(row.original as T) : '';
                           const url = param ? `${baseRowUrl}/${param}` : baseRowUrl;
+
                           router.push(url);
                         }
                       }}

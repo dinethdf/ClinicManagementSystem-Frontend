@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react' // ADDED: useCallback, useMemo, memo
+
 import { useRouter } from 'next/navigation'
 
 import Typography from '@mui/material/Typography'
@@ -63,6 +64,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
   const loadAnalytics = useCallback(async () => {
       setLoadingStats(true)
       const data = await doctorSheduleService.getScheduleAnalytics(scheduleIdNumber)
+
       if (data) setStats(data)
       setLoadingStats(false)
   }, [scheduleIdNumber])
@@ -73,7 +75,9 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
   useEffect(() => {
       if (activeTab === '2') {
           const timer = setTimeout(() => barcodeInputRef.current?.focus(), 100) // MODIFIED: Store timer
-          return () => clearTimeout(timer) // ADDED: Cleanup
+
+          
+return () => clearTimeout(timer) // ADDED: Cleanup
       }
   }, [activeTab])
 
@@ -87,13 +91,16 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
             setActiveTab('2'); 
         }
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    
+return () => window.removeEventListener('keydown', handleKeyDown);
   }, [viewState, startConsultationOpen, confirmDialogOpen]);
 
   // MODIFIED: Added useCallback to all handlers
   const executeStatusCheck = useCallback(async (patientId: number) => {
     setLoading(true); setError(null); setAppointmentInfo(null);
+
     try {
       const res = await checkAppointmentStatus(scheduleIdNumber, patientId)
 
@@ -104,6 +111,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
          setError(res.error?.message || "Patient has no appointment in this schedule.")
       }
     } catch (e) { setError("System Error during status check") }
+
     setLoading(false)
   }, [scheduleIdNumber])
 
@@ -124,13 +132,16 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
   const handleCheckStatusClick = useCallback(async () => {
     if (!processingPatient?.id) {
         setError("Please select a patient first.")
-        return
+        
+return
     }
+
     await executeStatusCheck(processingPatient.id)
   }, [processingPatient?.id, executeStatusCheck])
 
   const handleBarcodeSubmit = useCallback(async (codeOverride?: string) => {
       const scannedCode = codeOverride || barcodeVal;
+
       if (!scannedCode.trim()) return;
 
       setLoading(true); setError(null); setAppointmentInfo(null);
@@ -140,6 +151,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
 
         if (result.success && result.data) {
             const scannedPatient = result.data;
+
             setProcessingPatient(scannedPatient);
             setBarcodeVal('');          
             await executeStatusCheck(scannedPatient.id);
@@ -157,17 +169,23 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
 
   const handleStartConsultation = useCallback(async () => {
     if (!processingPatient?.id) return;
+
     if (appointmentInfo?.statusCode === 'PENDING_PAYMENT') {
         setError("Cannot start consultation: Payment is Pending.")
-        return
+        
+return
     }
+
     setLoading(true)
+
     try {
         const res = await getPatientByIdConsutant(processingPatient.id)
+
         if (res.success && res.data) {
             setPatientDetail(res.data)
             setStartConsultationOpen(false) 
             setViewState('CONSULTATION')
+
             try {
                 if (scheduleId && appointmentInfo?.queuePosition) {
                     await doctorSheduleService.callPatient(scheduleIdNumber, appointmentInfo.queuePosition);
@@ -196,6 +214,7 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
        } catch (queueError) {
            console.log("Queue Completion Error:", queueError);
        }
+
     handleReset()
   }, [scheduleId, appointmentInfo?.queuePosition, scheduleIdNumber]) // ADDED: handleReset will be added below
 
@@ -258,11 +277,13 @@ const ConsultationView = ({ scheduleId }: { scheduleId: string }) => {
             onTabChange={handleTabChange}
             error={error}
             loading={loading}
+
             // Manual
             searchInputValue={searchInputValue}
             onManualSelect={handleManualSearchSelect}
             onCheckStatus={handleCheckStatusClick}
             processingPatient={processingPatient}
+
             // Barcode
             barcodeVal={barcodeVal}
             setBarcodeVal={setBarcodeVal}

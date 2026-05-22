@@ -1,8 +1,12 @@
 'use client'
 
-import { createContext, useContext, useMemo, ReactNode } from 'react'
-import { Feature, hasPermission as checkSubscriptionFeature } from '@/configs/subscriptionConfig'
-import { Roles, Permission, rolePermissions } from '@/configs/roleConfig'
+import type { ReactNode } from 'react';
+import { createContext, useContext, useMemo } from 'react'
+
+import type { Feature} from '@/configs/subscriptionConfig';
+import { hasPermission as checkSubscriptionFeature } from '@/configs/subscriptionConfig'
+import type { Roles, Permission} from '@/configs/roleConfig';
+import { rolePermissions } from '@/configs/roleConfig'
 
 // Define the shape of your User Data
 type UserData = {
@@ -32,18 +36,24 @@ export default function ClientAuthContextProvider({
   const contextValue = useMemo(() => {
     return {
       user: userData,
+
       // The 'can' function checks the config based on the user's subscription
       can: (feature: Feature) => {
         if (!userData?.subscription) return false
-        return checkSubscriptionFeature(userData.subscription, feature)
+        
+return checkSubscriptionFeature(userData.subscription, feature)
       },
+
       // Check if user has the specified role(s)
       hasRole: (allowedRoles: Roles[] | Roles) => {
         if (!userData?.role) return false
         
         const rolesToCheck = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]
-        return rolesToCheck.includes(userData.role as Roles)
+
+        
+return rolesToCheck.includes(userData.role as Roles)
       },
+
       // Check if user has a specific permission based on their role
       hasPermission: (requiredPermission: Permission) => {
         if (!userData?.role) return false
@@ -66,8 +76,11 @@ export default function ClientAuthContextProvider({
 // Custom Hook for usage in components
 export const useAuth = () => {
   const context = useContext(ClientAuthContext)
+
   if (!context) {
     throw new Error('useAuth must be used within a ClientAuthContextProvider')
   }
-  return context
+
+  
+return context
 }

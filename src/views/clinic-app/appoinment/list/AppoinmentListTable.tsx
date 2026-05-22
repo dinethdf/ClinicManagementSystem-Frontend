@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 
@@ -16,7 +17,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 
 // Common Components
 import CommonServerTable from '@/components/common-components/table/CommonServerTable'
-import { FilterConfig } from '@/components/common-components/table/TableTypes'
+import type { FilterConfig } from '@/components/common-components/table/TableTypes'
 
 // Dialogs & Helpers
 import PatientSelectDialogBox from '@/components/dialogs/patient-select'
@@ -156,6 +157,7 @@ const AppointmentListTable = () => {
     if (params.startDate instanceof Date) {
         startDate = params.startDate.toISOString().split('T')[0]
     }
+
     if (params.endDate instanceof Date) {
         endDate = params.endDate.toISOString().split('T')[0]
     }

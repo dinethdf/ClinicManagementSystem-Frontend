@@ -27,7 +27,9 @@ interface PaginatedResponse<T> {
 export async function closeBookingEarly(id: number) {
   try {
     const data = await http.post<DoctorScheduleResponseDTO>(`/api/schedules/${id}/close-booking`, {});
-    return { success: true, data, message: 'Booking closed successfully.' };
+
+    
+return { success: true, data, message: 'Booking closed successfully.' };
   } catch (error) {
     return handleApiError(error, 'Failed to close booking.');
   }
@@ -36,7 +38,9 @@ export async function closeBookingEarly(id: number) {
 export async function completeSchedule(id: number) {
   try {
     const data = await http.post<DoctorScheduleResponseDTO>(`/api/schedules/${id}/complete`, {});
-    return { success: true, data, message: 'Schedule marked as completed.' };
+
+    
+return { success: true, data, message: 'Schedule marked as completed.' };
   } catch (error) {
     return handleApiError(error, 'Failed to complete schedule.');
   }
@@ -45,7 +49,9 @@ export async function completeSchedule(id: number) {
 export async function cancelScheduleCascade(id: number, payload: AppointmentCancelDTO) {
   try {
     const data = await http.post<DoctorScheduleResponseDTO>(`/api/schedules/${id}/cancel-cascade`, payload);
-    return { success: true, data, message: 'Schedule and appointments cancelled successfully.' };
+
+    
+return { success: true, data, message: 'Schedule and appointments cancelled successfully.' };
   } catch (error) {
     return handleApiError(error, 'Failed to cancel schedule cascade.');
   }
@@ -54,7 +60,8 @@ export async function cancelScheduleCascade(id: number, payload: AppointmentCanc
 export async function syncFirebaseQueue(id: number) {
   try {
     await http.post(`/api/schedules/${id}/sync-queue`, {});
-    return { success: true, message: 'Firebase Queue synced successfully.' };
+    
+return { success: true, message: 'Firebase Queue synced successfully.' };
   } catch (error) {
     return handleApiError(error, 'Failed to sync firebase queue.');
   }
@@ -76,10 +83,13 @@ export async function checkScheduleOverlap(params: {
       startTime: params.startTime,
       endTime: params.endTime,
     });
+
     if (params.excludeScheduleId) query.append('excludeScheduleId', params.excludeScheduleId.toString());
 
     const data = await http.get<boolean>(`/api/schedules/check-overlap?${query.toString()}`);
-    return { success: true, data };
+
+    
+return { success: true, data };
   } catch (error) {
     return handleApiError(error, 'Failed to check overlap.');
   }
@@ -88,7 +98,9 @@ export async function checkScheduleOverlap(params: {
 export async function reassignDoctor(id: number, payload: DoctorReassignDTO) {
   try {
     const data = await http.post<DoctorScheduleResponseDTO>(`/api/schedules/${id}/reassign`, payload);
-    return { success: true, data, message: 'Schedule reassigned successfully.' };
+
+    
+return { success: true, data, message: 'Schedule reassigned successfully.' };
   } catch (error) {
     return handleApiError(error, 'Failed to reassign doctor.');
   }
@@ -97,7 +109,8 @@ export async function reassignDoctor(id: number, payload: DoctorReassignDTO) {
 export async function notifyDelay(id: number, payload: DelayNotificationDTO) {
   try {
     await http.post(`/api/schedules/${id}/notify-delay`, payload);
-    return { success: true, message: 'Delay notifications queued.' };
+    
+return { success: true, message: 'Delay notifications queued.' };
   } catch (error) {
     return handleApiError(error, 'Failed to send delay notification.');
   }
@@ -106,7 +119,9 @@ export async function notifyDelay(id: number, payload: DelayNotificationDTO) {
 export async function getCurrentTicketStatus(id: number) {
   try {
     const data = await http.get<CurrentTicketDTO>(`/api/schedules/${id}/current-ticket`);
-    return { success: true, data };
+
+    
+return { success: true, data };
   } catch (error) {
     return handleApiError(error, 'Failed to fetch current ticket status.');
   }
@@ -115,7 +130,9 @@ export async function getCurrentTicketStatus(id: number) {
 export async function getAllSchedules(includeInactive: boolean = false) {
   try {
     const data = await http.get<DoctorScheduleListDTO[]>(`/api/schedules/all?includeInactive=${includeInactive}`);
-    return { success: true, data };
+
+    
+return { success: true, data };
   } catch (error) {
     return handleApiError(error, 'Failed to fetch all schedules.');
   }
@@ -126,7 +143,9 @@ export async function getAllSchedules(includeInactive: boolean = false) {
 export async function createSchedule(payload: DoctorScheduleCreateDTO) {
   try {
     const data = await http.post<DoctorScheduleResponseDTO>('/api/schedules', payload);
-    return { success: true, data, message: 'Schedule created successfully.' };
+
+    
+return { success: true, data, message: 'Schedule created successfully.' };
   } catch (error) {
     return handleApiError(error, 'Failed to create schedule.');
   }
@@ -135,7 +154,9 @@ export async function createSchedule(payload: DoctorScheduleCreateDTO) {
 export async function createBatchSchedules(payload: DoctorScheduleCreateDTO[]) {
   try {
     const data = await http.post<DoctorScheduleResponseDTO[]>('/api/schedules/batch', payload);
-    return { success: true, data, message: 'Batch schedules created successfully.' };
+
+    
+return { success: true, data, message: 'Batch schedules created successfully.' };
   } catch (error) {
     return handleApiError(error, 'Failed to create batch schedules.');
   }
@@ -144,7 +165,9 @@ export async function createBatchSchedules(payload: DoctorScheduleCreateDTO[]) {
 export async function updateSchedule(id: number, payload: DoctorScheduleUpdateDTO) {
   try {
     const data = await http.put<DoctorScheduleResponseDTO>(`/api/schedules/${id}`, payload);
-    return { success: true, data, message: 'Schedule updated successfully.' };
+
+    
+return { success: true, data, message: 'Schedule updated successfully.' };
   } catch (error) {
     return handleApiError(error, 'Failed to update schedule.');
   }
@@ -153,7 +176,8 @@ export async function updateSchedule(id: number, payload: DoctorScheduleUpdateDT
 export async function deleteSchedule(id: number) {
   try {
     await http.delete(`/api/schedules/${id}`);
-    return { success: true, message: 'Schedule deactivated successfully.' };
+    
+return { success: true, message: 'Schedule deactivated successfully.' };
   } catch (error) {
     return handleApiError(error, 'Failed to deactivate schedule.');
   }
@@ -162,7 +186,9 @@ export async function deleteSchedule(id: number) {
 export async function reactivateSchedule(id: number) {
   try {
     const data = await http.post<DoctorScheduleResponseDTO>(`/api/schedules/${id}/reactivate`, {});
-    return { success: true, data, message: 'Schedule reactivated successfully.' };
+
+    
+return { success: true, data, message: 'Schedule reactivated successfully.' };
   } catch (error) {
     return handleApiError(error, 'Failed to reactivate schedule.');
   }
@@ -171,7 +197,8 @@ export async function reactivateSchedule(id: number) {
 export async function hardDeleteSchedule(id: number) {
   try {
     await http.delete(`/api/schedules/${id}/force-delete`);
-    return { success: true, message: 'Schedule permanently deleted.' };
+    
+return { success: true, message: 'Schedule permanently deleted.' };
   } catch (error) {
     return handleApiError(error, 'Failed to hard delete schedule.');
   }
@@ -181,8 +208,10 @@ function handleApiError(error: any, defaultMessage: string) {
   if (error instanceof ApiError) {
     return { success: false, message: error.message, error: error.details };
   }
+
   console.error(defaultMessage, error);
-  return { success: false, message: defaultMessage };
+  
+return { success: false, message: defaultMessage };
 }
 
 // --- Existing methods with minor cleanup ---
@@ -190,10 +219,13 @@ function handleApiError(error: any, defaultMessage: string) {
 export async function getSchedulesList() {
   try {
     const data = await http.get<PaginatedResponse<DoctorScheduleResponseDTO>>('/api/schedules?size=100');
-    return data.content || [];
+
+    
+return data.content || [];
   } catch (error) {
     console.error('Server-side get schedules failed:', error);
-    return [];
+    
+return [];
   }
 }
 
@@ -271,10 +303,13 @@ export async function getSchedulesByDoctorId(
 export async function getScheduleById(id: number): Promise<DoctorScheduleResponseDTO | null> {
   try {
     const data = await http.get<DoctorScheduleResponseDTO>(`/api/schedules/${id}`);
-    return data;
+
+    
+return data;
   } catch (error) {
     console.error('Failed to fetch schedule:', error);
-    return null;
+    
+return null;
   }
 }
 
@@ -305,7 +340,8 @@ export async function getScheduleList(
 
   } catch (error) {
     console.error('Server-side get schedule list failed:', error);
-    return null;
+    
+return null;
   }
 }
 
@@ -325,7 +361,8 @@ export async function validateScheduleOwnership(
 
   } catch (error) {
     console.error('Server-side ownership validation failed:', error);
-    return false;
+    
+return false;
   }
 }
 
@@ -354,8 +391,10 @@ export async function checkPatientAvailability(query: string) {
     const clinicId = process.env.NEXT_PUBLIC_CLINIC_ID || 1; 
     
     const data = await http.get(`/api/public/check-patient?query=${query}&clinicId=${clinicId}`);
+
     console.log(data);
-     return { success: true, data: data, message: "Successfully checked patient availability" };
+     
+return { success: true, data: data, message: "Successfully checked patient availability" };
 
   } catch (error: any) {
     if (error.status === 404 || error.statusCode === 404) {
@@ -363,7 +402,8 @@ export async function checkPatientAvailability(query: string) {
     }
 
     console.error('Patient availability check failed:', error);
-    return { success: false, message: error.message || 'Network or Server Error', data: [] };
+    
+return { success: false, message: error.message || 'Network or Server Error', data: [] };
   }
 }
 
@@ -390,7 +430,8 @@ export async function sendOtp(mobileNo: string, email: string) {
     }
     
     console.error('Send OTP failed:', error);
-    return { 
+    
+return { 
       success: false, 
       error: 'Failed to send OTP' 
     };
@@ -404,8 +445,10 @@ export async function verifyOtp(mobileNo: string, otp: string) {
       otp,
       clinicId: process.env.NEXT_PUBLIC_CLINIC_ID || 0
     }, true);
+
        console.log("Send OTP Response:", data);
-    return data;
+    
+return data;
 
   } catch (error) {
     if (error instanceof ApiError) {
@@ -416,7 +459,8 @@ export async function verifyOtp(mobileNo: string, otp: string) {
     }
     
     console.error('Verify OTP failed:', error);
-    return { 
+    
+return { 
       success: false, 
       error: 'OTP Verification failed' 
     };

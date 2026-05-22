@@ -66,4 +66,5 @@ const StepConfirmExisting = ({ patient, note, setNote, loading, onConfirm, onCan
     </div>
   )
 }
+
 export default StepConfirmExisting

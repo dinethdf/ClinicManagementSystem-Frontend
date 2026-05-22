@@ -28,10 +28,13 @@ class PatientPortalAppointmentService {
             params: { type } 
         }
       )
-      return response.data.data
+
+      
+return response.data.data
     } catch (error) {
       console.error(`Failed to fetch ${type} appointments:`, error)
-      return []
+      
+return []
     }
   }
 
@@ -40,7 +43,9 @@ class PatientPortalAppointmentService {
    */
   async getAppointmentDetails(id: number): Promise<AppointmentDetailsDTO> {
      const response = await apiClient.get<ApiResponse<AppointmentDetailsDTO>>(`/api/patient-portal/appointments/details/${id}`)
-     return response.data.data
+
+     
+return response.data.data
   }
 
   /**
@@ -83,7 +88,9 @@ class PatientPortalAppointmentService {
       const response = await apiClient.put<ApiResponse<null>>(
         `/api/patient-portal/appointments/${appointmentId}/cancel`
       )
-      return response.data.success
+
+      
+return response.data.success
     } catch (error: any) {
       console.error('Failed to cancel appointment:', error)
       throw error.response?.data?.message || 'Failed to cancel appointment'
@@ -95,14 +102,18 @@ class PatientPortalAppointmentService {
       const response = await apiClient.get<ApiResponse<PrescriptionDTO>>(
         `/api/patient-portal/appointments/${appointmentId}/prescription`
       )
-      return response.data.data
+
+      
+return response.data.data
     } catch (error: any) {
       // If 404 (Not Found) or 403 (Unauthorized), just return null (No prescription to show)
       if (error.response && (error.response.status === 404 || error.response.status === 403)) {
         return null
       }
+
       console.error('Failed to fetch prescription:', error)
-      return null
+      
+return null
     }
   }
 }

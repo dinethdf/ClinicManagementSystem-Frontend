@@ -40,6 +40,7 @@ type DialogBoxProps = {
 type FormValues = {
   patientNo: string
   nicNo: string
+
 //   mobileNo: string
 //   patientName: string
 }
@@ -61,6 +62,7 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
     defaultValues: {
       patientNo: '',
       nicNo: '',
+
     //   mobileNo: '',
     //   patientName: ''
     },
@@ -91,6 +93,7 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
       // 1. Get values safely
       const pNo = formValues.patientNo?.trim() || ''
       const nic = formValues.nicNo?.trim() || ''
+
     //   const name = formValues.patientName?.trim() || ''
     //   const mobile = formValues.mobileNo?.trim() || ''
 
@@ -98,6 +101,7 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
       const shouldSearch = 
         pNo.length >= 2 || 
         nic.length >= 3  ;
+
         // name.length >= 3 || 
         // mobile.length >= 3;
 
@@ -110,6 +114,7 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
           const response = await patientService.getPatientBySearch(
              pNo || undefined, 
              nic || undefined, 
+
             //  name || undefined, 
             //  mobile || undefined
           )
@@ -151,6 +156,7 @@ const PatientSelectDialogBox = ({ open, setOpen, onSelectPatient }: DialogBoxPro
     reset({
       patientNo: '',
       nicNo: ''
+
     //   mobileNo: '',
     //   patientName: ''
     })

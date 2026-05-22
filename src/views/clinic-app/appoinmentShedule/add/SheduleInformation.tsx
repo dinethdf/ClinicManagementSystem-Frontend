@@ -65,6 +65,7 @@ const onSubmit = async (data: DoctorSchedule) => {
   try {
 
     const result = await doctorService.createBatchSchedules(payload);
+
     reset();
     
     toast.success("Schedules published successfully!");

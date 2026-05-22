@@ -1,5 +1,7 @@
 import { Suspense } from 'react'
+
 import Typography from '@mui/material/Typography'
+
 import DoctorFinancials from '@/views/clinic-app/doctors/financial/DoctorFinancials';
 
 export const metadata = {

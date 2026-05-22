@@ -1,8 +1,12 @@
 import { redirect } from 'next/navigation';
+
+import Alert from '@mui/material/Alert';
+
+import Grid from '@mui/material/Grid';
+
 import { getClinicSettings } from '@/services/settings.server.service';
 import SettingsTabsContainer from '@/views/clinic-app/settings/SettingsTabsContainer';
-import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Grid';
+
 import AuthGuard from '@/hocs/AuthGuard';
 import { Roles } from '@/configs/roleConfig';
 import type { Locale } from '@/configs/i18n';

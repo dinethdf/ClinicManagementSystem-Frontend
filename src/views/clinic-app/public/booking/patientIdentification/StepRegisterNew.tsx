@@ -6,6 +6,7 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import MenuItem from '@mui/material/MenuItem'
 import dayjs from 'dayjs'
+
 import CustomDatePicker from '@/components/custome/DatePickerTextField'
 
 type Props = {
@@ -68,4 +69,5 @@ const StepRegisterNew = ({ regForm, setRegForm, isVerified, loading, onVerifyMob
     </div>
   )
 }
+
 export default StepRegisterNew

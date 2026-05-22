@@ -1,4 +1,6 @@
 'use client'
+import { useState } from 'react'
+
 import { useRouter, useParams } from 'next/navigation' // Added useParams
 
 // MUI Imports
@@ -12,19 +14,19 @@ import LinearProgress from '@mui/material/LinearProgress'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Component Imports
+import { toast } from 'react-toastify'
+
 import CustomAvatar from '@core/components/mui/Avatar'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import EditScheduleDialog from '@/components/dialogs/edit-schedule'
 import CancelScheduleDialog from '@/components/dialogs/cancel-schedule'
-import { DoctorScheduleResponseDTO } from '@/types/doctor.types'
+import type { DoctorScheduleResponseDTO } from '@/types/doctor.types'
 import { encodeHideValue } from '@/utils/encode'
 import { getLocalizedUrl } from '@/utils/i18n' // Helper for localized URLs
 import type { Locale } from '@/configs/i18n' // Type for Locale
 
 // Service Imports
 import { closeBookingEarly, completeSchedule, syncFirebaseQueue } from '@/services/doctor/doctor.shedule.server.service'
-import { toast } from 'react-toastify'
-import { useState } from 'react'
 import { useAuth } from '@/contexts/ClientAuthContextProvider'
 
 const ScheduleDetailsSection = ({ scheduleData }: { scheduleData?: DoctorScheduleResponseDTO }) => {
@@ -41,6 +43,7 @@ const ScheduleDetailsSection = ({ scheduleData }: { scheduleData?: DoctorSchedul
   const handleCloseBooking = async () => {
     if (!window.confirm('Are you sure you want to close booking early? Patients will no longer be able to book for this session.')) return;
     const res = await closeBookingEarly(scheduleData.id);
+
     if (res.success) {
       toast.success(res.message);
       router.refresh();
@@ -52,6 +55,7 @@ const ScheduleDetailsSection = ({ scheduleData }: { scheduleData?: DoctorSchedul
   const handleCompleteSession = async () => {
     if (!window.confirm('Mark this session as completed? This will finalize all ongoing activities.')) return;
     const res = await completeSchedule(scheduleData.id);
+
     if (res.success) {
       toast.success(res.message);
       router.refresh();
@@ -62,6 +66,7 @@ const ScheduleDetailsSection = ({ scheduleData }: { scheduleData?: DoctorSchedul
 
   const handleSyncQueue = async () => {
     const res = await syncFirebaseQueue(scheduleData.id);
+
     if (res.success) {
       toast.success(res.message);
     } else {
