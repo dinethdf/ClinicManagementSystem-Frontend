@@ -23,8 +23,11 @@ import SheduleVariants from './SheduleVariants'
 import type {Doctor, DoctorSchedule, DoctorScheduleCreateDTO } from '@/types/doctor.types'
 
 import { doctorService } from '@/services/doctor/doctor.service';
+import { useAuth } from '@/contexts/ClientAuthContextProvider';
 
-const SheduleInformation = ({role}: { role: string }) => {
+const SheduleInformation = () => {
+  const { user } = useAuth();
+  const role = user?.role;
   const router = useRouter()
   const params = useParams()
   

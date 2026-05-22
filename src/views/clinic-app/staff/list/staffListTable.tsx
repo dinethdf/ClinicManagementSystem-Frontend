@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 
 // Auth Context
 import { useAuth } from '@/contexts/ClientAuthContextProvider'
+import PermissionGuard from '@/components/auth/PermissionGuard'
 
 // MUI Components
 import Card from '@mui/material/Card'
@@ -258,7 +259,7 @@ const StaffListTable = () => {
               <MenuItem value='50'>50</MenuItem> 
             </CustomTextField>
 
-            { user?.user?.role === "ADMIN" && (
+            <PermissionGuard requiredPermission="manage_users">
                 <Button
                 variant='contained'
                 color='primary'
@@ -268,7 +269,7 @@ const StaffListTable = () => {
                 >
                 Add Staff
                 </Button>
-            )}
+            </PermissionGuard>
           </div>
         </CardContent>
         

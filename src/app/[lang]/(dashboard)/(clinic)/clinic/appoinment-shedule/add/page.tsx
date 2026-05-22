@@ -1,27 +1,19 @@
-import { verifyToken } from '@/libs/verifyToken';
+import AuthGuard from '@/hocs/AuthGuard'
+import { Roles } from '@/configs/roleConfig'
+import type { Locale } from '@/configs/i18n'
 
 import DoctorAppointment from '@/views/clinic-app/appoinmentShedule/add'
 
-const doctorAppointmentSection = async () => {
+interface PageProps {
+  params: { lang: Locale }
+}
 
-  const { valid, payload } = await verifyToken();
- 
-  const role = valid ? payload?.role : null;
-
-  const allowedRoles = ['ADMIN', 'USER'];
-
-
-  if (role && allowedRoles.includes(role)) {
-
-    return <DoctorAppointment role={role} />;
-  }
-  
+const doctorAppointmentSection = async ({ params }: PageProps) => {
   return (
-    <div>
-      <h1>Not Authorized</h1>
-      <p>You do not have permission to view this page.</p>
-    </div>
-  );
-};
+    <AuthGuard locale={params.lang} allowedRoles={[Roles.ADMIN, Roles.DOCTOR]}>
+      <DoctorAppointment />
+    </AuthGuard>
+  )
+}
 
 export default doctorAppointmentSection

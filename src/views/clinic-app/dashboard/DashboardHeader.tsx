@@ -16,6 +16,7 @@ import type { AppDispatch, RootState } from '@/redux-store'
 // Actions Imports
 import { refreshDashboard } from '@/redux-store/slices/adminDashboardSlice'
 import { refreshDoctorDashboard } from '@/redux-store/slices/doctorDashboardSlice' // Import Doctor Action
+import { Roles } from '@/configs/roleConfig'
 
 const DashboardHeader = (props: any) => {
   // Destructure user from props
@@ -24,7 +25,7 @@ const DashboardHeader = (props: any) => {
   const dispatch = useDispatch<AppDispatch>()
 
   // -- 1. Role Detection --
-  const isDoctor = user?.role === 'DOCTOR'
+  const isDoctor = user?.role === Roles.DOCTOR
 
   // -- 2. Dynamic Selector --
   // We choose the correct Redux slice based on the user's role
