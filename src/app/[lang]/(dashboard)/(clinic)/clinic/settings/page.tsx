@@ -2,13 +2,14 @@ import { redirect } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
 
+
 import Grid from '@mui/material/Grid';
 
 import { getClinicSettings } from '@/services/settings.server.service';
 import SettingsTabsContainer from '@/views/clinic-app/settings/SettingsTabsContainer';
 
 import AuthGuard from '@/hocs/AuthGuard';
-import { Roles } from '@/configs/roleConfig';
+import { AccessControlConfig } from '@/configs/accessControlConfig';
 import type { Locale } from '@/configs/i18n';
 
 interface PageProps {
@@ -28,7 +29,7 @@ const SettingsPage = async ({ params }: PageProps) => {
   }
 
   return (
-      <AuthGuard locale={params.lang} allowedRoles={[Roles.ADMIN]}>
+      <AuthGuard locale={params.lang} allowedRoles={AccessControlConfig.clinicSettings}>
           <SettingsTabsContainer settingsData={settingsData} />
       </AuthGuard>
   );

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import AuthGuard from '@/hocs/AuthGuard'
-import { Roles } from '@/configs/roleConfig'
+import { AccessControlConfig } from '@/configs/accessControlConfig'
 import type { Locale } from '@/configs/i18n'
 
 // Component Imports
@@ -31,7 +31,7 @@ const FinancialSchedulePage = async (props: { params: Promise<{ id: string, lang
   }
 
   return (
-    <AuthGuard locale={params.lang} allowedRoles={[Roles.ADMIN]}>
+    <AuthGuard locale={params.lang} allowedRoles={AccessControlConfig.financialScheduleSummary}>
         <SchedulePaymentDetails data={result} scheduleId={encodedId} />
     </AuthGuard>
   )        

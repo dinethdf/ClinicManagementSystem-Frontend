@@ -6,7 +6,7 @@ import { validateScheduleOwnership } from '@/services/doctor/doctor.shedule.serv
 import UnauthorizedRedirect from '@/components/auth/UnauthorizedRedirect'
 
 import AuthGuard from '@/hocs/AuthGuard'
-import { Roles } from '@/configs/roleConfig'
+import { AccessControlConfig } from '@/configs/accessControlConfig'
 import type { Locale } from '@/configs/i18n'
 
 const ConsultationPage = async (props: { params: Promise<{ id: string, lang: Locale }> }) => {
@@ -40,7 +40,7 @@ const ConsultationPage = async (props: { params: Promise<{ id: string, lang: Loc
   }
 
   return (
-    <AuthGuard locale={params.lang} allowedRoles={[Roles.DOCTOR, Roles.ADMIN]}>
+    <AuthGuard locale={params.lang} allowedRoles={AccessControlConfig.doctorConsultation}>
       <ConsultationView scheduleId={params.id} />
     </AuthGuard>
   )

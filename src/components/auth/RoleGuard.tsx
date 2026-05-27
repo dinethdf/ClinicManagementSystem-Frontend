@@ -7,7 +7,7 @@ import type { Roles } from '@/configs/roleConfig'
 
 interface RoleGuardProps {
   children: ReactNode
-  allowedRoles: Roles[] | Roles
+  allowedRoles: readonly Roles[] | Roles
   fallback?: ReactNode
 }
 

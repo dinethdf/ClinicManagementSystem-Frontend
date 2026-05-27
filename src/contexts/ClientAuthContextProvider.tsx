@@ -19,7 +19,7 @@ type UserData = {
 type AuthContextType = {
   user: UserData | null
   can: (feature: Feature) => boolean
-  hasRole: (allowedRoles: Roles[] | Roles) => boolean
+  hasRole: (allowedRoles: readonly Roles[] | Roles) => boolean
   hasPermission: (requiredPermission: Permission) => boolean
 }
 
@@ -45,7 +45,7 @@ return checkSubscriptionFeature(userData.subscription, feature)
       },
 
       // Check if user has the specified role(s)
-      hasRole: (allowedRoles: Roles[] | Roles) => {
+      hasRole: (allowedRoles: readonly Roles[] | Roles) => {
         if (!userData?.role) return false
         
         const rolesToCheck = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]

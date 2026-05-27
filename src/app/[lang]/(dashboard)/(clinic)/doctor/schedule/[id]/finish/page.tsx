@@ -4,7 +4,7 @@ import { verifyToken } from '@/libs/verifyToken'
 import { validateScheduleOwnership } from '@/services/doctor/doctor.shedule.server.service' // Check path
 import ScheduleFinishView from '@/views/clinic-app/doctors/schedule/ScheduleFinishView'
 import AuthGuard from '@/hocs/AuthGuard'
-import { Roles } from '@/configs/roleConfig'
+import { AccessControlConfig } from '@/configs/accessControlConfig'
 import type { Locale } from '@/configs/i18n'
 
 export default async function Page({ params }: { params: Promise<{ id: string, lang: Locale }> }) {
@@ -30,7 +30,7 @@ export default async function Page({ params }: { params: Promise<{ id: string, l
 
   // 3. Load the Client View
   return (
-    <AuthGuard locale={lang} allowedRoles={[Roles.DOCTOR]}>
+    <AuthGuard locale={lang} allowedRoles={AccessControlConfig.doctorScheduleFinish}>
       <ScheduleFinishView scheduleId={Number(id)} />
     </AuthGuard>
   )

@@ -18,7 +18,7 @@ import type { Roles } from '@/configs/roleConfig'
 interface Props extends ChildrenType {
   locale: Locale
   notAllowedRoles?: string[]
-  allowedRoles?: Roles[]
+  allowedRoles?: readonly Roles[]
   requiredFeature?: Feature
 }
 

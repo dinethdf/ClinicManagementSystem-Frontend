@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import AuthGuard from '@/hocs/AuthGuard'
-import { Roles } from '@/configs/roleConfig'
+import { AccessControlConfig } from '@/configs/accessControlConfig'
 import type { Locale } from '@/configs/i18n'
 
 import ScheduleDetails from '@/views/clinic-app/appoinmentShedule/details'
@@ -24,7 +24,7 @@ const ScheduleDetailsPage = async (props: { params: Promise<{ id: string, lang: 
   }
 
   return (
-    <AuthGuard locale={params.lang} allowedRoles={[Roles.ADMIN, Roles.RECEPTIONIST, Roles.DOCTOR]}>
+    <AuthGuard locale={params.lang} allowedRoles={AccessControlConfig.appointmentScheduleDetails}>
        <ScheduleDetails scheduleData={scheduleData} />
     </AuthGuard>
   )
