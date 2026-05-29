@@ -13,10 +13,11 @@ import { AccessControlConfig } from '@/configs/accessControlConfig';
 import type { Locale } from '@/configs/i18n';
 
 interface PageProps {
-  params: { lang: Locale }
+  params: Promise<{ lang: Locale }>
 }
 
-const SettingsPage = async ({ params }: PageProps) => {
+const SettingsPage = async (props: PageProps) => {
+  const params = await props.params;
   // 2. Fetch Data
   const settingsData = await getClinicSettings();
 

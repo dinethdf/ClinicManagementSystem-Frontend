@@ -5,10 +5,11 @@ import type { Locale } from '@/configs/i18n'
 import DoctorAppointment from '@/views/clinic-app/appoinmentShedule/add'
 
 interface PageProps {
-  params: { lang: Locale }
+  params: Promise<{ lang: Locale }>
 }
 
-const doctorAppointmentSection = async ({ params }: PageProps) => {
+const DoctorAppointmentSection = async (props: PageProps) => {
+  const params = await props.params;
   return (
     <AuthGuard locale={params.lang} allowedRoles={AccessControlConfig.appointmentScheduleAdd}>
       <DoctorAppointment />
@@ -16,4 +17,4 @@ const doctorAppointmentSection = async ({ params }: PageProps) => {
   )
 }
 
-export default doctorAppointmentSection
+export default DoctorAppointmentSection
