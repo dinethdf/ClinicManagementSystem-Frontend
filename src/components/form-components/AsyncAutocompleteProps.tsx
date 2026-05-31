@@ -144,6 +144,7 @@ return
       isOptionEqualToValue={isOptionEqualToValue}
       noOptionsText={currentNoOptionsText} // <-- Pass the dynamic text here
       filterOptions={x => x}
+      autoHighlight
       renderInput={params => (
         <CustomTextField
           {...params}

@@ -15,6 +15,7 @@ import type { Doctor } from '@/types/doctor.types'
 import CustomAvatar from '@core/components/mui/Avatar'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import EditDoctorDetails from '@/components/dialogs/edit-doctor' // Adjust path
+import AddDoctorScheduleDialog from '@/components/dialogs/add-doctor-schedule'
 
 const DoctorDetailsSection = ({ doctorData }: { doctorData?: Doctor }) => {
   
@@ -23,6 +24,13 @@ const DoctorDetailsSection = ({ doctorData }: { doctorData?: Doctor }) => {
     variant: 'contained',
     fullWidth: true,
     children: 'Edit Details'
+  }
+
+  const addScheduleButtonProps: ButtonProps = {
+    variant: 'tonal',
+    color: 'success',
+    fullWidth: true,
+    children: 'Add Schedule'
   }
 
   return (
@@ -60,13 +68,21 @@ const DoctorDetailsSection = ({ doctorData }: { doctorData?: Doctor }) => {
           </div>
         </div>
         
-        {/* Replaced static button with Dialog Trigger */}
-        <OpenDialogOnElementClick 
-            element={Button} 
-            elementProps={buttonProps} 
-            dialog={EditDoctorDetails} 
-            dialogProps={{ doctorData: doctorData }} 
-        />
+        <div className='flex flex-col gap-4 mt-4'>
+          <OpenDialogOnElementClick 
+              element={Button} 
+              elementProps={buttonProps} 
+              dialog={EditDoctorDetails} 
+              dialogProps={{ doctorData: doctorData }} 
+          />
+          
+          <OpenDialogOnElementClick 
+              element={Button} 
+              elementProps={addScheduleButtonProps} 
+              dialog={AddDoctorScheduleDialog} 
+              dialogProps={{ doctorData: doctorData }} 
+          />
+        </div>
         
       </CardContent>
     </Card>

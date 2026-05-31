@@ -68,7 +68,7 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
             pagination.pageIndex, 
             pagination.pageSize
         )
-
+  console.log("THis is data",result?.content)
         if (result) {
             setData(result.content || [])
             setTotalCount(result.totalElements || 0)
@@ -123,8 +123,17 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
       columnHelper.accessor('status', {
         header: 'Status',
         cell: ({ row }) => {
-            // Use API provided colors and labels
-            const colorCode = row.original.statusColor || '#808080';
+            const statusColorMap: Record<string, string> = {
+              PENDING_PAYMENT: '#ea5455', // Vuexy Error (Highlight)
+              PARTIAL: '#ff9f43',         // Vuexy Warning (Highlight)
+              BOOKED: '#28c76f',          // Vuexy Success (Green base)
+              ONGOING: '#00cfe8',         // Vuexy Info
+              COMPLETED: '#7367f0',       // Vuexy Primary
+              CANCELLED: '#a8aaae',       // Vuexy Secondary
+              NOSHOW: '#a8aaae'           // Vuexy Secondary
+            };
+            
+            const colorCode = statusColorMap[row.original.status] || '#a8aaae';
             const label = row.original.statusDisplayName || row.original.status;
 
             return (
@@ -150,6 +159,7 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
       if(!statusFilter) return data;
 
       // Filter by the raw status code (e.g., 'BOOKED', 'PENDING_PAYMENT')
+    
       return data.filter(item => item.status === statusFilter);
   }, [data, statusFilter]);
 
