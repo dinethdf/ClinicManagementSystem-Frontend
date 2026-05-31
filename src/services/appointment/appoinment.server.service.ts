@@ -230,3 +230,22 @@ export async function cancelAppointment(appointmentId: number, reason: string, r
 return { success: false, message: 'An unknown server error occurred.' };
   }
 }
+
+export async function sendCancelSms(appointmentId: number) {
+  try {
+    const response = await http.post<any>(`/api/appointments/cancel/${appointmentId}/send-sms`, {}, true);
+    return { 
+        success: true, 
+        message: response.message || 'SMS sent successfully.' 
+    };
+  } catch (err: any) {
+    if (err instanceof ApiError) {
+        return { success: false, message: err.message || 'Failed to send SMS.' };
+    }
+    if (err.response && err.response.data) {
+        return { success: false, message: err.response.data.message || 'Failed to send SMS.' };
+    }
+    console.error('Unexpected error in sendCancelSms:', err);
+    return { success: false, message: 'An unknown server error occurred.' };
+  }
+}

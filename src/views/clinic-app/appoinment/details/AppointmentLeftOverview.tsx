@@ -226,7 +226,7 @@ return }
         setOpen={setOpenCancelDialog}
         type='cancel-appointment'
         onConfirm={handleCancelConfirm}
-        paymentDetails={{
+         paymentDetails={{
           invoiceStatus: appointmentData.invoiceStatus,
           invoiceFinalAmount: appointmentData.invoiceFinalAmount,
           doctorFee: appointmentData.doctorFee,
@@ -234,6 +234,8 @@ return }
           amountPaid: appointmentData.amountPaid || 0, 
           balanceRemaining: appointmentData.balanceRemaining || 0
          }}
+         appointmentId={appointmentData.id}
+         patientMobile={appointmentData.patientMobile}
       />
 
       {/* Refund Dialog */}
