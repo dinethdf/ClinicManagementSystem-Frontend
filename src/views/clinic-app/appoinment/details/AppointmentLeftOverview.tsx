@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -13,6 +14,9 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Avatar from '@mui/material/Avatar'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
 
 // Type Imports
 import type { AppointmentDetailDTO } from '@/types/appoinments.types'
@@ -31,6 +35,7 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
   const router = useRouter()
   const [openCancelDialog, setOpenCancelDialog] = useState(false)
   const [openRefundDialog, setOpenRefundDialog] = useState(false)
+  const [smsConfirmOpen, setSmsConfirmOpen] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
   
 
@@ -215,6 +220,25 @@ return }
                         <i className='tabler-x' />
                       </Button>
                   )}
+                  
+                  {/* Send SMS for Cancelled */}
+                  {appointmentData.status === 'CANCELLED' && (
+                      <Button
+                        variant='contained'
+                        color='primary'
+                        fullWidth
+                        onClick={() => {
+                            if (!appointmentData.patientMobile) {
+                                toast.error('Patient does not have a mobile number.');
+                                return;
+                            }
+                            setSmsConfirmOpen(true);
+                        }}
+                        title="Send Cancellation SMS"
+                      >
+                        <i className='tabler-message' />
+                      </Button>
+                  )}
               </div>
           </div>
         </CardContent>
@@ -245,6 +269,34 @@ return }
         invoiceId={appointmentData.id}
         onSuccess={() => router.refresh()}
       />
+
+      {/* SMS Confirmation Dialog */}
+      <Dialog fullWidth maxWidth='xs' open={smsConfirmOpen} onClose={() => setSmsConfirmOpen(false)}>
+        <DialogContent className='flex items-center flex-col text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
+          <i className='tabler-alert-circle text-[88px] mbe-6 text-warning' />
+          <Typography variant='h4' className='mb-4'>Send SMS?</Typography>
+          <Typography color='text.primary'>
+            Are you sure you want to send a cancellation SMS to {appointmentData.patientMobile}?
+          </Typography>
+        </DialogContent>
+        <DialogActions className='justify-center pbs-0 sm:pbe-16 sm:pli-16'>
+          <Button variant='contained' color='primary' onClick={async () => {
+              setSmsConfirmOpen(false);
+              const { sendCancelSms } = await import('@/services/appointment/appoinment.server.service');
+              const response = await sendCancelSms(appointmentData.id);
+              if (response.success) {
+                  toast.success(response.message);
+              } else {
+                  toast.error(response.message);
+              }
+          }}>
+            Yes, Send SMS
+          </Button>
+          <Button variant='tonal' color='secondary' onClick={() => setSmsConfirmOpen(false)}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }

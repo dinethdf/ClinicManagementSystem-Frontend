@@ -50,6 +50,7 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails, ap
   // SMS states
   const [smsLoading, setSmsLoading] = useState(false)
   const [smsSent, setSmsSent] = useState(false)
+  const [smsConfirmOpen, setSmsConfirmOpen] = useState(false)
 
   // Reason & Refund States
   const [reasonSelect, setReasonSelect] = useState<string>('Patient Request')
@@ -63,6 +64,7 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails, ap
         setRefundMethod('CASH')
         setSmsSent(false)
         setSmsLoading(false)
+        setSmsConfirmOpen(false)
     }
   }, [open])
 
@@ -71,7 +73,6 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails, ap
   const handleSecondDialogClose = () => {
     setSecondDialog(false)
     setOpen(false)
-    setApiMessage('')
   }
 
   const handleConfirmation = async (value: boolean) => {
@@ -114,9 +115,14 @@ return
     }
   }
 
-  const handleSendSms = async () => {
+  const handleSendSmsClick = () => {
+      setSmsConfirmOpen(true);
+  }
+
+  const handleSendSmsConfirm = async () => {
     if (!appointmentId) return;
     
+    setSmsConfirmOpen(false);
     setSmsLoading(true);
     const response = await sendCancelSms(appointmentId);
     
@@ -291,7 +297,7 @@ return
                         variant='contained' 
                         color='primary' 
                         startIcon={smsLoading ? <CircularProgress size={20} color="inherit" /> : <i className='tabler-message' />}
-                        onClick={handleSendSms}
+                        onClick={handleSendSmsClick}
                         disabled={smsLoading || smsSent}
                         fullWidth
                     >
@@ -307,6 +313,25 @@ return
         <DialogActions className='justify-center pbs-0 sm:pbe-16 sm:pli-16'>
           <Button variant={userInput && type === 'cancel-appointment' ? 'tonal' : 'contained'} color={userInput && type === 'cancel-appointment' ? 'secondary' : (userInput ? 'success' : 'error')} onClick={handleSecondDialogClose}>
             {userInput && type === 'cancel-appointment' ? 'Close' : 'Ok'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* SMS Confirmation Dialog */}
+      <Dialog fullWidth maxWidth='xs' open={smsConfirmOpen} onClose={() => setSmsConfirmOpen(false)}>
+        <DialogContent className='flex items-center flex-col text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
+          <i className='tabler-alert-circle text-[88px] mbe-6 text-warning' />
+          <Typography variant='h4' className='mb-4'>Send SMS?</Typography>
+          <Typography color='text.primary'>
+            Are you sure you want to send a cancellation SMS to {patientMobile}?
+          </Typography>
+        </DialogContent>
+        <DialogActions className='justify-center pbs-0 sm:pbe-16 sm:pli-16'>
+          <Button variant='contained' color='primary' onClick={handleSendSmsConfirm}>
+            Yes, Send SMS
+          </Button>
+          <Button variant='tonal' color='secondary' onClick={() => setSmsConfirmOpen(false)}>
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>
