@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
 
 // MUI Imports
 import Dialog from '@mui/material/Dialog'
@@ -31,6 +30,7 @@ type Props = {
   open: boolean
   setOpen: (open: boolean) => void
   invoiceId: number
+  isAdmin?: boolean
   onSuccess?: () => void
 }
 
@@ -46,9 +46,7 @@ const CLINIC_REASONS = [
   "Equipment failure / Technical issue"
 ]
 
-const RefundDialog = ({ open, setOpen, invoiceId, onSuccess }: Props) => {
-  const { data: session } = useSession()
-  const isAdmin = session?.user?.role === 'ADMIN'
+const RefundDialog = ({ open, setOpen, invoiceId, isAdmin = false, onSuccess }: Props) => {
 
   // States
   const [tabIndex, setTabIndex] = useState(0)
