@@ -14,15 +14,17 @@ import Button from '@mui/material/Button'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import AddPaymentDrawer from '@views/apps/invoice/shared/AddPaymentDrawer'
 import SendInvoiceDrawer from '@views/apps/invoice/shared/SendInvoiceDrawer'
+import PaymentDialog from '@/components/dialogs/payment-dialog/PaymentDialog'
+import RefundDialog from '@/components/dialogs/refund-dialog/RefundDialog'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
 
 const PreviewActions = ({ id, onButtonClick }: { id: string; onButtonClick: () => void }) => {
   // States
-  const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false)
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
+  const [refundDialogOpen, setRefundDialogOpen] = useState(false)
   const [sendDrawerOpen, setSendDrawerOpen] = useState(false)
 
   // Hooks
@@ -64,14 +66,36 @@ const PreviewActions = ({ id, onButtonClick }: { id: string; onButtonClick: () =
             color='success'
             variant='contained'
             className='capitalize'
-            onClick={() => setPaymentDrawerOpen(true)}
+            onClick={() => setPaymentDialogOpen(true)}
             startIcon={<i className='tabler-currency-dollar' />}
           >
             Add Payment
           </Button>
+          <Button
+            fullWidth
+            color='error'
+            variant='tonal'
+            className='capitalize'
+            onClick={() => setRefundDialogOpen(true)}
+            startIcon={<i className='tabler-arrow-back-up' />}
+          >
+            Process Refund
+          </Button>
         </CardContent>
       </Card>
-      <AddPaymentDrawer open={paymentDrawerOpen} handleClose={() => setPaymentDrawerOpen(false)} />
+      <PaymentDialog 
+        open={paymentDialogOpen} 
+        setOpen={setPaymentDialogOpen} 
+        invoiceId={Number(id) || 0}
+        balanceRemaining={1500} // This should ideally come from invoiceData
+        onSuccess={() => {}}
+      />
+      <RefundDialog 
+        open={refundDialogOpen} 
+        setOpen={setRefundDialogOpen} 
+        invoiceId={Number(id) || 0}
+        onSuccess={() => {}}
+      />
       <SendInvoiceDrawer open={sendDrawerOpen} handleClose={() => setSendDrawerOpen(false)} />
     </>
   )

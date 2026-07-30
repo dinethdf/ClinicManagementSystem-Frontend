@@ -10,6 +10,7 @@ import type { InvoiceType } from '@/types/apps/invoiceTypes'
 
 // Component Imports
 import Logo from '@components/layout/shared/Logo'
+import PaymentHistoryList from '@/components/financial/PaymentHistoryList'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
@@ -212,6 +213,11 @@ const PreviewCard = ({ invoiceData, id }: { invoiceData?: InvoiceType; id: strin
           </Grid>
         </Grid>
       </CardContent>
+      
+      {/* Dynamic Payment History List */}
+      <div className='p-6 pt-0'>
+        <PaymentHistoryList invoiceId={Number(id) || 0} />
+      </div>
     </Card>
   )
 }
