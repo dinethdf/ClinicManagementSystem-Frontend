@@ -620,23 +620,37 @@ return `${hour12}:${minutes} ${ampm}`;
             <div class="qr-title">SCAN TO TRACK QUEUE</div>
             <img src="${qrCodeImage}" alt="QR Code" class="qr-code">
           </div>
-
-          <!-- Footer -->
-          <div class="footer">
-            <div style="font-weight: bold; font-size: 9px; margin-bottom: 2px;">Thank you for your visit!</div>
-            <div>Wishing you good health.</div>
-          </div>
-
         </div>
-        <!-- FIX #2: script is correctly placed inside body, after page-container -->
-        <script>
-          window.onload = function() { setTimeout(function() { window.print(); }, 500); };
-          window.onafterprint = function() { setTimeout(function() { window.close(); }, 500); };
-        </script>
-      </body>
-      </html>
-    `;
-  }
+        ` : ''}
+
+        <!-- QR Code -->
+        <div class="qr-section">
+          <div class="qr-title">SCAN TO TRACK QUEUE</div>
+          <img src="${qrCodeImage}" alt="QR Code" class="qr-code">
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <div style="font-weight: bold;">Thank you for your visit!</div>
+        </div>
+      </div>
+
+      <script>
+        window.onload = function() {
+          setTimeout(() => {
+            window.print();
+          }, 500);
+        };
+        
+        window.onafterprint = function() {
+          setTimeout(() => {
+            window.close();
+          }, 500);
+        };
+      </script>
+    </body>
+    </html>
+  `;
 
   const printWindow = window.open('', '_blank');
 
