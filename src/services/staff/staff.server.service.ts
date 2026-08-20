@@ -1,8 +1,9 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
+
 import { http, ApiError } from '@/services/api.config.server';
 
-import { revalidatePath } from 'next/cache';
 
 // Define the response types matching your Java DTOs
 export interface ClinicStaffResponseDTO {
@@ -85,18 +86,23 @@ export interface ClinicStaffResponseDTO {
 export async function getStaffById(id: string) {
   try {
     const response = await http.get<{ data: ClinicStaffResponseDTO }>(`/api/staff/${id}`);
-    return response;
+
+    
+return response;
   } catch (error) {
     console.error("Error fetching staff:", error);
-    return null;
+    
+return null;
   }
 }
 
 export async function updateStaff(id: string, data: Partial<ClinicStaffResponseDTO>) {
   try {
     const response = await http.put(`/api/staff/update/${id}`, data);
+
     revalidatePath(`/clinic/staff/view/${id}`); // Refresh the page data
-    return response;
+    
+return response;
   } catch (error) {
     throw error;
   }

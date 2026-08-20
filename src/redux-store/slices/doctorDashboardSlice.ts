@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
+
 import type { RootState } from '@/redux-store'
 import { doctorService } from '@/services/doctor/doctor.service'
-import { ScheduleDTO } from '@/types/doctor.types'
+import type { ScheduleDTO } from '@/types/doctor.types'
 
 interface DoctorDashboardState {
   schedules: ScheduleDTO[]
@@ -31,7 +32,9 @@ export const fetchDoctorSchedules = createAsyncThunk(
     try {
       // Pass page/size to service
       const response = await doctorService.getDoctorSchedules(doctorId, page, size)
-      return response
+
+      
+return response
     } catch (err: any) {
       return rejectWithValue(err.message || 'Failed to fetch schedules')
     }
@@ -50,7 +53,9 @@ export const refreshDoctorDashboard = createAsyncThunk(
         dispatch(fetchDoctorSchedules({ doctorId, page: 0, size: 10 }))
       ])
     }
-    return new Date().toLocaleTimeString()
+
+    
+return new Date().toLocaleTimeString()
   }
 )
 
@@ -80,6 +85,7 @@ export const doctorDashboardSlice = createSlice({
       })
       .addCase(fetchDoctorSchedules.fulfilled, (state, action) => {
         state.scheduleStatus = 'succeeded'
+
         // Access arguments from meta.arg
         state.currentDoctorId = action.meta.arg.doctorId 
         

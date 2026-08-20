@@ -177,7 +177,9 @@ const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
         } else {
           setErrorState({ message: ['Login failed. Please try again.'] })
         }
-        return
+
+        
+return
       }
 
       const result = await res.json()
@@ -194,6 +196,7 @@ const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
 
         try {
           const clinicInfo = await getClinicDetails(result.data.accessToken)
+
           if (clinicInfo) await saveClinicDetails(clinicInfo)
         } catch (clinicError) {
           console.error('Could not fetch clinic info', clinicError)

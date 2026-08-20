@@ -1,8 +1,9 @@
 'use client'
 
 import { useMemo } from 'react'
+
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/ClientAuthContextProvider'
+
 
 // MUI Imports
 import Button from '@mui/material/Button'
@@ -15,9 +16,12 @@ import Tooltip from '@mui/material/Tooltip'
 // TanStack Table
 import { createColumnHelper } from '@tanstack/react-table'
 
+import PermissionGuard from '@/components/auth/PermissionGuard'
+import { useAuth } from '@/contexts/ClientAuthContextProvider'
+
 // Common Components
 import CommonServerTable from '@/components/common-components/table/CommonServerTable'
-import { FilterConfig, SortingConfig } from '@/components/common-components/table/TableTypes' // 1. Import SortingConfig
+import type { FilterConfig, SortingConfig } from '@/components/common-components/table/TableTypes' // 1. Import SortingConfig
 
 // Service & Types
 import { doctorService } from '@/services/doctor/doctor.service' 
@@ -104,9 +108,8 @@ const DoctorsListTable = () => {
         cell: ({ row }) => (
           <div className='flex flex-col items-start'>
             <Typography 
-                className='font-medium hover:text-primary cursor-pointer' 
+                className='font-medium' 
                 color='text.primary'
-                onClick={() => router.push(`/en/clinic/doctors/view/${row.original.id}`)}
             >
               {row.original.firstName} {row.original.lastName}
             </Typography>
@@ -146,7 +149,10 @@ const DoctorsListTable = () => {
           <Tooltip title="View/Edit Details">
             <IconButton 
                 size="small" 
-                onClick={() => router.push(`/en/clinic/doctors/view/${row.original.id}`)}
+                onClick={(e) => {
+                    e.stopPropagation()
+                    router.push(`/en/clinic/doctors/view/${row.original.id}`)
+                }}
                 color="primary"
             >
                 <i className='tabler-edit' />
@@ -157,7 +163,8 @@ const DoctorsListTable = () => {
   ], [router])
 
   return (
-    <CommonServerTable
+    <CommonServerTable<DoctorResponseDTO>
+
       // Unique ID for Redux Persistence
       tableId="doctor-list-table"
       
@@ -169,14 +176,15 @@ const DoctorsListTable = () => {
       columns={columns}
       filterConfig={filterConfigs}
       sortingConfig={sortingConfig} // Pass Sorting Config
-      
+      baseRowUrl='/en/clinic/doctors/view'
+      getRowUrlParam={(row) => row.id}
       actionComponent={
         <>
           <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>
               Export
           </Button>
 
-          { user?.user?.role === "ADMIN" && (
+          <PermissionGuard requiredPermission="manage_users">
             <Button 
                 variant='contained' 
                 onClick={() => router.push('/en/clinic/doctors/register')}
@@ -184,7 +192,7 @@ const DoctorsListTable = () => {
             >
                 Add Doctor
             </Button>
-          )}
+          </PermissionGuard>
         </>
       }
     />

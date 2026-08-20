@@ -10,6 +10,7 @@ export interface ClinicStorageData {
   landNo: string;
   email: string;
   logoUrl: string;
+
   // id: number; // You mentioned ID is not needed, but usually helpful. Uncomment if required.
 }
 
@@ -42,13 +43,15 @@ export const getClinicStorageDetails = (): ClinicStorageData | null => {
   if (typeof window === 'undefined') return null;
 
   const data = localStorage.getItem(CLINIC_STORAGE_KEY);
+
   if (!data) return null;
 
   try {
     return JSON.parse(data) as ClinicStorageData;
   } catch (error) {
     console.error('Error parsing clinic details', error);
-    return null;
+    
+return null;
   }
 };
 
@@ -99,13 +102,15 @@ export const getUserDetails = (): UserStorageData | null => {
   if (typeof window === 'undefined') return null; 
 
   const data = localStorage.getItem(USER_STORAGE_KEY);
+
   if (!data) return null;
 
   try {
     return JSON.parse(data) as UserStorageData;
   } catch (error) {
     console.error('Error parsing user details', error);
-    return null;
+    
+return null;
   }
 };
 

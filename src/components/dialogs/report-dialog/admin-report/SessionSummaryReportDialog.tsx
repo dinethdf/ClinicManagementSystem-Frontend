@@ -46,7 +46,8 @@ const SessionSummaryReportDialog = ({ open, setOpen }: Props) => {
   const handleDownload = async () => {
     if (!formData.startDate || !formData.endDate) {
       setError("Please select a valid date range.")
-      return
+      
+return
     }
 
     setLoading(true)

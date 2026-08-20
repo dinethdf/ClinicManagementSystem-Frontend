@@ -5,6 +5,7 @@ import CardContent from '@mui/material/CardContent'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
+
 import CustomAvatar from '@core/components/mui/Avatar'
 import type { Doctor } from '@/types/doctor.types'
 

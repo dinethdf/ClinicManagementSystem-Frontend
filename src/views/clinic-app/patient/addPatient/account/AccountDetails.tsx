@@ -2,7 +2,9 @@
 
 // React Imports
 import { useMemo, useState, useRef } from 'react'
+
 import { useRouter } from 'next/navigation'
+
 import dayjs from 'dayjs'
 import { useForm, Controller } from 'react-hook-form'
 import { toast } from 'react-toastify'
@@ -86,9 +88,11 @@ const AccountDetails = () => {
   })
 
   const handelFormSubmit = async (data: Patient) => {
-    setIsLoading(true) 
+    setIsLoading(true)
+ 
     try {  
       const response = await patientService.createPatientDetails(data)
+
       router.replace(`details/${response?.data?.id ? response?.data?.id : 'error'}`)
       reset()
       toast.success(`${response?.message} - ${response?.data.patientNo}`, {
@@ -101,6 +105,7 @@ const AccountDetails = () => {
         hideProgressBar: false,
       })
     }
+
     setIsLoading(false) 
   }
 
@@ -328,6 +333,7 @@ const AccountDetails = () => {
                           placeholder='e.g. 65'
                           onChange={(e) => {
                               const val = e.target.value;
+
                               field.onChange(val === '' ? '' : Number(val));
                           }}
                           {...(errors.weight && { error: true, helperText: errors.weight.message })}
@@ -350,6 +356,7 @@ const AccountDetails = () => {
                           placeholder='e.g. 170'
                           onChange={(e) => {
                               const val = e.target.value;
+
                               field.onChange(val === '' ? '' : Number(val));
                           }}
                           {...(errors.height && { error: true, helperText: errors.height.message })}
@@ -370,17 +377,21 @@ const AccountDetails = () => {
                       value={field.value ? dayjs(field.value) : null}
                       onChange={newValue => {
                         let age = 0
+
                         if (newValue) {
                           const today = new Date()
                           const bday = newValue.toDate()
+
                           age = today.getFullYear() - bday.getFullYear()
                           const m = today.getMonth() - bday.getMonth()
+
                           if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--
                         }
 
                         if(isUnderAge &&  age > 18){
                             resetGuardian()
                         }
+
                         setIsUnderAge(age < 18)
                         field.onChange(newValue ? newValue.format('YYYY-MM-DD') : null)
                       }}
@@ -430,7 +441,9 @@ const AccountDetails = () => {
                               inputProps: {style: {cursor: 'pointer'}},
                               ...(errors.guardian && { error: true, helperText: errors.guardian.message })
                           }
-                          return (
+
+                          
+return (
                           <OpenDialogOnElementClick
                               element={CustomTextField}
                               elementProps={textFieldProps}

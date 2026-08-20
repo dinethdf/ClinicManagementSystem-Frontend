@@ -22,58 +22,84 @@ export class ApiError extends Error {
 }
 
 async function apiFetch(endpoint: string, options: RequestInit = {}, isFullResponse: boolean = false) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 seconds timeout
 
-  console.log("Api Call : ", endpoint, options)
-  const cookieStore = cookies();
-  const token = (await cookieStore).get('accessToken')?.value;
+  try {
+    const cookieStore = cookies();
+    const token = (await cookieStore).get('accessToken')?.value;
 
-  const defaultHeaders: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
+    const defaultHeaders: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACK_END_API_URL}${endpoint}`,
-    {
-      ...options,
-      headers: {
-        ...defaultHeaders,
-        ...options.headers,
-      },
-      cache: 'no-store',
-    }
-  );
-
-  if (!res.ok) {
-    let errorBody: ApiErrorResponse;
-    
-    try {
-      errorBody = await res.json();
-    } catch {
-      errorBody = {
-        status: 'ERROR',
-        defaultMessage: res.statusText || 'An unknown API error occurred',
-        data: null,
-      };
-    }
-    
-    console.error(`API Error (${res.status}): ${errorBody.defaultMessage}`, errorBody);
-
-    throw new ApiError(
-      errorBody.defaultMessage,
-      res.status,
-      errorBody.errorCode || errorBody
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_END_API_URL}${endpoint}`,
+      {
+        ...options,
+        headers: {
+          ...defaultHeaders,
+          ...options.headers,
+        },
+        cache: 'no-store',
+        signal: controller.signal,
+      }
     );
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      let errorMessage = 'An unknown API error occurred';
+      let errorCode = null;
+      
+      try {
+        const errorBody = await res.json();
+
+        errorMessage = errorBody.defaultMessage || errorBody.message || errorBody.error || res.statusText || errorMessage;
+        errorCode = errorBody.errorCode || errorBody.code || errorBody;
+      } catch {
+        errorMessage = res.statusText || errorMessage;
+      }
+      
+      console.error(`API Error (${res.status}): ${errorMessage}`);
+
+      throw new ApiError(
+        errorMessage,
+        res.status,
+        errorCode
+      );
+    }
+
+    if (res.status === 204) {
+      return null;
+    }
+
+    const json = await res.json();
+
+    
+return json.data == undefined || isFullResponse ? json : json.data; 
+
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+
+    if (error.name === 'AbortError') {
+      throw new ApiError('The request timed out. Please check your internet connection and try again.', 408);
+    }
+
+    // Handle network-level errors (server down, no internet)
+    if (error instanceof TypeError && (error.message.includes('fetch failed') || error.message.includes('Failed to fetch'))) {
+      throw new ApiError('Unable to connect to the server. Please check your internet connection or try again later.', 503);
+    }
+
+    // If it's already an ApiError, rethrow it
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    // Catch-all for other errors
+    throw new ApiError(error.message || 'An unexpected error occurred', 500);
   }
-
-  if (res.status === 204) {
-    return null;
-  }
-
-  const json = await res.json();
-
-  return json.data == undefined || isFullResponse ? json : json.data; 
-
 }
 
 export const http = {

@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation' 
+
+import { useRouter } from 'next/navigation'
+ 
 import { Html5Qrcode } from 'html5-qrcode'
 
 // MUI Imports
@@ -22,6 +24,7 @@ import type { AppointmentStatusDTO } from '@/types/appoinments.types'
 
 // Components
 import StaffAppointmentActionDialog from '@/components/dialogs/appointment-start/StaffAppointmentActionDialog'
+import { useAuth } from '@/contexts/ClientAuthContextProvider'
 
 interface QRScannerProps {
   requiredScheduleId: number 
@@ -29,6 +32,8 @@ interface QRScannerProps {
 
 const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
   const router = useRouter()
+  const { user } = useAuth()
+  const userRole = user?.role || 'GUEST'
   
   // -- Scanner State --
   const [isScanning, setIsScanning] = useState(false)
@@ -47,7 +52,9 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
   const extractQueueValue = useCallback((url: string) => {
     try {
       const match = url.match(/\/queue-tracker\/([^/?#]+)/)
-      return match && match[1] ? match[1] : null
+
+      
+return match && match[1] ? match[1] : null
     } catch (err) { return null }
   }, [])
 
@@ -59,6 +66,7 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
         scannerRef.current = null
       } catch (err) { console.warn('Error stopping scanner:', err) }
     }
+
     setIsScanning(false)
   }, [])
 
@@ -85,7 +93,8 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
                     if (scheduleIdFromQR !== requiredScheduleId) {
                         setApiError(`Invalid Schedule. This QR belongs to Schedule #${scheduleIdFromQR}, but you are scanning for Schedule #${requiredScheduleId}.`)
                         setProcessing(false)
-                        return
+                        
+return
                     }
                     
                     const res = await checkAppointmentStatus(scheduleIdFromQR, appointmentId)
@@ -121,6 +130,7 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
       if (scannerRef.current) await stopScanning()
 
       const html5QrCode = new Html5Qrcode(qrCodeRegionId)
+
       scannerRef.current = html5QrCode
 
       await html5QrCode.start(
@@ -148,6 +158,7 @@ const QRScanner = ({ requiredScheduleId }: QRScannerProps) => {
   const handleSuccessAction = () => {
       setDialogOpen(false);
       setAppointmentInfo(null);
+
       // Optional: You can call startScanning() here if you want it to auto-resume camera
       router.refresh(); 
   }

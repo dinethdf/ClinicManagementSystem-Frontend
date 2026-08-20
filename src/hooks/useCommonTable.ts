@@ -1,6 +1,8 @@
 import { useEffect, useCallback } from 'react'
+
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '@/redux-store'
+
+import type { RootState } from '@/redux-store'
 import { 
   initTable, 
   setTableLoading, 
@@ -16,6 +18,7 @@ export const useCommonTable = (
   tableId: string,
   fetchFunction: FetchFunction,
   initialConfig?: { filters?: any; sorting?: any; pageSize?: number },
+
   // 1. New Optional Argument for Custom Sorting Logic
   customSortFormatter?: (sortBy: string, sortOrder: string) => string
 ) => {
@@ -59,6 +62,7 @@ export const useCommonTable = (
                  sortParam = `${tableState.sorting.sortBy},${tableState.sorting.sortOrder || 'asc'}`
              }
           }
+
           // --- SORTING LOGIC END ---
 
           // Prepare params for your Service
@@ -68,6 +72,7 @@ export const useCommonTable = (
             ...tableState.filters, 
             sort: sortParam 
           }
+
           const response = await fetchFunction(params)
           
           dispatch(setTableData({
@@ -108,6 +113,7 @@ export const useCommonTable = (
     ...tableState,
     onPageChange,
     onFilterChange,
+
     // Safe defaults
     isLoading: tableState?.isLoading ?? true,
     data: tableState?.data || [],

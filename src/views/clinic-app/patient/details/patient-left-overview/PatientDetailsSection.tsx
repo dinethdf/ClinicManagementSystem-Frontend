@@ -25,7 +25,8 @@ import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementCli
 // Helper to format dates
 const formatDate = (dateString?: string | null) => {
   if (!dateString) return 'N/A';
-  return new Date(dateString).toLocaleDateString();
+  
+return new Date(dateString).toLocaleDateString();
 };
 
 const PatientDetailsSection = ({ patientData }: { patientData?: any }) => { 

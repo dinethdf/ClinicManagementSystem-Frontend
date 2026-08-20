@@ -14,10 +14,12 @@ export async function getInvoiceDetails(invoiceId: number) {
     }
 
     console.error('No invoice data found');
-    return null;
+    
+return null;
   } catch (error) {
     console.error('Server-side get invoice failed:', error);
-    return null;
+    
+return null;
   }
 }
 
@@ -39,8 +41,10 @@ export async function processRefund(payload: RefundPayload) {
       payload, 
       true
     )
+
     console.log("Refunc xcall", response)
-    return { success: true, message: response.message }
+    
+return { success: true, message: response.message }
   } catch (err: any) {
 
     console.log("Refunc erro coll", err)
@@ -48,7 +52,9 @@ export async function processRefund(payload: RefundPayload) {
     if (err instanceof ApiError) {
       return { success: false, message: err.message, errorCode: err.details?.errorCode || err.details }
     }
-    return { success: false, message: err.message || "Failed to process refund." }
+
+    
+return { success: false, message: err.message || "Failed to process refund." }
   }
 }
 
@@ -60,7 +66,8 @@ export async function getInvoicePaymentHistory(invoiceId: number) {
     return { success: true, data: Array.isArray(response) ? response : response };
   } catch (error: any) {
     console.error("Fetch History Error:", error);
-    return { 
+    
+return { 
         success: false, 
         message: error.message || "Failed to load payment history" 
     };

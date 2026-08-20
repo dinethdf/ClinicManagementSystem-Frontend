@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useMemo, useRef } from 'react'
+
 import { useRouter } from 'next/navigation'
+
 import { useForm, Controller } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import dayjs from 'dayjs'
@@ -22,6 +24,8 @@ import InputAdornment from '@mui/material/InputAdornment'
 import type { TextFieldProps } from '@mui/material/TextField'
 
 // Custom Components
+import { toast } from 'react-toastify'
+
 import DialogCloseButton from '../DialogCloseButton'
 import CustomTextField from '@core/components/mui/TextField'
 import CustomDatePicker from '@/components/custome/DatePickerTextField' 
@@ -32,7 +36,6 @@ import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementCli
 import type { Patient, Guardian } from '@/types/patient.types'
 import { patientService } from '@/services/patient/patient.service'
 import { getPatientValidationSchema } from '@/schemas/patienDetailsValidation'
-import { toast } from 'react-toastify'
 
 type EditPatientDetailsProps = {
   open: boolean
@@ -70,14 +73,17 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
     if (open && patientData) {
       // Calculate age logic safely
       let isChild = false
+
       if (patientData.dob) {
          const today = new Date()
          const bday = new Date(patientData.dob)
          let age = today.getFullYear() - bday.getFullYear()
          const m = today.getMonth() - bday.getMonth()
+
          if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--
          isChild = age < 18
       }
+
       setIsUnderAge(isChild)
 
       // Safely map all potential nulls to empty strings for controlled inputs
@@ -152,6 +158,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
     // 3. Build Payload & Enforce Guardian Rules
     const payload: Patient = {
       ...data,
+
       // Parse numbers safely
       weight: !data.weight ? null : Number(data.weight),
       height: !data.height ? null : Number(data.height),
@@ -168,6 +175,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
       } else {
         await patientService.updatePatient(String(patientData.id), payload)
       }
+
       router.refresh()
       handleClose()
       toast.success('Patient details updated successfully!', { className: 'custom-toast' })
@@ -257,11 +265,14 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                     value={field.value ? dayjs(field.value) : null}
                     onChange={newValue => {
                       let age = 0
+
                       if (newValue) {
                         const today = new Date()
                         const bday = newValue.toDate()
+
                         age = today.getFullYear() - bday.getFullYear()
                         const m = today.getMonth() - bday.getMonth()
+
                         if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--
                       }
 
@@ -269,6 +280,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                       if(isUnderAge && age >= 18){
                           resetGuardian()
                       }
+
                       setIsUnderAge(age < 18 && newValue !== null) 
                       field.onChange(newValue ? newValue.format('YYYY-MM-DD') : null)
                     }} 
@@ -381,6 +393,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                         placeholder='e.g. 65'
                         onChange={(e) => {
                             const val = e.target.value;
+
                             field.onChange(val === '' ? '' : val);
                         }}
                         value={field.value ?? ''} 
@@ -403,6 +416,7 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                         placeholder='e.g. 170'
                         onChange={(e) => {
                             const val = e.target.value;
+
                             field.onChange(val === '' ? '' : val);
                         }}
                         value={field.value ?? ''} 
@@ -442,7 +456,9 @@ const EditPatientDetails = ({ open, setOpen, patientData, bySelf}: EditPatientDe
                             error: !!errors.guardian,
                             helperText: errors.guardian?.message
                         }
-                        return (
+
+                        
+return (
                         <OpenDialogOnElementClick
                             element={CustomTextField}
                             elementProps={textFieldProps}

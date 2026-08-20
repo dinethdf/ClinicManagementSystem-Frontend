@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 
@@ -16,8 +17,10 @@ import Grid from '@mui/material/Grid'
 import { createColumnHelper } from '@tanstack/react-table'
 
 // Common Components
+import { Typography } from '@mui/material'
+
 import CommonServerTable from '@/components/common-components/table/CommonServerTable'
-import { FilterConfig } from '@/components/common-components/table/TableTypes'
+import type { FilterConfig } from '@/components/common-components/table/TableTypes'
 import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
 import AsyncAutocomplete from '@/components/form-components/AsyncAutocompleteProps' 
@@ -29,34 +32,8 @@ import type { Locale } from '@configs/i18n'
 
 // Service Imports
 import { getScheduleList } from '@/services/doctor/doctor.shedule.server.service'
-import { Typography } from '@mui/material'
-import { SpecializationDTO } from '@/types/public-booking.types'
-
-// --- Types ---
-export interface ScheduleDTO {
-  id: number
-  doctorId: number
-  doctorName: string
-  specialization: string
-  scheduleDate: string
-  startTime: string
-  endTime: string
-  doctorFee: number
-  clinicFee: number
-  maxPatientCount: number
-  registeredPatientCount: number
-  isBookingOpen: boolean
-  status: {
-    code: string
-    displayName: string
-    colorCode: string 
-  }
-  payoutStatus?: {
-    code: string
-    displayName: string
-    colorCode: string
-  }
-}
+import type { SpecializationDTO } from '@/types/public-booking.types'
+import type { ScheduleDTO } from '@/types/doctor.types'
 
 type Doctor = {
     id: number
@@ -148,8 +125,8 @@ const ScheduleListTable = () => {
     const specializationId = selectedSpecialization?.id
     
     // 3. Map Date to Start/End Range
-    let startDate = params.startDate
-    let endDate = params.endDate
+    const startDate = params.startDate
+    const endDate = params.endDate
 
 
     return await getScheduleList(
@@ -167,12 +144,9 @@ const ScheduleListTable = () => {
     columnHelper.accessor('id', {
       header: 'Ref #',
       cell: ({ row }) => (
-        <Link
-          href={getLocalizedUrl(`/clinic/appoinment-shedule/details/${row.original.id}`, locale as Locale)}
-          className='font-medium text-primary hover:underline'
-        >
+        <Typography className='font-medium text-primary'>
           #{row.original.id}
-        </Link>
+        </Typography>
       )
     }),
 
@@ -243,7 +217,9 @@ const ScheduleListTable = () => {
       header: 'Status',
       cell: ({ row }) => {
         const statusObj = row.original.status;
-        return (
+
+        
+return (
           <Chip
             label={statusObj.displayName || statusObj.code}
             size='small'
@@ -263,7 +239,7 @@ const ScheduleListTable = () => {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }: any) => (
-        <div className='flex items-center'>
+        <div className='flex items-center' onClick={(e) => e.stopPropagation()}>
             <Tooltip title="Edit">
                 <IconButton size='small' onClick={() => router.push(getLocalizedUrl(`/clinic/appoinment-shedule/edit/${encodeHideValue(row.original.id)}`, locale as Locale))}>
                     <i className='tabler-edit text-textSecondary' />
@@ -283,12 +259,14 @@ const ScheduleListTable = () => {
   ], [locale, router])
 
   return (
-    <CommonServerTable
+    <CommonServerTable<ScheduleDTO>
         tableId="schedule-list-table"
         title="Schedule Management"
         fetchDataFunction={fetchSchedulesWrapper}
         columns={columns}
         filterConfig={filterConfigs}      
+        baseRowUrl={getLocalizedUrl('/clinic/appoinment-shedule/details', locale as Locale)}
+        getRowUrlParam={(row) => row.id}
         actionComponent={
             <>
                 <Button variant='tonal' color='secondary' startIcon={<i className='tabler-upload' />}>

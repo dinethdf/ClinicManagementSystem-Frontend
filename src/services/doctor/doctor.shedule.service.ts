@@ -76,6 +76,7 @@ async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorSchedule
   async getUpcomingSchedules(params: ScheduleFilterParams): Promise<PageableResponse<DoctorScheduleDTO>> {
 
     console.log("Call the appoinemtn shedule details api")
+
     try {
       // Construct query string
       const queryParams = new URLSearchParams()
@@ -98,15 +99,19 @@ async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorSchedule
       throw new Error(error.response?.data?.defaultMessage || 'Failed to fetch schedules')
     }
   }  
+
   // Add this method inside your DoctorSheduleService class
 
   async startQueueSession( scheduleId: number): Promise<void> {
     try {
       const clinicId = 1;
+
+
       // Passing parameters as query strings to match @RequestParam in Spring Boot
       await apiClient.post(`/api/queue/start?clinicId=${clinicId}&scheduleId=${scheduleId}`, {});
     } catch (error: any) {
       console.error('Failed to start queue session:', error);
+
       // You might want to throw the error to handle it in the UI (e.g., show a toast)
       throw new Error(error.response?.data?.message || 'Failed to start session');
     }
@@ -140,7 +145,8 @@ async createBatchSchedules(payload: DoctorScheduleDTO[]): Promise<DoctorSchedule
   async finishQueueSession(scheduleId: number): Promise<void> {
       try {
         // NOTE: Using hardcoded clinicId=1 as per previous context.
-        const clinicId = 1; 
+        const clinicId = 1;
+ 
         await apiClient.post(`/api/queue/finish?clinicId=${clinicId}&scheduleId=${scheduleId}`, {});
       } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to finish queue session');

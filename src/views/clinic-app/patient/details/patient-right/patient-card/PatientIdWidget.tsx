@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
+
 import { useReactToPrint } from 'react-to-print'
 
 // MUI Imports
@@ -45,14 +46,17 @@ const PatientIdWidget = ({ patient }: { patient: any }) => { // Using 'any' sinc
 
         if (res.success && res.data) {
             setBarcodeData(res.data)
-            return true
+            
+return true
         } else {
             setError(res.error?.message || "Failed to load barcode from server.")
-            return false
+            
+return false
         }
     } catch (err: any) {
         setError(err.message || "An unexpected error occurred.")
-        return false
+        
+return false
     } finally {
         setLoading(false)
     }
@@ -94,10 +98,12 @@ const PatientIdWidget = ({ patient }: { patient: any }) => { // Using 'any' sinc
     if (!canGenerateId) {
         // Fallback catch, though the button should be disabled anyway
         setError("Patient must be fully registered and active to generate an ID.")
-        return
+        
+return
     }
 
     const success = await fetchBarcodeIfNeeded()
+
     if (success) setPreviewOpen(true)
   }
 

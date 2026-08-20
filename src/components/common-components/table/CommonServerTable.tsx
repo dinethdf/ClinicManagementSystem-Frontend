@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useEffect } from 'react'
 
+import { useRouter } from 'next/navigation'
+
 // Imports
 import Card from '@mui/material/Card'
 import TablePagination from '@mui/material/TablePagination'
@@ -28,7 +30,7 @@ import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementCl
 import tableStyles from '@core/styles/table.module.css'
 
 // Types
-import { FilterConfig, SortingConfig } from './TableTypes'
+import type { FilterConfig, SortingConfig } from './TableTypes'
 
 interface Props<T> {
   tableId: string
@@ -46,6 +48,11 @@ interface Props<T> {
   enableRowSelection?: boolean
   onSelectionChange?: (selectedRows: T[]) => void
   renderSelectionActions?: (selectedRows: T[]) => React.ReactNode
+
+  // --- ROW CLICK PROPS ---
+  baseRowUrl?: string
+  getRowUrlParam?: (row: T) => string | number
+  onRowClick?: (row: T) => void
 }
 
 const CommonServerTable = <T extends object>({ 
@@ -58,11 +65,17 @@ const CommonServerTable = <T extends object>({
   actionComponent,
   enableRowSelection = false,
   onSelectionChange,
-  renderSelectionActions
+  renderSelectionActions,
+  baseRowUrl,
+  getRowUrlParam,
+  onRowClick
 }: Props<T>) => {
+
+  const router = useRouter()
 
   // ... [Keep Selection State & Redux Connection exactly the same] ...
   const [rowSelection, setRowSelection] = useState({})
+
   const { 
     data, totalItems, isLoading, pagination, filters, sorting, 
     onPageChange, onFilterChange 
@@ -71,7 +84,8 @@ const CommonServerTable = <T extends object>({
   // ... [Keep Column Config & TanStack Setup exactly the same] ...
   const tableColumns = useMemo(() => {
     if (!enableRowSelection) return columns;
-    return [
+    
+return [
       {
         id: 'select',
         header: ({ table }: any) => (
@@ -214,7 +228,20 @@ const CommonServerTable = <T extends object>({
                  <tr><td colSpan={tableColumns.length} className='text-center p-8 text-gray-500'>No records found</td></tr>
               ) : (
                  table.getRowModel().rows.map(row => (
-                    <tr key={row.id} className={row.getIsSelected() ? 'bg-primary/5 transition-colors' : ''}>
+                    <tr 
+                      key={row.id} 
+                      className={`${row.getIsSelected() ? 'bg-primary/5' : ''} ${(baseRowUrl || onRowClick) ? 'cursor-pointer' : ''}`}
+                      onClick={() => {
+                        if (onRowClick) {
+                          onRowClick(row.original as T);
+                        } else if (baseRowUrl) {
+                          const param = getRowUrlParam ? getRowUrlParam(row.original as T) : '';
+                          const url = param ? `${baseRowUrl}/${param}` : baseRowUrl;
+
+                          router.push(url);
+                        }
+                      }}
+                    >
                       {row.getVisibleCells().map(cell => (
                         <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                       ))}

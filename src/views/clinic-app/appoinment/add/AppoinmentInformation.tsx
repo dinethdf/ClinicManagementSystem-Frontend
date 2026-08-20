@@ -98,6 +98,7 @@ const AppoinmentInformation = () => {
     toast.success(`Appointment created: ${result.data.id}`, {
       hideProgressBar: false,
       className: 'custom-toast',
+
       // progressStyle: {
       //   backgroundColor: 'var(--mui-palette-primary-main)'
       // }
@@ -112,6 +113,7 @@ const AppoinmentInformation = () => {
       autoClose: false,
       hideProgressBar: false,
       className: 'custom-toast',
+
       // progressStyle: {
       //   backgroundColor: 'var(--mui-palette-error-main)'
       // }

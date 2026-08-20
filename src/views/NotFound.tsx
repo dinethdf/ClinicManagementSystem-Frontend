@@ -2,6 +2,7 @@
 
 // Next Imports
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 // MUI Imports
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -34,9 +35,17 @@ const NotFound = ({ mode }: { mode: SystemMode }) => {
   const lightImg = '/images/pages/misc-mask-light.png'
 
   // Hooks
+  const router = useRouter()
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   const miscBackground = useImageVariant(mode, lightImg, darkImg)
+
+  const handleGoBack = () => {
+    router.back()
+    setTimeout(() => {
+      window.location.reload()
+    }, 200)
+  }
 
   return (
     <div className='flex items-center justify-center min-bs-dvh relative p-6 overflow-x-hidden'>
@@ -48,8 +57,8 @@ const NotFound = ({ mode }: { mode: SystemMode }) => {
           <Typography variant='h4'>Page Not Found ⚠️</Typography>
           <Typography>we couldn&#39;t find the page you are looking for.</Typography>
         </div>
-        <Button href='/' component={Link} variant='contained'>
-          Back To Home
+        <Button onClick={handleGoBack} variant='contained'>
+          Go Back
         </Button>
 
       </div>

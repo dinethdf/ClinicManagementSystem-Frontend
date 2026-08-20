@@ -32,4 +32,5 @@ const StepVerifyOtp = ({ mobile, otp, setOtp, loading, onVerify, onBack }: Props
     </div>
   )
 }
+
 export default StepVerifyOtp

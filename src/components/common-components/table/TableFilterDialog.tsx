@@ -15,7 +15,7 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
 // Types
-import { FilterConfig, SortingConfig, SortingState } from './TableTypes'
+import type { FilterConfig, SortingConfig, SortingState } from './TableTypes'
 
 interface Props {
   open: boolean
@@ -54,10 +54,12 @@ const TableFilterDialog = ({
 
   const handleReset = () => {
     const resetState: any = {}
+
     filtersConfig.forEach(f => {
        if(f.type !== 'custom') resetState[f.key] = ''
     })
     setLocalFilters(resetState)
+
     // Reset Sorting to first option if available, or undefined
     setLocalSorting(sortingConfig.length > 0 ? { sortBy: sortingConfig[0].key, sortOrder: 'desc' } : undefined)
   }

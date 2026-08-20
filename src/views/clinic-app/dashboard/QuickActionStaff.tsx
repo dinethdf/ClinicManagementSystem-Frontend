@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link' // <--- Import Link
 
@@ -40,7 +41,8 @@ const QuickActionStaff = () => {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    
+return () => window.removeEventListener('keydown', handleKeyDown);
   }, [openDialog]);
 
   // --- HANDLERS ---
@@ -52,6 +54,7 @@ const QuickActionStaff = () => {
   const handlePatientSelected = (patientData: any) => {
      if (patientData?.id) {
          const url = getLocalizedUrl(`/clinic/patient/details/${patientData.id}`, locale as Locale)
+
          router.push(url)
      }
   }

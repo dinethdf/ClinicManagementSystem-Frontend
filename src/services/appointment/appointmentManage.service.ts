@@ -9,7 +9,9 @@ export const appointmentManageService = {
   markAsBooked: async (data: AppointmentManagePayload) => {
     try {
       const response = await apiClient.post('/api/appointments/manage/booked', data)
-      return response.data
+
+      
+return response.data
     } catch (error: any) {
       throw new Error(error.response?.data?.defaultMessage || 'Failed to mark as BOOKED')
     }
@@ -18,7 +20,9 @@ export const appointmentManageService = {
   markAsOngoing: async (data: AppointmentManagePayload) => {
     try {
       const response = await apiClient.post('/api/appointments/manage/ongoing', data)
-      return response.data
+
+      
+return response.data
     } catch (error: any) {
       throw new Error(error.response?.data?.defaultMessage || 'Failed to mark as ONGOING')
     }
@@ -27,7 +31,9 @@ export const appointmentManageService = {
   markAsCompleted: async (data: AppointmentManagePayload) => {
     try {
       const response = await apiClient.post('/api/appointments/manage/completed', data)
-      return response.data
+
+      
+return response.data
     } catch (error: any) {
       throw new Error(error.response?.data?.defaultMessage || 'Failed to mark as COMPLETED')
     }

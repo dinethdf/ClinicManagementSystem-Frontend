@@ -95,6 +95,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
 
   // --- 2. STATUS CHECK ---
   const statusCode = appointmentInvDetails?.status?.code;
+
   // Editable if UNPAID or PARTIAL
   const isPayable = statusCode === "UNPAID" || statusCode === "PARTIAL";
 
@@ -371,6 +372,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                                                     onChange={(e) => {
                                                         // 3. Strip out any letters/symbols except numbers and decimals
                                                         const cleanValue = e.target.value.replace(/[^0-9.]/g, '');
+
                                                         field.onChange(cleanValue ? parseFloat(cleanValue) : null);
                                                     }}
                                                     disabled={!isPayable}
@@ -492,6 +494,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                         dialog={PaymentFinalizer} 
                         dialogProps={{ 
                             finalTotal: balanceDue,
+                            appointmentId: parseInt(id),
                             invoiceId: appointmentInvDetails?.invoiceId || id,
                             discounts: watchedDiscounts, // Send current form discounts
                             patientMobileNo: appointmentInvDetails?.patientContactNo,
@@ -506,6 +509,7 @@ const AppointmentPayment = ({ id, appointmentInvDetails }: { id: string; appoint
                         dialog={PaymentFinalizer} 
                         dialogProps={{ 
                             finalTotal: balanceDue,
+                            appointmentId: parseInt(id),
                             invoiceId: appointmentInvDetails?.invoiceId || id,
                             discounts: watchedDiscounts, // Send current form discounts
                             patientMobileNo: appointmentInvDetails?.patientContactNo,

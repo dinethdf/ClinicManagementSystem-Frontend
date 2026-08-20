@@ -41,25 +41,19 @@ export interface ScheduleSlot {
   registeredPatientCount: number | null
 }
 
-export interface DoctorScheduleDTO {
-  id?: number
-  doctorId: number
-  scheduleDate: string
-  doctorName?:string
-  specialization?:string
-  startTime: string
-  endTime: string
-  doctorFee: number
-  clinicFee: number  
-  registeredPatientCount: number
-  maxPatientCount: number
-  isActive?: boolean
-  status?:string
-  isBookingOpen?: boolean
+export interface ScheduleStatusDTO {
+  code: string
+  displayName: string
+  colorCode: string
 }
 
-// --- Updated Interface based on your JSON ---
-export interface UpdatedDoctorScheduleDTO {
+export interface PayoutStatusDTO {
+  code: string
+  displayName: string
+  colorCode: string
+}
+
+export interface DoctorScheduleResponseDTO {
   id: number
   doctorId: number
   doctorName: string
@@ -72,26 +66,65 @@ export interface UpdatedDoctorScheduleDTO {
   maxPatientCount: number
   registeredPatientCount: number
   isBookingOpen: boolean
-  // Status is an object
-  status: {
-    code: string
-    displayName: string
-    colorCode: string
-  }
-  // Payout Status is an object
-  payoutStatus?: {
-    code: string
-    displayName: string
-    colorCode: string
-  }
+  status: ScheduleStatusDTO
+  payoutStatus: PayoutStatusDTO
 }
-// Payload for updating
-export type UpdateScheduleDTO = {
+
+// Alias for backward compatibility during migration
+export type DoctorScheduleDTO = DoctorScheduleResponseDTO;
+
+export interface DoctorScheduleListDTO {
+  id: number
+  doctorName: string
+  specialization: string
+  scheduleDate: string
+  timeRange: string
+  registeredCount: number
+  maxCount: number
+  isActive: boolean
+}
+
+export interface DoctorScheduleCreateDTO {
+  doctorId: number
+  scheduleDate: string
   startTime: string
   endTime: string
   doctorFee: number
   clinicFee: number
   maxPatientCount: number
+  registeredPatientCount?: number
+}
+
+export interface DoctorScheduleUpdateDTO {
+  startTime: string
+  endTime: string
+  doctorFee: number
+  clinicFee: number
+  maxPatientCount: number
+}
+
+// Alias for existing UpdateScheduleDTO
+export type UpdateScheduleDTO = DoctorScheduleUpdateDTO;
+
+export interface DoctorReassignDTO {
+  newDoctorId: number
+}
+
+export interface DelayNotificationDTO {
+  delayMinutes: number
+  customMessage?: string
+}
+
+export interface CurrentTicketDTO {
+  appointmentId: number | null
+  queuePosition: number
+  patientName: string
+  status: 'ONGOING' | 'NO_ACTIVE_PATIENT'
+}
+
+export interface AppointmentCancelDTO {
+  reason: string
+  refundMethod?: 'CASH' | 'CARD' | 'ORIGINAL_METHOD'
 }
 
 export interface Consultation {
@@ -231,17 +264,13 @@ export interface ScheduleDTO {
   startTime: string
   endTime: string
   isActive: 'ACTIVE' | 'NOT ACTIVE'
-  status:string
+  status: ScheduleStatusDTO
   maxPatientCount: number
   registeredPatientCount: number
   doctorFee: number
   clinicFee: number
   isBookingOpen: boolean
-  payoutStatus?: {
-    code: string
-    displayName: string
-    colorCode: string
-  }
+  payoutStatus?: PayoutStatusDTO
 }
 
 

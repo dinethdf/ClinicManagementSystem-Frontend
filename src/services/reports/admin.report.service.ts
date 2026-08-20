@@ -46,6 +46,7 @@ class ReportService {
 
     } catch (error) {
       console.error('Failed to download revenue report:', error)
+
       // Optional: You can re-throw the error if you want to show specific messages in the UI
       return false
     }
@@ -87,7 +88,8 @@ async downloadSessionSummaryReport(
 
     } catch (error) {
       console.error('Failed to download session summary report:', error)
-      return false
+      
+return false
     }
   }  
 
@@ -118,6 +120,8 @@ async downloadSessionSummaryReport(
         const link = document.createElement('a')
         
         link.href = url
+
+
         // Naming the file dynamically
         const filename = doctorId 
           ? `Doctor_${doctorId}_Session_Report_${startDate}.pdf`
@@ -136,7 +140,8 @@ async downloadSessionSummaryReport(
 
       } catch (error) {
         console.error('Failed to download doctor session report:', error)
-        return false
+        
+return false
       }
     }  
 

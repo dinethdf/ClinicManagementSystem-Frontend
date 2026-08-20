@@ -60,6 +60,7 @@ const LabRequestManager = ({ patientId, appointmentId }: Props) => {
   const fetchHistory = useCallback(async () => {
       setLoadingList(true)
       const res = await getPatientLabRequests(patientId)
+
       setRequestList(res.content || [])
       setLoadingList(false)
   }, [patientId])
@@ -75,10 +76,13 @@ const LabRequestManager = ({ patientId, appointmentId }: Props) => {
   const handleSearchChange = useCallback(async (event: any, value: string) => {
       if (value.length < 2) {
           setOptions([])
-          return
+          
+return
       }
+
       setSearchLoading(true)
       const res = await searchActiveLabTests(value)
+
       setOptions(res.content || [])
       setSearchLoading(false)
   }, [])
@@ -98,6 +102,7 @@ const LabRequestManager = ({ patientId, appointmentId }: Props) => {
       } else {
           setErrorMsg(res.error || "Failed to add test")
       }
+
       setIsSubmitting(false)
   }, [selectedTest, patientId, appointmentId, fetchHistory])
 
@@ -109,11 +114,13 @@ const LabRequestManager = ({ patientId, appointmentId }: Props) => {
       setErrorMsg(null)
 
       const res = await deleteLabRequest(id)
+
       if (res.success) {
           setRequestList(prev => prev.filter(item => item.id !== id)) // MODIFIED: Use functional update
       } else {
           setErrorMsg(res.error || "Failed to delete request")
       }
+
       setDeletingId(null)
   }, [])
 

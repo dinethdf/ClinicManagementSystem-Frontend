@@ -1,4 +1,5 @@
 import { memo, useMemo, useCallback } from 'react' // ADDED: memo, useMemo, useCallback
+
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
@@ -9,7 +10,8 @@ import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
-import { AppointmentStatusDTO } from '@/types/appoinments.types'
+
+import type { AppointmentStatusDTO } from '@/types/appoinments.types'
 
 interface Props {
   open: boolean

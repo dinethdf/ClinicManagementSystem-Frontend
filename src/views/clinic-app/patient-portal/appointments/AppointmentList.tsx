@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
+
 import { useParams } from 'next/navigation'
 
 // MUI Imports
@@ -17,6 +18,8 @@ import Button from '@mui/material/Button'
 import { createColumnHelper } from '@tanstack/react-table'
 
 // Component Imports
+import { toast } from 'react-toastify'
+
 import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable'
 import OptionMenu from '@core/components/option-menu'
 import OpenDialogOnElementClick from '@/components/dialogs/OpenDialogOnElementClick'
@@ -30,12 +33,11 @@ import type { DoctorScheduleDTO } from '@/types/doctor.types'
 
 // Utils
 import { getLocalizedUrl } from '@/utils/i18n'
-import { toast } from 'react-toastify'
 import type { Locale } from '@configs/i18n'
 import type { ThemeColor } from '@core/types'
 
 // --- Configuration ---
-const columnHelper = createColumnHelper<any>()
+const columnHelper = createColumnHelper<PatientAppointmentDTO>()
 
 type StatusType = {
   color: ThemeColor
@@ -70,9 +72,11 @@ const AppointmentList = () => {
   const fetchData = useCallback(async () => {
     setLoading(true)
     setError(null)
+
     try {
       const requestType = tabValue === '1' ? 'UPCOMING' : 'HISTORY'
       const result = await patientAppointmentService.getPatientAppointments(requestType)
+
       setData(result)
     } catch (err: any) {
       console.error(err)
@@ -138,11 +142,9 @@ const AppointmentList = () => {
       columnHelper.accessor('appointmentId', {
         header: 'Reference',
         cell: ({ row }) => (
-          // CHANGED: Just a Typography with onClick, no Component wrapping it
           <Typography
-             className='font-medium cursor-pointer text-primary hover:underline'
+             className='font-medium text-primary'
              component='span'
-             onClick={() => handleViewDetails(row.original.appointmentId)} // <--- Sets state
           >
              #{row.original.appointmentId}
           </Typography>
@@ -188,35 +190,40 @@ const AppointmentList = () => {
       header: 'Status',
       cell: ({ row }) => {
         const status = appointmentStatusObj[row.original.status] || { color: 'secondary', label: row.original.status }
-        return <Chip label={status.label} color={status.color} size='small' variant="tonal" />
+
+        
+return <Chip label={status.label} color={status.color} size='small' variant="tonal" />
       }
     }),
     columnHelper.accessor('appointmentId', {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => (
-        <OptionMenu
-          iconButtonProps={{ size: 'medium' }}
-          iconClassName='text-textSecondary'
-          options={[
-            {
-              text: 'View Details',
-              icon: 'tabler-eye',
-              // Use the same helper function
-              menuItemProps: {
-                onClick: () => handleViewDetails(row.original.appointmentId) 
-              }
-            },
-            ...(row.original.status !== 'CANCELLED' && row.original.status !== 'COMPLETED' ? [{
-                text: 'Cancel',
-                icon: 'tabler-circle-x', 
-                menuItemProps: { 
-                    onClick: () => handleCancel(row.original.id), 
-                    className: 'text-error hover:bg-red-50' 
+        <div onClick={(e) => e.stopPropagation()}>
+          <OptionMenu
+            iconButtonProps={{ size: 'medium' }}
+            iconClassName='text-textSecondary'
+            options={[
+              {
+                text: 'View Details',
+                icon: 'tabler-eye',
+
+                // Use the same helper function
+                menuItemProps: {
+                  onClick: () => handleViewDetails(row.original.appointmentId) 
                 }
-            }] : [])
-          ]}
-        />
+              },
+              ...(row.original.status !== 'CANCELLED' && row.original.status !== 'COMPLETED' ? [{
+                  text: 'Cancel',
+                  icon: 'tabler-circle-x', 
+                  menuItemProps: { 
+                      onClick: () => handleCancel(row.original.id), 
+                      className: 'text-error hover:bg-red-50' 
+                  }
+              }] : [])
+            ]}
+          />
+        </div>
       ),
       enableSorting: false
     })
@@ -245,12 +252,13 @@ const AppointmentList = () => {
 
         {/* --- UPCOMING TAB --- */}
         <TabPanel value="1" className='p-0'>
-            <SimpleCommonTable 
+            <SimpleCommonTable<PatientAppointmentDTO>
                 data={data}
                 columns={columns}
                 isLoading={loading}
                 error={error}
                 searchPlaceholder="Search upcoming appointments..."
+                onRowClick={(row) => handleViewDetails(row.appointmentId)}
             />
         </TabPanel>
 

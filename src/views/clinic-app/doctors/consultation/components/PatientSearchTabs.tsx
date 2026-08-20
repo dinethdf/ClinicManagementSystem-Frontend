@@ -1,4 +1,6 @@
-import { RefObject, memo, useCallback } from 'react' // ADDED: memo, useCallback
+import type { RefObject} from 'react';
+import { memo, useCallback } from 'react' // ADDED: memo, useCallback
+
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
@@ -39,6 +41,7 @@ const PatientSearchTabs = (props: Props) => {
     // ADDED: Memoized callback for barcode input
     const handleBarcodeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const newVal = e.target.value;
+
         if (!/^\d*$/.test(newVal)) return; 
         props.setBarcodeVal(newVal);
         if (newVal.length === 10) props.onBarcodeSubmit(newVal);

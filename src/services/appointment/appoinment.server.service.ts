@@ -44,6 +44,7 @@ export async function getAppointmentsListByShedule(sheduleId: number) {
       const token = cookieStore.get('accessToken')?.value
 
       const res = await http.get(`api/appointments/schedule/${sheduleId}`);
+
       // const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/appointments/schedule/${sheduleId}`, {
       //   method: 'GET',
       //   headers: {
@@ -152,6 +153,7 @@ export const getAppointmentList = async (
 
   } catch (err) {
     console.error("Unexpected error fetching appointment list:", err)
+
     // Return null or empty structure so the table doesn't crash
     return { content: [], totalElements: 0 }
   }
@@ -205,6 +207,7 @@ export async function cancelAppointment(appointmentId: number, reason: string, r
     const response = await http.post<any>(`/api/appointments/cancel/${appointmentId}`, payload, true);
 
     let displayMessage = response.message || 'Appointment Cancelled & Refund Recorded.';
+
     if (response.data?.refundAmount && response.data.refundAmount > 0) {
         displayMessage += ` (Refund: LKR ${response.data.refundAmount.toFixed(2)})`;
     }
@@ -223,6 +226,26 @@ export async function cancelAppointment(appointmentId: number, reason: string, r
     }
     
     console.error('Unexpected error in cancelAppointment:', err);
+    
+return { success: false, message: 'An unknown server error occurred.' };
+  }
+}
+
+export async function sendCancelSms(appointmentId: number) {
+  try {
+    const response = await http.post<any>(`/api/appointments/cancel/${appointmentId}/send-sms`, {}, true);
+    return { 
+        success: true, 
+        message: response.message || 'SMS sent successfully.' 
+    };
+  } catch (err: any) {
+    if (err instanceof ApiError) {
+        return { success: false, message: err.message || 'Failed to send SMS.' };
+    }
+    if (err.response && err.response.data) {
+        return { success: false, message: err.response.data.message || 'Failed to send SMS.' };
+    }
+    console.error('Unexpected error in sendCancelSms:', err);
     return { success: false, message: 'An unknown server error occurred.' };
   }
 }

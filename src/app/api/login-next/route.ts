@@ -30,10 +30,12 @@ export async function POST(req: Request) {
       
       if (clinicCode) {
         console.log(`[API] Clinic Login Request: ${email} for Clinic Code: ${clinicCode}`)
+
         // User provided a clinic code
         res = await loginUser(email, password, clinicCode)
       } else {
         console.log(`[API] Default Clinic Login Request: ${email}`)
+
         // No clinic code provided, use the default ENV setup
         res = await loginUserDefault(email, password)
       }
@@ -42,10 +44,12 @@ export async function POST(req: Request) {
       
       if (clinicCode) {
         console.log(`[API] Patient Login Request: ${email} for Clinic Code: ${clinicCode}`)
+
         // Patient provided a clinic code
         res = await loginPatient(email, password, clinicCode)
       } else {
         console.log(`[API] Default Patient Login Request: ${email}`)
+
         // No clinic code provided, use the default ENV setup
         res = await loginPatientDefault(email, password)
       }
@@ -66,7 +70,8 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error("[API] Login Error:", error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { message: 'Internal Server Error' }, 
       { status: 500 }
     )

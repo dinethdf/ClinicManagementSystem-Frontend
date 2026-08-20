@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+
+import { useParams, useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -12,6 +14,9 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Avatar from '@mui/material/Avatar'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
 
 // Type Imports
 import type { AppointmentDetailDTO } from '@/types/appoinments.types'
@@ -30,28 +35,41 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
   const router = useRouter()
   const [openCancelDialog, setOpenCancelDialog] = useState(false)
   const [openRefundDialog, setOpenRefundDialog] = useState(false)
+  const [smsConfirmOpen, setSmsConfirmOpen] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
   
 
   const handleCancelConfirm = async (reason?: string, refundMethod?: string) => {
   const finalReason = reason || "No reason provided";
+
   // Pass the refundMethod to the service
   const result = await cancelAppointment(appointmentData.id, finalReason, refundMethod);
   
   if (result.success) {
       router.refresh(); 
-      return { success: true, message: result.message };
-  } 
-  return { success: false, message: result.message || "Failed to cancel appointment" };
+      
+return { success: true, message: result.message };
+  }
+ 
+  
+return { success: false, message: result.message || "Failed to cancel appointment" };
 }
 
   const handlePrintInvoice = async () => {
     try {
       setIsPrinting(true)
-      const invoiceId = appointmentData.id 
-      if (!invoiceId) { alert('Invoice not found'); return }
+      const invoiceId = appointmentData.id
+ 
+      if (!invoiceId) { alert('Invoice not found'); 
+
+return }
+
       const invoiceDetails = await getInvoiceDetails(invoiceId)
-      if (!invoiceDetails) { alert('Failed to load invoice details'); return }
+
+      if (!invoiceDetails) { alert('Failed to load invoice details'); 
+
+return }
+
       appointmentPrintInvoice(invoiceDetails)
     } catch (error) {
       console.error('Print error:', error)
@@ -154,6 +172,7 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
                 startIcon={<i className='tabler-credit-card' />}
                 onClick={() => {
                   const encoded = encodeHideValue(appointmentData.id);
+
                   router.push(`./../payment/${encoded}`)
                 }}
                 disabled={appointmentData.status === 'CANCELLED'}
@@ -201,6 +220,25 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
                         <i className='tabler-x' />
                       </Button>
                   )}
+                  
+                  {/* Send SMS for Cancelled */}
+                  {appointmentData.status === 'CANCELLED' && (
+                      <Button
+                        variant='contained'
+                        color='primary'
+                        fullWidth
+                        onClick={() => {
+                            if (!appointmentData.patientMobile) {
+                                toast.error('Patient does not have a mobile number.');
+                                return;
+                            }
+                            setSmsConfirmOpen(true);
+                        }}
+                        title="Send Cancellation SMS"
+                      >
+                        <i className='tabler-message' />
+                      </Button>
+                  )}
               </div>
           </div>
         </CardContent>
@@ -212,7 +250,7 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
         setOpen={setOpenCancelDialog}
         type='cancel-appointment'
         onConfirm={handleCancelConfirm}
-        paymentDetails={{
+         paymentDetails={{
           invoiceStatus: appointmentData.invoiceStatus,
           invoiceFinalAmount: appointmentData.invoiceFinalAmount,
           doctorFee: appointmentData.doctorFee,
@@ -220,6 +258,8 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
           amountPaid: appointmentData.amountPaid || 0, 
           balanceRemaining: appointmentData.balanceRemaining || 0
          }}
+         appointmentId={appointmentData.id}
+         patientMobile={appointmentData.patientMobile}
       />
 
       {/* Refund Dialog */}
@@ -229,6 +269,34 @@ const AppointmentLeftOverview = ({ appointmentData }: { appointmentData: Appoint
         invoiceId={appointmentData.id}
         onSuccess={() => router.refresh()}
       />
+
+      {/* SMS Confirmation Dialog */}
+      <Dialog fullWidth maxWidth='xs' open={smsConfirmOpen} onClose={() => setSmsConfirmOpen(false)}>
+        <DialogContent className='flex items-center flex-col text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
+          <i className='tabler-alert-circle text-[88px] mbe-6 text-warning' />
+          <Typography variant='h4' className='mb-4'>Send SMS?</Typography>
+          <Typography color='text.primary'>
+            Are you sure you want to send a cancellation SMS to {appointmentData.patientMobile}?
+          </Typography>
+        </DialogContent>
+        <DialogActions className='justify-center pbs-0 sm:pbe-16 sm:pli-16'>
+          <Button variant='contained' color='primary' onClick={async () => {
+              setSmsConfirmOpen(false);
+              const { sendCancelSms } = await import('@/services/appointment/appoinment.server.service');
+              const response = await sendCancelSms(appointmentData.id);
+              if (response.success) {
+                  toast.success(response.message);
+              } else {
+                  toast.error(response.message);
+              }
+          }}>
+            Yes, Send SMS
+          </Button>
+          <Button variant='tonal' color='secondary' onClick={() => setSmsConfirmOpen(false)}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }

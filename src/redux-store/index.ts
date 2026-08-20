@@ -20,6 +20,7 @@ export const store = configureStore({
     calendarReducer,
     kanbanReducer,
     emailReducer,
+
     // patientReducer,
     // doctorReducer,
     adminDashboard: adminDashboardReducer,

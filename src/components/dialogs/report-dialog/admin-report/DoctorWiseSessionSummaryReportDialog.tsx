@@ -41,6 +41,7 @@ const DoctorWiseSessionSummaryReportDialog = ({ open, setOpen }: Props) => {
   const handleClose = () => {
     setOpen(false)
     setError(null)
+
     // Optional: Reset form on close
     // setFormData({ ... }) 
   }
@@ -49,7 +50,8 @@ const DoctorWiseSessionSummaryReportDialog = ({ open, setOpen }: Props) => {
     // 1. Basic Validation
     if (!formData.startDate || !formData.endDate) {
         setError("Please select both Start and End dates.");
-        return;
+        
+return;
     }
 
     setLoading(true);

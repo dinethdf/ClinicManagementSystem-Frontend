@@ -138,7 +138,9 @@ const LoginPatient = ({ mode }: { mode: SystemMode }) => {
         } else {
           setErrorState({ message: [`Login failed. Please try again.`] })
         }
-        return
+
+        
+return
       }
 
       const result = await res.json()
@@ -155,6 +157,7 @@ const LoginPatient = ({ mode }: { mode: SystemMode }) => {
 
         try {
             const clinicInfo = await getClinicDetails(result.data.accessToken);
+
             if (clinicInfo) await saveClinicDetails(clinicInfo);
         } catch (clinicError) {
             console.error("Could not fetch clinic info", clinicError);
@@ -183,6 +186,7 @@ const LoginPatient = ({ mode }: { mode: SystemMode }) => {
 
   // --- Logout Logic ---
   const unAuthState = searchParams.get('unAuth') ?? ''
+
   useEffect(() => {
     if (unAuthState == '1') {
       try {

@@ -37,29 +37,36 @@ const DoctorSecurityTab = () => {
     setIsLoading(true)
     setAlertInfo(null)
     const res = await requestDoctorOtp() // Uses /api/auth/staff/password/request-otp
+
     if (res.success) {
       setStep('submit') 
       setAlertInfo({ severity: 'success', message: 'OTP sent to your registered email.' })
     } else {
       setAlertInfo({ severity: 'error', message: res.error?.message || 'Failed to send OTP' })
     }
+
     setIsLoading(false)
   }
 
   const handleSubmitChange = async (e: React.FormEvent) => {
     e.preventDefault()
+
     if (!otp) {
         setAlertInfo({ severity: 'error', message: 'Please enter the OTP.' })
-        return
+        
+return
     }
+
     if (password !== confirmPassword) {
         setAlertInfo({ severity: 'error', message: 'Passwords do not match.' })
-        return
+        
+return
     }
 
     setIsLoading(true)
     setAlertInfo(null)
     const res = await changeDoctorPassword(otp, password, confirmPassword) // Uses /api/auth/staff/password/change
+
     if (res.success) {
       setAlertInfo({ severity: 'success', message: 'Password changed successfully!' })
       setOtp('')
@@ -69,6 +76,7 @@ const DoctorSecurityTab = () => {
     } else {
       setAlertInfo({ severity: 'error', message: res.error?.message || 'Failed to change password' })
     }
+
     setIsLoading(false)
   }
 

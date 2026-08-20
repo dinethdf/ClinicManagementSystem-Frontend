@@ -48,7 +48,8 @@ const RevenueReportDialog = ({ open, setOpen }: Props) => {
   const handleDownload = async () => {
     if (!formData.startDate || !formData.endDate) {
         setError("Please select both Start and End dates.");
-        return;
+        
+return;
     }
 
     setLoading(true);
@@ -64,6 +65,7 @@ const RevenueReportDialog = ({ open, setOpen }: Props) => {
     setLoading(false);
 
     console.log(res)
+
     if (res) {
         handleClose(); // Close dialog on success
     } else {

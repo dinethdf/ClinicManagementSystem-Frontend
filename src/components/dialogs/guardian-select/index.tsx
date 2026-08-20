@@ -26,11 +26,12 @@ import { object, string, pipe, minLength, regex, optional } from 'valibot'
 import { toast } from 'react-toastify'
 
 // Custom Imports
+import { Card } from '@mui/material'
+
 import CustomTextField from '@core/components/mui/TextField'
 import { patientService } from '@/services/patient/patient.service' 
 import DialogCloseButton from '../DialogCloseButton'
 import type { Guardian } from '@/types/patient.types'
-import { Card } from '@mui/material'
 
 type DialogBoxProps = {
   open: boolean
@@ -94,6 +95,7 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
   const handleCloseDialog = () => {
     setOpen(false)
     triggerRef.current?.focus()
+
     // Small delay to allow dialog close animation before resetting
     setTimeout(() => {
       setTabValue(0)
@@ -108,6 +110,7 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
   const onSearch = async (data: SearchFormValues) => {
     try {
       const response = await patientService.getGuardianForChildPatient(data.nicNo, data.guardianName)
+
       setGuardianList(response)
     } catch (error) {
       setGuardianList([])
@@ -129,6 +132,7 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
   // ─── HANDLERS FOR TAB 1: CREATE NEW ───
   const onCreateNewGuardian = async (data: CreateGuardianFormValues) => {
     setIsCreating(true)
+
     try {
       // 1. Build payload (same format used for temp patients)
       const payload = {
@@ -195,9 +199,11 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                     rules={{
                       validate: value => {
                         const guardianName = getSearchValues('guardianName')
+
                         if (!value && !guardianName) return 'NIC or Name is required.'
                         if (value && value.length < 3) return 'Must be at least 3 characters.'
-                        return true
+                        
+return true
                       }
                     }}
                     render={({ field }) => (
@@ -206,8 +212,10 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                         onChange={e => {
                           const value = e.target.value
                           const guardianName = getSearchValues('guardianName')
+
                           field.onChange(e)
                           triggerSearch('guardianName')
+
                           if (value.length >= 3 || (guardianName && guardianName.length >= 3)) {
                             handleSearchSubmit(onSearch)()
                           }
@@ -227,9 +235,11 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                     rules={{
                       validate: value => {
                         const nicNo = getSearchValues('nicNo')
+
                         if (!value && !nicNo) return 'NIC or Name is required.'
                         if (value && value.length < 3) return 'Must be at least 3 characters.'
-                        return true
+                        
+return true
                       }
                     }}
                     render={({ field }) => (
@@ -238,8 +248,10 @@ const GuardianSelectDialogBox = ({ open, setOpen, onSelectGuardian, triggerRef }
                         onChange={e => {
                           const value = e.target.value
                           const nicNo = getSearchValues('nicNo')
+
                           field.onChange(e)
                           triggerSearch('nicNo')
+
                           if (value.length >= 3 || (nicNo && nicNo.length >= 3)) {
                             handleSearchSubmit(onSearch)()
                           }

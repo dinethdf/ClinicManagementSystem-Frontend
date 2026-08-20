@@ -1,5 +1,6 @@
 import 'server-only'; 
 import { redirect } from 'next/navigation';
+
 import { verifyToken } from './verifyToken';
 
 export async function requireUser(allowedRoles: string[]) {

@@ -50,7 +50,8 @@ const PublicQueueTrackerView = ({ scheduleId, queueNo }: Props) => {
     // Get all appointments before your token that are WAITING
     const waitingBeforeYou = list.filter((appt: any) => {
       if (!appt) return false
-      return appt.queueNo < queueNo && appt.status === 'WAITING'
+      
+return appt.queueNo < queueNo && appt.status === 'WAITING'
     }).sort((a: any, b: any) => a.queueNo - b.queueNo)
     
     return {
@@ -490,6 +491,7 @@ const PublicQueueTrackerView = ({ scheduleId, queueNo }: Props) => {
 
                       {/* Waiting List */}
                       {waitingList.length > 3 ? (
+
                         // Collapsed View
                         <div className="flex items-center gap-3">
                           <Box sx={{ 
@@ -521,6 +523,7 @@ const PublicQueueTrackerView = ({ scheduleId, queueNo }: Props) => {
                           </Box>
                         </div>
                       ) : (
+
                         // Detailed View
                         <div className="space-y-2">
                           {waitingList.map((appt: any) => (

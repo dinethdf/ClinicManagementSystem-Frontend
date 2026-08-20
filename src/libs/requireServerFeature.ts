@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
+
 import { verifyToken } from '@/libs/verifyToken'
-import { Feature, hasPermission } from '@/configs/subscriptionConfig'
+import type { Feature} from '@/configs/subscriptionConfig';
+import { hasPermission } from '@/configs/subscriptionConfig'
 
 
 export async function requireServerFeature(feature: Feature) {

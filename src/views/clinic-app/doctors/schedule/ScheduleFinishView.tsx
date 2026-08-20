@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
@@ -50,8 +51,10 @@ const handleGenerateBill = async () => {
         // Handle Errors based on your codes
         const code = result.error?.code
         const msg = result.error?.message || "Failed to generate bill"
+
         setErrorState({ message: msg, code: code })
     }
+
     setLoading(false)
   }
 
@@ -150,6 +153,7 @@ const handleGenerateBill = async () => {
                 </CardContent>
              </Card>
         ) : (
+
             /* --- INITIAL STATE: GENERATE BUTTON --- */
             <Card className='w-full'>
                 <CardContent className='flex flex-col items-center gap-6 p-8 py-12'>

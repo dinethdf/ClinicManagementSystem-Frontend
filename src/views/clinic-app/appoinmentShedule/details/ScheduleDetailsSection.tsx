@@ -1,4 +1,6 @@
 'use client'
+import { useState } from 'react'
+
 import { useRouter, useParams } from 'next/navigation' // Added useParams
 
 // MUI Imports
@@ -12,27 +14,72 @@ import LinearProgress from '@mui/material/LinearProgress'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Component Imports
+import { toast } from 'react-toastify'
+
 import CustomAvatar from '@core/components/mui/Avatar'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import EditScheduleDialog from '@/components/dialogs/edit-schedule'
-import { UpdatedDoctorScheduleDTO } from '@/types/doctor.types'
+import CancelScheduleDialog from '@/components/dialogs/cancel-schedule'
+import type { DoctorScheduleResponseDTO } from '@/types/doctor.types'
 import { encodeHideValue } from '@/utils/encode'
 import { getLocalizedUrl } from '@/utils/i18n' // Helper for localized URLs
 import type { Locale } from '@/configs/i18n' // Type for Locale
 
-const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: UpdatedDoctorScheduleDTO, role: string }) => {
+// Service Imports
+import { closeBookingEarly, completeSchedule, syncFirebaseQueue } from '@/services/doctor/doctor.shedule.server.service'
+import { useAuth } from '@/contexts/ClientAuthContextProvider'
+
+const ScheduleDetailsSection = ({ scheduleData }: { scheduleData?: DoctorScheduleResponseDTO }) => {
   
   const router = useRouter()
+  const { user } = useAuth()
+  const role = user?.role || 'GUEST'
   const { lang: locale } = useParams() // Get current locale
+  const [isCancelOpen, setIsCancelOpen] = useState(false)
 
   if (!scheduleData) return null;
 
+  // --- Handlers ---
+  const handleCloseBooking = async () => {
+    if (!window.confirm('Are you sure you want to close booking early? Patients will no longer be able to book for this session.')) return;
+    const res = await closeBookingEarly(scheduleData.id);
+
+    if (res.success) {
+      toast.success(res.message);
+      router.refresh();
+    } else {
+      toast.error(res.message);
+    }
+  }
+
+  const handleCompleteSession = async () => {
+    if (!window.confirm('Mark this session as completed? This will finalize all ongoing activities.')) return;
+    const res = await completeSchedule(scheduleData.id);
+
+    if (res.success) {
+      toast.success(res.message);
+      router.refresh();
+    } else {
+      toast.error(res.message);
+    }
+  }
+
+  const handleSyncQueue = async () => {
+    const res = await syncFirebaseQueue(scheduleData.id);
+
+    if (res.success) {
+      toast.success(res.message);
+    } else {
+      toast.error(res.message);
+    }
+  }
+
   // Vars for the edit button
   const buttonProps: ButtonProps = {
-    variant: 'contained',
+    variant: 'outlined',
     fullWidth: true,
-    children: 'Edit Schedule',
-    startIcon: <i className='tabler-edit' />
+    children: 'Edit Settings',
+    startIcon: <i className='tabler-settings' />
   }
 
   // Calculate booking percentage
@@ -43,6 +90,7 @@ const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: Updated
   // Status Helpers
   const statusLabel = scheduleData.status?.displayName || scheduleData.status?.code;
   const statusColor = scheduleData.status?.colorCode || 'primary';
+  const statusCode = scheduleData.status?.code;
 
   return (
     <Card>
@@ -156,16 +204,69 @@ const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: Updated
                 variant='contained' 
                 color='info' 
                 fullWidth 
-                // Navigate to: /en/clinic/appoinment-shedule/manage/[id]
+                disabled={statusCode === 'COMPLETED' || statusCode === 'CANCELLED'}
                 onClick={() => router.push(getLocalizedUrl(`/clinic/appoinment-shedule/manage/${scheduleData.id}`, locale as Locale))} 
                 startIcon={<i className='tabler-scan' />}
             >
                 Queue Scanner
             </Button>
 
-            {/* Admin Only Actions */}
+            {/* Admin/Staff Lifecycle Actions */}
+            {(role === 'ADMIN' || role === 'STAFF') && (
+            <>
+                <Divider><Chip label="Lifecycle Actions" size='small' variant='tonal'/></Divider>
+                
+                <div className='grid grid-cols-2 gap-2'>
+                    <Button 
+                        variant='contained' 
+                        color='success' 
+                        fullWidth 
+                        disabled={statusCode === 'COMPLETED' || statusCode === 'CANCELLED'}
+                        onClick={handleCompleteSession}
+                        startIcon={<i className='tabler-check' />}
+                    >
+                        Complete
+                    </Button>
+                    <Button 
+                        variant='tonal' 
+                        color='warning' 
+                        fullWidth 
+                        disabled={!scheduleData.isBookingOpen || statusCode === 'COMPLETED' || statusCode === 'CANCELLED'}
+                        onClick={handleCloseBooking}
+                        startIcon={<i className='tabler-lock-off' />}
+                    >
+                        Close Booking
+                    </Button>
+                </div>
+
+                <Button 
+                    variant='outlined' 
+                    color='error' 
+                    fullWidth 
+                    disabled={statusCode === 'CANCELLED' || statusCode === 'COMPLETED'}
+                    onClick={() => setIsCancelOpen(true)}
+                    startIcon={<i className='tabler-ban' />}
+                >
+                    Cancel & Refund
+                </Button>
+
+                <Button 
+                    variant='text' 
+                    color='secondary' 
+                    fullWidth 
+                    size='small'
+                    onClick={handleSyncQueue}
+                    startIcon={<i className='tabler-refresh' />}
+                >
+                    Force Sync Queue
+                </Button>
+            </>
+            )}
+
+            {/* Admin Only System Actions */}
             {role === 'ADMIN' && (
             <>
+                <Divider><Chip label="System" size='small' variant='tonal'/></Divider>
                 <OpenDialogOnElementClick 
                     element={Button} 
                     elementProps={buttonProps} 
@@ -174,7 +275,7 @@ const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: Updated
                 />
 
                 <Button 
-                    variant='outlined' 
+                    variant='tonal' 
                     color='secondary' 
                     fullWidth 
                     onClick={() => router.push(getLocalizedUrl(`/clinic/appoinment-shedule/details/financial/schedule-summary/${encodeHideValue(scheduleData.id)}`, locale as Locale))} 
@@ -187,6 +288,12 @@ const ScheduleDetailsSection = ({ scheduleData, role }: { scheduleData?: Updated
         </div>
 
       </CardContent>
+
+      <CancelScheduleDialog 
+        open={isCancelOpen}
+        setOpen={setIsCancelOpen}
+        scheduleId={scheduleData.id}
+      />
     </Card>
   )
 }

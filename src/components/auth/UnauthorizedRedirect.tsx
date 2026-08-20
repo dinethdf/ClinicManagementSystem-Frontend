@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
@@ -54,7 +55,8 @@ const UnauthorizedRedirect = ({
   const getIcon = () => {
       if (variant === 'warning') return <i className='tabler-alert-triangle text-2xl'/>
       if (variant === 'info') return <i className='tabler-info-circle text-2xl'/>
-      return <i className='tabler-lock-off text-2xl'/>
+      
+return <i className='tabler-lock-off text-2xl'/>
   }
 
   return (

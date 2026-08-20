@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 // Next & Form Imports
 import { useRouter } from 'next/navigation'
+
 import { useForm, Controller } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { toast } from 'react-toastify'
@@ -39,6 +40,7 @@ type TempPatientForm = {
   lastName: string
   mobileNo: string
   gender: string
+
   // Optional Fields
   dob: string | null
   nic: string
@@ -76,6 +78,7 @@ const TempPatientDialog = ({ open, onClose }: TempPatientDialogProps) => {
 
   const onSubmit = async (data: TempPatientForm) => {
     setIsLoading(true)
+
     try {
       const payload = {
         ...data,

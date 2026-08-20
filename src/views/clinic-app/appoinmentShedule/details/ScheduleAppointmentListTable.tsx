@@ -2,6 +2,7 @@
 
 // React Imports
 import { useState, useEffect, useMemo } from 'react'
+
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
@@ -60,13 +61,14 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
       if (!scheduleId) return
       
       setIsLoading(true)
+
       try {
         const result = await appointmentService.getAppointmentsByScheduleId(
             scheduleId, 
             pagination.pageIndex, 
             pagination.pageSize
         )
-
+  console.log("THis is data",result?.content)
         if (result) {
             setData(result.content || [])
             setTotalCount(result.totalElements || 0)
@@ -121,8 +123,17 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
       columnHelper.accessor('status', {
         header: 'Status',
         cell: ({ row }) => {
-            // Use API provided colors and labels
-            const colorCode = row.original.statusColor || '#808080';
+            const statusColorMap: Record<string, string> = {
+              PENDING_PAYMENT: '#ea5455', // Vuexy Error (Highlight)
+              PARTIAL: '#ff9f43',         // Vuexy Warning (Highlight)
+              BOOKED: '#28c76f',          // Vuexy Success (Green base)
+              ONGOING: '#00cfe8',         // Vuexy Info
+              COMPLETED: '#7367f0',       // Vuexy Primary
+              CANCELLED: '#a8aaae',       // Vuexy Secondary
+              NOSHOW: '#a8aaae'           // Vuexy Secondary
+            };
+            
+            const colorCode = statusColorMap[row.original.status] || '#a8aaae';
             const label = row.original.statusDisplayName || row.original.status;
 
             return (
@@ -138,18 +149,6 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
                 />
             )
         }
-      }),
-      columnHelper.accessor('id', {
-        id: 'actions',
-        header: 'Action',
-        cell: ({ row }) => (
-          <Link
-            href={getLocalizedUrl(`/clinic/appoinment/details/${row.original.id}`, locale as Locale)}
-            className='text-primary hover:underline text-sm font-medium flex items-center gap-1'
-          >
-            <i className='tabler-eye text-lg' /> View
-          </Link>
-        )
       })
     ],
     [locale]
@@ -158,7 +157,9 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
   // 3. Client-side Filtering (on current page)
   const filteredData = useMemo(() => {
       if(!statusFilter) return data;
+
       // Filter by the raw status code (e.g., 'BOOKED', 'PENDING_PAYMENT')
+    
       return data.filter(item => item.status === statusFilter);
   }, [data, statusFilter]);
 
@@ -168,11 +169,14 @@ const ScheduleAppointmentListTable = ({ scheduleId }: { scheduleId: number }) =>
         <Typography variant='h5'>Scheduled Appointments</Typography>
       </CardContent>
       
-      <SimpleCommonTable 
+      <SimpleCommonTable<ScheduleAppointmentDTO>
         data={filteredData} 
         columns={columns} 
         isLoading={isLoading} 
         error={errorMessage} 
+        baseRowUrl={getLocalizedUrl('/clinic/appoinment/details', locale as Locale)}
+        getRowUrlParam={(row) => row.id}
+
         // Pass the Status Dropdown to the Common Table
         filters={
             <TextField 

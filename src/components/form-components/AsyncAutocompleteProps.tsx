@@ -24,6 +24,7 @@ type AsyncAutocompleteProps<T extends object> = {
   error?: boolean
   helperText?: string
   placeholder?: string
+
   // --- NEW OPTIONAL PROPS ---
   fetchAllOnEmpty?: boolean     // Set to true to fetch data without typing
   defaultNoOptionsText?: string // Text to show before user types enough
@@ -49,6 +50,7 @@ const AsyncAutocomplete = <T extends object>({
   error,
   helperText,
   placeholder,
+
   // --- DEFAULT VALUES FOR NEW PROPS ---
   fetchAllOnEmpty = false,
   defaultNoOptionsText = 'Type to search...',
@@ -75,7 +77,8 @@ const AsyncAutocomplete = <T extends object>({
     // Prevent re-fetching when an item is explicitly selected
     if (value && getOptionLabel(value) === inputValue && trimmedInput !== '') {
       setLoading(false)
-      return 
+      
+return 
     }
 
     // Determine if we should skip the fetch based on input length and fetchAllOnEmpty flag
@@ -85,7 +88,8 @@ const AsyncAutocomplete = <T extends object>({
     if (isEmptyAndShouldNotFetch || isTooShort) {
       setOptions(value ? [value] : []) // Clear options (but keep value if present)
       setLoading(false)
-      return
+      
+return
     }
 
     setLoading(true)
@@ -111,7 +115,8 @@ const AsyncAutocomplete = <T extends object>({
             const url = `${fetchUrl}?${params.toString()}`
             const response = await apiClient.get(url)
 
-            const data = (response.data.data as T[]) 
+            const data = (response.data.data as T[])
+ 
             setOptions(data)
           } catch (err) {
             setOptions([]) 
@@ -139,6 +144,7 @@ const AsyncAutocomplete = <T extends object>({
       isOptionEqualToValue={isOptionEqualToValue}
       noOptionsText={currentNoOptionsText} // <-- Pass the dynamic text here
       filterOptions={x => x}
+      autoHighlight
       renderInput={params => (
         <CustomTextField
           {...params}

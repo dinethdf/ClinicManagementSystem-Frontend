@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
@@ -30,14 +31,16 @@ const LabReportsTab = () => {
   const getStatusColor = (status: string) => {
       if (status === 'COMPLETED') return 'success';
       if (status === 'SAMPLE_COLLECTED') return 'info';
-      return 'warning';
+      
+return 'warning';
   }
 
   // Helper for Status Steps
   const getStatusStep = (status: string) => {
       if (status === 'COMPLETED') return 3;
       if (status === 'SAMPLE_COLLECTED') return 2;
-      return 1;
+      
+return 1;
   }
 
   if (loading) return <div className='p-4'><Skeleton height={80} /><Skeleton height={80} className='mt-2' /></div>

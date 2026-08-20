@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 
@@ -16,7 +17,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 
 // Common Components
 import CommonServerTable from '@/components/common-components/table/CommonServerTable'
-import { FilterConfig } from '@/components/common-components/table/TableTypes'
+import type { FilterConfig } from '@/components/common-components/table/TableTypes'
 
 // Dialogs & Helpers
 import PatientSelectDialogBox from '@/components/dialogs/patient-select'
@@ -156,6 +157,7 @@ const AppointmentListTable = () => {
     if (params.startDate instanceof Date) {
         startDate = params.startDate.toISOString().split('T')[0]
     }
+
     if (params.endDate instanceof Date) {
         endDate = params.endDate.toISOString().split('T')[0]
     }
@@ -179,12 +181,9 @@ const AppointmentListTable = () => {
     columnHelper.accessor('id', {
       header: 'Ref #',
       cell: ({ row }) => (
-        <Link
-          href={getLocalizedUrl(`/clinic/appoinment/details/${row.original.id}`, locale as Locale)}
-          className='font-medium text-primary hover:underline'
-        >
+        <Typography className='font-medium text-primary'>
           #{row.original.id}
-        </Link>
+        </Typography>
       )
     }),
     columnHelper.accessor('scheduleDate', {
@@ -258,29 +257,33 @@ const AppointmentListTable = () => {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }: any) => (
-        <OptionMenu
-          iconButtonProps={{ size: 'medium' }}
-          iconClassName='text-textSecondary'
-          options={[
-            {
-              text: 'View Details',
-              icon: 'tabler-eye',
-              href: getLocalizedUrl(`/clinic/appoinment/details/${row.original.id}`, locale as Locale)
-            }
-          ]}
-        />
+        <div onClick={(e) => e.stopPropagation()}>
+          <OptionMenu
+            iconButtonProps={{ size: 'medium' }}
+            iconClassName='text-textSecondary'
+            options={[
+              {
+                text: 'View Details',
+                icon: 'tabler-eye',
+                href: getLocalizedUrl(`/clinic/appoinment/details/${row.original.id}`, locale as Locale)
+              }
+            ]}
+          />
+        </div>
       ),
       enableSorting: false
     }
   ], [locale])
 
   return (
-    <CommonServerTable
+    <CommonServerTable<AppointmentListDTO>
       tableId="appointment-list-table"
       title="Appointment List"
       fetchDataFunction={fetchAppointmentsWrapper}
       columns={columns}
       filterConfig={filterConfigs}
+      baseRowUrl={getLocalizedUrl('/clinic/appoinment/details', locale as Locale)}
+      getRowUrlParam={(row) => row.id}
       actionComponent={
         <Button 
           variant='contained' 

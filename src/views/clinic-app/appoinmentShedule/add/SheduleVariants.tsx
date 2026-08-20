@@ -56,18 +56,21 @@ const SheduleVariants = () => {
     const month = pad(dateObj.getMonth() + 1)
     const day = pad(dateObj.getDate())
     const date = `${year}-${month}-${day}`
+
     setValue(`schedules.${index}.date`, date, { shouldValidate: true })
   }
 
   const handleStartTimeChange = (index: number, dateObj: Date | null) => {
     if (!dateObj) return
     const time = dateObj.toTimeString().split(' ')[0].slice(0, 5)
+
     setValue(`schedules.${index}.startTime`, time, { shouldValidate: true })
   }
 
   const handleEndTimeChange = (index: number, dateObj: Date | null) => {
     if (!dateObj) return
     const time = dateObj.toTimeString().split(' ')[0].slice(0, 5)
+
     setValue(`schedules.${index}.endTime`, time, { shouldValidate: true })
   }
 

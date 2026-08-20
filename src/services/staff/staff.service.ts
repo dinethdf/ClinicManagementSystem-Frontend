@@ -24,6 +24,11 @@ interface PaginatedResponse<T> {
   number: number
 }
 
+export interface RoleDTO {
+  id: number;
+  name: string;
+}
+
 class StaffService {
 
   // --- 1. CREATE STAFF ---
@@ -54,7 +59,8 @@ class StaffService {
       return response.data.data
     } catch (error) {
       console.error('Failed to fetch staff list:', error)
-      return null
+      
+return null
     }
   }
 
@@ -68,7 +74,8 @@ class StaffService {
       return response.data.data
     } catch (error) {
       console.error(`Failed to fetch staff details for ID ${id}:`, error)
-      return null
+      
+return null
     }
   }
 
@@ -84,6 +91,20 @@ class StaffService {
     } catch (error) {
       console.error(`Failed to update staff ID ${id}:`, error)
       throw error // Re-throw to handle error alerts in the UI
+    }
+  }
+
+  async getStandardRoles(): Promise<RoleDTO[]> {
+    try {
+      // Assuming your endpoint returns the raw array. If it's wrapped in { data: ... }, adjust accordingly.
+      const response = await apiClient.get<RoleDTO[]>('/api/roles/standard')
+
+      
+return response.data
+    } catch (error) {
+      console.error('Failed to fetch standard roles:', error)
+      
+return [] // Return empty array on failure so the UI doesn't crash
     }
   }
 }

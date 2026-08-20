@@ -2,6 +2,8 @@
 
 import { http, ApiError } from '@/services/api.config.server';
 import type { AppointmentFinancialDTO, FinancialScheduleItem } from '@/types/financial.types';
+
+
 /**
  * Fetches the financial breakdown for a specific schedule.
  * * Note: Your API endpoint `/api/financials/schedule/${scheduleId}` returns a raw array 
@@ -19,11 +21,13 @@ export async function getFinancialSchedule(scheduleId: number) {
   } catch (err) {
     if (err instanceof ApiError) {
       console.error(`Failed to fetch financial schedule (${err.status}):`, err.message);
-      return null;
+      
+return null;
     }
 
     console.error('Unexpected server error in getFinancialSchedule:', err);
-    return null;
+    
+return null;
   }
 }
 
@@ -57,6 +61,8 @@ export async function generateScheduleBill(scheduleId: number) {
            } 
        };
     }
-    return { success: false, error: { message: 'Network error occurred.' } };
+
+    
+return { success: false, error: { message: 'Network error occurred.' } };
   }
 }

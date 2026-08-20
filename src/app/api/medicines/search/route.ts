@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { getCachedMedicines, RawMedicine } from '@/services/medicine-data';
+
+import type { RawMedicine } from '@/services/medicine-data';
+import { getCachedMedicines } from '@/services/medicine-data';
 
 export async function GET(request: Request) {
   try {
@@ -11,6 +13,7 @@ export async function GET(request: Request) {
 
     // Security Check
     const secretHeader = headersList.get('x-internal-request');
+
     if (secretHeader !== process.env.NEXT_PUBLIC_API_SECRET) {
          // console.warn("Unauthorized API access attempt");
          // You can uncomment the return below to enforce security strictness
@@ -50,6 +53,7 @@ export async function GET(request: Request) {
 
       // 2. Category Match
       let matchesCategory = true;
+
       if (lowerCategory) {
           matchesCategory = dosage.toLowerCase().includes(lowerCategory);
       }
@@ -76,6 +80,7 @@ export async function GET(request: Request) {
 
   } catch (error) {
     console.error("API SEARCH ERROR:", error);
+
     // CRITICAL: Return empty array instead of crashing the UI
     return NextResponse.json({ success: false, data: [] }, { status: 200 });
   }

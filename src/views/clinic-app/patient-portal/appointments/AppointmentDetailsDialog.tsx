@@ -21,34 +21,9 @@ import RealtimeLiveQueueCard from './RealtimeLiveQueueCard'
 
 // Service & Types
 import { patientAppointmentService} from '@/services/patient-portal/patient.appointments.service'
-import { PrescriptionDTO } from '@/types/patient-portal/patient.appointments.types'
+import type { PrescriptionDTO, AppointmentDetailsDTO } from '@/types/patient-portal/patient.appointments.types'
 
 // Types
-interface AppointmentDetailsDTO {
-  id: number
-  status: string
-  queuePosition: number
-  note: string
-  createdDate: string
-  doctorId: number
-  doctorName: string
-  specialization: string
-  scheduleId: number
-  scheduleDate: string
-  startTime: string
-  endTime: string
-  patientId: number
-  patientName: string
-  patientNo: string
-  patientMobile: string
-  patientNic: string
-  doctorFee: number
-  clinicFee: number
-  invoiceFinalAmount: number
-  invoiceTotalDiscount: number
-  invoiceStatus: string
-}
-
 interface Props {
   open: boolean
   setOpen: (open: boolean) => void
@@ -71,6 +46,7 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
     setLoading(true)
     setError(null)
     setPrescription(null) // Reset previous data
+
     try {
       // Fetch both Details and Prescription in parallel
       const [detailsData, prescriptionData] = await Promise.all([
@@ -78,7 +54,7 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
         patientAppointmentService.getPrescription(appointmentId)
       ])
 
-      setDetails(detailsData as any)
+      setDetails(detailsData)
       setPrescription(prescriptionData) 
 
     } catch (err) {
@@ -93,7 +69,9 @@ const AppointmentDetailsDialog = ({ open, setOpen, appointmentId }: Props) => {
 
   const getStatusColor = (status: string) => {
     const map: any = { BOOKED: 'primary', SCHEDULED: 'primary', COMPLETED: 'success', CANCELLED: 'error', PENDING: 'warning' }
-    return map[status] || 'default'
+
+    
+return map[status] || 'default'
   }
 
   const getInvoiceColor = (status: string) => {

@@ -81,12 +81,14 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
   // Combine Diagnosis Title & Desc
   useEffect(() => {
     const note = diagnosisTitle ? `${diagnosisTitle} - ${diagnosisDesc}` : diagnosisDesc;
+
     setMainNote(note)
   }, [diagnosisTitle, diagnosisDesc])
 
   // OPTIMIZATION: Memoize config loader
   const loadConfig = useCallback(async () => {
     const data = await prescriptionService.getPrescriptionConfig()
+
     if (data) setConfig(data)
   }, [])
 
@@ -99,20 +101,26 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
   useEffect(() => {
     if (!searchTerm || searchTerm.length < 3) {
         setMedicineOptions([])
-        return
+        
+return
     }
+
     setLoadingMedicines(true)
+
     const timerId = setTimeout(async () => {
         try {
             const results = await prescriptionService.searchMedicines(searchTerm, form.category)
+
             setMedicineOptions(results)
         } catch (err) {
             console.error(err)
         } finally {
             setLoadingMedicines(false)
         }
-    }, 500) 
-    return () => clearTimeout(timerId)
+    }, 500)
+ 
+    
+return () => clearTimeout(timerId)
   }, [searchTerm, form.category])
 
   // OPTIMIZATION: Memoize all handlers
@@ -159,11 +167,14 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
   const handleAdd = useCallback(() => {
     if (!form.medicineName || !form.frequency) {
         setErrorMsg("Please select a Medicine and Frequency")
-        return;
+        
+return;
     }
+
     setErrorMsg(null)
 
     let combinedInstructions = form.frequency;
+
     if (form.packSize) combinedInstructions += ` [Pack: ${form.packSize}]`;
     if (form.prescriptionNote) combinedInstructions += ` (${form.prescriptionNote})`;
     
@@ -195,8 +206,10 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
   const handleFinalize = useCallback(async () => {
     if (!appointmentId) {
         setErrorMsg("Error: Invalid Appointment ID")
-        return
+        
+return
     }
+
     setIsSubmitting(true)
     setErrorMsg(null)
 
@@ -213,6 +226,7 @@ const PrescriptionManager = ({ appointmentId, onConsultationComplete }: Props) =
     } else {
         setErrorMsg(res.error || "Failed to submit prescription")
     }
+
     setIsSubmitting(false)
   }, [appointmentId, mainNote, items, onConsultationComplete])
 

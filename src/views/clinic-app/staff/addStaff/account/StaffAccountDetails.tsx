@@ -1,8 +1,10 @@
 'use client'
 
 // React Imports
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
+
 import { useRouter } from 'next/navigation'
+
 import dayjs from 'dayjs'
 
 // Form Imports
@@ -21,12 +23,12 @@ import { CardHeader, Divider } from '@mui/material'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
-import CustomDatePicker from '@/components/custome/DatePickerTextField' // Check your path
+import CustomDatePicker from '@/components/custome/DatePickerTextField' 
 import BackDropFullScreen from '@/components/BackDropFullScreen'
 
 // Logic Imports
 import { getStaffValidationSchema } from '@/schemas/staffDetailsValidation'
-import { staffService } from '@/services/staff/staff.service' // Ensure this exists
+import { staffService, type RoleDTO } from '@/services/staff/staff.service' 
 
 interface StaffFormData {
   firstName: string
@@ -41,7 +43,7 @@ interface StaffFormData {
   email: string
   mobileNo: string
   designation: string
-  assignedRoleId: string
+  assignedRoleId: string 
 }
 
 const initialData: StaffFormData = {
@@ -57,12 +59,13 @@ const initialData: StaffFormData = {
   email: '',
   mobileNo: '',
   designation: '',
-  assignedRoleId: '5' // Default to STAFF (5)
+  assignedRoleId: '' // Start empty, will be set once roles load if needed
 }
 
 const StaffAccountDetails = () => {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [roles, setRoles] = useState<RoleDTO[]>([]) // State for dynamic roles
 
   const validationSchema = useMemo(() => {
     return getStaffValidationSchema()
@@ -78,14 +81,31 @@ const StaffAccountDetails = () => {
     defaultValues: { ...initialData }
   })
 
+  // --- FETCH ROLES ON MOUNT ---
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const fetchedRoles = await staffService.getStandardRoles();
+        
+        // Optional: Filter out DOCTOR and PATIENT, as this is a STAFF registration form
+        const staffRoles = fetchedRoles.filter(r => r.name !== 'DOCTOR' && r.name !== 'PATIENT');
+        
+        setRoles(staffRoles);
+      } catch (error) {
+        toast.error('Failed to load system roles');
+      }
+    };
+
+    fetchRoles();
+  }, []);
+
   const handelFormSubmit = async (data: StaffFormData) => {
     setIsLoading(true)
 
-    // Format data for API
     const apiPayload = {
       ...data,
       gender: parseInt(data.gender),
-      assignedRoleId: parseInt(data.assignedRoleId), // Send as number
+      assignedRoleId: parseInt(data.assignedRoleId), 
       joinDate: new Date().toISOString(),
       status: 'ACTIVE'
     }
@@ -93,17 +113,25 @@ const StaffAccountDetails = () => {
     try {
       await staffService.createStaff(apiPayload)
 
-      router.replace(`/en/clinic/staff/list`)
-      reset()
-      
       toast.success(`Staff registered successfully!`, {
         hideProgressBar: false,
         className: 'custom-toast',
       })
+      
+      reset()
+      router.replace(`/en/clinic/staff/list`)
 
     } catch (error: any) {
       console.error(error)
-      toast.error(error.response?.data?.message || 'Registration failed', {
+
+
+      // Enhanced Error Handling
+      const errorMessage = error.response?.data?.message 
+                           || error.response?.data?.defaultMessage 
+                           || error.message 
+                           || 'Registration failed';
+      
+      toast.error(errorMessage, {
         autoClose: false,
         hideProgressBar: false,
         className: 'custom-toast'
@@ -365,10 +393,15 @@ const StaffAccountDetails = () => {
                     error={!!errors.assignedRoleId}
                     helperText={errors.assignedRoleId?.message}
                   >
-                    {/* Only showing allowed roles based on your prompt */}
-                    <MenuItem value='5'>Staff</MenuItem>
-                    <MenuItem value='2'>User</MenuItem>
-                    {/* User(2), Doctor(3), Patient(4) excluded as requested */}
+                    {/* --- DYNAMIC ROLES MAPPING --- */}
+                    {roles.map((role) => (
+                       <MenuItem key={role.id} value={role.id.toString()}>
+                          {role.name}
+                       </MenuItem>
+                    ))}
+                    {roles.length === 0 && (
+                        <MenuItem value='' disabled>Loading roles...</MenuItem>
+                    )}
                   </CustomTextField>
                 )}
               />

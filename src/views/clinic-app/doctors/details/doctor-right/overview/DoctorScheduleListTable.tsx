@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+
 import { useRouter, useParams } from 'next/navigation'
 
 // MUI Imports
@@ -25,6 +26,8 @@ import type { ColumnDef, PaginationState } from '@tanstack/react-table'
 import type { DoctorScheduleDTO } from '@/types/doctor.types'
 import { getSchedulesByDoctorId } from '@/services/doctor/doctor.shedule.server.service'
 
+// Component Imports
+import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable'
 import tableStyles from '@core/styles/table.module.css'
 
 const columnHelper = createColumnHelper<DoctorScheduleDTO>()
@@ -64,8 +67,7 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
         
         console.log("schedule response", response)
 
-        if (response.success && response.data) {
-            // FIX: response.data IS the paginated object, so access .content directly
+        if (response.success && 'data' in response && response.data) {
             setData(response.data.content || []) 
             setRowCount(response.data.totalElements || 0)
         } else {
@@ -119,8 +121,7 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
             const max = row.original.maxPatientCount;
             const percent = (current / max) * 100;
             
-            // FIX: Access status object safely
-            const statusObj = row.original.status as any; 
+            const statusObj = row.original.status; 
             const bookingStatus = statusObj?.code || 'UNKNOWN';
            
             return (
@@ -146,8 +147,7 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
       columnHelper.accessor('status', {
         header: 'Status',
         cell: ({ row }) => {
-            // FIX: Handle Status Object structure { code, displayName, colorCode }
-            const statusObj = row.original.status as any;
+            const statusObj = row.original.status;
             
             return (
                 <Chip 
@@ -167,24 +167,6 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
     []
   )
 
-  const table = useReactTable({
-    data,
-    columns,
-    manualPagination: true,
-    rowCount: rowCount,
-    state: {
-        pagination
-    },
-    onPaginationChange: setPagination,
-    getCoreRowModel: getCoreRowModel(),
-    filterFns:{} as any
-  })
-
-  // Navigation Handler
-  const handleRowClick = (scheduleId: number) => {
-    router.push(`/${lang}/clinic/appoinment-shedule/details/${scheduleId}`)
-  }
-
   if (errorMessage) return <Alert severity="error">{errorMessage}</Alert>
 
   return (
@@ -192,51 +174,17 @@ const DoctorScheduleListTable = ({ doctorId }: { doctorId: string }) => {
       <CardContent className='flex justify-between flex-col sm:flex-row sm:items-center gap-4'>
         <Typography variant='h5'>Schedule List</Typography>
       </CardContent>
-      <div className='overflow-x-auto'>
-        <table className={tableStyles.table}>
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th key={header.id}>
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {isLoading ? (
-                <tr>
-                    <td colSpan={columns.length} className='h-24 text-center'>
-                        <CircularProgress />
-                    </td>
-                </tr>
-            ) : (
-                table.getRowModel().rows.map(row => (
-                <tr 
-                    key={row.id} 
-                    onClick={() => handleRowClick(row.original.id || 0)}
-                    className="cursor-pointer hover:bg-gray-50 transition-colors"
-                >
-                    {row.getVisibleCells().map(cell => (
-                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                    ))}
-                </tr>
-                ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      <TablePagination
-        component="div" 
-        count={rowCount}
-        rowsPerPage={pagination.pageSize}
-        page={pagination.pageIndex}
-        onPageChange={(_, page) => table.setPageIndex(page)}
-        rowsPerPageOptions={[5, 10, 25, 50]} 
-        onRowsPerPageChange={(e) => table.setPageSize(Number(e.target.value))}
-        labelRowsPerPage="Rows per page:"
+      
+      <SimpleCommonTable<DoctorScheduleDTO>
+        data={data}
+        columns={columns}
+        isLoading={isLoading}
+        baseRowUrl={`/${lang}/clinic/appoinment-shedule/details`}
+        getRowUrlParam={(row) => row.id || 0}
+        manualPagination={true}
+        totalItems={rowCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
     </Card>
   )

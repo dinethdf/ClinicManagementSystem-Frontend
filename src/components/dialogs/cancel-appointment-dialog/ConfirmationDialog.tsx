@@ -17,6 +17,8 @@ import Select from '@mui/material/Select'
 import Box from '@mui/material/Box'
 
 import classnames from 'classnames'
+import { toast } from 'react-toastify'
+import { sendCancelSms } from '@/services/appointment/appoinment.server.service'
 
 export type ConfirmationType = 'delete-account' | 'unsubscribe' | 'suspend-account' | 'delete-order' | 'delete-customer' | 'cancel-appointment'
 
@@ -24,6 +26,7 @@ type ConfirmationDialogProps = {
   open: boolean
   setOpen: (open: boolean) => void
   type: ConfirmationType
+
   // 1. UPDATED: onConfirm now accepts refundMethod
   onConfirm?: (reason?: string, refundMethod?: string) => Promise<{ success: boolean; message: string }>
   paymentDetails?: { 
@@ -34,13 +37,20 @@ type ConfirmationDialogProps = {
     doctorFee: number
     clinicFee: number
   } 
+  appointmentId?: number
+  patientMobile?: string
 }
 
-const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: ConfirmationDialogProps) => {
+const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails, appointmentId, patientMobile }: ConfirmationDialogProps) => {
   const [secondDialog, setSecondDialog] = useState(false)
   const [userInput, setUserInput] = useState(false)
   const [loading, setLoading] = useState(false)
   const [apiMessage, setApiMessage] = useState<string>('')
+
+  // SMS states
+  const [smsLoading, setSmsLoading] = useState(false)
+  const [smsSent, setSmsSent] = useState(false)
+  const [smsConfirmOpen, setSmsConfirmOpen] = useState(false)
 
   // Reason & Refund States
   const [reasonSelect, setReasonSelect] = useState<string>('Patient Request')
@@ -52,6 +62,9 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
         setReasonSelect('Patient Request')
         setCustomReason('')
         setRefundMethod('CASH')
+        setSmsSent(false)
+        setSmsLoading(false)
+        setSmsConfirmOpen(false)
     }
   }, [open])
 
@@ -60,20 +73,22 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
   const handleSecondDialogClose = () => {
     setSecondDialog(false)
     setOpen(false)
-    setApiMessage('')
   }
 
   const handleConfirmation = async (value: boolean) => {
     if (!value) {
       setUserInput(false)
       setOpen(false)
-      return
+      
+return
     }
 
     if (onConfirm) {
         setLoading(true)
+
         try {
             const finalReason = reasonSelect === 'Other' ? customReason : reasonSelect
+
             // 3. UPDATED: Pass refundMethod only if a payment was made
             const selectedRefundMethod = hasPaid ? refundMethod : undefined;
             const response = await onConfirm(finalReason, selectedRefundMethod)
@@ -98,6 +113,26 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
         setSecondDialog(true)
         setOpen(false)
     }
+  }
+
+  const handleSendSmsClick = () => {
+      setSmsConfirmOpen(true);
+  }
+
+  const handleSendSmsConfirm = async () => {
+    if (!appointmentId) return;
+    
+    setSmsConfirmOpen(false);
+    setSmsLoading(true);
+    const response = await sendCancelSms(appointmentId);
+    
+    if (response.success) {
+        setSmsSent(true);
+        toast.success(response.message);
+    } else {
+        toast.error(response.message);
+    }
+    setSmsLoading(false);
   }
 
   // --- FINANCIAL LOGIC ---
@@ -246,12 +281,58 @@ const ConfirmationDialog = ({ open, setOpen, type, onConfirm, paymentDetails }: 
             })}
           />
           <Typography variant='h4' className='mbe-2'>{userInput ? 'Success' : 'Failed'}</Typography>
-          <Typography color='text.primary' className='whitespace-pre-line'>
+          <Typography color='text.primary' className='whitespace-pre-line mbe-4'>
             {apiMessage || (userInput ? 'Operation completed.' : 'Cancelled.')}
+          </Typography>
+
+          {/* SMS Notification UI */}
+          {userInput && type === 'cancel-appointment' && (
+             <Box className='w-full bg-gray-50 p-4 rounded border flex flex-col gap-3 items-center mb-4 mt-2'>
+                <div className='flex items-center gap-2'>
+                    <i className='tabler-phone text-gray-500' />
+                    <Typography variant='body1' className='font-bold'>{patientMobile || 'No Mobile Available'}</Typography>
+                </div>
+                {patientMobile ? (
+                    <Button 
+                        variant='contained' 
+                        color='primary' 
+                        startIcon={smsLoading ? <CircularProgress size={20} color="inherit" /> : <i className='tabler-message' />}
+                        onClick={handleSendSmsClick}
+                        disabled={smsLoading || smsSent}
+                        fullWidth
+                    >
+                        {smsSent ? 'SMS Sent!' : 'Send Cancellation SMS'}
+                    </Button>
+                ) : (
+                    <Typography variant='caption' color='error'>Patient does not have a mobile number.</Typography>
+                )}
+             </Box>
+          )}
+          
+        </DialogContent>
+        <DialogActions className='justify-center pbs-0 sm:pbe-16 sm:pli-16'>
+          <Button variant={userInput && type === 'cancel-appointment' ? 'tonal' : 'contained'} color={userInput && type === 'cancel-appointment' ? 'secondary' : (userInput ? 'success' : 'error')} onClick={handleSecondDialogClose}>
+            {userInput && type === 'cancel-appointment' ? 'Close' : 'Ok'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* SMS Confirmation Dialog */}
+      <Dialog fullWidth maxWidth='xs' open={smsConfirmOpen} onClose={() => setSmsConfirmOpen(false)}>
+        <DialogContent className='flex items-center flex-col text-center sm:pbs-16 sm:pbe-6 sm:pli-16'>
+          <i className='tabler-alert-circle text-[88px] mbe-6 text-warning' />
+          <Typography variant='h4' className='mb-4'>Send SMS?</Typography>
+          <Typography color='text.primary'>
+            Are you sure you want to send a cancellation SMS to {patientMobile}?
           </Typography>
         </DialogContent>
         <DialogActions className='justify-center pbs-0 sm:pbe-16 sm:pli-16'>
-          <Button variant='contained' color={userInput ? 'success' : 'error'} onClick={handleSecondDialogClose}>Ok</Button>
+          <Button variant='contained' color='primary' onClick={handleSendSmsConfirm}>
+            Yes, Send SMS
+          </Button>
+          <Button variant='tonal' color='secondary' onClick={() => setSmsConfirmOpen(false)}>
+            Cancel
+          </Button>
         </DialogActions>
       </Dialog>
     </>

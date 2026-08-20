@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
@@ -33,6 +34,7 @@ const TodaySessionsSlider = ({ doctorId }: { doctorId: number }) => {
         
         // Filter for Today
         const today = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD format
+
         const todays = allUpcoming
           .filter(s => s.scheduleDate === today)
           .sort((a, b) => a.startTime.localeCompare(b.startTime))
@@ -61,9 +63,13 @@ const TodaySessionsSlider = ({ doctorId }: { doctorId: number }) => {
         if (diffMins >= 60) {
             const hours = Math.floor(diffMins / 60)
             const mins = diffMins % 60
-            return `${hours}h ${mins > 0 ? `${mins}m` : ''}`
+
+            
+return `${hours}h ${mins > 0 ? `${mins}m` : ''}`
         }
-        return `${diffMins} mins`
+
+        
+return `${diffMins} mins`
     } catch (e) {
         return '--'
     }

@@ -20,6 +20,7 @@ export const tempPatientValidationSchema = object({
     string(),
     nonEmpty('Gender is required')
   ),
+
   // Optional Fields (No required/minLength pipes)
   dob: nullable(string()), // Allows null or a date string
   nic: optional(string()), // Allows empty string

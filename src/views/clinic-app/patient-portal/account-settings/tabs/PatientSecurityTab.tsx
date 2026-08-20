@@ -52,6 +52,7 @@ const PatientSecurityTab = () => {
     } else {
       setAlertInfo({ severity: 'error', message: res.message })
     }
+
     setIsLoading(false)
   }
 
@@ -61,11 +62,14 @@ const PatientSecurityTab = () => {
     // Basic Client Validation
     if (!otp) {
         setAlertInfo({ severity: 'error', message: 'Please enter the OTP.' })
-        return
+        
+return
     }
+
     if (password !== confirmPassword) {
         setAlertInfo({ severity: 'error', message: 'Passwords do not match.' })
-        return
+        
+return
     }
 
     setIsLoading(true)
@@ -75,6 +79,7 @@ const PatientSecurityTab = () => {
 
     if (res.success) {
       setAlertInfo({ severity: 'success', message: 'Password changed successfully!' })
+
       // Reset form
       setOtp('')
       setPassword('')
@@ -83,6 +88,7 @@ const PatientSecurityTab = () => {
     } else {
       setAlertInfo({ severity: 'error', message: res.message })
     }
+
     setIsLoading(false)
   }
 

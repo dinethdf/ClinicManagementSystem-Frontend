@@ -31,23 +31,10 @@ import {
 // Service & Style Imports
 import { doctorSheduleService } from '@/services/doctor/doctor.shedule.service'
 import tableStyles from '@core/styles/table.module.css'
+import type { DoctorScheduleDTO } from '@/types/doctor.types'
 
-// --- TYPES ---
-export interface DoctorScheduleDTO {
-  id?: number
-  doctorId: number
-  scheduleDate: string
-  doctorName?: string
-  specialization?: string
-  startTime: string
-  endTime: string
-  doctorFee: number
-  clinicFee: number
-  registeredPatientCount: number
-  maxPatientCount: number
-  isActive?: boolean
-  status?: string
-}
+// Component Imports
+import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable'
 
 // =============================================================================
 // SUB-COMPONENT: Table View
@@ -105,7 +92,9 @@ const ScheduleListTable = ({
         header: 'Total Fee',
         cell: ({ row }) => {
             const total = (row.original.doctorFee || 0) + (row.original.clinicFee || 0)
-            return <Typography variant='body2' className='font-bold'>Rs. {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</Typography>
+
+            
+return <Typography variant='body2' className='font-bold'>Rs. {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</Typography>
         }
       }),
       columnHelper.accessor('registeredPatientCount', {
@@ -115,13 +104,15 @@ const ScheduleListTable = ({
             const current = row.original.registeredPatientCount
             const progress = max > 0 ? (current / max) * 100 : 0
             const isFull = current >= max
-            return (
-                <div className='flex flex-col gap-1 is-[140px]'>
+
+            
+return (
+                <div className='flex flex-col gap-1 w-[140px]'>
                     <div className='flex justify-between items-center'>
                         <Typography variant='caption' color='text.secondary'>Slots</Typography>
                         <Typography variant='caption' className={isFull ? 'text-error font-bold' : 'text-primary font-bold'}>{current} / {max}</Typography>
                     </div>
-                    <LinearProgress variant='determinate' value={progress} color={isFull ? 'error' : 'primary'} className='bs-1.5 rounded-sm'/>
+                    <LinearProgress variant='determinate' value={progress} color={isFull ? 'error' : 'primary'} className='h-1.5 rounded-sm'/>
                 </div>
             )
         }
@@ -130,57 +121,45 @@ const ScheduleListTable = ({
         header: 'Status',
         cell: ({ row }) => {
             const isFull = row.original.registeredPatientCount >= row.original.maxPatientCount
-            const isClosed = row.original.status !== 'ACTIVE' && row.original.isActive === false
+            const isClosed = row.original.status.code !== 'ACTIVE' && row.original.isBookingOpen === false
+
             if (isClosed) return <Chip label='Closed' color='error' size='small' variant='tonal' />
             if (isFull) return <Chip label='Full' color='warning' size='small' variant='tonal' />
-            return <Chip label='Open' color='success' size='small' variant='tonal' />
+            
+return <Chip label='Open' color='success' size='small' variant='tonal' />
         }
+      }),
+      columnHelper.display({
+        id: 'actions',
+        header: 'Action',
+        cell: ({ row }) => (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Button
+              variant='contained'
+              color='primary'
+              size='small'
+              disabled={row.original.status.code !== 'ACTIVE' || row.original.isBookingOpen === false || row.original.registeredPatientCount >= row.original.maxPatientCount}
+              onClick={() => onBookNow(row.original.id!)}
+            >
+              Book Now
+            </Button>
+          </div>
+        )
       })
     ],
     [onBookNow]
   )
 
-  const table = useReactTable({
-    data, columns, pageCount: Math.ceil(totalRows / pagination.pageSize),
-    state: { pagination }, manualPagination: true,
-    onPaginationChange: setPagination, getCoreRowModel: getCoreRowModel(),
-    filterFns: {} as any
-  })
-
   return (
-    <Card>
-      <div className='overflow-x-auto'>
-        <table className={tableStyles.table}>
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {isLoading ? (
-                <tr><td colSpan={columns.length} className='text-center py-10'><LinearProgress /></td></tr>
-            ) : table.getRowModel().rows.length === 0 ? (
-              <tr><td colSpan={columns.length} className='text-center py-10'><Typography color='text.secondary'>No schedules found.</Typography></td></tr>
-            ) : (
-              table.getRowModel().rows.map(row => (
-                <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                  {row.getVisibleCells().map(cell => (<td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      <TablePagination
-        component='div' count={totalRows} rowsPerPage={pagination.pageSize} page={pagination.pageIndex}
-        onPageChange={(_, page) => setPagination((prev: any) => ({ ...prev, pageIndex: page }))}
-        onRowsPerPageChange={e => setPagination({ pageIndex: 0, pageSize: Number(e.target.value) })}
-      />
-    </Card>
+    <SimpleCommonTable<DoctorScheduleDTO>
+      data={data}
+      columns={columns}
+      isLoading={isLoading}
+      manualPagination={true}
+      totalItems={totalRows}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+    />
   )
 }
 
@@ -188,6 +167,7 @@ const ScheduleListTable = ({
 // MAIN COMPONENT
 // =============================================================================
 const PublicScheduleManager = () => {
+  const [mounted, setMounted] = useState(false)
   const [schedules, setSchedules] = useState<DoctorScheduleDTO[]>([])
   const [loading, setLoading] = useState(false)
   const [totalRows, setTotalRows] = useState(0)
@@ -196,8 +176,13 @@ const PublicScheduleManager = () => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 5 })
   const [filters, setFilters] = useState({ doctorName: '', specialization: '', date: '' })
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const fetchSchedules = useCallback(async () => {
     setLoading(true)
+
     try {
       const response = await doctorSheduleService.getUpcomingSchedules({
         page: pagination.pageIndex, 
@@ -233,6 +218,8 @@ const PublicScheduleManager = () => {
     console.log("Book Schedule ID:", id)
     toast.info(`Booking initiated for Schedule #${id}`)
   }
+
+  if (!mounted) return null
 
   return (
     <div className='flex flex-col gap-6'>

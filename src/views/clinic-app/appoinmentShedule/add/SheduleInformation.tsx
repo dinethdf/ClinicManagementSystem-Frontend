@@ -1,5 +1,7 @@
 'use client'
 
+import { useParams, useRouter } from 'next/navigation'
+
 // MUI Imports
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
@@ -18,11 +20,16 @@ import AsyncAutocomplete from '@/components/form-components/AsyncAutocompletePro
 
 import SheduleVariants from './SheduleVariants'
 
-import type {Doctor, DoctorSchedule, DoctorScheduleDTO } from '@/types/doctor.types'
+import type {Doctor, DoctorSchedule, DoctorScheduleCreateDTO } from '@/types/doctor.types'
 
 import { doctorService } from '@/services/doctor/doctor.service';
+import { useAuth } from '@/contexts/ClientAuthContextProvider';
 
-const SheduleInformation = ({role}: { role: string }) => {
+const SheduleInformation = () => {
+  const { user } = useAuth();
+  const role = user?.role;
+  const router = useRouter()
+  const params = useParams()
   
   const methods = useForm<DoctorSchedule>({
     defaultValues: {
@@ -44,7 +51,7 @@ const onSubmit = async (data: DoctorSchedule) => {
     return;
   }
 
-  const payload : DoctorScheduleDTO[] = data.schedules.map(schedule => ({
+  const payload : DoctorScheduleCreateDTO[] = data.schedules.map(schedule => ({
     doctorId: data?.doctor?.id ? data?.doctor?.id : 0,
     scheduleDate: schedule.date,
     startTime: schedule.startTime,
@@ -57,11 +64,15 @@ const onSubmit = async (data: DoctorSchedule) => {
   
   try {
 
-    await doctorService.createBatchSchedules(payload);
+    const result = await doctorService.createBatchSchedules(payload);
+
     reset();
     
     toast.success("Schedules published successfully!");
     
+    if (result && result.length > 0) {
+      router.push(`/${params.lang}/clinic/appoinment-shedule/details/${result[0].id}`);
+    }
 
   } catch (error:any) {
     toast.error(error.message || "An unknown error occurred.");

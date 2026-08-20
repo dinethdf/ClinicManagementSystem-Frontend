@@ -3,6 +3,8 @@
 // React Imports
 import { useState, useEffect } from 'react'
 
+import { useRouter } from 'next/navigation'
+
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -37,6 +39,7 @@ declare module '@tanstack/table-core' {
   interface FilterFns {
     fuzzy: FilterFn<unknown>
   }
+
 //   interface FilterMeta {
 //     itemRank: any
 //   }
@@ -45,8 +48,10 @@ declare module '@tanstack/table-core' {
 // --- Helper: Fuzzy Filter ---
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   const itemRank = rankItem(row.getValue(columnId), value)
+
   addMeta({ itemRank })
-  return itemRank.passed
+  
+return itemRank.passed
 }
 
 // --- Helper: Debounced Input ---
@@ -70,7 +75,9 @@ const DebouncedInput = ({
     const timeout = setTimeout(() => {
       onChange(value)
     }, debounce)
-    return () => clearTimeout(timeout)
+
+    
+return () => clearTimeout(timeout)
   }, [value, debounce, onChange])
 
   return (
@@ -96,6 +103,16 @@ interface SimpleCommonTableProps<T> {
   // Slots for Buttons/Filters
   actions?: React.ReactNode // Left side (e.g. Create Button)
   filters?: React.ReactNode // Right side (e.g. Status Dropdown)
+  // --- ROW CLICK PROPS ---
+  baseRowUrl?: string
+  getRowUrlParam?: (row: T) => string | number
+  onRowClick?: (row: T) => void
+
+  // --- MANUAL PAGINATION PROPS (Optional) ---
+  manualPagination?: boolean
+  totalItems?: number
+  pagination?: { pageIndex: number; pageSize: number }
+  onPaginationChange?: (pagination: { pageIndex: number; pageSize: number }) => void
 }
 
 // --- The Component ---
@@ -106,12 +123,39 @@ const SimpleCommonTable = <T,>({
   error = null,
   searchPlaceholder = 'Search...',
   actions,
-  filters
+  filters,
+  baseRowUrl,
+  getRowUrlParam,
+  onRowClick,
+  manualPagination = false,
+  totalItems,
+  pagination,
+  onPaginationChange
 }: SimpleCommonTableProps<T>) => {
   
+  const router = useRouter()
+
   // States
   const [globalFilter, setGlobalFilter] = useState('')
   const [rowSelection, setRowSelection] = useState({})
+  
+  // Internal pagination state for client-side mode
+  const [internalPagination, setInternalPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10
+  })
+
+  const currentPagination = manualPagination && pagination ? pagination : internalPagination;
+
+  const handlePaginationChange = (updater: any) => {
+    if (manualPagination && onPaginationChange) {
+       const newState = typeof updater === 'function' ? updater(pagination) : updater;
+
+       onPaginationChange(newState);
+    } else {
+       setInternalPagination(updater);
+    }
+  }
 
   // TanStack Table Instance
   const table = useReactTable({
@@ -120,13 +164,12 @@ const SimpleCommonTable = <T,>({
     filterFns: { fuzzy: fuzzyFilter },
     state: {
       rowSelection,
-      globalFilter
+      globalFilter,
+      pagination: currentPagination
     },
-    initialState: {
-      pagination: {
-        pageSize: 10
-      }
-    },
+    manualPagination,
+    rowCount: manualPagination ? totalItems : undefined,
+    onPaginationChange: handlePaginationChange,
     enableRowSelection: true,
     globalFilterFn: fuzzyFilter,
     onRowSelectionChange: setRowSelection,
@@ -230,7 +273,23 @@ const SimpleCommonTable = <T,>({
               </tr>
             ) : (
               table.getRowModel().rows.map(row => (
-                <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                <tr 
+                  key={row.id} 
+                  className={classnames(
+                    { selected: row.getIsSelected() },
+                    { 'cursor-pointer': (baseRowUrl || onRowClick) }
+                  )}
+                  onClick={() => {
+                    if (onRowClick) {
+                      onRowClick(row.original as T);
+                    } else if (baseRowUrl) {
+                      const param = getRowUrlParam ? getRowUrlParam(row.original as T) : '';
+                      const url = param ? `${baseRowUrl}/${param}` : baseRowUrl;
+
+                      router.push(url);
+                    }
+                  }}
+                >
                   {row.getVisibleCells().map(cell => (
                     <td key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -246,7 +305,7 @@ const SimpleCommonTable = <T,>({
       {/* --- PAGINATION AREA (Standard MUI) --- */}
       <TablePagination
         component="div"
-        count={table.getFilteredRowModel().rows.length}
+        count={manualPagination && totalItems !== undefined ? totalItems : table.getFilteredRowModel().rows.length}
         rowsPerPage={table.getState().pagination.pageSize}
         page={table.getState().pagination.pageIndex}
         onPageChange={(_, page) => table.setPageIndex(page)}

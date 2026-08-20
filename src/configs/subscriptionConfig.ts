@@ -39,7 +39,10 @@ export const SUBSCRIPTION_FEATURES: Record<SubscriptionType, Feature[]> = {
 // 4. Helper Function to check permissions
 export const hasPermission = (userSub: string | undefined, feature: Feature): boolean => {
   if (!userSub) return false
+
   // Default to empty array if subscription type is unknown
   const allowedFeatures = SUBSCRIPTION_FEATURES[userSub as SubscriptionType] || []
-  return allowedFeatures.includes(feature)
+
+  
+return allowedFeatures.includes(feature)
 }

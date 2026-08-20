@@ -9,6 +9,7 @@ const PublicQueueTrackerPage = async () => {
 
     return (
       "Remove Comp"
+
       // <AppointmentBill 
       //   scheduleId={102} 
       //   queueNo={5}

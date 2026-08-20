@@ -58,8 +58,10 @@ const AppointmentRight = ({ appointmentData }: { appointmentData: AppointmentDet
         } else {
              setPrescriptionError(res.error?.message || "Failed to load prescription.")
         }
+
         setPrescription(null)
       }
+
       setLoadingPrescription(false)
     }
 

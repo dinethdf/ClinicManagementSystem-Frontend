@@ -1,56 +1,30 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
-import Checkbox from '@mui/material/Checkbox'
 import IconButton from '@mui/material/IconButton'
 import Chip from '@mui/material/Chip'
-import TablePagination from '@mui/material/TablePagination'
-import Tooltip from '@mui/material/Tooltip' // Added for dense info
+import Tooltip from '@mui/material/Tooltip'
 
-import classnames from 'classnames'
-import { rankItem } from '@tanstack/match-sorter-utils'
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel
-} from '@tanstack/react-table'
-import type { ColumnDef, FilterFn, PaginationState } from '@tanstack/react-table'
-import type { RankingInfo } from '@tanstack/match-sorter-utils'
+import { createColumnHelper } from '@tanstack/react-table'
+import type { ColumnDef, PaginationState } from '@tanstack/react-table'
 
 import { useDispatch, useSelector } from 'react-redux'
+
 import type { AppDispatch, RootState } from '@/redux-store'
 import { fetchDoctorSchedules } from '@/redux-store/slices/doctorDashboardSlice'
 
 import OptionMenu from '@core/components/option-menu'
-import tableStyles from '@core/styles/table.module.css'
+import SimpleCommonTable from '@/components/common-components/table/simpleDataTable/SimpleCommonTable'
 import { getLocalizedUrl } from '@/utils/i18n'
 import { encodeHideValue } from '@/utils/encode'
 import type { Locale } from '@/configs/i18n'
-import { ScheduleDTO } from '@/types/doctor.types'
-
-declare module '@tanstack/table-core' {
-  interface FilterFns {
-    fuzzy: FilterFn<unknown>
-  }
-  interface FilterMeta {
-    itemRank: RankingInfo
-  }
-}
-
-const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
-  const itemRank = rankItem(row.getValue(columnId), value)
-  addMeta({ itemRank })
-  return itemRank.passed
-}
+import type { ScheduleDTO } from '@/types/doctor.types'
 
 const columnHelper = createColumnHelper<ScheduleDTO>()
 
@@ -63,9 +37,6 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
   const { schedules, scheduleStatus, totalSchedules } = useSelector((state: RootState) => state.doctorDashboard)
 
   // -- Local State --
-  const [rowSelection, setRowSelection] = useState({})
-  const [globalFilter, setGlobalFilter] = useState('')
-  
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 6 
@@ -85,36 +56,12 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
   // -- Column Definitions --
   const columns = useMemo<ColumnDef<ScheduleDTO, any>[]>(
     () => [
-      {
-        id: 'select',
-        header: ({ table }) => (
-          <Checkbox
-            {...{
-              checked: table.getIsAllRowsSelected(),
-              indeterminate: table.getIsSomeRowsSelected(),
-              onChange: table.getToggleAllRowsSelectedHandler()
-            }}
-          />
-        ),
-        cell: ({ row }) => (
-          <Checkbox
-            {...{
-              checked: row.getIsSelected(),
-              disabled: !row.getCanSelect(),
-              indeterminate: row.getIsSomeSelected(),
-              onChange: row.getToggleSelectedHandler()
-            }}
-          />
-        )
-      },
       columnHelper.accessor('id', {
         header: 'ID',
         cell: ({ row }) => (
           <Typography
-            component={Link}
-            href={getLocalizedUrl(`clinic/financial/doctor-payment/details/${encodeHideValue(row.original.id)}`, locale as Locale)}
             color='primary.main'
-            className='font-medium hover:underline'
+            className='font-medium'
           >{`#${row.original.id}`}</Typography>
         )
       }),
@@ -131,7 +78,6 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
             </div>
         )
       }),
-      // New: Combined Fee Column
       columnHelper.accessor('doctorFee', {
         header: 'Fees',
         cell: ({ row }) => (
@@ -139,7 +85,6 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
                 <Typography variant='body2' className='font-medium'>
                     LKR {(row.original.doctorFee + row.original.clinicFee).toLocaleString()}
                 </Typography>
-                {/* Optional: Payout Status Pill below the fee */}
                 {row.original.payoutStatus && (
                      <div className='flex items-center gap-1 mt-0.5'>
                         <span className='h-2 w-2 rounded-full' style={{ backgroundColor: row.original.payoutStatus.colorCode }}></span>
@@ -169,7 +114,6 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
                         }} 
                         size='small' 
                     />
-                    {/* Booking Open/Closed Indicator */}
                      <Typography 
                         variant='caption' 
                         className={`font-bold text-[10px] ${row.original.isBookingOpen ? 'text-success' : 'text-error'}`}
@@ -192,7 +136,6 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
                     {Math.round((row.original.registeredPatientCount / row.original.maxPatientCount) * 100)}%
                  </Typography>
              </div>
-             {/* Simple visual bar */}
              <div className='w-full h-1.5 bg-gray-200 rounded-full mt-1 overflow-hidden'>
                 <div 
                     className='h-full bg-primary' 
@@ -206,7 +149,7 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
         id: 'action',
         header: 'Action',
         cell: ({ row }) => (
-          <div className='flex items-center'>
+          <div className='flex items-center' onClick={(e) => e.stopPropagation()}>
             <Tooltip title="Finish Schedule">
                 <IconButton size='small'>
                 <Link
@@ -229,7 +172,7 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
                 {
                   text: 'Cancel Schedule',
                   icon: 'tabler-ban',
-                  menuItemProps: { className: 'flex items-center gap-2 text-error' } // Highlight cancel in red
+                  menuItemProps: { className: 'flex items-center gap-2 text-error' } 
                 }
               ]}
             />
@@ -241,101 +184,18 @@ const ShedulesByDoctorListTable = ({ doctorId }: { doctorId: number }) => {
     [locale]
   )
 
-  const table = useReactTable({
-    data: schedules || [],
-    columns,
-    manualPagination: true,
-    rowCount: totalSchedules,
-    state: {
-      rowSelection,
-      globalFilter,
-      pagination
-    },
-    enableRowSelection: true,
-    globalFilterFn: fuzzyFilter,
-    onRowSelectionChange: setRowSelection,
-    getCoreRowModel: getCoreRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
-    onPaginationChange: setPagination,
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    filterFns: {} as any
-  })
-
   return (
     <Card>
-      <div className='overflow-x-auto'>
-        <table className={tableStyles.table}>
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th key={header.id}>
-                    {header.isPlaceholder ? null : (
-                      <div
-                        className={classnames({
-                          'flex items-center': header.column.getIsSorted(),
-                          'cursor-pointer select-none': header.column.getCanSort()
-                        })}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {{
-                          asc: <i className='tabler-chevron-up text-xl' />,
-                          desc: <i className='tabler-chevron-down text-xl' />
-                        }[header.column.getIsSorted() as 'asc' | 'desc'] ?? null}
-                      </div>
-                    )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          
-          {scheduleStatus === 'loading' ? (
-              <tbody>
-                <tr>
-                  <td colSpan={columns.length} className='text-center p-4'>
-                    <Typography>Loading schedules...</Typography>
-                  </td>
-                </tr>
-              </tbody>
-          ) : table.getRowModel().rows.length === 0 ? (
-            <tbody>
-              <tr>
-                <td colSpan={columns.length} className='text-center p-4'>
-                  No schedules found
-                </td>
-              </tr>
-            </tbody>
-          ) : (
-            <tbody>
-              {table.getRowModel().rows.map(row => {
-                  return (
-                    <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                      {row.getVisibleCells().map(cell => (
-                        <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                      ))}
-                    </tr>
-                  )
-                })}
-            </tbody>
-          )}
-        </table>
-      </div>
-      
-      <TablePagination
-        component="div"
-        count={totalSchedules || 0}
-        rowsPerPage={table.getState().pagination.pageSize}
-        page={table.getState().pagination.pageIndex}
-        onPageChange={(_, page) => {
-          table.setPageIndex(page)
-        }}
-        onRowsPerPageChange={e => table.setPageSize(Number(e.target.value))}
-        rowsPerPageOptions={[6, 10, 25, 50]}
-        labelRowsPerPage="Rows per page:"
+      <SimpleCommonTable<ScheduleDTO>
+        data={schedules || []}
+        columns={columns}
+        isLoading={scheduleStatus === 'loading'}
+        baseRowUrl={getLocalizedUrl('clinic/financial/doctor-payment/details', locale as Locale)}
+        getRowUrlParam={(row) => encodeHideValue(row.id)}
+        manualPagination={true}
+        totalItems={totalSchedules || 0}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
     </Card>
   )

@@ -14,7 +14,8 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 export async function getHealthProfile() {
   await delay(500);
-  return {
+  
+return {
     allergies: [
       { id: 1, substance: "Penicillin", severity: 'CRITICAL', reaction: "Anaphylaxis" },
       { id: 2, substance: "Peanuts", severity: 'MODERATE', reaction: "Hives" }
@@ -32,7 +33,8 @@ export async function getHealthProfile() {
 
 export async function getPrescriptions() {
   await delay(800);
-  return [
+  
+return [
     {
       id: 501,
       doctorName: "Dr. Sarah Perera",
@@ -57,7 +59,8 @@ export async function getPrescriptions() {
 
 export async function getLabReports() {
   await delay(600);
-  return [
+  
+return [
     { 
       id: 901, testName: "Full Blood Count (FBC)", testCode: "LAB-001", 
       doctorName: "Dr. Sarah Perera", requestDate: "2025-12-28", completedDate: "2025-12-29",

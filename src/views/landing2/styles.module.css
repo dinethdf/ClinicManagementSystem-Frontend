@@ -1,0 +1,42 @@
+.heroSection {
+  background: linear-gradient(135deg, var(--mui-palette-primary-lightOpacity) 0%, rgba(255, 255, 255, 0) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.featureIconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 1.5rem;
+  background-color: var(--mui-palette-primary-lightOpacity);
+  color: var(--mui-palette-primary-main);
+  font-size: 2rem;
+}
+
+.featureCard {
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid var(--mui-palette-divider);
+  background-color: var(--mui-palette-background-paper);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.featureCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px var(--mui-palette-primary-lightOpacity);
+  border-color: var(--mui-palette-primary-main);
+}
+
+.ctaSection {
+  background-color: var(--mui-palette-primary-main);
+  color: white;
+  border-radius: 24px;
+  padding: 4rem 2rem;
+  text-align: center;
+  margin: 4rem 1.5rem;
+}

@@ -42,6 +42,7 @@ export async function getPrescriptionByAppointment(appointmentId: number) {
     }
     
     console.error('Unexpected error in getPrescription:', err);
-    return { success: false, error: { message: 'An unknown server error occurred.' } };
+    
+return { success: false, error: { message: 'An unknown server error occurred.' } };
   }
 }
