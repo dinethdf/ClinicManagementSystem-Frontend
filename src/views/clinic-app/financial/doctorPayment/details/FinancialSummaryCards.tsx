@@ -31,9 +31,9 @@ const FinancialSummaryCards = ({ data }: { data: FinancialScheduleItem[] }) => {
 
       {/* 1. Total Collected */}
       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-        <Card>
+        <Card className='hover:shadow-md transition-shadow'>
           <CardContent className='flex items-center gap-4'>
-            <Avatar variant='rounded' className='bg-primary/10 text-primary h-12 w-12'>
+            <Avatar variant='rounded' className='bg-primary/15 text-primary h-12 w-12'>
               <i className='tabler-cash text-2xl' />
             </Avatar>
             <div className='flex flex-col'>
@@ -51,9 +51,9 @@ const FinancialSummaryCards = ({ data }: { data: FinancialScheduleItem[] }) => {
 
       {/* 2. Doctor Payout */}
       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-        <Card>
+        <Card className='hover:shadow-md transition-shadow'>
           <CardContent className='flex items-center gap-4'>
-            <Avatar variant='rounded' className='bg-info/10 text-info h-12 w-12'>
+            <Avatar variant='rounded' className='bg-info/15 text-info h-12 w-12'>
               <i className='tabler-stethoscope text-2xl' />
             </Avatar>
             <div className='flex flex-col'>
@@ -71,9 +71,9 @@ const FinancialSummaryCards = ({ data }: { data: FinancialScheduleItem[] }) => {
 
       {/* 3. Clinic Profit */}
       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-        <Card>
+        <Card className='hover:shadow-md transition-shadow'>
           <CardContent className='flex items-center gap-4'>
-            <Avatar variant='rounded' className='bg-success/10 text-success h-12 w-12'>
+            <Avatar variant='rounded' className='bg-success/15 text-success h-12 w-12'>
               <i className='tabler-building-hospital text-2xl' />
             </Avatar>
             <div className='flex flex-col'>
@@ -91,9 +91,9 @@ const FinancialSummaryCards = ({ data }: { data: FinancialScheduleItem[] }) => {
 
       {/* 4. Outstanding Balances */}
       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-        <Card>
+        <Card className='hover:shadow-md transition-shadow border border-transparent hover:border-warning/50'>
           <CardContent className='flex items-center gap-4'>
-            <Avatar variant='rounded' className='bg-warning/10 text-warning h-12 w-12'>
+            <Avatar variant='rounded' className='bg-warning/15 text-warning h-12 w-12'>
               <i className='tabler-alert-circle text-2xl' />
             </Avatar>
             <div className='flex flex-col'>

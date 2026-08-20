@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -47,6 +47,7 @@ const getRowState = (row: FinancialScheduleItem) => {
 
 const FinancialDoctorDetailsCard = ({ data }: { data: FinancialScheduleItem[] }) => {
   const [rowSelection, setRowSelection] = useState({})
+  const [expandedRowId, setExpandedRowId] = useState<number | null>(null)
 
   const totals = useMemo(() => {
     return data.reduce((acc, curr) => {
@@ -117,20 +118,18 @@ const FinancialDoctorDetailsCard = ({ data }: { data: FinancialScheduleItem[] })
     columnHelper.accessor('paymentStatus', {
       header: 'Payment Status',
       cell: ({ row }) => {
-        const code = row.original.paymentStatusCode
-        let chipColor: 'success' | 'warning' | 'error' | 'default' = 'default'
-        
-        if (code === 'PAID') chipColor = 'success'
-        else if (code === 'PARTIAL') chipColor = 'warning'
-        else if (code === 'UNPAID') chipColor = 'error'
-        else if (code === 'REFUNDED') chipColor = 'default'
+        const statusColor = row.original.paymentStatusColor || '#6c757d' // Fallback to gray if empty
 
         return (
           <Chip
             label={row.original.paymentStatus}
-            color={chipColor}
             size='small'
-            variant='tonal'
+            sx={{
+              backgroundColor: `${statusColor}20`, // 20% opacity background
+              color: statusColor,
+              border: `1px solid ${statusColor}40`,
+              fontWeight: 600
+            }}
           />
         )
       }
@@ -256,11 +255,81 @@ return state === 'CONFIRMED'
           </thead>
           <tbody className='border-be'>
             {table.getRowModel().rows.map(row => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map(cell => (
-                  <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                ))}
-              </tr>
+              <React.Fragment key={row.id}>
+                <tr 
+                  className='cursor-pointer hover:bg-actionHover transition-colors'
+                  onClick={() => setExpandedRowId(prev => prev === row.original.appointmentId ? null : row.original.appointmentId)}
+                >
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
+                </tr>
+                {expandedRowId === row.original.appointmentId && (
+                  <tr>
+                    <td colSpan={columns.length} className='!p-0 border-b-0'>
+                      <div className='bg-actionHover/50 p-4 border-y border-dashed border-divider'>
+                        <Grid container spacing={4}>
+                          <Grid item xs={12} sm={4}>
+                            <Typography variant='caption' color='text.secondary' className='uppercase font-semibold block mb-1'>
+                              Last Payment Details
+                            </Typography>
+                            {row.original.lastPaymentMethod ? (
+                              <div className='flex flex-col gap-1'>
+                                <div className='flex items-center gap-2'>
+                                  <i className='tabler-credit-card text-textSecondary' />
+                                  <Typography variant='body2' className='font-medium'>{row.original.lastPaymentMethod}</Typography>
+                                  <Chip label={row.original.lastPaymentLocation} size='small' variant='outlined' className='h-[20px] text-[10px]' />
+                                </div>
+                                <Typography variant='caption' color='text.secondary'>
+                                  {row.original.lastPaymentDate ? new Date(row.original.lastPaymentDate).toLocaleString() : 'N/A'}
+                                </Typography>
+                              </div>
+                            ) : (
+                              <Typography variant='body2' color='text.disabled'>No payments recorded</Typography>
+                            )}
+                          </Grid>
+                          
+                          <Grid item xs={12} sm={4}>
+                            <Typography variant='caption' color='text.secondary' className='uppercase font-semibold block mb-1'>
+                              Payment Progress
+                            </Typography>
+                            <div className='flex items-center gap-2 mb-1'>
+                              <div className='w-full bg-divider rounded-full h-1.5'>
+                                <div 
+                                  className='bg-primary h-1.5 rounded-full' 
+                                  style={{ width: `${Math.min(100, Math.max(0, row.original.paymentPercentage || 0))}%`, backgroundColor: row.original.paymentStatusColor }}
+                                ></div>
+                              </div>
+                              <Typography variant='caption' className='font-medium min-w-[30px] text-right'>
+                                {Math.round(row.original.paymentPercentage || 0)}%
+                              </Typography>
+                            </div>
+                            <Typography variant='caption' color='text.secondary'>
+                              {row.original.totalPayments} total payment{row.original.totalPayments !== 1 ? 's' : ''}
+                            </Typography>
+                          </Grid>
+                          
+                          <Grid item xs={12} sm={4}>
+                            <Typography variant='caption' color='text.secondary' className='uppercase font-semibold block mb-1'>
+                              Due Date
+                            </Typography>
+                            {row.original.paymentDueDate ? (
+                              <div className='flex items-center gap-2'>
+                                <i className='tabler-calendar text-textSecondary' />
+                                <Typography variant='body2' color={new Date(row.original.paymentDueDate) < new Date() && row.original.balanceRemaining > 0 ? 'error.main' : 'text.primary'}>
+                                  {new Date(row.original.paymentDueDate).toLocaleDateString()}
+                                </Typography>
+                              </div>
+                            ) : (
+                              <Typography variant='body2' color='text.disabled'>Not specified</Typography>
+                            )}
+                          </Grid>
+                        </Grid>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>

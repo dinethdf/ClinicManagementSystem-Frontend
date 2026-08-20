@@ -15,7 +15,11 @@ const SchedulePaymentDetails = ({ data, scheduleId }: { data: FinancialScheduleI
       
       {/* 1. Header Section */}
       <Grid size={{ xs: 12 }}>
-        <FinancialDoctorHeader scheduleId={scheduleId} itemCount={data.length} />
+        <FinancialDoctorHeader 
+          scheduleId={scheduleId} 
+          itemCount={data.length} 
+          paymentDueDate={data[0]?.paymentDueDate || null}
+        />
       </Grid>
 
       {/* 2. NEW: High-Level Summary Cards at the TOP */}
